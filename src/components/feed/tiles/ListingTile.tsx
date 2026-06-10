@@ -1,5 +1,6 @@
 import type { FeedItem } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
+import { TileMedia } from "../TileMedia";
 
 export function ListingTile({ item }: { item: FeedItem }) {
   return (
@@ -15,6 +16,7 @@ export function ListingTile({ item }: { item: FeedItem }) {
         </span>
       </header>
       <p className="mt-1 font-medium">{item.title}</p>
+      <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
     </Card>
   );
 }

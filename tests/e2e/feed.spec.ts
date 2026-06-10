@@ -19,3 +19,15 @@ test("Following / For-You toggle updates the url", async ({ page }) => {
   await page.getByRole("tab", { name: "For You" }).click();
   await expect(page).toHaveURL(/tab=for_you/);
 });
+
+test("tiles render media images", async ({ page }) => {
+  await expect(page.locator('[data-testid="tile-media"]').first()).toBeVisible();
+});
+
+test("For You ordering differs from Following", async ({ page }) => {
+  const firstFollowing = await page.locator('[data-testid="feed-list"] > *').first().innerText();
+  await page.getByRole("tab", { name: "For You" }).click();
+  await expect(page).toHaveURL(/tab=for_you/);
+  const firstForYou = await page.locator('[data-testid="feed-list"] > *').first().innerText();
+  expect(firstForYou).not.toEqual(firstFollowing);
+});

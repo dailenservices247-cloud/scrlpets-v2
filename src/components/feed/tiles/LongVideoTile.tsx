@@ -1,5 +1,6 @@
 import type { FeedItem } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
+import { TileMedia } from "../TileMedia";
 
 export function LongVideoTile({ item }: { item: FeedItem }) {
   return (
@@ -13,6 +14,7 @@ export function LongVideoTile({ item }: { item: FeedItem }) {
         <span className="eyebrow">Video</span>
       </header>
       <p className="mt-1">{item.title}</p>
+      <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
     </Card>
   );
 }

@@ -24,8 +24,15 @@ export function rowToFeedItem(r: Row): FeedItem {
 
 export type FeedTab = "following" | "for_you";
 
-/** Slice 1: both tabs return the same recent feed (Following/For-You ranking deferred). */
-export async function getFeed(_tab: FeedTab): Promise<FeedItem[]> {
+/** Deterministic string hash — stable For-You ordering without a ranker (real ranking deferred). */
+export function hashId(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+/** Following = chronological. For You = stable hash shuffle (placeholder until real ranking). */
+export async function getFeed(tab: FeedTab): Promise<FeedItem[]> {
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -34,5 +41,7 @@ export async function getFeed(_tab: FeedTab): Promise<FeedItem[]> {
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) throw error;
-  return (data as Row[]).map(rowToFeedItem);
+  const items = (data as Row[]).map(rowToFeedItem);
+  if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
+  return items;
 }
