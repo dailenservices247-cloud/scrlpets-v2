@@ -1,0 +1,71 @@
+/* Brand House v1 tokens — generated 2026-06-10 from brand-house-v1.md (canonical doc wins conflicts).
+   Block A: raw brand custom properties (any surface).
+   Block B: shadcn/Tailwind HSL mapping for Scrlpets v2 (paste into globals.css @layer base). */
+
+/* ===== Block A — raw brand tokens (post wine/gold swap) ===== */
+:root {
+  --brand-shell: #3a3b3d;
+  --brand-shell-deep: #2a2a2d;
+  --brand-cream: #efede5;
+  --brand-cream-deep: #e0ddd0;
+
+  --brand-wine: #7e303a;        /* PRIMARY accent — fills/badges/CTAs */
+  --brand-wine-bright: #a0414e; /* hover / live */
+  --brand-wine-text: #e09aa4;   /* links/eyebrows on dark — AA pass */
+  --brand-on-wine: #f3cdd3;     /* text on wine fills */
+
+  --brand-gold: #c8a23e;        /* RESERVE accent — loyalty/premium chips only */
+  --brand-gold-bright: #d8b85a;
+
+  --brand-spine: #2a6055;       /* verification/integrity surfaces */
+  --brand-spine-bright: #347466;
+
+  --brand-ink-strong: #ffffff;
+  --brand-ink: #efede5;
+  --brand-ink-muted: #9b9b96;
+  --brand-ink-dim: #6c6c69;
+
+  --brand-border-subtle: #4a4b4d;
+  --brand-border-strong: #5c5d5f;
+
+  --brand-destructive: #e24b4a; /* never wine for errors */
+
+  --brand-gradient-blaze: linear-gradient(135deg, #2a6055, #347466, #7e303a);
+  --brand-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --brand-shadow-mid: 0 8px 20px rgba(0, 0, 0, 0.32);
+}
+
+/* ===== Block B — shadcn mapping, Scrlpets v2 dark base (HSL triplets) =====
+   Derived from Block A hex; if a value looks off in situ, Block A hex is truth. */
+:root {
+  --background: 240 3% 17%;          /* shell-deep #2a2a2d */
+  --foreground: 48 24% 92%;          /* cream #efede5 */
+
+  --card: 220 3% 23%;                /* shell #3a3b3d */
+  --card-foreground: 48 24% 92%;
+  --popover: 240 3% 17%;
+  --popover-foreground: 48 24% 92%;
+
+  --primary: 352 45% 34%;            /* wine #7e303a */
+  --primary-foreground: 351 61% 88%; /* on-wine #f3cdd3 */
+
+  --secondary: 168 39% 27%;          /* spine #2a6055 — verification surfaces */
+  --secondary-foreground: 160 33% 88%;
+
+  --muted: 220 3% 23%;
+  --muted-foreground: 60 2% 60%;     /* ink-muted #9b9b96 */
+
+  --accent: 43 56% 51%;              /* gold #c8a23e — RESERVE, chips only */
+  --accent-foreground: 43 60% 12%;
+
+  --destructive: 0 72% 59%;          /* #e24b4a */
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 220 2% 30%;              /* border-subtle #4a4b4d */
+  --input: 220 2% 30%;
+  --ring: 352 42% 44%;               /* wine-bright #a0414e */
+
+  --radius: 0.5rem;
+}
+/* Link/eyebrow color is NOT a shadcn slot — use utility:
+   .text-brand-link { color: var(--brand-wine-text); }  (AA on shell + shell-deep) */
