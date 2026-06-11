@@ -1,25 +1,33 @@
-/* Scrlpets wordmark — "scroll-tail S" (Brand House v1.1, locked 2026-06-11).
-   The S terminates in a curl that reads as both a scroll and a tail.
-   S = inline SVG (scales crisp); letterforms = real text (Geist, i18n-safe). */
+/* Scrlpets wordmark — "double-scroll S" v2 (Brand House v1.2, locked 2026-06-11).
+   Both ends of the S curl inward in opposite directions: the cross-section of a
+   parchment scroll, which happens to BE an S. Matches the Gemini-rendered mark
+   (public/brand/scrlpets-mark-full.png). S = inline SVG; letterforms = real text. */
 
 export function ScrollS({ size = 28 }: { size?: number }) {
   return (
     <svg
-      viewBox="0 0 44 60"
-      width={(size * 44) / 60}
+      viewBox="0 0 48 64"
+      width={(size * 48) / 64}
       height={size}
       aria-hidden="true"
       focusable="false"
     >
       <path
-        d="M 36 12 C 32 5, 19 3, 12 9 C 5 15, 8 23, 16 26 C 25 29, 35 31, 37 40 C 39 50, 29 57, 19 55 C 12.5 53.6, 8.5 48.5, 9.5 43.5"
+        d="M 40 16 C 40 8, 30 3, 20 6 C 11 9, 8 17, 14 23 C 20 29, 32 30, 36 38 C 40 47, 33 56, 22 56 C 13 56, 8 50, 8 44"
         fill="none"
         stroke="#7e303a"
-        strokeWidth="7"
+        strokeWidth="6.5"
         strokeLinecap="round"
       />
       <path
-        d="M 9.5 43.5 C 10.5 39.5, 16 39.5, 16.5 43.5 C 16.9 46.7, 13 48.2, 11.2 46"
+        d="M 40 16 C 40 21, 34 22, 32 18 C 30.5 14.8, 34 11.5, 37 13.5"
+        fill="none"
+        stroke="#a0414e"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 8 44 C 8 39, 14 38, 16 42 C 17.5 45.2, 14 48.5, 11 46.5"
         fill="none"
         stroke="#a0414e"
         strokeWidth="5"
@@ -33,7 +41,7 @@ export function Wordmark({ size = 24 }: { size?: number }) {
   return (
     <span className="inline-flex items-baseline" data-testid="wordmark">
       <span className="self-center">
-        <ScrollS size={size * 1.25} />
+        <ScrollS size={size * 1.3} />
       </span>
       <span
         className="font-semibold tracking-tight text-foreground"
