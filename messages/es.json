@@ -1,5 +1,8 @@
 {
-  "app": { "title": "Scrlpets", "signIn": "Iniciar sesión" },
+  "app": {
+    "title": "Scrlpets",
+    "signIn": "Iniciar sesión"
+  },
   "feed": {
     "following": "Siguiendo",
     "forYou": "Para ti",
@@ -29,5 +32,21 @@
     "errorRequired": "Faltan campos obligatorios.",
     "errorPrice": "Ingresa un precio válido.",
     "success": "¡Publicado!"
+  },
+  "profile": {
+    "tabPosts": "Publicaciones",
+    "tabPets": "Mascotas",
+    "tabAbout": "Acerca de",
+    "noPosts": "Aún no hay publicaciones.",
+    "noPets": "Aún no hay mascotas.",
+    "noBio": "Aún sin biografía.",
+    "edit": "Editar perfil",
+    "displayName": "Nombre",
+    "bio": "Biografía",
+    "avatar": "Avatar",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "memberSince": "Miembro desde {date}",
+    "notFound": "No encontrado"
   }
 }
