@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Wordmark } from "@/components/brand/Wordmark";
 import { getFeed, type FeedTab } from "@/lib/feed/query";
 import { getSessionUser } from "@/lib/auth/session";
 import { FeedTabs } from "@/components/feed/FeedTabs";
@@ -19,7 +20,9 @@ export default async function HomePage({
     <main>
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur p-3 border-b">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-lg font-bold">{t("title")}</h1>
+          <h1>
+            <Wordmark size={20} />
+          </h1>
           {user ? (
             <Link
               href="/compose"

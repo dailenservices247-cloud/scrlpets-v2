@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Wordmark } from "@/components/brand/Wordmark";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,7 +42,9 @@ export default function LoginPage() {
 
   return (
     <main className="p-6 flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Scrlpets</h1>
+      <h1>
+        <Wordmark size={26} />
+      </h1>
       <form onSubmit={signInEmail} className="flex flex-col gap-3">
         <input
           className="rounded border border-input bg-transparent p-2"

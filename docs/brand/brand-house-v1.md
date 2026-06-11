@@ -93,9 +93,15 @@ BLACK SHEEP 247 (holding — internal only)
 - `brand-tokens-v1.css` (same folder) — two blocks: raw custom properties + a shadcn/Tailwind `:root` HSL mapping ready for **Scrlpets v2 Task 2** (paste into `globals.css`, then restyle = token swap only).
 - Slice-1 plan Task 2 references this file. SDS site consumes at retrofit time.
 
+## 6.5 Scrlpets logo — LOCKED v1.1 (2026-06-11, Dailen picked from 4 options)
+**The "scroll-tail S":** an S whose terminal curls into a spiral reading as both a scroll (scrl-) and a tail (-pets). Wine `#7e303a` stroke, curl accent `wine-bright #a0414e`, round caps. Lockup = S mark + "crlpets" in Geist 600 (real text, i18n-safe). Standalone S on shell-deep rounded square = app icon/favicon.
+- Assets: `Brand/assets/scrlpets-icon.svg` + `scrlpets-wordmark.tsx` (source of truth = `scrlpets-v2/src/components/brand/Wordmark.tsx` + `src/app/icon.svg`).
+- Rejected: dot-heritage (kept on marketing site until its refresh), paw (generic), shield-as-logo (shield lives on as the in-product emerald verification badge).
+
 ## 7. Banked (named unblocks)
 - SDS site wine-retrofit → next SDS-site work session.
-- Logo/wordmark system (Scrlpets mark, SDS monogram refresh) → dedicated design pass pre-slice-2 (per kickoff-design: visual lock does not gate slice 1).
+- SDS monogram refresh → SDS-site session (Scrlpets mark DONE 2026-06-11, see §6.5).
+- Marketing-site wordmark swap to scroll-tail S → next marketing-site touch.
 - Light-mode full mapping → when a light surface ships (marketing pages).
 - Motion language beyond baseline → slice-2 design pass.
 
