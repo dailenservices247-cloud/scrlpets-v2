@@ -93,10 +93,13 @@ BLACK SHEEP 247 (holding — internal only)
 - `brand-tokens-v1.css` (same folder) — two blocks: raw custom properties + a shadcn/Tailwind `:root` HSL mapping ready for **Scrlpets v2 Task 2** (paste into `globals.css`, then restyle = token swap only).
 - Slice-1 plan Task 2 references this file. SDS site consumes at retrofit time.
 
-## 6.5 Scrlpets logo — LOCKED v1.1 (2026-06-11, Dailen picked from 4 options)
-**The "scroll-tail S":** an S whose terminal curls into a spiral reading as both a scroll (scrl-) and a tail (-pets). Wine `#7e303a` stroke, curl accent `wine-bright #a0414e`, round caps. Lockup = S mark + "crlpets" in Geist 600 (real text, i18n-safe). Standalone S on shell-deep rounded square = app icon/favicon.
-- Assets: `Brand/assets/scrlpets-icon.svg` + `scrlpets-wordmark.tsx` (source of truth = `scrlpets-v2/src/components/brand/Wordmark.tsx` + `src/app/icon.svg`).
-- Rejected: dot-heritage (kept on marketing site until its refresh), paw (generic), shield-as-logo (shield lives on as the in-product emerald verification badge).
+## 6.5 Scrlpets logo system — LOCKED v1.2 (2026-06-11, two-mark system)
+**Mark 1 — "double-scroll S" (formal mark / favicon / wordmark):** S whose BOTH ends curl inward in opposite directions = the cross-section of a parchment scroll. Wine `#7e303a` spine, `wine-bright #a0414e` curls, round caps. v1's single-curl ("S with a ball") rejected by Dailen as generic. Lockup = S + "crlpets" in Geist 600 (real text, i18n-safe).
+**Mark 2 — "hamster wheel" (app icon / mascot / marketing):** cream hamster mid-run inside a wheel of 5 brand-color segments (wine/spine/gold/wine-bright/spine-bright), each carrying a species glyph (paw·bird·fish·gecko·insect — fish dark-on-gold), wine-text motion dashes, shell-deep tile. Wheel = scrolling + hamster wheel; segments = the 5 content types AND species breadth. Final art generated via Gemini from the Brand-House-constrained prompt (banked below); Dailen-approved 2026-06-11.
+- Assets: `Brand/assets/scrlpets-mark-full.png` (master art) · `scrlpets-icon.svg` (S favicon) · `scrlpets-wordmark.tsx`. In-repo: `public/brand/scrlpets-mark-full.png`, `src/app/{icon.svg,apple-icon.png,opengraph-image.tsx}`, `src/components/brand/Wordmark.tsx`.
+- Usage: favicon/header = S (legible at 16px) · home-screen/store/social/OG = hamster wheel · shield = in-product verification badge only.
+- Rejected: dot-heritage (marketing site keeps until refresh), paw-only (generic), shield-as-logo, single-curl S.
+- Regen prompt (for future variants, paste to any image model): flat vector app icon, dark charcoal tile #2a2a2d, cartoon hamster running in a wheel of five segments (#7e303a, #2a6055, #c8a23e, #a0414e, #347466) each with a white species icon (paw/bird/fish-dark-on-gold/gecko/insect), cream hamster #efede5 w/ gold belly #d8b85a + wine inner ears, rose motion dashes #e09aa4, "Scrlpets" below in geometric semibold cream with the S as a double-curled parchment scroll; avoid pastels/gradients/3D/sparkles.
 
 ## 7. Banked (named unblocks)
 - SDS site wine-retrofit → next SDS-site work session.
