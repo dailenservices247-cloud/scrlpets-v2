@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { getFeed, type FeedTab } from "@/lib/feed/query";
 import { getSessionUser } from "@/lib/auth/session";
 import { FeedTabs } from "@/components/feed/FeedTabs";
@@ -9,6 +10,7 @@ export default async function HomePage({
 }: {
   searchParams: Promise<{ tab?: string }>;
 }) {
+  const t = await getTranslations("app");
   const user = await getSessionUser(); // null = guest (feed is public per G1-A); seam stays federation-ready
   const { tab } = await searchParams;
   const feedTab: FeedTab = tab === "for_you" ? "for_you" : "following";
@@ -17,10 +19,18 @@ export default async function HomePage({
     <main>
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur p-3 border-b">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-lg font-bold">Scrlpets</h1>
-          {!user && (
+          <h1 className="text-lg font-bold">{t("title")}</h1>
+          {user ? (
+            <Link
+              href="/compose"
+              className="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground"
+              data-testid="compose-cta"
+            >
+              +
+            </Link>
+          ) : (
             <Link href="/login" className="text-sm underline text-brand-link" data-testid="signin-cta">
-              Sign in
+              {t("signIn")}
             </Link>
           )}
         </div>

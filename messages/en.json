@@ -1,0 +1,33 @@
+{
+  "app": { "title": "Scrlpets", "signIn": "Sign in" },
+  "feed": {
+    "following": "Following",
+    "forYou": "For You",
+    "empty": "Nothing here yet.",
+    "forSale": "For sale",
+    "promo": "Promo",
+    "reel": "Reel",
+    "video": "Video"
+  },
+  "compose": {
+    "title": "Create",
+    "tabPost": "Post",
+    "tabListing": "Listing",
+    "bodyPlaceholder": "What's happening with your animals?",
+    "titlePlaceholder": "Listing title",
+    "pricePlaceholder": "Price (USD)",
+    "addPhoto": "Add photo",
+    "uploading": "Uploading…",
+    "creature": "Creature",
+    "noCreature": "No creature",
+    "newCreature": "+ New creature",
+    "creatureName": "Name",
+    "creatureSpecies": "Species",
+    "create": "Create",
+    "submitPost": "Post",
+    "submitListing": "Publish listing",
+    "errorRequired": "Required fields are missing.",
+    "errorPrice": "Enter a valid price.",
+    "success": "Published!"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "app": { "title": "Scrlpets", "signIn": "Iniciar sesión" },
+  "feed": {
+    "following": "Siguiendo",
+    "forYou": "Para ti",
+    "empty": "Aún no hay nada.",
+    "forSale": "En venta",
+    "promo": "Promo",
+    "reel": "Reel",
+    "video": "Video"
+  },
+  "compose": {
+    "title": "Crear",
+    "tabPost": "Publicación",
+    "tabListing": "Anuncio",
+    "bodyPlaceholder": "¿Qué pasa con tus animales?",
+    "titlePlaceholder": "Título del anuncio",
+    "pricePlaceholder": "Precio (USD)",
+    "addPhoto": "Agregar foto",
+    "uploading": "Subiendo…",
+    "creature": "Criatura",
+    "noCreature": "Sin criatura",
+    "newCreature": "+ Nueva criatura",
+    "creatureName": "Nombre",
+    "creatureSpecies": "Especie",
+    "create": "Crear",
+    "submitPost": "Publicar",
+    "submitListing": "Publicar anuncio",
+    "errorRequired": "Faltan campos obligatorios.",
+    "errorPrice": "Ingresa un precio válido.",
+    "success": "¡Publicado!"
+  }
+}

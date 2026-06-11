@@ -1,8 +1,10 @@
 import type { FeedItem } from "@/lib/feed/types";
+import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import { TileMedia } from "../TileMedia";
 
 export function ListingTile({ item }: { item: FeedItem }) {
+  const t = useTranslations("feed");
   return (
     <Card className="p-4 border-primary/60" data-testid="tile-listing">
       <header className="flex items-center justify-between text-xs text-muted-foreground">
@@ -12,7 +14,7 @@ export function ListingTile({ item }: { item: FeedItem }) {
           <span>{item.author.username}</span>
         )}
         <span className="rounded-md bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-          For sale
+          {t("forSale")}
         </span>
       </header>
       <p className="mt-1 font-medium">{item.title}</p>

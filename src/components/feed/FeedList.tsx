@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import type { FeedItem } from "@/lib/feed/types";
 import { PostTile } from "./tiles/PostTile";
 import { ReelTile } from "./tiles/ReelTile";
@@ -14,10 +15,11 @@ const MAP = {
 } as const;
 
 export function FeedList({ items }: { items: FeedItem[] }) {
+  const t = useTranslations("feed");
   if (items.length === 0)
     return (
       <p className="p-6 text-muted-foreground" data-testid="feed-empty">
-        Nothing here yet.
+        {t("empty")}
       </p>
     );
   return (
