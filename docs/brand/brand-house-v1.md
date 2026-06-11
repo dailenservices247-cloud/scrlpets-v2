@@ -71,6 +71,7 @@ BLACK SHEEP 247 (holding — internal only)
   - *Note: the approved swatch sheet showed `#d98590`; it measured 4.2:1 on shell (under the locked 4.5 bar) and was nudged one shade lighter. Visual difference is marginal.*
 - Text on wine fills: `#f3cdd3` (wine family light) — never white-on-wine for body sizes without checking.
 - Gold `#c8a23e` passes as large-text/chip accent on dark; for body-size gold text use `gold-bright`.
+- **Amendment 2026-06-11 (caught by the axe gate):** `ink-muted #9b9b96` measures 4.01:1 on `shell #3a3b3d` cards — AA fail. Muted text ON CARDS uses **`ink-muted-card #a9a9a4`** (≈4.6:1). `#9b9b96` remains valid on `shell-deep` (5.1:1).
 
 ## 4. Per-brand expression layer
 | Brand | Foundation use | Expression |

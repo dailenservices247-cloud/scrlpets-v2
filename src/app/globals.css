@@ -96,7 +96,7 @@
   --secondary: #2a6055;
   --secondary-foreground: #d8ece5;
   --muted: #3a3b3d;
-  --muted-foreground: #9b9b96;
+  --muted-foreground: #a9a9a4; /* Brand House §3 amendment: ink-muted #9b9b96 = 4.01:1 on card #3a3b3d (AA fail); lightened one step for 4.5+ */
   --accent: #c8a23e;
   --accent-foreground: #2a2208;
   --destructive: #e24b4a;

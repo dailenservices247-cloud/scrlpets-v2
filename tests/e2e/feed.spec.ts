@@ -25,9 +25,12 @@ test("tiles render media images", async ({ page }) => {
 });
 
 test("For You ordering differs from Following", async ({ page }) => {
-  const firstFollowing = await page.locator('[data-testid="feed-list"] > *').first().innerText();
+  const sequence = async () =>
+    (await page.locator('[data-testid="feed-list"] > *').allInnerTexts()).join("|");
+  const following = await sequence();
   await page.getByRole("tab", { name: "For You" }).click();
   await expect(page).toHaveURL(/tab=for_you/);
-  const firstForYou = await page.locator('[data-testid="feed-list"] > *').first().innerText();
-  expect(firstForYou).not.toEqual(firstFollowing);
+  await page.waitForLoadState("networkidle");
+  const forYou = await sequence();
+  expect(forYou).not.toEqual(following);
 });
