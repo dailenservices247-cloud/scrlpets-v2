@@ -28,3 +28,13 @@ test("composer has no serious/critical a11y violations", async ({ page }) => {
   await page.goto("/compose");
   await expectNoSerious(page);
 });
+
+test("profile page has no serious/critical a11y violations", async ({ page }) => {
+  await page.goto("/u/breeder_jane");
+  await expectNoSerious(page);
+});
+
+test("creature page has no serious/critical a11y violations", async ({ page }) => {
+  await page.goto("/c/max-c1");
+  await expectNoSerious(page);
+});
