@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { FeedItem } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
 import { TileMedia } from "../TileMedia";
@@ -7,9 +8,9 @@ export function PostTile({ item }: { item: FeedItem }) {
     <Card className="p-4" data-testid="tile-post">
       <header className="text-xs text-muted-foreground">
         {item.creature ? (
-          <span data-testid="creature-name">🐾 {item.creature.name}</span>
+          <Link href={`/c/${item.creature.slug}`} className="hover:underline" data-testid="creature-name">🐾 {item.creature.name}</Link>
         ) : (
-          item.author.username
+          <Link href={`/u/${item.author.username}`} className="hover:underline">{item.author.username}</Link>
         )}
       </header>
       <p className="mt-1">{item.title}</p>

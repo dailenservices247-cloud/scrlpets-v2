@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { FeedItem } from "@/lib/feed/types";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
@@ -9,9 +10,9 @@ export function ReelTile({ item }: { item: FeedItem }) {
     <Card className="p-4" data-testid="tile-reel">
       <header className="flex items-center justify-between text-xs text-muted-foreground">
         {item.creature ? (
-          <span data-testid="creature-name">🐾 {item.creature.name}</span>
+          <Link href={`/c/${item.creature.slug}`} className="hover:underline" data-testid="creature-name">🐾 {item.creature.name}</Link>
         ) : (
-          <span>{item.author.username}</span>
+          <Link href={`/u/${item.author.username}`} className="hover:underline">{item.author.username}</Link>
         )}
         <span className="eyebrow">{t("reel")}</span>
       </header>
