@@ -1,8 +1,8 @@
-/* Plain <img> on purpose for slice 1 — next/image needs remotePatterns per host;
-   media hosts are dev placeholders until real storage lands (slice 2 composer).
-   Explicit width/height: without intrinsic dimensions the element is 0px tall and
-   Chrome's loading="lazy" never fires (verified in prod 2026-06-10) — so images
-   load eagerly with reserved layout space (also avoids CLS). */
+/* Plain <img> on purpose — next/image needs remotePatterns per host; media hosts
+   are dev placeholders until real storage matures. Width/height REQUIRED: at 0px
+   intrinsic height Chrome's lazy-loader never fires (prod bug 2026-06-10). With
+   dimensions, lazy is safe — and keeps the window load event fast (eager x15
+   remote images stalled it past Playwright's timeout). */
 export function TileMedia({ src, alt }: { src: string | null; alt: string }) {
   if (!src) return null;
   return (
@@ -12,6 +12,7 @@ export function TileMedia({ src, alt }: { src: string | null; alt: string }) {
       alt={alt}
       width={800}
       height={600}
+      loading="lazy"
       className="mt-2 h-auto w-full max-h-72 rounded-md object-cover"
       data-testid="tile-media"
     />
