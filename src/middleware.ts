@@ -10,6 +10,9 @@ export async function middleware(request: NextRequest) {
   if (user && path.startsWith("/login")) {
     return NextResponse.redirect(new URL("/", request.url));
   }
+  if (!user && path.startsWith("/compose")) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
   return response;
 }
 
