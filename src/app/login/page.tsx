@@ -42,7 +42,16 @@ export default function LoginPage() {
 
   return (
     <main className="p-6 flex flex-col gap-4">
-      <h1>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/scrlpets-mark-full.png"
+        alt=""
+        width={400}
+        height={400}
+        className="mx-auto h-44 w-44 rounded-3xl object-cover"
+        data-testid="login-mark"
+      />
+      <h1 className="text-center">
         <Wordmark size={26} />
       </h1>
       <form onSubmit={signInEmail} className="flex flex-col gap-3">
