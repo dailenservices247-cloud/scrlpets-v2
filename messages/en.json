@@ -48,5 +48,14 @@
     "saved": "Saved",
     "memberSince": "Member since {date}",
     "notFound": "Not found"
+  },
+  "messages": {
+    "title": "Messages",
+    "empty": "No conversations yet.",
+    "message": "Message",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "you": "You",
+    "back": "Back"
   }
 }

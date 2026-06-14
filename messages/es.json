@@ -48,5 +48,14 @@
     "saved": "Guardado",
     "memberSince": "Miembro desde {date}",
     "notFound": "No encontrado"
+  },
+  "messages": {
+    "title": "Mensajes",
+    "empty": "Aún no hay conversaciones.",
+    "message": "Mensaje",
+    "placeholder": "Escribe un mensaje…",
+    "send": "Enviar",
+    "you": "Tú",
+    "back": "Atrás"
   }
 }
