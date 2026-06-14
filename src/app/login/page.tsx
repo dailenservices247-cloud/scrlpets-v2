@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Wordmark } from "@/components/brand/Wordmark";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,18 +41,17 @@ export default function LoginPage() {
 
   return (
     <main className="p-6 flex flex-col gap-4">
+      {/* Full mark already contains the wordmark — no separate text needed here. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/brand/scrlpets-mark-full.png"
-        alt=""
-        width={400}
-        height={400}
-        className="mx-auto h-44 w-44 rounded-3xl object-cover"
+        alt="Scrlpets"
+        width={560}
+        height={560}
+        className="mx-auto w-64 max-w-full rounded-3xl"
         data-testid="login-mark"
       />
-      <h1 className="text-center">
-        <Wordmark size={26} />
-      </h1>
+      <h1 className="sr-only">Scrlpets</h1>
       <form onSubmit={signInEmail} className="flex flex-col gap-3">
         <input
           className="rounded border border-input bg-transparent p-2"
