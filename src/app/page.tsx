@@ -12,6 +12,7 @@ export default async function HomePage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const t = await getTranslations("app");
+  const tMsg = await getTranslations("messages");
   const user = await getSessionUser(); // null = guest (feed is public per G1-A); seam stays federation-ready
   const { tab } = await searchParams;
   const feedTab: FeedTab = tab === "for_you" ? "for_you" : "following";
@@ -24,13 +25,22 @@ export default async function HomePage({
             <Wordmark size={20} />
           </h1>
           {user ? (
-            <Link
-              href="/compose"
-              className="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground"
-              data-testid="compose-cta"
-            >
-              +
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/messages"
+                className="text-sm text-brand-link underline"
+                data-testid="messages-link"
+              >
+                {tMsg("title")}
+              </Link>
+              <Link
+                href="/compose"
+                className="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground"
+                data-testid="compose-cta"
+              >
+                +
+              </Link>
+            </div>
           ) : (
             <Link href="/login" className="text-sm underline text-brand-link" data-testid="signin-cta">
               {t("signIn")}

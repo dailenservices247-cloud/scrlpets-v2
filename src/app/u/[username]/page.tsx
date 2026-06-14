@@ -30,7 +30,11 @@ export default async function ProfilePage({
   return (
     <main>
       <div className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
-        <ProfileHeader profile={profile} isOwn={user?.id === profile.id} />
+        <ProfileHeader
+          profile={profile}
+          isOwn={user?.id === profile.id}
+          viewerSignedIn={!!user}
+        />
         <div className="px-3 pb-3">
           <ProfileTabs />
         </div>

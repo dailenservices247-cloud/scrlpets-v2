@@ -38,3 +38,13 @@ test("creature page has no serious/critical a11y violations", async ({ page }) =
   await page.goto("/c/max-c1");
   await expectNoSerious(page);
 });
+
+test("inbox has no serious/critical a11y violations", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByPlaceholder("email").fill(process.env.E2E_EMAIL!);
+  await page.getByPlaceholder("password").fill(process.env.E2E_PASSWORD!);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.waitForURL("http://localhost:3000/");
+  await page.goto("/messages");
+  await expectNoSerious(page);
+});

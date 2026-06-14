@@ -1,8 +1,17 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Profile } from "@/lib/profiles/queries";
+import { MessageButton } from "@/components/messaging/MessageButton";
 
-export async function ProfileHeader({ profile, isOwn }: { profile: Profile; isOwn: boolean }) {
+export async function ProfileHeader({
+  profile,
+  isOwn,
+  viewerSignedIn,
+}: {
+  profile: Profile;
+  isOwn: boolean;
+  viewerSignedIn: boolean;
+}) {
   const t = await getTranslations("profile");
   return (
     <header className="flex items-center gap-3 p-4" data-testid="profile-header">
@@ -24,7 +33,7 @@ export async function ProfileHeader({ profile, isOwn }: { profile: Profile; isOw
         <h1 className="truncate text-lg font-bold">{profile.displayName ?? profile.username}</h1>
         <p className="truncate text-sm text-muted-foreground">@{profile.username}</p>
       </div>
-      {isOwn && (
+      {isOwn ? (
         <Link
           href="/settings/profile"
           className="rounded-md border border-input px-3 py-1 text-sm text-brand-link"
@@ -32,6 +41,8 @@ export async function ProfileHeader({ profile, isOwn }: { profile: Profile; isOw
         >
           {t("edit")}
         </Link>
+      ) : (
+        viewerSignedIn && <MessageButton profileId={profile.id} />
       )}
     </header>
   );

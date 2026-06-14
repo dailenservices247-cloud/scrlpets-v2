@@ -34,18 +34,25 @@ export async function startConversation(
   return { id: data.id };
 }
 
+export type SentMessage = { id: string; senderId: string; body: string; createdAt: string };
+
 export async function sendMessage(
   conversationId: string,
   body: string,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: true; message: SentMessage } | { ok: false; error: string }> {
   const { supabase, user } = await requireUser();
   const trimmed = body.trim();
   if (!trimmed) return { ok: false, error: "empty" };
   if (trimmed.length > 2000) return { ok: false, error: "too_long" };
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("messages")
-    .insert({ conversation_id: conversationId, sender_id: user.id, body: trimmed });
+    .insert({ conversation_id: conversationId, sender_id: user.id, body: trimmed })
+    .select("id,sender_id,body,created_at")
+    .single();
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/messages/${conversationId}`);
-  return { ok: true };
+  return {
+    ok: true,
+    message: { id: data.id, senderId: data.sender_id, body: data.body, createdAt: data.created_at },
+  };
 }

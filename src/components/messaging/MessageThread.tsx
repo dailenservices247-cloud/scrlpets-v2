@@ -60,7 +60,13 @@ export function MessageThread({
     e.preventDefault();
     const text = body;
     setBody("");
-    await sendMessage(conversationId, text);
+    const res = await sendMessage(conversationId, text);
+    if (res.ok) {
+      // Append immediately (don't wait for the Realtime echo); subscription dedupes by id.
+      setItems((prev) =>
+        prev.some((x) => x.id === res.message.id) ? prev : [...prev, res.message],
+      );
+    }
   }
 
   return (
