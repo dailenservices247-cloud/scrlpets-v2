@@ -45,3 +45,15 @@ export async function getFeed(tab: FeedTab): Promise<FeedItem[]> {
   if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
   return items;
 }
+
+export async function getFeedItemById(id: string): Promise<FeedItem | null> {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("unified_feed")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? rowToFeedItem(data as Row) : null;
+}

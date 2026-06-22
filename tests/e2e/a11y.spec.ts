@@ -29,6 +29,13 @@ test("composer has no serious/critical a11y violations", async ({ page }) => {
   await expectNoSerious(page);
 });
 
+test("feed destination page has no serious/critical a11y violations", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("tile-destination-listing").first().click();
+  await expect(page.getByTestId("destination-listing")).toBeVisible();
+  await expectNoSerious(page);
+});
+
 test("profile page has no serious/critical a11y violations", async ({ page }) => {
   await page.goto("/u/breeder_jane");
   await expectNoSerious(page);

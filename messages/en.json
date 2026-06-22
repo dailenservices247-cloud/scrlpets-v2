@@ -10,7 +10,12 @@
     "forSale": "For sale",
     "promo": "Promo",
     "reel": "Reel",
-    "video": "Video"
+    "video": "Video",
+    "openPost": "Open post",
+    "watchReel": "Watch reel",
+    "watchVideo": "Watch video",
+    "viewListing": "View listing",
+    "viewProduct": "View product"
   },
   "compose": {
     "title": "Create",
@@ -47,7 +52,25 @@
     "save": "Save",
     "saved": "Saved",
     "memberSince": "Member since {date}",
-    "notFound": "Not found"
+    "notFound": "Not found",
+    "animalsFirst": "Animals first",
+    "animalsFirstHint": "Profiles start with the animals."
+  },
+  "detail": {
+    "backToFeed": "Back to feed",
+    "surfaceLabel": "Destination surface",
+    "untitled": "Untitled",
+    "postDetail": "Post detail",
+    "postDetailBody": "This is the social post context. Comments and reactions build here without changing the feed contract.",
+    "reelDetail": "Reel mode",
+    "reelDetailBody": "This is the short-form destination. A full immersive player can replace this shell later.",
+    "videoDetail": "Watch video",
+    "videoDetailBody": "This is the long-form watch surface for YouTube-style playback, chapters, and time-aware comments later.",
+    "listingDetail": "Listing detail",
+    "listingDetailBody": "This is the litter/listing destination where trust, records, seller context, and purchase flow mature in the marketplace phase.",
+    "productDetail": "Product detail",
+    "productDetailBody": "This is the shop/product destination for future breeder-recommended care products and promos.",
+    "listingActivity": "View listing activity for this animal"
   },
   "messages": {
     "title": "Messages",

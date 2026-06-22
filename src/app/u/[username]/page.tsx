@@ -7,6 +7,7 @@ import {
   getProfileFeed,
   getCreaturesByOwner,
 } from "@/lib/profiles/queries";
+import { AnimalRail } from "@/components/profile/AnimalRail";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { FeedList } from "@/components/feed/FeedList";
@@ -26,6 +27,7 @@ export default async function ProfilePage({
   if (!profile) notFound();
   const user = await getSessionUser();
   const active = tab === "pets" || tab === "about" ? tab : "posts";
+  const creatures = await getCreaturesByOwner(profile.id);
 
   return (
     <main>
@@ -35,7 +37,8 @@ export default async function ProfilePage({
           isOwn={user?.id === profile.id}
           viewerSignedIn={!!user}
         />
-        <div className="px-3 pb-3">
+        <AnimalRail creatures={creatures} />
+        <div className="px-3 pb-3 pt-3">
           <ProfileTabs />
         </div>
       </div>
@@ -44,7 +47,7 @@ export default async function ProfilePage({
 
       {active === "pets" && (
         <div className="flex flex-col gap-3 p-3" data-testid="pets-list">
-          {(await getCreaturesByOwner(profile.id)).map((c) => (
+          {creatures.map((c) => (
             <Link key={c.id} href={`/c/${c.slug}`}>
               <Card className="flex flex-row items-center gap-3 p-4">
                 {c.avatar_url ? (
@@ -58,7 +61,7 @@ export default async function ProfilePage({
               </Card>
             </Link>
           ))}
-          {(await getCreaturesByOwner(profile.id)).length === 0 && (
+          {creatures.length === 0 && (
             <p className="p-6 text-muted-foreground">{t("noPets")}</p>
           )}
         </div>

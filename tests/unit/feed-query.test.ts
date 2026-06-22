@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
+import { getFeedDestination } from "@/lib/feed/destinations";
 import { rowToFeedItem } from "@/lib/feed/query";
+import type { FeedItem, FeedItemType } from "@/lib/feed/types";
 
 describe("rowToFeedItem", () => {
   it("maps a reel row to a creature-aware FeedItem", () => {
@@ -26,6 +28,28 @@ describe("rowToFeedItem", () => {
 });
 
 import { hashId } from "@/lib/feed/query";
+
+describe("getFeedDestination", () => {
+  it.each([
+    ["post", "/post/abc", "openPost"],
+    ["reel", "/watch/reel/abc", "watchReel"],
+    ["long_video", "/watch/abc", "watchVideo"],
+    ["listing", "/listing/abc", "viewListing"],
+    ["promo", "/shop/product/abc", "viewProduct"],
+  ] as const)("routes %s items to the correct destination", (type, href, labelKey) => {
+    const item: FeedItem = {
+      id: "abc",
+      type: type as FeedItemType,
+      author: { id: "u1", username: "jane", displayName: null, avatarUrl: null },
+      creature: null,
+      title: "Title",
+      mediaUrl: null,
+      createdAt: "2026-01-01T00:00:00Z",
+    };
+
+    expect(getFeedDestination(item)).toMatchObject({ href, labelKey, kind: type });
+  });
+});
 
 describe("hashId (For-You placeholder ordering)", () => {
   it("is deterministic", () => {

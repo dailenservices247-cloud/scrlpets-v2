@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCreatureBySlug, getCreatureFeed } from "@/lib/profiles/queries";
+import { getTranslations } from "next-intl/server";
 import { FeedList } from "@/components/feed/FeedList";
+import { getFeedDestination } from "@/lib/feed/destinations";
+import { getCreatureBySlug, getCreatureFeed } from "@/lib/profiles/queries";
 
 export default async function CreaturePage({
   params,
@@ -12,6 +14,8 @@ export default async function CreaturePage({
   const creature = await getCreatureBySlug(slug);
   if (!creature) notFound();
   const items = await getCreatureFeed(creature.id);
+  const listing = items.find((item) => item.type === "listing");
+  const t = await getTranslations("detail");
 
   return (
     <main>
@@ -37,6 +41,17 @@ export default async function CreaturePage({
           </p>
         </div>
       </header>
+      {listing && (
+        <div className="border-b p-3" data-testid="creature-listing-cue">
+          <Link
+            href={getFeedDestination(listing).href}
+            className="flex items-center justify-between rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm text-foreground transition hover:bg-primary/15"
+          >
+            <span>{t("listingActivity")}</span>
+            <span aria-hidden>→</span>
+          </Link>
+        </div>
+      )}
       <FeedList items={items} />
     </main>
   );

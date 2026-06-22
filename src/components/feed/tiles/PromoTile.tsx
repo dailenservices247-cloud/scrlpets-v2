@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { FeedItem } from "@/lib/feed/types";
 import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
+import { FeedTileAction } from "../FeedTileAction";
 import { TileMedia } from "../TileMedia";
 
 export function PromoTile({ item }: { item: FeedItem }) {
@@ -16,6 +17,7 @@ export function PromoTile({ item }: { item: FeedItem }) {
       </header>
       <p className="mt-1">{item.title}</p>
       <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
+      <FeedTileAction item={item} />
     </Card>
   );
 }

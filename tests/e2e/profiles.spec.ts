@@ -3,6 +3,8 @@ import { test, expect } from "@playwright/test";
 test("guest views a profile: tabs, posts, pets → creature page", async ({ page }) => {
   await page.goto("/u/breeder_jane");
   await expect(page.getByTestId("profile-header")).toBeVisible();
+  await expect(page.getByTestId("animal-rail")).toBeVisible();
+  await expect(page.getByTestId("animal-rail").getByText("Max", { exact: true })).toBeVisible();
   await expect(page.getByTestId("feed-list")).toBeVisible();
   await page.getByTestId("ptab-pets").click();
   await expect(page).toHaveURL(/tab=pets/);

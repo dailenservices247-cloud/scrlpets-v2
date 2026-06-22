@@ -10,7 +10,12 @@
     "forSale": "En venta",
     "promo": "Promo",
     "reel": "Reel",
-    "video": "Video"
+    "video": "Video",
+    "openPost": "Abrir publicación",
+    "watchReel": "Ver reel",
+    "watchVideo": "Ver video",
+    "viewListing": "Ver anuncio",
+    "viewProduct": "Ver producto"
   },
   "compose": {
     "title": "Crear",
@@ -47,7 +52,25 @@
     "save": "Guardar",
     "saved": "Guardado",
     "memberSince": "Miembro desde {date}",
-    "notFound": "No encontrado"
+    "notFound": "No encontrado",
+    "animalsFirst": "Animales primero",
+    "animalsFirstHint": "Los perfiles empiezan con los animales."
+  },
+  "detail": {
+    "backToFeed": "Volver al feed",
+    "surfaceLabel": "Superficie de destino",
+    "untitled": "Sin título",
+    "postDetail": "Detalle de publicación",
+    "postDetailBody": "Este es el contexto social de la publicación. Los comentarios y reacciones crecerán aquí sin cambiar el contrato del feed.",
+    "reelDetail": "Modo reel",
+    "reelDetailBody": "Este es el destino de video corto. Un reproductor inmersivo completo puede reemplazar esta base más adelante.",
+    "videoDetail": "Ver video",
+    "videoDetailBody": "Esta es la superficie de video largo para reproducción tipo YouTube, capítulos y comentarios por tiempo más adelante.",
+    "listingDetail": "Detalle del anuncio",
+    "listingDetailBody": "Este es el destino del animal/camada donde la confianza, registros, contexto del vendedor y compra maduran en la fase de marketplace.",
+    "productDetail": "Detalle del producto",
+    "productDetailBody": "Este es el destino de tienda/producto para futuros productos de cuidado recomendados por criadores y promociones.",
+    "listingActivity": "Ver actividad de anuncio para este animal"
   },
   "messages": {
     "title": "Mensajes",

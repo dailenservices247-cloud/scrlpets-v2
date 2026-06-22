@@ -15,6 +15,24 @@ test("feed shows all 5 content types + creature awareness", async ({ page }) => 
   await expect(page.getByTestId("creature-name").first()).toBeVisible();
 });
 
+test("each feed type opens its destination surface", async ({ page }) => {
+  const cases = [
+    ["post", /\/post\//],
+    ["reel", /\/watch\/reel\//],
+    ["long_video", /\/watch\//],
+    ["listing", /\/listing\//],
+    ["promo", /\/shop\/product\//],
+  ] as const;
+
+  for (const [type, url] of cases) {
+    await page.goto("/");
+    await page.getByTestId(`tile-destination-${type}`).first().click();
+    await expect(page).toHaveURL(url);
+    await expect(page.getByTestId(`destination-${type}`)).toBeVisible();
+    await expect(page.getByTestId("destination-heading")).toBeVisible();
+  }
+});
+
 test("Following / For-You toggle updates the url", async ({ page }) => {
   await page.getByRole("tab", { name: "For You" }).click();
   await expect(page).toHaveURL(/tab=for_you/);
