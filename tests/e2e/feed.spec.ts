@@ -9,6 +9,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("feed shows all 5 content types + creature awareness", async ({ page }) => {
+  await expect(page.getByTestId("compose-cta")).toContainText("Share an animal update");
+  await expect(page.getByTestId("updates-moments")).toBeVisible();
+  await expect(page.getByTestId("create-moment")).toBeVisible();
   for (const t of ["post", "reel", "long_video", "listing", "promo"]) {
     await expect(page.getByTestId(`tile-${t}`).first()).toBeVisible();
     await expect(page.getByTestId(`content-type-${t}`).first()).toBeVisible();

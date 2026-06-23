@@ -39,15 +39,18 @@ export function ScrollS({ size = 28 }: { size?: number }) {
 
 export function Wordmark({ size = 24 }: { size?: number }) {
   return (
-    <span className="inline-flex items-baseline" data-testid="wordmark">
-      <span className="self-center">
-        <ScrollS size={size * 1.3} />
-      </span>
-      <span
-        className="font-semibold tracking-tight text-foreground"
-        style={{ fontSize: size, marginLeft: size * 0.08 }}
-      >
-        crlpets
+    <span className="inline-flex items-center gap-2" data-testid="wordmark">
+      {/* Official hamster-wheel mark from the locked logo direction. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/scrlpets-header-icon.png"
+        alt=""
+        width={size * 1.5}
+        height={size * 1.5}
+        className="rounded-lg object-cover"
+      />
+      <span className="text-[22px] font-bold leading-none tracking-tight text-foreground">
+        Scrlpets
       </span>
       <span className="sr-only">Scrlpets</span>
     </span>

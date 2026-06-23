@@ -3,6 +3,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { FeedList } from "@/components/feed/FeedList";
 import { AppHeader } from "@/components/app/AppHeader";
 import { AppPage } from "@/components/app/AppPage";
+import { FeedComposerPrompt } from "@/components/feed/FeedComposerPrompt";
+import { UpdatesMomentsRail } from "@/components/feed/UpdatesMomentsRail";
 
 export default async function HomePage({
   searchParams,
@@ -16,6 +18,8 @@ export default async function HomePage({
   return (
     <AppPage>
       <AppHeader signedIn={Boolean(user)} />
+      <FeedComposerPrompt signedIn={Boolean(user)} />
+      <UpdatesMomentsRail items={items} signedIn={Boolean(user)} />
       <FeedList items={items} />
     </AppPage>
   );

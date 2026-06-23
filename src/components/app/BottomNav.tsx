@@ -35,7 +35,7 @@ export function BottomNav() {
                 active && "text-brand-link",
                 item.primary && "-mt-5 text-foreground",
               )}
-              data-testid={`nav-${item.label.toLowerCase()}`}
+              data-testid={item.href === "/messages" ? "messages-link" : `nav-${item.label.toLowerCase()}`}
             >
               <span
                 className={cn(
