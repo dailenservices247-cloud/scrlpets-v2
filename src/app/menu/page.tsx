@@ -37,7 +37,7 @@ export default async function MenuPage() {
             <div className="min-w-0 flex-1">
               <h2 className="truncate text-xl font-semibold tracking-tight">{displayName}</h2>
               <p className="mt-1 truncate text-sm text-muted-foreground">
-                {profile ? `@${profile.username}` : "Sign in to manage your animal network"}
+                {profile ? `@${profile.username}` : "Guest mode"}
               </p>
             </div>
             {profile ? (
