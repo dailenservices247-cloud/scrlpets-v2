@@ -1,23 +1,20 @@
-import Link from "next/link";
 import type { FeedItem } from "@/lib/feed/types";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/card";
+import { FeedCardShell } from "../FeedCardShell";
 import { FeedTileAction } from "../FeedTileAction";
 import { TileMedia } from "../TileMedia";
 
 export function PromoTile({ item }: { item: FeedItem }) {
   const t = useTranslations("feed");
   return (
-    <Card className="p-4" data-testid="tile-promo">
-      <header className="flex items-center justify-between text-xs text-muted-foreground">
-        <Link href={`/u/${item.author.username}`} className="hover:underline">{item.author.username}</Link>
-        <span className="rounded-md border border-accent px-2 py-0.5 text-xs text-accent">
-          {t("promo")}
-        </span>
-      </header>
-      <p className="mt-1">{item.title}</p>
+    <FeedCardShell item={item} className="bg-accent/5">
+      <div className="rounded-lg border border-accent/30 bg-background/35 p-3" data-testid="product-summary">
+        <p className="eyebrow">{t("productIntent")}</p>
+        <p className="mt-1 font-semibold leading-snug">{item.title}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t("productContext")}</p>
+      </div>
       <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
       <FeedTileAction item={item} />
-    </Card>
+    </FeedCardShell>
   );
 }

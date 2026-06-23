@@ -7,6 +7,7 @@
     "following": "Siguiendo",
     "forYou": "Para ti",
     "empty": "Aún no hay nada.",
+    "post": "Publicación",
     "forSale": "En venta",
     "promo": "Promo",
     "reel": "Reel",
@@ -15,7 +16,13 @@
     "watchReel": "Ver reel",
     "watchVideo": "Ver video",
     "viewListing": "Ver anuncio",
-    "viewProduct": "Ver producto"
+    "viewProduct": "Ver producto",
+    "listingIntent": "Anuncio de animal",
+    "listingContext": "Estructurado para contexto del vendedor y detalles del animal.",
+    "productIntent": "Ruta de producto",
+    "productContext": "Los productos de cuidado y recomendaciones vivirán aquí.",
+    "shortVideoContext": "Momento animal corto",
+    "longVideoContext": "Superficie de video largo"
   },
   "compose": {
     "title": "Crear",
@@ -70,7 +77,13 @@
     "listingDetailBody": "Este es el destino del animal/camada donde la confianza, registros, contexto del vendedor y compra maduran en la fase de marketplace.",
     "productDetail": "Detalle del producto",
     "productDetailBody": "Este es el destino de tienda/producto para futuros productos de cuidado recomendados por criadores y promociones.",
-    "listingActivity": "Ver actividad de anuncio para este animal"
+    "listingActivity": "Ver actividad de anuncio para este animal",
+    "animalProfile": "Perfil del animal",
+    "listingSummaryLabel": "Contexto del anuncio",
+    "listingSummaryBody": "Esta superficie está preparada para detalles del animal, contexto del vendedor y señales de confianza del marketplace cuando esas funciones maduren.",
+    "productSummaryLabel": "Contexto del producto",
+    "productSummaryBody": "Esta superficie está preparada para productos de cuidado, recomendaciones del vendedor y rutas de tienda sin implicar pago todavía.",
+    "nextAction": "Siguiente acción"
   },
   "messages": {
     "title": "Mensajes",

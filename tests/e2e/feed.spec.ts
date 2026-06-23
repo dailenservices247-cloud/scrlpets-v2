@@ -11,8 +11,11 @@ test.beforeEach(async ({ page }) => {
 test("feed shows all 5 content types + creature awareness", async ({ page }) => {
   for (const t of ["post", "reel", "long_video", "listing", "promo"]) {
     await expect(page.getByTestId(`tile-${t}`).first()).toBeVisible();
+    await expect(page.getByTestId(`content-type-${t}`).first()).toBeVisible();
   }
   await expect(page.getByTestId("creature-name").first()).toBeVisible();
+  await expect(page.getByTestId("listing-summary").first()).toBeVisible();
+  await expect(page.getByTestId("product-summary").first()).toBeVisible();
 });
 
 test("each feed type opens its destination surface", async ({ page }) => {
@@ -30,6 +33,13 @@ test("each feed type opens its destination surface", async ({ page }) => {
     await expect(page).toHaveURL(url);
     await expect(page.getByTestId(`destination-${type}`)).toBeVisible();
     await expect(page.getByTestId("destination-heading")).toBeVisible();
+    await expect(page.getByTestId(`content-type-${type}`)).toBeVisible();
+    if (type === "listing") {
+      await expect(page.getByTestId("listing-detail-summary")).toBeVisible();
+    }
+    if (type === "promo") {
+      await expect(page.getByTestId("product-detail-summary")).toBeVisible();
+    }
   }
 });
 

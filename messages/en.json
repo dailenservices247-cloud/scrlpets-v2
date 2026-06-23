@@ -7,6 +7,7 @@
     "following": "Following",
     "forYou": "For You",
     "empty": "Nothing here yet.",
+    "post": "Post",
     "forSale": "For sale",
     "promo": "Promo",
     "reel": "Reel",
@@ -15,7 +16,13 @@
     "watchReel": "Watch reel",
     "watchVideo": "Watch video",
     "viewListing": "View listing",
-    "viewProduct": "View product"
+    "viewProduct": "View product",
+    "listingIntent": "Animal listing",
+    "listingContext": "Structured for seller context and animal details.",
+    "productIntent": "Product path",
+    "productContext": "Care products and recommendations will live here.",
+    "shortVideoContext": "Short-form animal moment",
+    "longVideoContext": "Long-form watch surface"
   },
   "compose": {
     "title": "Create",
@@ -70,7 +77,13 @@
     "listingDetailBody": "This is the litter/listing destination where trust, records, seller context, and purchase flow mature in the marketplace phase.",
     "productDetail": "Product detail",
     "productDetailBody": "This is the shop/product destination for future breeder-recommended care products and promos.",
-    "listingActivity": "View listing activity for this animal"
+    "listingActivity": "View listing activity for this animal",
+    "animalProfile": "Animal profile",
+    "listingSummaryLabel": "Listing context",
+    "listingSummaryBody": "This surface is prepared for animal details, seller context, and marketplace trust signals as those features mature.",
+    "productSummaryLabel": "Product context",
+    "productSummaryBody": "This surface is prepared for care products, seller recommendations, and shop paths without implying checkout yet.",
+    "nextAction": "Next action"
   },
   "messages": {
     "title": "Messages",
