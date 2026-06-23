@@ -1,65 +1,59 @@
-# Scrlpets ↔ Synergy Interface
+# Scrlpets Integration Boundaries
 
-Scrlpets is the animal-first vertical. Synergy is the future social OS shell.
+Scrlpets is being built as a pet-first product with clean internal seams for future integrations.
 
-This app should prove the satellite pattern without becoming the shell.
+This note is intentionally public-safe. The repository is public for build credibility, deployment workflow, and timestamped progress, but deeper product strategy, ecosystem roadmap, and trust-system design stay in the private vault.
 
-## What Scrlpets Owns
+## Why This Document Is Limited
 
-- Animal-first profiles and creature pages.
-- Feed content around posts, reels, long videos, listings, and promos.
-- Buyer/seller messaging in animal-commerce context.
-- Marketplace trust primitives as they mature: verified media, seller reputation, escrow state, message auditability, records.
-- Seller/breeder product recommendations in contexts where they help the buyer care for the animal.
+Public code should explain how the app is organized without disclosing the full business moat.
 
-## What Synergy Owns Later
+This file therefore records only practical engineering boundaries:
 
-- The OS-like app/widget shell.
-- Unified multi-app inbox.
-- Cross-vertical posting and fanout.
-- Ecosystem app store / module installer.
-- Global social graph and transparent ranking controls.
+- which app areas own current behavior
+- which modules should stay easy to integrate later
+- which future ideas are out of scope for this repository today
 
-## Shared Seams
+Detailed strategy, partner plans, pricing, verification-roadmap decisions, and ecosystem architecture belong in private planning docs, not the public repo.
 
-### Identity / SSO
+## Current App Boundaries
 
-Scrlpets user IDs must stay stable and avoid app-specific assumptions that would block future federation into Synergy identity.
+Scrlpets currently owns:
 
-### Unified Inbox
+- animal-first profiles and creature pages
+- feed destinations for posts, short videos, long videos, listings, and product-style promos
+- app-native buyer/seller messaging
+- lightweight seams for future contextual recommendations
+- route contracts that make content destinations predictable
 
-Scrlpets DMs remain app-native, but the message model should be able to expose thread summaries and message contexts to Synergy later.
+These boundaries let the product grow without mixing feed, profile, commerce, and messaging logic into one-off UI code.
+
+## Integration Seams
+
+### Identity
+
+User identifiers should remain stable and avoid assumptions that would make future account integrations difficult.
+
+### Messaging Context
+
+Messages are app-native today, but thread context should remain explicit enough to connect a conversation to relevant app objects later.
 
 Type seam: `src/lib/messaging/context.ts`.
 
-### Posting / Fanout
+### Feed Destinations
 
-Feed items should have deterministic content destinations. Synergy can later route, preview, or fan out content because each item type has a clear destination contract.
+Feed items should resolve to deterministic destination routes so cards, detail pages, and future previews share the same contract.
 
 Type seam: `src/lib/feed/destinations.ts`.
 
-### Trust Primitive
+### Contextual Recommendations
 
-Marketplace trust should stay extractable. C2PA media, verification, escrow state, reputation, records, and audit logs should not be buried in one-off Scrlpets UI code.
-
-### Seller Recommendations
-
-Breeder/seller recommendations should be contextual rather than generic ads.
-
-Allowed contexts:
-
-- profile
-- listing detail
-- post-sale message
+Recommendations should be tied to a clear user context instead of behaving like generic ads.
 
 Type seam: `src/lib/commerce/recommendations.ts`.
 
-## Non-Goal
+## Non-Goals
 
-Do not build the Synergy shell in Scrlpets.
+This repository should not contain private ecosystem strategy, partner strategy, or unreleased trust-system implementation details.
 
-Scrlpets should become clearer, more trustworthy, and more animal-first. The OS shell, unified social surface, app store, and external fanout system belong to Synergy later.
-
-## Source Vision
-
-Vault source: `AI Hub/Vision/scrlpets-synergy-founder-vision-2026-06-22.md`.
+Future platform work should be documented privately until it is intentionally productized for public release.
