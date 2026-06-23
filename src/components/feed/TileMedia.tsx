@@ -13,7 +13,7 @@ export function TileMedia({ src, alt }: { src: string | null; alt: string }) {
       width={800}
       height={600}
       loading="lazy"
-      className="mt-2 h-auto w-full max-h-72 rounded-md object-cover"
+      className="mt-1 aspect-[4/3] w-full rounded-xl object-cover ring-1 ring-white/10"
       data-testid="tile-media"
     />
   );

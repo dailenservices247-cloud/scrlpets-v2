@@ -15,7 +15,7 @@ export function AttributionStack({
       {item.creature ? <AnimalIdentityChip creature={item.creature} /> : null}
       <Link
         href={`/u/${item.author.username}`}
-        className="min-w-0 truncate text-xs text-muted-foreground transition hover:text-brand-link hover:underline"
+        className="min-w-0 truncate text-xs font-medium text-muted-foreground transition hover:text-brand-link hover:underline"
       >
         @{item.author.username}
       </Link>

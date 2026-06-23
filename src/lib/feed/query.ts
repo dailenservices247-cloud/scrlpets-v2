@@ -22,6 +22,10 @@ export function rowToFeedItem(r: Row): FeedItem {
   };
 }
 
+export function isE2EDemoItem(item: FeedItem): boolean {
+  return item.title?.startsWith("E2E ") ?? false;
+}
+
 export type FeedTab = "following" | "for_you";
 
 /** Deterministic string hash — stable For-You ordering without a ranker (real ranking deferred). */
@@ -41,7 +45,9 @@ export async function getFeed(tab: FeedTab): Promise<FeedItem[]> {
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) throw error;
-  const items = (data as Row[]).map(rowToFeedItem);
+  const items = (data as Row[])
+    .map(rowToFeedItem)
+    .filter((item) => process.env.NODE_ENV !== "production" || !isE2EDemoItem(item));
   if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
   return items;
 }

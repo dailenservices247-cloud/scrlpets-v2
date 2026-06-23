@@ -18,12 +18,18 @@ export function FeedList({ items }: { items: FeedItem[] }) {
   const t = useTranslations("feed");
   if (items.length === 0)
     return (
-      <p className="p-6 text-muted-foreground" data-testid="feed-empty">
-        {t("empty")}
-      </p>
+      <section
+        className="mx-4 mt-24 rounded-2xl border border-border/70 bg-card/70 p-8 text-center shadow-[0_16px_40px_rgba(0,0,0,.22)]"
+        data-testid="feed-empty"
+      >
+        <p className="mx-auto mb-4 grid size-14 place-items-center rounded-full bg-primary/15 text-2xl text-brand-link">
+          +
+        </p>
+        <h2 className="text-xl font-semibold tracking-tight">{t("empty")}</h2>
+      </section>
     );
   return (
-    <div className="flex flex-col gap-3 p-3" data-testid="feed-list">
+    <div className="flex flex-col gap-4 px-3 py-4" data-testid="feed-list">
       {items.map((item) => {
         const Tile = MAP[item.type];
         return <Tile key={item.id} item={item} />;

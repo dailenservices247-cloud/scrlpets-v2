@@ -11,7 +11,7 @@ export function FeedTileAction({ item }: { item: FeedItem }) {
   return (
     <Link
       href={destination.href}
-      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-secondary px-3 py-2 text-sm font-medium text-secondary-foreground transition hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-ring"
+      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-secondary px-4 py-3 text-sm font-semibold text-secondary-foreground shadow-[0_10px_24px_rgba(42,96,85,.24)] transition hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-ring"
       data-testid={`tile-destination-${destination.kind}`}
     >
       <span>{t(destination.labelKey)}</span>

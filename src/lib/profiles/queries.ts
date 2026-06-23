@@ -29,6 +29,24 @@ export async function getProfileByUsername(username: string): Promise<Profile | 
   };
 }
 
+export async function getProfileById(id: string): Promise<Profile | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("id,username,display_name,avatar_url,bio,created_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    id: data.id,
+    username: data.username,
+    displayName: data.display_name,
+    avatarUrl: data.avatar_url,
+    bio: data.bio,
+    createdAt: data.created_at,
+  };
+}
+
 export async function getProfileFeed(authorId: string): Promise<FeedItem[]> {
   const supabase = await createClient();
   const { data } = await supabase

@@ -55,3 +55,10 @@ test("inbox has no serious/critical a11y violations", async ({ page }) => {
   await page.goto("/messages");
   await expectNoSerious(page);
 });
+
+test("menu and shop shell pages have no serious/critical a11y violations", async ({ page }) => {
+  await page.goto("/menu");
+  await expectNoSerious(page);
+  await page.goto("/shop");
+  await expectNoSerious(page);
+});

@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -124,6 +124,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    font-variation-settings: "opsz" 18;
   }
   html {
     @apply font-sans;
@@ -142,6 +144,18 @@
 }
 
 @layer utilities {
+  .app-surface {
+    background:
+      radial-gradient(circle at 50% -12%, rgba(160, 65, 78, 0.2), transparent 34rem),
+      linear-gradient(180deg, #202124 0%, #2a2a2d 38%, #242528 100%);
+  }
+  .premium-panel {
+    border: 1px solid color-mix(in oklab, var(--border), transparent 28%);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 55%),
+      color-mix(in oklab, var(--card), #000 4%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  }
   .text-brand-link {
     color: var(--brand-wine-text);
   }

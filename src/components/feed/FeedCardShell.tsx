@@ -24,7 +24,7 @@ export function FeedCardShell({
 }) {
   return (
     <Card
-      className={cn("gap-3 p-4", shellStyles[item.type], className)}
+      className={cn("premium-panel gap-3 rounded-2xl p-4", shellStyles[item.type], className)}
       data-testid={`tile-${item.type}`}
     >
       <header className="flex items-start justify-between gap-3">

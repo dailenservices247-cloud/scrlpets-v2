@@ -27,7 +27,7 @@ describe("rowToFeedItem", () => {
   });
 });
 
-import { hashId } from "@/lib/feed/query";
+import { hashId, isE2EDemoItem } from "@/lib/feed/query";
 
 describe("getFeedDestination", () => {
   it.each([
@@ -65,5 +65,20 @@ describe("hashId (For-You placeholder ordering)", () => {
     ];
     const sorted = [...ids].sort((a, b) => hashId(a) - hashId(b));
     expect(sorted).not.toEqual(ids);
+  });
+});
+
+describe("isE2EDemoItem", () => {
+  it("detects generated e2e rows by visible title", () => {
+    const item: FeedItem = {
+      id: "abc",
+      type: "post",
+      author: { id: "u1", username: "jane", displayName: null, avatarUrl: null },
+      creature: null,
+      title: "E2E post 123",
+      mediaUrl: null,
+      createdAt: "2026-01-01T00:00:00Z",
+    };
+    expect(isE2EDemoItem(item)).toBe(true);
   });
 });
