@@ -1,7 +1,4 @@
-/* Scrlpets wordmark — "double-scroll S" v2 (Brand House v1.2, locked 2026-06-11).
-   Both ends of the S curl inward in opposite directions: the cross-section of a
-   parchment scroll, which happens to BE an S. Matches the Gemini-rendered mark
-   (public/brand/scrlpets-mark-full.png). S = inline SVG; letterforms = real text. */
+/* Scrlpets header mark — optimized raster derived from the locked hamster-wheel logo. */
 
 export function ScrollS({ size = 28 }: { size?: number }) {
   return (
@@ -39,19 +36,15 @@ export function ScrollS({ size = 28 }: { size?: number }) {
 
 export function Wordmark({ size = 24 }: { size?: number }) {
   return (
-    <span className="inline-flex items-center gap-2" data-testid="wordmark">
-      {/* Official hamster-wheel mark from the locked logo direction. */}
+    <span className="inline-flex items-center" data-testid="wordmark">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/brand/scrlpets-header-icon.png"
         alt=""
-        width={size * 1.5}
-        height={size * 1.5}
-        className="rounded-lg object-cover"
+        width={size * 2}
+        height={size * 2}
+        className="rounded-xl object-cover"
       />
-      <span className="text-[22px] font-bold leading-none tracking-tight text-foreground">
-        Scrlpets
-      </span>
       <span className="sr-only">Scrlpets</span>
     </span>
   );
