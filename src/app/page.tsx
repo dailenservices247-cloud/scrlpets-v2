@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/app/AppHeader";
 import { AppPage } from "@/components/app/AppPage";
 import { FeedComposerPrompt } from "@/components/feed/FeedComposerPrompt";
 import { UpdatesMomentsRail } from "@/components/feed/UpdatesMomentsRail";
+import { FeedSectionControls } from "@/components/feed/FeedSectionControls";
 import { getProfileById } from "@/lib/profiles/queries";
 
 export default async function HomePage({
@@ -28,6 +29,7 @@ export default async function HomePage({
         fallbackLabel={profile?.displayName ?? profile?.username ?? user?.email}
       />
       <UpdatesMomentsRail items={items} signedIn={Boolean(user)} />
+      <FeedSectionControls />
       <FeedList items={items} />
     </AppPage>
   );

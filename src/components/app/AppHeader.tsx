@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { FeedTabs } from "@/components/feed/FeedTabs";
 
 export function AppHeader({ signedIn }: { signedIn: boolean }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-border/80 bg-background/88 px-4 pb-3 pt-4 backdrop-blur-xl">
-      <div className="mb-3 flex items-center justify-between">
+    <header className="sticky top-0 z-20 border-b border-border/80 bg-background/88 px-4 py-3 backdrop-blur-xl">
+      <div className="flex items-center justify-between">
         <Link href="/" aria-label="Scrlpets home" className="rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
           <Wordmark size={23} />
         </Link>
@@ -25,7 +24,6 @@ export function AppHeader({ signedIn }: { signedIn: boolean }) {
           )}
         </div>
       </div>
-      <FeedTabs />
     </header>
   );
 }
