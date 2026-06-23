@@ -1,4 +1,4 @@
--- Slice 2: media bucket + write policies (APPLIED 2026-06-11 via Supabase MCP, migration slice2_write_policies)
+-- Slice 2: media bucket + write policies
 -- Public read stays per G1-A; writes owner-enforced at the DB even if server actions are bypassed.
 
 insert into storage.buckets (id, name, public)

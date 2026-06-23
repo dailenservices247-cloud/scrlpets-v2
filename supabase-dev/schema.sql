@@ -9,7 +9,7 @@ create table public.profiles (
   created_at timestamptz not null default now()
 );
 
--- creatures = the navigator/identity (satellite pattern)
+-- creatures provide the animal-first identity surface
 create table public.creatures (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null references public.profiles(id) on delete cascade,

@@ -1,4 +1,4 @@
--- Phase 4: messaging (APPLIED 2026-06-12 via MCP, migration phase4_messaging)
+-- Phase 4: messaging
 -- 1:1 conversations + append-only messages. Append-only = trust-log seam for phase 5 (G7).
 create table public.conversations (
   id uuid primary key default gen_random_uuid(),

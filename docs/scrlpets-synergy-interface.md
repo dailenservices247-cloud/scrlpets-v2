@@ -2,11 +2,11 @@
 
 Scrlpets is being built as a pet-first product with clean internal seams for future integrations.
 
-This note is intentionally public-safe. The repository is public for build credibility, deployment workflow, and timestamped progress, but deeper product strategy, ecosystem roadmap, and trust-system design stay in the private vault.
+This note is intentionally public-safe. The repository is public for build credibility, deployment workflow, and timestamped progress, but deeper product planning stays in private project docs.
 
 ## Why This Document Is Limited
 
-Public code should explain how the app is organized without disclosing the full business moat.
+Public code should explain how the app is organized without disclosing unreleased product plans.
 
 This file therefore records only practical engineering boundaries:
 
@@ -14,7 +14,7 @@ This file therefore records only practical engineering boundaries:
 - which modules should stay easy to integrate later
 - which future ideas are out of scope for this repository today
 
-Detailed strategy, partner plans, pricing, verification-roadmap decisions, and ecosystem architecture belong in private planning docs, not the public repo.
+Detailed business planning and unreleased architecture belong in private planning docs, not the public repo.
 
 ## Current App Boundaries
 
@@ -54,6 +54,6 @@ Type seam: `src/lib/commerce/recommendations.ts`.
 
 ## Non-Goals
 
-This repository should not contain private ecosystem strategy, partner strategy, or unreleased trust-system implementation details.
+This repository should not contain private business strategy or unreleased implementation details.
 
 Future platform work should be documented privately until it is intentionally productized for public release.

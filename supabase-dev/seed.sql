@@ -1,7 +1,7 @@
--- Slice-1 dummy data (APPLIED 2026-06-10 via Supabase MCP to dev project irpayabloogarxwtjmrf).
+-- Slice-1 dummy data for the development database.
 -- NOTE: profiles.id has an FK to auth.users, so a standalone seed profile is impossible.
 -- The seed identity is a real dev auth user (also the Playwright E2E user):
---   email scrlpets-e2e@scrlpets.com · password in ~/.secret_keys (SCRLPETS_V2_E2E_*)
+--   email scrlpets-e2e@scrlpets.com
 --   created via insert into auth.users + auth.identities with fixed id ...0001;
 --   the on_auth_user_created trigger created its profile, then username was set to breeder_jane.
 
