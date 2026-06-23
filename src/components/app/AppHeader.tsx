@@ -4,7 +4,7 @@ import { Wordmark } from "@/components/brand/Wordmark";
 
 export function AppHeader({ signedIn }: { signedIn: boolean }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-border/80 bg-background/88 px-4 py-3 backdrop-blur-xl">
+    <header className="border-b border-border/80 bg-background/88 px-4 py-3 backdrop-blur-xl" data-testid="app-header">
       <div className="flex items-center justify-between">
         <Link href="/" aria-label="Scrlpets home" className="rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
           <Wordmark size={23} />
