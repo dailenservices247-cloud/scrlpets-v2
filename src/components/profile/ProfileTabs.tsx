@@ -15,14 +15,14 @@ export function ProfileTabs() {
   const tab: ProfileTab = (VALUES as readonly string[]).includes(raw ?? "") ? (raw as ProfileTab) : "posts";
   return (
     <Tabs value={tab} onValueChange={(v) => router.push(`${pathname}?tab=${v}`)}>
-      <TabsList className="w-full">
-        <TabsTrigger value="posts" className="flex-1" data-testid="ptab-posts">
+      <TabsList className="h-11 w-full rounded-xl border border-border/80 bg-muted/60 p-1 shadow-inner">
+        <TabsTrigger value="posts" className="h-9 flex-1 rounded-lg text-sm font-semibold" data-testid="ptab-posts">
           {t("tabPosts")}
         </TabsTrigger>
-        <TabsTrigger value="pets" className="flex-1" data-testid="ptab-pets">
+        <TabsTrigger value="pets" className="h-9 flex-1 rounded-lg text-sm font-semibold" data-testid="ptab-pets">
           {t("tabPets")}
         </TabsTrigger>
-        <TabsTrigger value="about" className="flex-1" data-testid="ptab-about">
+        <TabsTrigger value="about" className="h-9 flex-1 rounded-lg text-sm font-semibold" data-testid="ptab-about">
           {t("tabAbout")}
         </TabsTrigger>
       </TabsList>

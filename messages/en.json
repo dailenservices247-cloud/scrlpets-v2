@@ -60,6 +60,12 @@
     "saved": "Saved",
     "memberSince": "Member since {date}",
     "notFound": "Not found",
+    "profileLabel": "Profile",
+    "aboutLabel": "About",
+    "joined": "Joined",
+    "metricAnimals": "Animals",
+    "metricPosts": "Posts",
+    "metricListings": "Listings",
     "animalsFirst": "Animals first",
     "animalsFirstHint": "Profiles start with the animals."
   },

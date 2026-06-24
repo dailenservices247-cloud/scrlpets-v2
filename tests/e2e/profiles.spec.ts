@@ -3,10 +3,13 @@ import { test, expect } from "@playwright/test";
 test("guest views a profile: tabs, posts, pets → creature page", async ({ page }) => {
   await page.goto("/u/breeder_jane");
   await expect(page.getByTestId("profile-header")).toBeVisible();
+  await expect(page.getByTestId("profile-metrics")).toBeVisible();
+  await expect(page.getByTestId("metric-animals")).toBeVisible();
   await expect(page.getByTestId("animal-rail")).toBeVisible();
   await expect(page.getByTestId("animal-rail-card").first()).toBeVisible();
   await expect(page.getByTestId("animal-rail").getByText("Max", { exact: true })).toBeVisible();
   await expect(page.getByTestId("feed-list")).toBeVisible();
+  await expect(page.getByRole("tab", { name: "For You" })).toHaveCount(0);
   await page.getByTestId("ptab-pets").click();
   await expect(page).toHaveURL(/tab=pets/);
   await expect(page.getByTestId("pets-list")).toBeVisible();
@@ -39,7 +42,7 @@ test("profile edit roundtrip (bio appears on About)", async ({ page }) => {
   await page.getByTestId("edit-bio").fill(marker);
   await page.getByTestId("edit-save").click();
   await expect(page).toHaveURL(/\/u\/breeder_jane\?tab=about/);
-  await expect(page.getByText(marker)).toBeVisible();
+  await expect(page.getByTestId("about-panel").getByText(marker)).toBeVisible();
 });
 
 test("signed-out /settings redirects to login", async ({ page }) => {

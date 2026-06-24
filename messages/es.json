@@ -60,6 +60,12 @@
     "saved": "Guardado",
     "memberSince": "Miembro desde {date}",
     "notFound": "No encontrado",
+    "profileLabel": "Perfil",
+    "aboutLabel": "Acerca de",
+    "joined": "Se unió",
+    "metricAnimals": "Animales",
+    "metricPosts": "Publicaciones",
+    "metricListings": "Anuncios",
     "animalsFirst": "Animales primero",
     "animalsFirstHint": "Los perfiles empiezan con los animales."
   },
