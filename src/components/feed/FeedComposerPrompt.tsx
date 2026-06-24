@@ -13,7 +13,7 @@ export function FeedComposerPrompt({
   const fallback = (fallbackLabel?.trim() || "Guest").slice(0, 1).toUpperCase();
 
   return (
-    <section className="border-b border-border/80 bg-background/80 px-4 py-3" data-testid="feed-composer-prompt">
+    <div data-testid="feed-composer-prompt">
       <div className="flex items-center gap-3">
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -44,6 +44,6 @@ export function FeedComposerPrompt({
           <ImagePlus className="size-5" aria-hidden />
         </Link>
       </div>
-    </section>
+    </div>
   );
 }

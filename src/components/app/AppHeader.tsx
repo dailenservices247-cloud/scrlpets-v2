@@ -1,8 +1,9 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Search } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 
-export function AppHeader({ signedIn }: { signedIn: boolean }) {
+export function AppHeader({ signedIn, children }: { signedIn: boolean; children?: ReactNode }) {
   return (
     <header className="border-b border-border/80 bg-background/88 px-4 py-3 backdrop-blur-xl" data-testid="app-header">
       <div className="flex items-center justify-between">
@@ -24,6 +25,7 @@ export function AppHeader({ signedIn }: { signedIn: boolean }) {
           )}
         </div>
       </div>
+      {children ? <div className="mt-3">{children}</div> : null}
     </header>
   );
 }

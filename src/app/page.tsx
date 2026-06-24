@@ -21,12 +21,13 @@ export default async function HomePage({
   ]);
   return (
     <AppPage>
-      <AppHeader signedIn={Boolean(user)} />
-      <FeedComposerPrompt
-        signedIn={Boolean(user)}
-        avatarUrl={profile?.avatarUrl}
-        fallbackLabel={profile?.displayName ?? profile?.username ?? user?.email}
-      />
+      <AppHeader signedIn={Boolean(user)}>
+        <FeedComposerPrompt
+          signedIn={Boolean(user)}
+          avatarUrl={profile?.avatarUrl}
+          fallbackLabel={profile?.displayName ?? profile?.username ?? user?.email}
+        />
+      </AppHeader>
       <UpdatesMomentsRail items={items} signedIn={Boolean(user)} />
       <FeedList items={items} />
     </AppPage>
