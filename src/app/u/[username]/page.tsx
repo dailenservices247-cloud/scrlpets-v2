@@ -9,11 +9,13 @@ import {
 } from "@/lib/profiles/queries";
 import { AnimalRail } from "@/components/profile/AnimalRail";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
+import { ProfileIdentityPanel } from "@/components/profile/ProfileIdentityPanel";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { FeedList } from "@/components/feed/FeedList";
 import { AppPage } from "@/components/app/AppPage";
 import { Card } from "@/components/ui/card";
 import type { FeedItem } from "@/lib/feed/types";
+import { getProfileIdentityModel } from "@/lib/profile-identity";
 
 function countType(items: FeedItem[], types: FeedItem["type"][]) {
   return items.filter((item) => types.includes(item.type)).length;
@@ -42,6 +44,7 @@ export default async function ProfilePage({
     { label: t("metricPosts"), value: countType(profileFeed, ["post", "reel", "long_video"]), testId: "metric-posts" },
     { label: t("metricListings"), value: countType(profileFeed, ["listing"]), testId: "metric-listings" },
   ];
+  const identityModel = getProfileIdentityModel({ profile, creatures, feed: profileFeed });
 
   return (
     <AppPage>
@@ -52,6 +55,7 @@ export default async function ProfilePage({
           viewerSignedIn={!!user}
           metrics={metrics}
         />
+        <ProfileIdentityPanel model={identityModel} />
         <AnimalRail creatures={creatures} />
         <div className="px-3 pt-3">
           <ProfileTabs />
