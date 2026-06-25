@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, Bone, ChevronRight, MessageCircle, PawPrint, Settings, Store } from "lucide-react";
+import { Bell, Bone, Building2, ChevronRight, MessageCircle, PawPrint, Settings, Store } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
@@ -7,6 +7,7 @@ import { getProfileById } from "@/lib/profiles/queries";
 const actions = [
   { href: "/", label: "Feed", icon: PawPrint },
   { href: "/shop", label: "Shop", icon: Store },
+  { href: "/brand-os", label: "Brand OS", icon: Building2 },
   { href: "/messages", label: "Chat", icon: MessageCircle },
   { href: "/settings/profile", label: "Settings", icon: Settings },
 ];

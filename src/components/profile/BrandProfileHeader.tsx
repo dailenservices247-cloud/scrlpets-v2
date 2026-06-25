@@ -24,12 +24,20 @@ export function BrandProfileHeader({
             <h1 className="mt-1 text-2xl font-semibold leading-tight">{brand.name}</h1>
             <p className="truncate text-sm text-muted-foreground">{brand.handle}</p>
           </div>
-          <Link
-            href={`/u/${owner.username}`}
-            className="rounded-md border border-input px-3 py-2 text-sm font-medium text-brand-link"
-          >
-            Person
-          </Link>
+          <div className="flex shrink-0 flex-col gap-2">
+            <Link
+              href="/brand-os"
+              className="rounded-md border border-primary/35 bg-primary/15 px-3 py-2 text-center text-sm font-medium text-brand-link"
+            >
+              OS
+            </Link>
+            <Link
+              href={`/u/${owner.username}`}
+              className="rounded-md border border-input px-3 py-2 text-center text-sm font-medium text-brand-link"
+            >
+              Person
+            </Link>
+          </div>
         </header>
 
         <p className="mt-4 line-clamp-3 text-sm leading-6 text-muted-foreground">{brand.description}</p>
