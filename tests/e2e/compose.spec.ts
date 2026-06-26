@@ -31,14 +31,14 @@ test.describe("signed in", () => {
     await expect(page.getByTestId("about-selector")).toBeVisible();
     await expect(page.getByTestId("attribution-preview")).toBeVisible();
     await expect(page.getByTestId("listing-form")).toBeVisible();
-    await page.getByRole("tab", { name: /Product/ }).click();
+    await page.getByTestId("mode-selector").getByRole("button", { name: /Product/ }).click();
     await expect(page.getByTestId("planned-mode-panel")).toBeVisible();
   });
 
   test("create listing with price → appears in feed", async ({ page }) => {
     const marker = `E2E listing ${Date.now()}`;
     await page.goto("/compose");
-    await page.getByRole("tab", { name: "Listing" }).click();
+    await page.getByRole("button", { name: /Listing/ }).click();
     await page.getByTestId("listing-title").fill(marker);
     await page.getByTestId("listing-price").fill("123.45");
     await page.getByTestId("listing-submit").click();
@@ -48,7 +48,7 @@ test.describe("signed in", () => {
 
   test("listing rejects junk price", async ({ page }) => {
     await page.goto("/compose");
-    await page.getByRole("tab", { name: "Listing" }).click();
+    await page.getByRole("button", { name: /Listing/ }).click();
     await page.getByTestId("listing-title").fill("x");
     await page.getByTestId("listing-price").fill("abc");
     await page.getByTestId("listing-submit").click();

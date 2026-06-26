@@ -14,7 +14,6 @@ import {
   UserRound,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PostForm } from "./PostForm";
 import { ListingForm } from "./ListingForm";
 import { cn } from "@/lib/utils";
@@ -93,8 +92,7 @@ export function ComposerTabs({
   }
 
   return (
-    <Tabs value={tab} onValueChange={selectMode}>
-      <div className="space-y-4 px-3 pb-24" data-testid="composer-alignment">
+    <div className="space-y-4 px-3 pb-24" data-testid="composer-alignment">
         <section className="premium-panel rounded-2xl p-4" data-testid="posting-as-selector">
           <div className="mb-3 flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-xl border border-primary/35 bg-primary/15 text-brand-link">
@@ -143,14 +141,20 @@ export function ComposerTabs({
               <h2 className="text-lg font-semibold">What are you creating?</h2>
             </div>
           </div>
-          <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-none bg-transparent p-0 shadow-none">
+          <div className="grid w-full grid-cols-2 gap-2">
             {modeOptions.map((mode) => {
               const Icon = mode.icon;
+              const active = tab === mode.value;
               return (
-                <TabsTrigger
+                <button
+                  type="button"
                   key={mode.value}
-                  value={mode.value}
-                  className="h-auto rounded-xl border border-border/70 bg-muted/30 p-3 text-left data-[state=active]:border-primary/70 data-[state=active]:bg-primary/15"
+                  onClick={() => selectMode(mode.value)}
+                  aria-pressed={active}
+                  className={cn(
+                    "min-h-28 rounded-xl border p-3 text-left transition",
+                    active ? "border-primary/70 bg-primary/15" : "border-border/70 bg-muted/30",
+                  )}
                 >
                   <span className="flex w-full flex-col items-start">
                     <span className="flex w-full items-center justify-between gap-2">
@@ -160,10 +164,10 @@ export function ComposerTabs({
                     <span className="mt-2 text-sm font-semibold">{mode.label}</span>
                     <span className="mt-1 text-xs font-normal leading-5 text-muted-foreground">{mode.description}</span>
                   </span>
-                </TabsTrigger>
+                </button>
               );
             })}
-          </TabsList>
+          </div>
         </section>
 
         <section className="premium-panel rounded-2xl p-4" data-testid="about-selector">
@@ -197,22 +201,13 @@ export function ComposerTabs({
         <AttributionPreview actorName={actorName} postingLabel={postingLabel} subjectLabel={subjectLabel} modeLabel={modeLabels[tab]} />
 
         <section className="premium-panel rounded-2xl p-4">
-          <TabsContent value="post" className="m-0">
-            <PostForm userId={userId} creatures={creatures} />
-          </TabsContent>
-          <TabsContent value="listing" className="m-0">
-            <ListingForm userId={userId} creatures={creatures} />
-          </TabsContent>
-          {modeOptions
-            .filter((mode) => !mode.live)
-            .map((mode) => (
-              <TabsContent key={mode.value} value={mode.value} className="m-0">
-                <PlannedModePanel mode={mode.label} postingLabel={postingLabel} subjectLabel={subjectLabel} />
-              </TabsContent>
-            ))}
+          {tab === "post" && <PostForm userId={userId} creatures={creatures} />}
+          {tab === "listing" && <ListingForm userId={userId} creatures={creatures} />}
+          {tab !== "post" && tab !== "listing" && (
+            <PlannedModePanel mode={modeLabels[tab]} postingLabel={postingLabel} subjectLabel={subjectLabel} />
+          )}
         </section>
       </div>
-    </Tabs>
   );
 }
 

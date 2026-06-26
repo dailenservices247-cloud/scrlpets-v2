@@ -12,7 +12,7 @@ export default async function ComposePage() {
   const [creatures, profile] = await Promise.all([getMyCreatures(), getProfileById(user.id)]);
   const actorName = profile?.displayName ?? profile?.username ?? user.email ?? "You";
   return (
-    <AppPage>
+    <AppPage showBottomNav={false}>
       <section className="px-3 pb-3 pt-4">
         <div className="premium-panel rounded-2xl p-4">
           <div className="flex items-start justify-between gap-3">
