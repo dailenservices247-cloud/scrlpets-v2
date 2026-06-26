@@ -23,6 +23,18 @@ test.describe("signed in", () => {
     await expect(page.getByText(marker)).toBeVisible();
   });
 
+  test("composer alignment exposes identity, mode, subject, and preview", async ({ page }) => {
+    await page.goto("/compose?mode=listing");
+    await expect(page.getByTestId("composer-alignment")).toBeVisible();
+    await expect(page.getByTestId("posting-as-selector")).toBeVisible();
+    await expect(page.getByTestId("mode-selector")).toBeVisible();
+    await expect(page.getByTestId("about-selector")).toBeVisible();
+    await expect(page.getByTestId("attribution-preview")).toBeVisible();
+    await expect(page.getByTestId("listing-form")).toBeVisible();
+    await page.getByRole("tab", { name: /Product/ }).click();
+    await expect(page.getByTestId("planned-mode-panel")).toBeVisible();
+  });
+
   test("create listing with price → appears in feed", async ({ page }) => {
     const marker = `E2E listing ${Date.now()}`;
     await page.goto("/compose");
