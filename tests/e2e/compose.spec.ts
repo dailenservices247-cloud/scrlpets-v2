@@ -54,4 +54,24 @@ test.describe("signed in", () => {
     await page.getByTestId("listing-submit").click();
     await expect(page).toHaveURL(/compose/);
   });
+
+  test("create brand → post as that brand → appears in feed", async ({ page }) => {
+    const brandName = `E2E Brand ${Date.now()}`;
+    const marker = `E2E brandpost ${Date.now()}`;
+
+    await page.goto("/brands/new");
+    await page.getByTestId("brand-name").fill(brandName);
+    await page.getByTestId("brand-create-submit").click();
+    await expect(page).toHaveURL(/\/compose/);
+
+    // Switch identity to Brand; the new brand is auto-selected in the picker.
+    await page.getByTestId("posting-as-selector").getByRole("button", { name: "Brand" }).click();
+    await expect(page.getByTestId("brand-select")).toBeVisible();
+    await expect(page.getByTestId("post-submit")).toBeEnabled();
+
+    await page.getByTestId("post-body").fill(marker);
+    await page.getByTestId("post-submit").click();
+    await expect(page).toHaveURL("http://localhost:3000/");
+    await expect(page.getByText(marker)).toBeVisible();
+  });
 });

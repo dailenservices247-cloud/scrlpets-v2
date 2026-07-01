@@ -13,10 +13,18 @@ import {
   Store,
   UserRound,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostForm } from "./PostForm";
 import { ListingForm } from "./ListingForm";
+import type { MyBrand } from "@/lib/brands/queries";
 import { cn } from "@/lib/utils";
+
+export type ComposeAttribution = {
+  postingAsType: "person" | "brand";
+  brandId: string | null;
+  aboutType: string;
+};
 
 type Mode = "post" | "listing" | "product" | "service" | "promotion" | "recommendation" | "collaboration";
 type PostingAs = "person" | "brand";
@@ -58,17 +66,27 @@ export function ComposerTabs({
   userId,
   actorName,
   creatures,
+  brands,
 }: {
   userId: string;
   actorName: string;
   creatures: { id: string; name: string }[];
+  brands: MyBrand[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = normalizeMode(searchParams.get("mode"));
-  const [postingAs, setPostingAs] = useState<PostingAs>("brand");
+  const [postingAs, setPostingAs] = useState<PostingAs>("person");
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(brands[0]?.id ?? null);
   const [about, setAbout] = useState<About>(() => (searchParams.get("mode") === "listing" ? "animal" : "none"));
-  const postingLabel = postingAs === "brand" ? "Blue River Kennels" : actorName;
+  const selectedBrand = brands.find((b) => b.id === selectedBrandId) ?? null;
+  const postingLabel = postingAs === "brand" ? (selectedBrand?.name ?? "Select a brand") : actorName;
+  const attribution = {
+    postingAsType: postingAs,
+    brandId: postingAs === "brand" ? selectedBrandId : null,
+    aboutType: about,
+  };
+  const brandReady = postingAs === "person" || (postingAs === "brand" && !!selectedBrandId);
   const subjectLabel = useMemo(() => {
     const firstAnimal = creatures[0]?.name ?? "Animal";
     const map: Record<About, string> = {
@@ -126,9 +144,41 @@ export function ComposerTabs({
             >
               <Building2 className="mb-3 size-5 text-brand-link" aria-hidden />
               <span className="block text-sm font-semibold">Brand</span>
-              <span className="mt-1 block truncate text-xs text-muted-foreground">Blue River Kennels</span>
+              <span className="mt-1 block truncate text-xs text-muted-foreground">
+                {brands.length ? (selectedBrand?.name ?? "Choose a brand") : "No brands yet"}
+              </span>
             </button>
           </div>
+          {postingAs === "brand" && (
+            <div className="mt-3" data-testid="brand-picker">
+              {brands.length > 0 ? (
+                <label className="block text-sm">
+                  <span className="mb-1 block text-xs text-muted-foreground">Post as which brand</span>
+                  <select
+                    value={selectedBrandId ?? ""}
+                    onChange={(e) => setSelectedBrandId(e.target.value || null)}
+                    aria-label="Post as which brand"
+                    data-testid="brand-select"
+                    className="w-full rounded-xl border border-input bg-transparent p-2"
+                  >
+                    {brands.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <Link
+                  href="/brands/new"
+                  data-testid="create-brand-cta"
+                  className="block rounded-xl border border-dashed border-input p-3 text-sm text-brand-link"
+                >
+                  Create a brand to post as one →
+                </Link>
+              )}
+            </div>
+          )}
         </section>
 
         <section className="premium-panel rounded-2xl p-4" data-testid="mode-selector">
@@ -201,8 +251,13 @@ export function ComposerTabs({
         <AttributionPreview actorName={actorName} postingLabel={postingLabel} subjectLabel={subjectLabel} modeLabel={modeLabels[tab]} />
 
         <section className="premium-panel rounded-2xl p-4">
-          {tab === "post" && <PostForm userId={userId} creatures={creatures} />}
-          {tab === "listing" && <ListingForm userId={userId} creatures={creatures} />}
+          {!brandReady && (tab === "post" || tab === "listing") && (
+            <p className="mb-3 text-sm text-destructive" data-testid="brand-not-ready">
+              Choose a brand above before publishing as a brand.
+            </p>
+          )}
+          {tab === "post" && <PostForm userId={userId} creatures={creatures} attribution={attribution} disabled={!brandReady} />}
+          {tab === "listing" && <ListingForm userId={userId} creatures={creatures} attribution={attribution} disabled={!brandReady} />}
           {tab !== "post" && tab !== "listing" && (
             <PlannedModePanel mode={modeLabels[tab]} postingLabel={postingLabel} subjectLabel={subjectLabel} />
           )}

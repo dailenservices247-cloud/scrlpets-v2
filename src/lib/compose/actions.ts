@@ -1,10 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { validatePost, validateListing, parsePriceCents } from "./validation";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
+
+const ABOUT_TYPES = new Set(["none", "animal", "litter", "product", "service", "brand", "collaboration"]);
+
+type Attribution = {
+  posting_as_type: "person" | "brand";
+  brand_id: string | null;
+  about_type: string;
+  about_id: string | null;
+};
 
 async function requireUser() {
   const supabase = await createClient();
@@ -15,6 +25,37 @@ async function requireUser() {
   return { supabase, user };
 }
 
+/**
+ * Resolve attribution from client FormData and RE-VERIFY brand membership server-side.
+ * Never trust a client-submitted brand_id: RLS is the backstop, this is the app-layer guard.
+ * Returns null when posting as a brand the caller has no membership for.
+ */
+async function resolveAttribution(
+  supabase: SupabaseClient,
+  userId: string,
+  formData: FormData,
+): Promise<Attribution | null> {
+  const postingAsType = formData.get("postingAsType") === "brand" ? "brand" : "person";
+  const rawAbout = String(formData.get("aboutType") ?? "none");
+  const aboutType = ABOUT_TYPES.has(rawAbout) ? rawAbout : "none";
+  const aboutId = (formData.get("aboutId") as string) || null;
+
+  if (postingAsType === "person") {
+    return { posting_as_type: "person", brand_id: null, about_type: aboutType, about_id: aboutId };
+  }
+
+  const brandId = (formData.get("brandId") as string) || null;
+  if (!brandId) return null;
+  const { data, error } = await supabase
+    .from("brand_memberships")
+    .select("id")
+    .eq("brand_id", brandId)
+    .eq("profile_id", userId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return { posting_as_type: "brand", brand_id: brandId, about_type: aboutType, about_id: aboutId };
+}
+
 export async function createPost(formData: FormData): Promise<ActionResult> {
   const { supabase, user } = await requireUser();
   const body = String(formData.get("body") ?? "");
@@ -22,12 +63,15 @@ export async function createPost(formData: FormData): Promise<ActionResult> {
   const creatureId = (formData.get("creatureId") as string) || null;
   const v = validatePost({ body, mediaUrl });
   if (!v.ok) return { ok: false, error: v.error };
+  const attribution = await resolveAttribution(supabase, user.id, formData);
+  if (!attribution) return { ok: false, error: "brand_denied" };
   const { error } = await supabase.from("posts").insert({
     author_id: user.id,
     content_type: "post",
     body: body.trim() || null,
     media_url: mediaUrl,
     tagged_creature_id: creatureId,
+    ...attribution,
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/");
@@ -42,12 +86,15 @@ export async function createListing(formData: FormData): Promise<ActionResult> {
   const creatureId = (formData.get("creatureId") as string) || null;
   const v = validateListing({ title, priceCents });
   if (!v.ok) return { ok: false, error: v.error };
+  const attribution = await resolveAttribution(supabase, user.id, formData);
+  if (!attribution) return { ok: false, error: "brand_denied" };
   const { error } = await supabase.from("listings").insert({
     seller_id: user.id,
     title: title.trim(),
     price_cents: priceCents!,
     media_url: mediaUrl,
     creature_id: creatureId,
+    ...attribution,
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/");

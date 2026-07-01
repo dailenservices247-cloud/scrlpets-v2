@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createListing } from "@/lib/compose/actions";
+import { applyAttribution } from "./attribution";
+import type { ComposeAttribution } from "./ComposerTabs";
 import { MediaInput } from "./MediaInput";
 import { CreaturePicker } from "./CreaturePicker";
 import { Button } from "@/components/ui/button";
@@ -11,9 +13,13 @@ import { capture } from "@/lib/analytics";
 export function ListingForm({
   userId,
   creatures,
+  attribution,
+  disabled = false,
 }: {
   userId: string;
   creatures: { id: string; name: string }[];
+  attribution: ComposeAttribution;
+  disabled?: boolean;
 }) {
   const t = useTranslations("compose");
   const router = useRouter();
@@ -33,6 +39,7 @@ export function ListingForm({
     fd.set("price", price);
     if (mediaUrl) fd.set("mediaUrl", mediaUrl);
     if (creatureId) fd.set("creatureId", creatureId);
+    applyAttribution(fd, attribution, creatureId);
     const res = await createListing(fd);
     setBusy(false);
     if (!res.ok) {
@@ -66,7 +73,7 @@ export function ListingForm({
       <MediaInput userId={userId} onUploaded={setMediaUrl} />
       <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
       {err && <p className="text-destructive text-sm">{err}</p>}
-      <Button type="submit" disabled={busy} data-testid="listing-submit">
+      <Button type="submit" disabled={busy || disabled} data-testid="listing-submit">
         {t("submitListing")}
       </Button>
     </form>
