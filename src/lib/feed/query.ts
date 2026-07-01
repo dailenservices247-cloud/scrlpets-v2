@@ -5,6 +5,7 @@ export type Row = {
   username: string; display_name: string | null; avatar_url: string | null;
   creature_id: string | null; creature_name: string | null; creature_slug: string | null; creature_avatar: string | null;
   title: string | null; media_url: string | null; created_at: string;
+  posting_as_type: string | null; brand_id: string | null; brand_name: string | null; brand_avatar: string | null;
 };
 
 export function rowToFeedItem(r: Row): FeedItem {
@@ -13,6 +14,10 @@ export function rowToFeedItem(r: Row): FeedItem {
     id: r.id,
     type,
     author: { id: r.author_id, username: r.username, displayName: r.display_name, avatarUrl: r.avatar_url },
+    brand:
+      r.posting_as_type === "brand" && r.brand_id
+        ? { id: r.brand_id, name: r.brand_name ?? "Brand", avatarUrl: r.brand_avatar }
+        : null,
     creature: r.creature_id
       ? { id: r.creature_id, name: r.creature_name!, slug: r.creature_slug!, avatarUrl: r.creature_avatar }
       : null,

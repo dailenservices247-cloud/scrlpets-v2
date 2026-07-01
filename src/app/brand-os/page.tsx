@@ -1,137 +1,57 @@
 import Link from "next/link";
-import {
-  BadgeDollarSign,
-  Bell,
-  Building2,
-  CalendarClock,
-  ChevronRight,
-  FileText,
-  Handshake,
-  HeartHandshake,
-  Megaphone,
-  MessageCircle,
-  PawPrint,
-  PenSquare,
-  Settings,
-  ShieldCheck,
-  ShoppingBag,
-  UsersRound,
-} from "lucide-react";
+import { BadgeDollarSign, Building2, MessageCircle, PawPrint, PenSquare, UsersRound } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
-import { getBrandSurfaceBySlug } from "@/lib/profile-identity";
-
-const brand = getBrandSurfaceBySlug("blue-river-kennels");
+import { getSessionUser } from "@/lib/auth/session";
+import { getMyBrands, getBrandContentCounts } from "@/lib/brands/queries";
+import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 
 const quickActions = [
   { label: "Post update", icon: PenSquare, href: "/compose" },
   { label: "New listing", icon: BadgeDollarSign, href: "/compose?mode=listing" },
-  { label: "Add animal", icon: PawPrint, href: "/brand-os" },
-  { label: "Invite operator", icon: UsersRound, href: "/brand-os" },
+  { label: "Messages", icon: MessageCircle, href: "/messages" },
+  { label: "New brand", icon: UsersRound, href: "/brands/new" },
 ];
 
-const overview = [
-  { label: "Active listings", value: "24", tone: "primary" },
-  { label: "Unread inquiries", value: "8", tone: "secondary" },
-  { label: "Pack contacts", value: "18", tone: "accent" },
-  { label: "Collaborations", value: "3", tone: "muted" },
-];
+function typeLabel(value: string): string {
+  return BRAND_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? "Brand";
+}
 
-const attention = [
-  {
-    label: "Listing inquiries",
-    detail: "3 animal listing threads need a brand response.",
-    icon: MessageCircle,
-    href: "/messages",
-  },
-  {
-    label: "Litter family updates",
-    detail: "Share a pack update for recent buyers and contract holders.",
-    icon: HeartHandshake,
-    href: "/compose",
-  },
-  {
-    label: "Cross-brand post",
-    detail: "Stone Creek Bullies collaboration is ready for announcement copy.",
-    icon: Handshake,
-    href: "/brand-os",
-  },
-];
+export default async function BrandOSPage() {
+  const user = (await getSessionUser())!; // middleware guarantees auth on /brand-os
+  const brands = await getMyBrands(user.id);
 
-const modules = [
-  {
-    label: "Content",
-    meta: "Posts, reels, updates",
-    count: "25",
-    icon: FileText,
-    href: "/brand-os",
-  },
-  {
-    label: "Animals / Litters",
-    meta: "Animal-first operating hub",
-    count: "3",
-    icon: PawPrint,
-    href: "/b/blue-river-kennels",
-  },
-  {
-    label: "Listings",
-    meta: "Animal and product offers",
-    count: "24",
-    icon: BadgeDollarSign,
-    href: "/brand-os",
-  },
-  {
-    label: "Pack",
-    meta: "Buyers, families, contracts",
-    count: "18",
-    icon: HeartHandshake,
-    href: "/brand-os",
-  },
-  {
-    label: "Messages",
-    meta: "Inquiries with object context",
-    count: "8",
-    icon: MessageCircle,
-    href: "/messages",
-  },
-  {
-    label: "Promotions",
-    meta: "Campaigns and boosted offers",
-    count: "2",
-    icon: Megaphone,
-    href: "/brand-os",
-  },
-  {
-    label: "Collaborations",
-    meta: "Partner brands and shared posts",
-    count: "3",
-    icon: Handshake,
-    href: "/brand-os",
-  },
-  {
-    label: "Operators",
-    meta: "People who can represent brand",
-    count: "2",
-    icon: UsersRound,
-    href: "/brand-os",
-  },
-  {
-    label: "Settings",
-    meta: "Public brand identity",
-    count: "OS",
-    icon: Settings,
-    href: "/brand-os",
-  },
-];
+  if (brands.length === 0) {
+    return (
+      <AppPage>
+        <section className="px-3 pb-3 pt-4" data-testid="brand-os-empty">
+          <div className="premium-panel rounded-2xl p-6 text-center">
+            <div className="mx-auto mb-4 grid size-16 place-items-center rounded-2xl border border-accent/35 bg-accent/15 text-accent">
+              <Building2 className="size-7" aria-hidden />
+            </div>
+            <p className="eyebrow">Brand OS</p>
+            <h1 className="mt-1 text-2xl font-semibold">No brands yet</h1>
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-muted-foreground">
+              Create a brand to post and list as a kennel, shop, rescue, or business you own.
+            </p>
+            <Link
+              href="/brands/new"
+              data-testid="brand-os-create-cta"
+              className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl bg-secondary px-5 font-semibold text-secondary-foreground"
+            >
+              Create a brand
+            </Link>
+          </div>
+        </section>
+      </AppPage>
+    );
+  }
 
-const attributionFlow = [
-  { label: "Actor", value: "Jane" },
-  { label: "Posting as", value: "Blue River Kennels" },
-  { label: "Subject", value: "Biscuit" },
-  { label: "Intent", value: "Animal listing" },
-];
-
-export default function BrandOSPage() {
-  if (!brand) return null;
+  const brand = brands[0];
+  const counts = await getBrandContentCounts(brand.id);
+  const overview = [
+    { label: "Brand posts", value: counts.posts },
+    { label: "Brand listings", value: counts.listings },
+  ];
 
   return (
     <AppPage>
@@ -144,14 +64,8 @@ export default function BrandOSPage() {
             <div className="min-w-0 flex-1">
               <p className="eyebrow">Brand OS</p>
               <h1 className="mt-1 text-2xl font-semibold leading-tight">{brand.name}</h1>
-              <p className="mt-1 truncate text-sm text-muted-foreground">{brand.handle}</p>
+              <p className="mt-1 truncate text-sm text-muted-foreground">{typeLabel(brand.brandType)}</p>
             </div>
-            <Link
-              href={`/b/${brand.slug}`}
-              className="rounded-md border border-input px-3 py-2 text-sm font-medium text-brand-link"
-            >
-              Public
-            </Link>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2" data-testid="brand-os-overview">
@@ -162,6 +76,12 @@ export default function BrandOSPage() {
               </div>
             ))}
           </div>
+
+          {brands.length > 1 && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Showing {brand.name}. You own {brands.length} brands.
+            </p>
+          )}
         </div>
       </section>
 
@@ -182,108 +102,27 @@ export default function BrandOSPage() {
         </div>
       </section>
 
-      <section className="px-3 py-3" data-testid="brand-os-attention">
+      <section className="px-3 py-3">
         <div className="premium-panel rounded-2xl p-4">
-          <div className="mb-3 flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-xl border border-primary/35 bg-primary/15 text-brand-link">
-              <Bell className="size-5" aria-hidden />
-            </span>
-            <div>
-              <p className="eyebrow">Needs attention</p>
-              <h2 className="text-lg font-semibold">Today&apos;s brand work</h2>
-            </div>
-          </div>
-          <div className="grid gap-2">
-            {attention.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-primary/45 hover:bg-muted/45"
-                >
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-background/35 text-muted-foreground">
-                    <Icon className="size-5" aria-hidden />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold">{item.label}</span>
-                    <span className="mt-1 block text-xs leading-5 text-muted-foreground">{item.detail}</span>
-                  </span>
-                  <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-3 py-3" data-testid="brand-os-modules">
-        <p className="eyebrow mb-3">Modules</p>
-        <div className="grid grid-cols-2 gap-3">
-          {modules.map((module) => {
-            const Icon = module.icon;
-            return (
-              <Link key={module.label} href={module.href} className="premium-panel rounded-2xl p-3 transition hover:border-accent/45">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="grid size-10 place-items-center rounded-xl border border-border/70 bg-muted/30 text-brand-link">
-                    <Icon className="size-5" aria-hidden />
-                  </span>
-                  <span className="rounded-md border border-border/70 bg-background/20 px-2 py-1 text-xs font-semibold text-muted-foreground">
-                    {module.count}
-                  </span>
-                </div>
-                <h2 className="mt-4 text-base font-semibold">{module.label}</h2>
-                <p className="mt-1 min-h-10 text-xs leading-5 text-muted-foreground">{module.meta}</p>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="px-3 py-3" data-testid="brand-os-attribution">
-        <div className="premium-panel rounded-2xl p-4">
-          <div className="mb-3 flex items-center gap-3">
+          <div className="mb-2 flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-xl border border-secondary/35 bg-secondary/20 text-secondary-foreground">
-              <ShieldCheck className="size-5" aria-hidden />
+              <PawPrint className="size-5" aria-hidden />
             </span>
             <div>
-              <p className="eyebrow">Attribution preview</p>
-              <h2 className="text-lg font-semibold">How public content wraps</h2>
+              <p className="eyebrow">Post as this brand</p>
+              <h2 className="text-lg font-semibold">Composer is wired</h2>
             </div>
           </div>
-          <div className="grid gap-2">
-            {attributionFlow.map((step, index) => (
-              <div key={step.label} className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/30 p-3">
-                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-background/35 text-sm font-semibold text-muted-foreground">
-                  {index + 1}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xs text-muted-foreground">{step.label}</span>
-                  <span className="block truncate text-sm font-semibold">{step.value}</span>
-                </span>
-              </div>
-            ))}
-          </div>
+          <p className="text-sm leading-6 text-muted-foreground">
+            In the composer, choose <span className="font-semibold text-foreground">Posting as → Brand</span> and pick{" "}
+            <span className="font-semibold text-foreground">{brand.name}</span>. Brand posts and listings are attributed to
+            the brand publicly, with you as the operator behind it.
+          </p>
           <Link
             href="/compose"
             className="mt-4 flex min-h-12 items-center justify-center rounded-xl bg-secondary px-4 font-semibold text-secondary-foreground"
           >
             Open composer
-          </Link>
-        </div>
-      </section>
-
-      <section className="px-3 py-3">
-        <div className="grid grid-cols-2 gap-3">
-          <Link href="/shop" className="premium-panel rounded-2xl p-4">
-            <ShoppingBag className="mb-4 size-5 text-brand-link" aria-hidden />
-            <span className="block text-sm font-semibold">Shop lane</span>
-            <span className="mt-1 block text-xs leading-5 text-muted-foreground">Product paths and recommendations</span>
-          </Link>
-          <Link href="/brand-os" className="premium-panel rounded-2xl p-4">
-            <CalendarClock className="mb-4 size-5 text-brand-link" aria-hidden />
-            <span className="block text-sm font-semibold">Schedule later</span>
-            <span className="mt-1 block text-xs leading-5 text-muted-foreground">Drafts, campaigns, and reminders</span>
           </Link>
         </div>
       </section>

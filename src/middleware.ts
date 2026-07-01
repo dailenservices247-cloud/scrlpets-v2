@@ -15,7 +15,8 @@ export async function middleware(request: NextRequest) {
     (path.startsWith("/compose") ||
       path.startsWith("/settings") ||
       path.startsWith("/messages") ||
-      path.startsWith("/brands"))
+      path.startsWith("/brands") ||
+      path.startsWith("/brand-os"))
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
   }

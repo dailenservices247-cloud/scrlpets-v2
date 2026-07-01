@@ -10,10 +10,12 @@ describe("rowToFeedItem", () => {
       username: "jane", display_name: "Jane", avatar_url: null,
       creature_id: "c1", creature_name: "Max", creature_slug: "max-c1", creature_avatar: null,
       title: "hi", media_url: null, created_at: "2026-01-01T00:00:00Z",
+      posting_as_type: "person", brand_id: null, brand_name: null, brand_avatar: null,
     });
     expect(item.type).toBe("reel");
     expect(item.creature?.name).toBe("Max");
     expect(item.author.username).toBe("jane");
+    expect(item.brand).toBeNull();
   });
   it("maps a promo row (no creature) correctly", () => {
     const item = rowToFeedItem({
@@ -21,9 +23,31 @@ describe("rowToFeedItem", () => {
       username: "jane", display_name: "Jane", avatar_url: null,
       creature_id: null, creature_name: null, creature_slug: null, creature_avatar: null,
       title: "deal", media_url: null, created_at: "2026-01-01T00:00:00Z",
+      posting_as_type: "person", brand_id: null, brand_name: null, brand_avatar: null,
     });
     expect(item.type).toBe("promo");
     expect(item.creature).toBeNull();
+  });
+  it("maps a brand-attributed row to a brand (author = operator)", () => {
+    const item = rowToFeedItem({
+      id: "3", kind: "post", subtype: null, author_id: "a",
+      username: "jane", display_name: "Jane", avatar_url: null,
+      creature_id: null, creature_name: null, creature_slug: null, creature_avatar: null,
+      title: "brand update", media_url: null, created_at: "2026-01-01T00:00:00Z",
+      posting_as_type: "brand", brand_id: "b1", brand_name: "Blue River Kennels", brand_avatar: null,
+    });
+    expect(item.brand?.name).toBe("Blue River Kennels");
+    expect(item.author.username).toBe("jane");
+  });
+  it("ignores brand_id when posting as a person", () => {
+    const item = rowToFeedItem({
+      id: "4", kind: "post", subtype: null, author_id: "a",
+      username: "jane", display_name: "Jane", avatar_url: null,
+      creature_id: null, creature_name: null, creature_slug: null, creature_avatar: null,
+      title: "personal", media_url: null, created_at: "2026-01-01T00:00:00Z",
+      posting_as_type: "person", brand_id: "b1", brand_name: "Blue River Kennels", brand_avatar: null,
+    });
+    expect(item.brand).toBeNull();
   });
 });
 
@@ -41,6 +65,7 @@ describe("getFeedDestination", () => {
       id: "abc",
       type: type as FeedItemType,
       author: { id: "u1", username: "jane", displayName: null, avatarUrl: null },
+      brand: null,
       creature: null,
       title: "Title",
       mediaUrl: null,
@@ -74,6 +99,7 @@ describe("isE2EDemoItem", () => {
       id: "abc",
       type: "post",
       author: { id: "u1", username: "jane", displayName: null, avatarUrl: null },
+      brand: null,
       creature: null,
       title: "E2E post 123",
       mediaUrl: null,

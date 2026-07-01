@@ -37,3 +37,13 @@ export async function getMyBrands(userId: string): Promise<MyBrand[]> {
     })
     .map((b) => ({ id: b.id, name: b.name, brandType: b.brand_type, avatarUrl: b.avatar_url }));
 }
+
+/** Honest content counts for a brand, from existing tables only (no fabricated metrics). */
+export async function getBrandContentCounts(brandId: string): Promise<{ posts: number; listings: number }> {
+  const supabase = await createClient();
+  const [posts, listings] = await Promise.all([
+    supabase.from("posts").select("id", { count: "exact", head: true }).eq("brand_id", brandId),
+    supabase.from("listings").select("id", { count: "exact", head: true }).eq("brand_id", brandId),
+  ]);
+  return { posts: posts.count ?? 0, listings: listings.count ?? 0 };
+}
