@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -11,7 +12,7 @@ export default function AppError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Surfaced in dev console; Sentry hook lands here once a DSN exists (G6).
+    Sentry.captureException(error);
     console.error(error);
   }, [error]);
 
