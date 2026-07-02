@@ -24,7 +24,7 @@ export default function OgImage() {
         }}
       >
         {/* Mark already contains the wordmark — pair it only with the tagline. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        { }
         <img src={MARK} width={480} height={480} alt="" style={{ borderRadius: 40 }} />
         <div style={{ display: "flex", maxWidth: 440 }}>
           <div style={{ fontSize: 44, color: "#e09aa4", lineHeight: 1.3 }}>

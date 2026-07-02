@@ -66,6 +66,13 @@ export default async function BrandOSPage() {
               <h1 className="mt-1 text-2xl font-semibold leading-tight">{brand.name}</h1>
               <p className="mt-1 truncate text-sm text-muted-foreground">{typeLabel(brand.brandType)}</p>
             </div>
+            <Link
+              href={`/b/${brand.slug}`}
+              data-testid="brand-os-public-link"
+              className="shrink-0 rounded-md border border-input px-3 py-2 text-sm font-medium text-brand-link"
+            >
+              Public
+            </Link>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2" data-testid="brand-os-overview">

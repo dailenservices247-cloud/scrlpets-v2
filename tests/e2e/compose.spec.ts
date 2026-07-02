@@ -73,5 +73,11 @@ test.describe("signed in", () => {
     await page.getByTestId("post-submit").click();
     await expect(page).toHaveURL("http://localhost:3000/");
     await expect(page.getByText(marker)).toBeVisible();
+
+    // Attribution is clickable → real public brand page with the post on it.
+    await page.getByTestId("brand-attribution").filter({ hasText: brandName }).first().click();
+    await expect(page).toHaveURL(/\/b\//);
+    await expect(page.getByTestId("brand-profile-header").getByRole("heading", { name: brandName })).toBeVisible();
+    await expect(page.getByText(marker)).toBeVisible();
   });
 });

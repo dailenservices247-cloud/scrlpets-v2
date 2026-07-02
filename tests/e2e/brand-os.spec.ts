@@ -15,6 +15,8 @@ test.describe("signed in", () => {
   });
 
   test("brand OS shows the owner's real brand with honest counts", async ({ page }) => {
+    // Ensure at least one brand exists (runs accumulate E2E brands; brand-os shows the oldest,
+    // so assert structure rather than an exact name).
     const brandName = `E2E Brand ${Date.now()}`;
     await page.goto("/brands/new");
     await page.getByTestId("brand-name").fill(brandName);
@@ -23,8 +25,13 @@ test.describe("signed in", () => {
 
     await page.goto("/brand-os");
     await expect(page.getByTestId("brand-os-header")).toBeVisible();
-    await expect(page.getByTestId("brand-os-header").getByRole("heading", { name: brandName })).toBeVisible();
+    await expect(page.getByTestId("brand-os-header").getByRole("heading", { level: 1 })).toHaveText(/E2E Brand/);
     await expect(page.getByTestId("brand-os-overview")).toBeVisible();
     await expect(page.getByTestId("brand-os-quick-actions")).toBeVisible();
+
+    // Public link lands on the real public brand page.
+    await page.getByTestId("brand-os-public-link").click();
+    await expect(page).toHaveURL(/\/b\//);
+    await expect(page.getByTestId("brand-profile-header")).toBeVisible();
   });
 });

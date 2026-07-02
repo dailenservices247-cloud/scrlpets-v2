@@ -76,8 +76,13 @@ export function ComposerTabs({
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = normalizeMode(searchParams.get("mode"));
-  const [postingAs, setPostingAs] = useState<PostingAs>("person");
-  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(brands[0]?.id ?? null);
+  // ?brand= (set by createBrand's redirect) preselects that brand and flips identity to Brand.
+  const requestedBrandId = searchParams.get("brand");
+  const requestedBrand = brands.find((b) => b.id === requestedBrandId) ?? null;
+  const [postingAs, setPostingAs] = useState<PostingAs>(requestedBrand ? "brand" : "person");
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(
+    requestedBrand?.id ?? brands[0]?.id ?? null,
+  );
   const [about, setAbout] = useState<About>(() => (searchParams.get("mode") === "listing" ? "animal" : "none"));
   const selectedBrand = brands.find((b) => b.id === selectedBrandId) ?? null;
   const postingLabel = postingAs === "brand" ? (selectedBrand?.name ?? "Select a brand") : actorName;

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Scrlpets",
+  title: { default: "Scrlpets", template: "%s · Scrlpets" },
   description: "The trusted home for animals.",
 };
 

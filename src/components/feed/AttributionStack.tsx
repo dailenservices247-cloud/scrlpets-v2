@@ -16,13 +16,14 @@ export function AttributionStack({
       {item.creature ? <AnimalIdentityChip creature={item.creature} /> : null}
       {item.brand ? (
         <>
-          <span
-            className="flex min-w-0 items-center gap-1 truncate text-xs font-semibold text-foreground"
+          <Link
+            href={`/b/${item.brand.slug}`}
+            className="flex min-w-0 items-center gap-1 truncate text-xs font-semibold text-foreground transition hover:text-brand-link hover:underline"
             data-testid="brand-attribution"
           >
             <Building2 className="size-3 shrink-0 text-brand-link" aria-hidden />
             <span className="truncate">{item.brand.name}</span>
-          </span>
+          </Link>
           <Link
             href={`/u/${item.author.username}`}
             className="min-w-0 truncate text-[11px] text-muted-foreground transition hover:text-brand-link hover:underline"

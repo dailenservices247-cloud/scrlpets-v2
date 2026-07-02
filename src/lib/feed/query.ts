@@ -6,6 +6,7 @@ export type Row = {
   creature_id: string | null; creature_name: string | null; creature_slug: string | null; creature_avatar: string | null;
   title: string | null; media_url: string | null; created_at: string;
   posting_as_type: string | null; brand_id: string | null; brand_name: string | null; brand_avatar: string | null;
+  brand_slug: string | null;
 };
 
 export function rowToFeedItem(r: Row): FeedItem {
@@ -15,8 +16,8 @@ export function rowToFeedItem(r: Row): FeedItem {
     type,
     author: { id: r.author_id, username: r.username, displayName: r.display_name, avatarUrl: r.avatar_url },
     brand:
-      r.posting_as_type === "brand" && r.brand_id
-        ? { id: r.brand_id, name: r.brand_name ?? "Brand", avatarUrl: r.brand_avatar }
+      r.posting_as_type === "brand" && r.brand_id && r.brand_slug
+        ? { id: r.brand_id, name: r.brand_name ?? "Brand", slug: r.brand_slug, avatarUrl: r.brand_avatar }
         : null,
     creature: r.creature_id
       ? { id: r.creature_id, name: r.creature_name!, slug: r.creature_slug!, avatarUrl: r.creature_avatar }
@@ -55,6 +56,20 @@ export async function getFeed(tab: FeedTab): Promise<FeedItem[]> {
     .filter((item) => process.env.NODE_ENV !== "production" || !isE2EDemoItem(item));
   if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
   return items;
+}
+
+/** All content published AS a brand (posts + listings carrying brand_id). Public per G1-A. */
+export async function getBrandFeed(brandId: string): Promise<FeedItem[]> {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("unified_feed")
+    .select("*")
+    .eq("brand_id", brandId)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  return (data as Row[]).map(rowToFeedItem);
 }
 
 export async function getFeedItemById(id: string): Promise<FeedItem | null> {

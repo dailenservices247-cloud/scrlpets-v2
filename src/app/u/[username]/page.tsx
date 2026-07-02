@@ -15,10 +15,21 @@ import { FeedList } from "@/components/feed/FeedList";
 import { AppPage } from "@/components/app/AppPage";
 import { Card } from "@/components/ui/card";
 import type { FeedItem } from "@/lib/feed/types";
-import { getProfileIdentityModel } from "@/lib/profile-identity";
+import { getBrandsByOwner } from "@/lib/brands/queries";
 
 function countType(items: FeedItem[], types: FeedItem["type"][]) {
   return items.filter((item) => types.includes(item.type)).length;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> }) {
+  const { username } = await params;
+  const profile = await getProfileByUsername(username);
+  if (!profile) return {};
+  const name = profile.displayName ?? profile.username;
+  return {
+    title: `${name} (@${profile.username})`,
+    description: profile.bio ?? `${name} on Scrlpets — animals, posts, and listings.`,
+  };
 }
 
 export default async function ProfilePage({
@@ -35,16 +46,16 @@ export default async function ProfilePage({
   if (!profile) notFound();
   const user = await getSessionUser();
   const active = tab === "pets" || tab === "about" ? tab : "posts";
-  const [creatures, profileFeed] = await Promise.all([
+  const [creatures, profileFeed, ownedBrands] = await Promise.all([
     getCreaturesByOwner(profile.id),
     getProfileFeed(profile.id),
+    getBrandsByOwner(profile.id),
   ]);
   const metrics = [
     { label: t("metricAnimals"), value: creatures.length, testId: "metric-animals" },
     { label: t("metricPosts"), value: countType(profileFeed, ["post", "reel", "long_video"]), testId: "metric-posts" },
     { label: t("metricListings"), value: countType(profileFeed, ["listing"]), testId: "metric-listings" },
   ];
-  const identityModel = getProfileIdentityModel({ profile, creatures, feed: profileFeed });
 
   return (
     <AppPage>
@@ -55,7 +66,7 @@ export default async function ProfilePage({
           viewerSignedIn={!!user}
           metrics={metrics}
         />
-        <ProfileIdentityPanel model={identityModel} />
+        <ProfileIdentityPanel brands={ownedBrands} />
         <AnimalRail creatures={creatures} />
         <div className="px-3 pt-3">
           <ProfileTabs />

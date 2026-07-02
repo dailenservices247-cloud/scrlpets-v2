@@ -28,9 +28,11 @@ export async function createBrand(formData: FormData): Promise<ActionResult> {
   if (!name) return { ok: false, error: "required" };
   if (!isBrandType(brandType)) return { ok: false, error: "type" };
 
+  // Immutable slug at create — same pattern as creatures (name-slugified + 4-char suffix).
+  const slug = `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}-${crypto.randomUUID().slice(0, 4)}`;
   const { data: brand, error: brandErr } = await supabase
     .from("brands")
-    .insert({ name, brand_type: brandType, owner_id: user.id })
+    .insert({ name, brand_type: brandType, owner_id: user.id, slug })
     .select("id")
     .single();
   if (brandErr) return { ok: false, error: brandErr.message };
@@ -40,5 +42,7 @@ export async function createBrand(formData: FormData): Promise<ActionResult> {
     .insert({ brand_id: brand.id, profile_id: user.id, role: "owner" });
   if (memErr) return { ok: false, error: memErr.message };
 
-  redirect("/compose");
+  // Land in the composer with the new brand preselected (?brand=) — without this,
+  // multi-brand owners get their OLDEST brand auto-selected and misattribute the post.
+  redirect(`/compose?brand=${brand.id}`);
 }

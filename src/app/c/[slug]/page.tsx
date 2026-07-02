@@ -3,6 +3,16 @@ import { FeedList } from "@/components/feed/FeedList";
 import { CreatureHero } from "@/components/profile/CreatureHero";
 import { getCreatureBySlug, getCreatureFeed } from "@/lib/profiles/queries";
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const creature = await getCreatureBySlug(slug);
+  if (!creature) return {};
+  return {
+    title: creature.name,
+    description: `${creature.name}${creature.species ? ` the ${creature.species}` : ""} on Scrlpets — owned by @${creature.owner.username}.`,
+  };
+}
+
 export default async function CreaturePage({
   params,
 }: {
