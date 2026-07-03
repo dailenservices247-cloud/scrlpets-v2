@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { createPost } from "@/lib/compose/actions";
+import { createPost, editPost } from "@/lib/compose/actions";
 import { applyAttribution } from "./attribution";
 import type { ComposeAttribution } from "./ComposerTabs";
 import { MediaInput } from "./MediaInput";
@@ -10,21 +10,39 @@ import { CreaturePicker } from "./CreaturePicker";
 import { Button } from "@/components/ui/button";
 import { capture } from "@/lib/analytics";
 
-export function PostForm({
-  userId,
-  creatures,
-  attribution,
-  disabled = false,
-}: {
-  userId: string;
-  creatures: { id: string; name: string }[];
-  attribution: ComposeAttribution;
-  disabled?: boolean;
-}) {
+type PostFormProps =
+  | {
+      userId: string;
+      creatures: { id: string; name: string }[];
+      attribution: ComposeAttribution;
+      disabled?: boolean;
+      edit?: never;
+    }
+  | {
+      userId: string;
+      edit: {
+        id: string;
+        body: string;
+        mediaUrl: string | null;
+        returnPath: string;
+      };
+      creatures?: never;
+      attribution?: never;
+      disabled?: never;
+    };
+
+export function PostForm(props: PostFormProps) {
+  const { userId } = props;
+  const edit = props.edit;
+  const creatures = props.creatures ?? [];
+  const attribution = props.attribution;
+  const disabled = props.disabled ?? false;
+  const isEditing = Boolean(edit);
   const t = useTranslations("compose");
+  const tc = useTranslations("content");
   const router = useRouter();
-  const [body, setBody] = useState("");
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [body, setBody] = useState(edit?.body ?? "");
+  const [mediaUrl, setMediaUrl] = useState<string | null>(edit?.mediaUrl ?? null);
   const [creatureId, setCreatureId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -35,22 +53,36 @@ export function PostForm({
     setErr(null);
     const fd = new FormData();
     fd.set("body", body);
-    if (mediaUrl) fd.set("mediaUrl", mediaUrl);
-    if (creatureId) fd.set("creatureId", creatureId);
-    applyAttribution(fd, attribution, creatureId);
-    const res = await createPost(fd);
+    fd.set("mediaUrl", mediaUrl ?? "");
+    let res;
+    if (edit) {
+      res = await editPost(edit.id, fd);
+    } else {
+      if (creatureId) fd.set("creatureId", creatureId);
+      applyAttribution(fd, attribution!, creatureId);
+      res = await createPost(fd);
+    }
     setBusy(false);
     if (!res.ok) {
       setErr(t("errorRequired"));
       return;
     }
-    capture("post_created", { has_media: !!mediaUrl, has_creature: !!creatureId });
-    router.push("/");
+    if (edit) {
+      capture("content_edited", { content_type: "post", has_media: !!mediaUrl });
+      router.push(edit.returnPath);
+    } else {
+      capture("post_created", { has_media: !!mediaUrl, has_creature: !!creatureId });
+      router.push("/");
+    }
     router.refresh();
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4 pt-4" data-testid="post-form">
+    <form
+      onSubmit={submit}
+      className="flex flex-col gap-4 pt-4"
+      data-testid={isEditing ? "edit-post-form" : "post-form"}
+    >
       <textarea
         className="min-h-28 rounded border border-input bg-transparent p-2"
         placeholder={t("bodyPlaceholder")}
@@ -59,11 +91,22 @@ export function PostForm({
         onChange={(e) => setBody(e.target.value)}
         data-testid="post-body"
       />
+      {isEditing && mediaUrl && (
+        <div className="rounded-xl border border-border/70 p-3" data-testid="current-media">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={mediaUrl} alt="" className="max-h-56 w-full rounded-lg object-cover" />
+          <Button type="button" variant="outline" className="mt-3" onClick={() => setMediaUrl(null)}>
+            {tc("removePhoto")}
+          </Button>
+        </div>
+      )}
       <MediaInput userId={userId} onUploaded={setMediaUrl} />
-      <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
+      {!isEditing && (
+        <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
+      )}
       {err && <p className="text-destructive text-sm">{err}</p>}
       <Button type="submit" disabled={busy || disabled} data-testid="post-submit">
-        {t("submitPost")}
+        {isEditing ? tc("saveChanges") : t("submitPost")}
       </Button>
     </form>
   );

@@ -18,9 +18,11 @@ const MAP = {
 export function FeedList({
   items,
   showTabs = true,
+  viewerId,
 }: {
   items: FeedItem[];
   showTabs?: boolean;
+  viewerId?: string | null;
 }) {
   const t = useTranslations("feed");
   if (items.length === 0)
@@ -52,7 +54,7 @@ export function FeedList({
       <div className="flex flex-col gap-4" data-testid="feed-list">
         {items.map((item) => {
           const Tile = MAP[item.type];
-          return <Tile key={item.id} item={item} />;
+          return <Tile key={item.id} item={item} viewerId={viewerId} />;
         })}
       </div>
     </section>

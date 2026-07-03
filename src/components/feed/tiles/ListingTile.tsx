@@ -4,10 +4,10 @@ import { FeedCardShell } from "../FeedCardShell";
 import { FeedTileAction } from "../FeedTileAction";
 import { TileMedia } from "../TileMedia";
 
-export function ListingTile({ item }: { item: FeedItem }) {
+export function ListingTile({ item, viewerId }: { item: FeedItem; viewerId?: string | null }) {
   const t = useTranslations("feed");
   return (
-    <FeedCardShell item={item} className="bg-primary/5">
+    <FeedCardShell item={item} className="bg-primary/5" viewerId={viewerId}>
       <div className="rounded-xl border border-primary/25 bg-background/45 p-3.5 shadow-inner" data-testid="listing-summary">
         <p className="eyebrow">{t("listingIntent")}</p>
         <p className="mt-1 text-[17px] font-semibold leading-snug tracking-tight">{item.title}</p>

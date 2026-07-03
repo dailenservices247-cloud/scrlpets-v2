@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { FeedDestinationShell } from "@/components/feed/FeedDestinationShell";
 import { getFeedItemById } from "@/lib/feed/query";
+import { getSessionUser } from "@/lib/auth/session";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await getFeedItemById(id);
+  const [item, user] = await Promise.all([getFeedItemById(id), getSessionUser()]);
   if (!item || item.type !== "post") notFound();
-  return <FeedDestinationShell item={item} />;
+  return <FeedDestinationShell item={item} viewerId={user?.id} />;
 }

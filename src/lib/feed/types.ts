@@ -10,4 +10,5 @@ export type FeedItem = {
   title: string | null;
   mediaUrl: string | null;
   createdAt: string;
+  updatedAt: string;
 };

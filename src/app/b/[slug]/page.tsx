@@ -59,7 +59,7 @@ export default async function BrandPage({
           metrics={metrics}
         />
       </div>
-      <FeedList items={feed} showTabs={false} />
+      <FeedList items={feed} showTabs={false} viewerId={user?.id} />
     </AppPage>
   );
 }

@@ -29,7 +29,7 @@ export default async function HomePage({
         />
       </AppHeader>
       <UpdatesMomentsRail items={items} signedIn={Boolean(user)} />
-      <FeedList items={items} />
+      <FeedList items={items} viewerId={user?.id} />
     </AppPage>
   );
 }

@@ -101,6 +101,90 @@ export async function createListing(formData: FormData): Promise<ActionResult> {
   return { ok: true };
 }
 
+export async function editPost(postId: string, formData: FormData): Promise<ActionResult> {
+  const { supabase, user } = await requireUser();
+  const body = String(formData.get("body") ?? "");
+  const mediaUrl = (formData.get("mediaUrl") as string) || null;
+  const v = validatePost({ body, mediaUrl });
+  if (!v.ok) return { ok: false, error: v.error };
+
+  const { count, error } = await supabase
+    .from("posts")
+    .update({
+      body: body.trim() || null,
+      media_url: mediaUrl,
+    }, { count: "exact" })
+    .eq("id", postId)
+    .eq("author_id", user.id);
+  if (error) return { ok: false, error: error.message };
+  if (count !== 1) return { ok: false, error: "not_found" };
+
+  revalidatePath("/");
+  revalidatePath(`/post/${postId}`);
+  revalidatePath(`/watch/${postId}`);
+  revalidatePath(`/watch/reel/${postId}`);
+  return { ok: true };
+}
+
+export async function deletePost(postId: string): Promise<ActionResult> {
+  const { supabase, user } = await requireUser();
+  const { count, error } = await supabase
+    .from("posts")
+    .delete({ count: "exact" })
+    .eq("id", postId)
+    .eq("author_id", user.id);
+  if (error) return { ok: false, error: error.message };
+  if (count !== 1) return { ok: false, error: "not_found" };
+
+  revalidatePath("/");
+  revalidatePath(`/post/${postId}`);
+  revalidatePath(`/watch/${postId}`);
+  revalidatePath(`/watch/reel/${postId}`);
+  return { ok: true };
+}
+
+export async function editListing(listingId: string, formData: FormData): Promise<ActionResult> {
+  const { supabase, user } = await requireUser();
+  const title = String(formData.get("title") ?? "");
+  const priceCents = parsePriceCents(String(formData.get("price") ?? ""));
+  const mediaUrl = (formData.get("mediaUrl") as string) || null;
+  const v = validateListing({ title, priceCents });
+  if (!v.ok) return { ok: false, error: v.error };
+
+  const { count, error } = await supabase
+    .from("listings")
+    .update({
+      title: title.trim(),
+      price_cents: priceCents!,
+      media_url: mediaUrl,
+    }, { count: "exact" })
+    .eq("id", listingId)
+    .eq("seller_id", user.id)
+    .is("deleted_at", null);
+  if (error) return { ok: false, error: error.message };
+  if (count !== 1) return { ok: false, error: "not_found" };
+
+  revalidatePath("/");
+  revalidatePath(`/listing/${listingId}`);
+  return { ok: true };
+}
+
+export async function deleteListing(listingId: string): Promise<ActionResult> {
+  const { supabase, user } = await requireUser();
+  const { count, error } = await supabase
+    .from("listings")
+    .update({ deleted_at: new Date().toISOString() }, { count: "exact" })
+    .eq("id", listingId)
+    .eq("seller_id", user.id)
+    .is("deleted_at", null);
+  if (error) return { ok: false, error: error.message };
+  if (count !== 1) return { ok: false, error: "not_found" };
+
+  revalidatePath("/");
+  revalidatePath(`/listing/${listingId}`);
+  return { ok: true };
+}
+
 export async function createCreature(formData: FormData): Promise<ActionResult & { id?: string }> {
   const { supabase, user } = await requireUser();
   const name = String(formData.get("name") ?? "").trim();

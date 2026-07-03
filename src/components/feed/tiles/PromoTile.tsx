@@ -4,10 +4,10 @@ import { FeedCardShell } from "../FeedCardShell";
 import { FeedTileAction } from "../FeedTileAction";
 import { TileMedia } from "../TileMedia";
 
-export function PromoTile({ item }: { item: FeedItem }) {
+export function PromoTile({ item, viewerId }: { item: FeedItem; viewerId?: string | null }) {
   const t = useTranslations("feed");
   return (
-    <FeedCardShell item={item} className="bg-accent/5">
+    <FeedCardShell item={item} className="bg-accent/5" viewerId={viewerId}>
       <div className="rounded-xl border border-accent/30 bg-background/45 p-3.5 shadow-inner" data-testid="product-summary">
         <p className="eyebrow">{t("productIntent")}</p>
         <p className="mt-1 text-[17px] font-semibold leading-snug tracking-tight">{item.title}</p>

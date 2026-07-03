@@ -73,7 +73,9 @@ export default async function ProfilePage({
         </div>
       </div>
 
-      {active === "posts" && <FeedList items={profileFeed} showTabs={false} />}
+      {active === "posts" && (
+        <FeedList items={profileFeed} showTabs={false} viewerId={user?.id} />
+      )}
 
       {active === "pets" && (
         <div className="grid grid-cols-2 gap-3 p-3" data-testid="pets-list">

@@ -6,6 +6,7 @@ import { AttributionStack } from "./AttributionStack";
 import { ContentTypeBadge } from "./ContentTypeBadge";
 import { FeedTileAction } from "./FeedTileAction";
 import { TileMedia } from "./TileMedia";
+import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 
 type DetailCopy = {
   titleKey: "postDetail" | "reelDetail" | "videoDetail" | "listingDetail" | "productDetail";
@@ -20,11 +21,20 @@ const copyByType: Record<FeedItemType, DetailCopy> = {
   promo: { titleKey: "productDetail", bodyKey: "productDetailBody" },
 };
 
-export async function FeedDestinationShell({ item }: { item: FeedItem }) {
+export async function FeedDestinationShell({
+  item,
+  viewerId,
+}: {
+  item: FeedItem;
+  viewerId?: string | null;
+}) {
   const t = await getTranslations("detail");
+  const tc = await getTranslations("content");
   const copy = copyByType[item.type];
   const isListing = item.type === "listing";
   const isProduct = item.type === "promo";
+  const edited =
+    new Date(item.updatedAt).getTime() > new Date(item.createdAt).getTime();
 
   return (
     <main className="min-h-dvh pb-10" data-testid={`destination-${item.type}`}>
@@ -50,7 +60,17 @@ export async function FeedDestinationShell({ item }: { item: FeedItem }) {
         >
           <header className="flex items-start justify-between gap-3">
             <AttributionStack item={item} />
-            <ContentTypeBadge type={item.type} />
+            <div className="flex flex-col items-end gap-2">
+              <ContentTypeBadge type={item.type} />
+              {edited && (
+                <span
+                  className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                  data-testid="edited-chip"
+                >
+                  {tc("edited")}
+                </span>
+              )}
+            </div>
           </header>
 
           {(isListing || isProduct) && (
@@ -75,6 +95,11 @@ export async function FeedDestinationShell({ item }: { item: FeedItem }) {
             <p className="text-xs text-muted-foreground">{t("nextAction")}</p>
             <FeedTileAction item={item} />
           </div>
+          {viewerId === item.author.id && (
+            <div className="mt-4 border-t border-border/70 pt-4">
+              <ContentOwnerActions item={item} />
+            </div>
+          )}
         </Card>
       </section>
     </main>

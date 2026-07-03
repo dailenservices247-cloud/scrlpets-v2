@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import type { FeedItem } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
+import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { cn } from "@/lib/utils";
 import { AttributionStack } from "./AttributionStack";
 import { ContentTypeBadge } from "./ContentTypeBadge";
@@ -17,11 +19,17 @@ export function FeedCardShell({
   item,
   children,
   className,
+  viewerId,
 }: {
   item: FeedItem;
   children: ReactNode;
   className?: string;
+  viewerId?: string | null;
 }) {
+  const t = useTranslations("content");
+  const edited =
+    new Date(item.updatedAt).getTime() > new Date(item.createdAt).getTime();
+
   return (
     <Card
       className={cn("premium-panel gap-3 rounded-2xl p-4", shellStyles[item.type], className)}
@@ -29,9 +37,20 @@ export function FeedCardShell({
     >
       <header className="flex items-start justify-between gap-3">
         <AttributionStack item={item} className="flex-1" />
-        <ContentTypeBadge type={item.type} />
+        <div className="flex flex-col items-end gap-2">
+          <ContentTypeBadge type={item.type} />
+          {edited && (
+            <span
+              className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+              data-testid="edited-chip"
+            >
+              {t("edited")}
+            </span>
+          )}
+        </div>
       </header>
       {children}
+      {viewerId === item.author.id && <ContentOwnerActions item={item} />}
     </Card>
   );
 }

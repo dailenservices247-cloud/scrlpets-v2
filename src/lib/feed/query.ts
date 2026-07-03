@@ -4,7 +4,7 @@ export type Row = {
   id: string; kind: string; subtype: string | null; author_id: string;
   username: string; display_name: string | null; avatar_url: string | null;
   creature_id: string | null; creature_name: string | null; creature_slug: string | null; creature_avatar: string | null;
-  title: string | null; media_url: string | null; created_at: string;
+  title: string | null; media_url: string | null; created_at: string; updated_at: string;
   posting_as_type: string | null; brand_id: string | null; brand_name: string | null; brand_avatar: string | null;
   brand_slug: string | null;
 };
@@ -25,6 +25,7 @@ export function rowToFeedItem(r: Row): FeedItem {
     title: r.title,
     mediaUrl: r.media_url,
     createdAt: r.created_at,
+    updatedAt: r.updated_at,
   };
 }
 
