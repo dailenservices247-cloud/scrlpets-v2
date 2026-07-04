@@ -7,13 +7,13 @@ export function BrandProfileHeader({
   brand,
   typeLabel,
   owner,
-  isOwner,
+  canOperate,
   metrics,
 }: {
   brand: PublicBrand;
   typeLabel: string;
   owner: Profile;
-  isOwner: boolean;
+  canOperate: boolean;
   metrics: { label: string; value: string | number; testId: string }[];
 }) {
   return (
@@ -33,9 +33,9 @@ export function BrandProfileHeader({
             <h1 className="mt-1 text-2xl font-semibold leading-tight">{brand.name}</h1>
             <p className="truncate text-sm text-muted-foreground">/b/{brand.slug}</p>
           </div>
-          {isOwner && (
+          {canOperate && (
             <Link
-              href="/brand-os"
+              href={`/brand-os?brand=${brand.id}`}
               className="shrink-0 rounded-md border border-primary/35 bg-primary/15 px-3 py-2 text-center text-sm font-medium text-brand-link"
             >
               OS

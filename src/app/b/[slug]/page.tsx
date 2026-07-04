@@ -3,7 +3,7 @@ import { AppPage } from "@/components/app/AppPage";
 import { FeedList } from "@/components/feed/FeedList";
 import { BrandProfileHeader } from "@/components/profile/BrandProfileHeader";
 import { getSessionUser } from "@/lib/auth/session";
-import { getBrandBySlug } from "@/lib/brands/queries";
+import { getBrandBySlug, getBrandRole } from "@/lib/brands/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 import { getBrandFeed } from "@/lib/feed/query";
 import { getProfileById } from "@/lib/profiles/queries";
@@ -36,10 +36,11 @@ export default async function BrandPage({
   const brand = await getBrandBySlug(slug);
   if (!brand) notFound();
 
-  const [owner, feed, user] = await Promise.all([
+  const user = await getSessionUser();
+  const [owner, feed, role] = await Promise.all([
     getProfileById(brand.ownerId),
     getBrandFeed(brand.id),
-    getSessionUser(),
+    user ? getBrandRole(user.id, brand.id) : Promise.resolve(null),
   ]);
   if (!owner) notFound();
 
@@ -55,7 +56,7 @@ export default async function BrandPage({
           brand={brand}
           typeLabel={typeLabel(brand.brandType)}
           owner={owner}
-          isOwner={user?.id === brand.ownerId}
+          canOperate={role !== null}
           metrics={metrics}
         />
       </div>

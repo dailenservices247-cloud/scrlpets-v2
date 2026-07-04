@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { getBrandRole } from "@/lib/brands/queries";
+import { canManageBrandContent } from "@/lib/brands/types";
 
 export type LockedAttribution = {
   postingAsType: "person" | "brand";
@@ -67,7 +69,7 @@ async function resolveAttribution(
 
 export async function getEditablePost(
   postId: string,
-  ownerId: string,
+  viewerId: string,
 ): Promise<EditablePost | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -76,10 +78,14 @@ export async function getEditablePost(
       "id,author_id,content_type,body,media_url,tagged_creature_id,posting_as_type,brand_id,about_type,about_id",
     )
     .eq("id", postId)
-    .eq("author_id", ownerId)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
+  const role =
+    data.posting_as_type === "brand" && data.brand_id
+      ? await getBrandRole(viewerId, data.brand_id)
+      : null;
+  if (data.author_id !== viewerId && !canManageBrandContent(role)) return null;
 
   return {
     kind: "post",
@@ -93,7 +99,7 @@ export async function getEditablePost(
 
 export async function getEditableListing(
   listingId: string,
-  ownerId: string,
+  viewerId: string,
 ): Promise<EditableListing | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -102,11 +108,15 @@ export async function getEditableListing(
       "id,seller_id,title,price_cents,media_url,creature_id,posting_as_type,brand_id,about_type,about_id,deleted_at",
     )
     .eq("id", listingId)
-    .eq("seller_id", ownerId)
     .is("deleted_at", null)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
+  const role =
+    data.posting_as_type === "brand" && data.brand_id
+      ? await getBrandRole(viewerId, data.brand_id)
+      : null;
+  if (data.seller_id !== viewerId && !canManageBrandContent(role)) return null;
 
   return {
     kind: "listing",

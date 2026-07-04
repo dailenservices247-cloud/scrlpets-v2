@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { BadgeDollarSign, Building2, MessageCircle, PawPrint, PenSquare, UsersRound } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
+import { BrandMembersPanel } from "@/components/brand/BrandMembersPanel";
 import { getSessionUser } from "@/lib/auth/session";
-import { getMyBrands, getBrandContentCounts } from "@/lib/brands/queries";
+import {
+  getMyBrands,
+  getBrandContentCounts,
+  getBrandMembers,
+} from "@/lib/brands/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 
 const quickActions = [
@@ -16,9 +21,14 @@ function typeLabel(value: string): string {
   return BRAND_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? "Brand";
 }
 
-export default async function BrandOSPage() {
+export default async function BrandOSPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ brand?: string }>;
+}) {
   const user = (await getSessionUser())!; // middleware guarantees auth on /brand-os
   const brands = await getMyBrands(user.id);
+  const { brand: requestedBrandId } = await searchParams;
 
   if (brands.length === 0) {
     return (
@@ -46,8 +56,12 @@ export default async function BrandOSPage() {
     );
   }
 
-  const brand = brands[0];
-  const counts = await getBrandContentCounts(brand.id);
+  const brand =
+    brands.find((candidate) => candidate.id === requestedBrandId) ?? brands[0];
+  const [counts, members] = await Promise.all([
+    getBrandContentCounts(brand.id),
+    getBrandMembers(brand.id),
+  ]);
   const overview = [
     { label: "Brand posts", value: counts.posts },
     { label: "Brand listings", value: counts.listings },
@@ -65,6 +79,9 @@ export default async function BrandOSPage() {
               <p className="eyebrow">Brand OS</p>
               <h1 className="mt-1 text-2xl font-semibold leading-tight">{brand.name}</h1>
               <p className="mt-1 truncate text-sm text-muted-foreground">{typeLabel(brand.brandType)}</p>
+              <p className="mt-1 text-xs text-secondary-foreground capitalize">
+                {brand.role}
+              </p>
             </div>
             <Link
               href={`/b/${brand.slug}`}
@@ -85,9 +102,27 @@ export default async function BrandOSPage() {
           </div>
 
           {brands.length > 1 && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Showing {brand.name}. You own {brands.length} brands.
-            </p>
+            <div className="mt-4" data-testid="brand-os-switcher">
+              <p className="mb-2 text-xs text-muted-foreground">
+                You can access {brands.length} brands.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {brands.map((candidate) => (
+                  <Link
+                    key={candidate.id}
+                    href={`/brand-os?brand=${candidate.id}`}
+                    aria-current={candidate.id === brand.id ? "page" : undefined}
+                    className={
+                      candidate.id === brand.id
+                        ? "rounded-lg border border-primary/60 bg-primary/15 px-3 py-2 text-xs font-semibold text-brand-link"
+                        : "rounded-lg border border-input px-3 py-2 text-xs text-muted-foreground"
+                    }
+                  >
+                    {candidate.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </section>
@@ -110,6 +145,15 @@ export default async function BrandOSPage() {
       </section>
 
       <section className="px-3 py-3">
+        <BrandMembersPanel
+          brandId={brand.id}
+          viewerId={user.id}
+          viewerRole={brand.role}
+          members={members}
+        />
+      </section>
+
+      <section className="px-3 py-3">
         <div className="premium-panel rounded-2xl p-4">
           <div className="mb-2 flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-xl border border-secondary/35 bg-secondary/20 text-secondary-foreground">
@@ -126,7 +170,7 @@ export default async function BrandOSPage() {
             the brand publicly, with you as the operator behind it.
           </p>
           <Link
-            href="/compose"
+            href={`/compose?brand=${brand.id}`}
             className="mt-4 flex min-h-12 items-center justify-center rounded-xl bg-secondary px-4 font-semibold text-secondary-foreground"
           >
             Open composer

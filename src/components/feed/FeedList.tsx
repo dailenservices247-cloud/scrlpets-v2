@@ -1,5 +1,6 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import type { FeedItem } from "@/lib/feed/types";
+import { getManageableBrandIds } from "@/lib/brands/queries";
 import { PostTile } from "./tiles/PostTile";
 import { ReelTile } from "./tiles/ReelTile";
 import { LongVideoTile } from "./tiles/LongVideoTile";
@@ -15,7 +16,7 @@ const MAP = {
   promo: PromoTile,
 } as const;
 
-export function FeedList({
+export async function FeedList({
   items,
   showTabs = true,
   viewerId,
@@ -24,7 +25,10 @@ export function FeedList({
   showTabs?: boolean;
   viewerId?: string | null;
 }) {
-  const t = useTranslations("feed");
+  const t = await getTranslations("feed");
+  const manageableBrandIds = new Set(
+    viewerId ? await getManageableBrandIds(viewerId) : [],
+  );
   if (items.length === 0)
     return (
       <section className="px-3 py-4" data-testid="feed-stream">
@@ -54,7 +58,10 @@ export function FeedList({
       <div className="flex flex-col gap-4" data-testid="feed-list">
         {items.map((item) => {
           const Tile = MAP[item.type];
-          return <Tile key={item.id} item={item} viewerId={viewerId} />;
+          const canManage =
+            viewerId === item.author.id ||
+            Boolean(item.brand && manageableBrandIds.has(item.brand.id));
+          return <Tile key={item.id} item={item} canManage={canManage} />;
         })}
       </div>
     </section>

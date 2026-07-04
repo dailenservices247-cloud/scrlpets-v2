@@ -2,6 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
 
+const RBAC_MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
+
 async function signIn(page: Page) {
   await page.goto("/login");
   await page.getByPlaceholder("email").fill(process.env.E2E_EMAIL!);
@@ -186,13 +188,24 @@ test.describe("content edit/delete", () => {
     expect(authError).toBeNull();
     const userId = auth.user!.id;
 
-    const { data: other } = await db
+    const otherDb = databaseClient();
+    const { data: otherAuth, error: otherAuthError } =
+      await otherDb.auth.signInWithPassword({
+        email: RBAC_MEMBER_EMAIL,
+        password: process.env.E2E_PASSWORD!,
+      });
+    expect(otherAuthError).toBeNull();
+    const otherMarker = `E2E non-author personal post ${Date.now()}`;
+    const { data: other, error: otherInsertError } = await otherDb
       .from("posts")
+      .insert({
+        author_id: otherAuth.user!.id,
+        content_type: "post",
+        body: otherMarker,
+      })
       .select("id,body")
-      .neq("author_id", userId)
-      .limit(1)
       .single();
-    expect(other).toBeTruthy();
+    expect(otherInsertError).toBeNull();
 
     const { data: blocked } = await db
       .from("posts")
@@ -232,5 +245,6 @@ test.describe("content edit/delete", () => {
     });
 
     await db.from("posts").delete().eq("id", own!.id);
+    await otherDb.from("posts").delete().eq("id", other!.id);
   });
 });

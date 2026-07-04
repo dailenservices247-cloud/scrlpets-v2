@@ -102,7 +102,7 @@ export async function createListing(formData: FormData): Promise<ActionResult> {
 }
 
 export async function editPost(postId: string, formData: FormData): Promise<ActionResult> {
-  const { supabase, user } = await requireUser();
+  const { supabase } = await requireUser();
   const body = String(formData.get("body") ?? "");
   const mediaUrl = (formData.get("mediaUrl") as string) || null;
   const v = validatePost({ body, mediaUrl });
@@ -114,8 +114,7 @@ export async function editPost(postId: string, formData: FormData): Promise<Acti
       body: body.trim() || null,
       media_url: mediaUrl,
     }, { count: "exact" })
-    .eq("id", postId)
-    .eq("author_id", user.id);
+    .eq("id", postId);
   if (error) return { ok: false, error: error.message };
   if (count !== 1) return { ok: false, error: "not_found" };
 
@@ -127,12 +126,11 @@ export async function editPost(postId: string, formData: FormData): Promise<Acti
 }
 
 export async function deletePost(postId: string): Promise<ActionResult> {
-  const { supabase, user } = await requireUser();
+  const { supabase } = await requireUser();
   const { count, error } = await supabase
     .from("posts")
     .delete({ count: "exact" })
-    .eq("id", postId)
-    .eq("author_id", user.id);
+    .eq("id", postId);
   if (error) return { ok: false, error: error.message };
   if (count !== 1) return { ok: false, error: "not_found" };
 
@@ -144,7 +142,7 @@ export async function deletePost(postId: string): Promise<ActionResult> {
 }
 
 export async function editListing(listingId: string, formData: FormData): Promise<ActionResult> {
-  const { supabase, user } = await requireUser();
+  const { supabase } = await requireUser();
   const title = String(formData.get("title") ?? "");
   const priceCents = parsePriceCents(String(formData.get("price") ?? ""));
   const mediaUrl = (formData.get("mediaUrl") as string) || null;
@@ -159,7 +157,6 @@ export async function editListing(listingId: string, formData: FormData): Promis
       media_url: mediaUrl,
     }, { count: "exact" })
     .eq("id", listingId)
-    .eq("seller_id", user.id)
     .is("deleted_at", null);
   if (error) return { ok: false, error: error.message };
   if (count !== 1) return { ok: false, error: "not_found" };
@@ -171,7 +168,7 @@ export async function editListing(listingId: string, formData: FormData): Promis
 
 export async function deleteListing(listingId: string): Promise<ActionResult> {
   const { supabase } = await requireUser();
-  const { data, error } = await supabase.rpc("soft_delete_own_listing", {
+  const { data, error } = await supabase.rpc("soft_delete_managed_listing", {
     target_listing_id: listingId,
   });
   if (error) return { ok: false, error: error.message };

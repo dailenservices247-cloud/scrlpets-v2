@@ -68,6 +68,43 @@
     "deleting": "Removing…",
     "deleteError": "We couldn't remove this content. Try again."
   },
+  "brandAccess": {
+    "label": "Operators",
+    "title": "Brand members",
+    "yourRole": "Your access: {role}",
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "contributor": "Contributor"
+    },
+    "addTitle": "Add an existing Scrlpets user",
+    "addBody": "Enter their exact username. Access starts immediately.",
+    "username": "Username",
+    "role": "Role",
+    "add": "Add member",
+    "adding": "Adding…",
+    "you": "(you)",
+    "ownerProtected": "The primary owner cannot be removed or demoted.",
+    "setRole": "Make {role}",
+    "leave": "Leave brand",
+    "remove": "Remove member",
+    "errors": {
+      "profile_not_found": "No Scrlpets profile has that exact username.",
+      "duplicate_member": "That person already belongs to this brand.",
+      "invalid_role": "Choose a valid role.",
+      "owner_protected": "The primary owner is protected.",
+      "brand_permission_denied": "Your role cannot make that change.",
+      "membership_not_found": "That membership no longer exists.",
+      "required": "Complete the required fields.",
+      "unknown": "We couldn't update brand access. Try again."
+    },
+    "success": {
+      "added": "Member added.",
+      "roleChanged": "Role updated.",
+      "removed": "Member removed.",
+      "left": "You left the brand."
+    }
+  },
   "profile": {
     "tabPosts": "Posts",
     "tabPets": "Pets",

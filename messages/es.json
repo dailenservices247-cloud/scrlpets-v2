@@ -68,6 +68,43 @@
     "deleting": "Quitando…",
     "deleteError": "No pudimos quitar este contenido. Inténtalo de nuevo."
   },
+  "brandAccess": {
+    "label": "Operadores",
+    "title": "Miembros de la marca",
+    "yourRole": "Tu acceso: {role}",
+    "roles": {
+      "owner": "Propietario",
+      "admin": "Administrador",
+      "contributor": "Colaborador"
+    },
+    "addTitle": "Agregar un usuario existente de Scrlpets",
+    "addBody": "Ingresa su nombre de usuario exacto. El acceso comienza de inmediato.",
+    "username": "Nombre de usuario",
+    "role": "Rol",
+    "add": "Agregar miembro",
+    "adding": "Agregando…",
+    "you": "(tú)",
+    "ownerProtected": "El propietario principal no se puede quitar ni degradar.",
+    "setRole": "Cambiar a {role}",
+    "leave": "Salir de la marca",
+    "remove": "Quitar miembro",
+    "errors": {
+      "profile_not_found": "No existe un perfil de Scrlpets con ese nombre exacto.",
+      "duplicate_member": "Esa persona ya pertenece a esta marca.",
+      "invalid_role": "Elige un rol válido.",
+      "owner_protected": "El propietario principal está protegido.",
+      "brand_permission_denied": "Tu rol no puede realizar ese cambio.",
+      "membership_not_found": "Esa membresía ya no existe.",
+      "required": "Completa los campos obligatorios.",
+      "unknown": "No pudimos actualizar el acceso. Inténtalo de nuevo."
+    },
+    "success": {
+      "added": "Miembro agregado.",
+      "roleChanged": "Rol actualizado.",
+      "removed": "Miembro eliminado.",
+      "left": "Saliste de la marca."
+    }
+  },
   "profile": {
     "tabPosts": "Publicaciones",
     "tabPets": "Mascotas",

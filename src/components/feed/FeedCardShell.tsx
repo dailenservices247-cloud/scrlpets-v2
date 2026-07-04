@@ -19,12 +19,12 @@ export function FeedCardShell({
   item,
   children,
   className,
-  viewerId,
+  canManage = false,
 }: {
   item: FeedItem;
   children: ReactNode;
   className?: string;
-  viewerId?: string | null;
+  canManage?: boolean;
 }) {
   const t = useTranslations("content");
   const edited =
@@ -50,7 +50,7 @@ export function FeedCardShell({
         </div>
       </header>
       {children}
-      {viewerId === item.author.id && <ContentOwnerActions item={item} />}
+      {canManage && <ContentOwnerActions item={item} />}
     </Card>
   );
 }
