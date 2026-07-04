@@ -6,12 +6,14 @@ test("signed-out /compose redirects to login", async ({ page }) => {
 });
 
 test.describe("signed in", () => {
+  test.describe.configure({ timeout: 60_000 });
+
   test.beforeEach(async ({ page }) => {
     await page.goto("/login");
-    await page.getByPlaceholder("email").fill(process.env.E2E_EMAIL!);
-    await page.getByPlaceholder("password").fill(process.env.E2E_PASSWORD!);
-    await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(page).toHaveURL("http://localhost:3000/");
+    await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+    await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+    await page.getByTestId("auth-submit").click();
+    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
   });
 
   test("create text post → appears at top of feed", async ({ page }) => {

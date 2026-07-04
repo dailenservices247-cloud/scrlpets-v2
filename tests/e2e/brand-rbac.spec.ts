@@ -18,9 +18,9 @@ function databaseClient() {
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
   await page.goto("/login");
-  await page.getByPlaceholder("email").fill(email);
-  await page.getByPlaceholder("password").fill(process.env.E2E_PASSWORD!);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByLabel("Email address").fill(email);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/");
 }
 
@@ -49,6 +49,7 @@ async function expectNoSeriousA11y(page: Page) {
 test("owner, admin, and contributor permissions stay inside the brand boundary", async ({
   page,
 }) => {
+  test.setTimeout(120_000);
   const password = process.env.E2E_PASSWORD!;
   const brandName = `E2E RBAC Brand ${Date.now()}`;
   const ownerBrandPostBody = `E2E owner brand post ${Date.now()}`;

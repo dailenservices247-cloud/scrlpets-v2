@@ -3,6 +3,62 @@
     "title": "Scrlpets",
     "signIn": "Sign in"
   },
+  "auth": {
+    "modeLabel": "Account access",
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "welcomeBack": "Welcome back",
+    "join": "Join Scrlpets",
+    "signInBody": "Sign in when you are ready to participate. Browsing stays open to everyone.",
+    "signUpBody": "Create an account to save, message, publish, or begin a transaction.",
+    "email": "Email address",
+    "password": "Password",
+    "passwordHint": "Use at least 8 characters.",
+    "working": "Working…",
+    "forgot": "Forgot your password?",
+    "google": "Continue with Google",
+    "legal": "By continuing, you agree to the <terms>Terms</terms> and acknowledge the <privacy>Privacy Notice</privacy>.",
+    "backToSignIn": "Back to sign in",
+    "verify": {
+      "title": "Check your email",
+      "body": "We sent a verification link to {email}. Open it to finish creating your account.",
+      "resend": "Resend verification email",
+      "resent": "A new verification email was sent.",
+      "back": "Use a different account"
+    },
+    "recovery": {
+      "title": "Reset your password",
+      "body": "Enter the email address attached to your account.",
+      "send": "Send reset link",
+      "sentTitle": "Check your email",
+      "sentBody": "If an account exists for {email}, a password reset link is on its way."
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "body": "This link must be opened from the password reset email.",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "save": "Save new password",
+      "mismatch": "The passwords do not match."
+    },
+    "errors": {
+      "confirmation_failed": "That confirmation link is invalid or has expired. Request a new one and try again.",
+      "email_not_confirmed": "Verify your email before signing in.",
+      "invalid_credentials": "The email or password is incorrect.",
+      "link_expired": "That link is invalid or has expired. Request a new one.",
+      "rate_limited": "Too many attempts were made. Wait a moment and try again.",
+      "unknown": "We could not complete that request. Please try again."
+    },
+    "notices": {
+      "password_updated": "Your password was updated. Sign in with the new password."
+    }
+  },
+  "consent": {
+    "label": "Analytics choice",
+    "body": "Help us improve Scrlpets with optional analytics. We do not start analytics until you accept. Read the <privacy>Privacy Notice</privacy>.",
+    "decline": "Decline",
+    "accept": "Accept"
+  },
   "feed": {
     "following": "Following",
     "forYou": "For You",
@@ -127,7 +183,8 @@
     "metricPosts": "Posts",
     "metricListings": "Listings",
     "animalsFirst": "Animals first",
-    "animalsFirstHint": "Profiles start with the animals."
+    "animalsFirstHint": "Profiles start with the animals.",
+    "signInToMessage": "Sign in to message"
   },
   "detail": {
     "backToFeed": "Back to feed",

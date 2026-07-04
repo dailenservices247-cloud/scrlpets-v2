@@ -46,15 +46,18 @@ export function hashId(s: string): number {
 export async function getFeed(tab: FeedTab): Promise<FeedItem[]> {
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("unified_feed")
     .select("*")
-    .order("created_at", { ascending: false })
-    .limit(50);
+    .order("created_at", { ascending: false });
+  if (process.env.NODE_ENV === "production") {
+    query = query.not("title", "like", "E2E %");
+  }
+  const { data, error } = await query.limit(
+    process.env.NODE_ENV === "production" ? 50 : 200,
+  );
   if (error) throw error;
-  const items = (data as Row[])
-    .map(rowToFeedItem)
-    .filter((item) => process.env.NODE_ENV !== "production" || !isE2EDemoItem(item));
+  const items = (data as Row[]).map(rowToFeedItem);
   if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
   return items;
 }

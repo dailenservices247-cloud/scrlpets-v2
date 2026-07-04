@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://scrlpets-v2.vercel.app",
+  ),
   title: { default: "Scrlpets", template: "%s · Scrlpets" },
   description: "The trusted home for animals.",
 };

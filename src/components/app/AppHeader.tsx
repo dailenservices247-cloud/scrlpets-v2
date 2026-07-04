@@ -14,7 +14,7 @@ export function AppHeader({ signedIn, children }: { signedIn: boolean; children?
           <Link
             href="/shop"
             className="grid size-9 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground"
-            aria-label="Search"
+            aria-label="Shop"
           >
             <Search className="size-4" aria-hidden />
           </Link>

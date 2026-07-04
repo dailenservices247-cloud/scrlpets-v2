@@ -3,6 +3,62 @@
     "title": "Scrlpets",
     "signIn": "Iniciar sesión"
   },
+  "auth": {
+    "modeLabel": "Acceso a la cuenta",
+    "signIn": "Iniciar sesión",
+    "createAccount": "Crear cuenta",
+    "welcomeBack": "Te damos la bienvenida",
+    "join": "Únete a Scrlpets",
+    "signInBody": "Inicia sesión cuando quieras participar. Explorar sigue abierto para todos.",
+    "signUpBody": "Crea una cuenta para guardar, enviar mensajes, publicar o iniciar una transacción.",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "passwordHint": "Usa al menos 8 caracteres.",
+    "working": "Procesando…",
+    "forgot": "¿Olvidaste tu contraseña?",
+    "google": "Continuar con Google",
+    "legal": "Al continuar, aceptas los <terms>Términos</terms> y reconoces el <privacy>Aviso de Privacidad</privacy>.",
+    "backToSignIn": "Volver a iniciar sesión",
+    "verify": {
+      "title": "Revisa tu correo",
+      "body": "Enviamos un enlace de verificación a {email}. Ábrelo para terminar de crear tu cuenta.",
+      "resend": "Reenviar correo de verificación",
+      "resent": "Se envió un nuevo correo de verificación.",
+      "back": "Usar otra cuenta"
+    },
+    "recovery": {
+      "title": "Restablece tu contraseña",
+      "body": "Ingresa el correo asociado con tu cuenta.",
+      "send": "Enviar enlace",
+      "sentTitle": "Revisa tu correo",
+      "sentBody": "Si existe una cuenta para {email}, el enlace para restablecer la contraseña está en camino."
+    },
+    "reset": {
+      "title": "Elige una contraseña nueva",
+      "body": "Este enlace debe abrirse desde el correo para restablecer la contraseña.",
+      "newPassword": "Contraseña nueva",
+      "confirmPassword": "Confirmar contraseña",
+      "save": "Guardar contraseña",
+      "mismatch": "Las contraseñas no coinciden."
+    },
+    "errors": {
+      "confirmation_failed": "El enlace de confirmación no es válido o venció. Solicita uno nuevo e inténtalo de nuevo.",
+      "email_not_confirmed": "Verifica tu correo antes de iniciar sesión.",
+      "invalid_credentials": "El correo o la contraseña son incorrectos.",
+      "link_expired": "El enlace no es válido o venció. Solicita uno nuevo.",
+      "rate_limited": "Hubo demasiados intentos. Espera un momento e inténtalo de nuevo.",
+      "unknown": "No pudimos completar la solicitud. Inténtalo de nuevo."
+    },
+    "notices": {
+      "password_updated": "Tu contraseña se actualizó. Inicia sesión con la nueva contraseña."
+    }
+  },
+  "consent": {
+    "label": "Preferencia de analítica",
+    "body": "Ayúdanos a mejorar Scrlpets con analítica opcional. No iniciamos la analítica hasta que aceptes. Lee el <privacy>Aviso de Privacidad</privacy>.",
+    "decline": "Rechazar",
+    "accept": "Aceptar"
+  },
   "feed": {
     "following": "Siguiendo",
     "forYou": "Para ti",
@@ -127,7 +183,8 @@
     "metricPosts": "Publicaciones",
     "metricListings": "Anuncios",
     "animalsFirst": "Animales primero",
-    "animalsFirstHint": "Los perfiles empiezan con los animales."
+    "animalsFirstHint": "Los perfiles empiezan con los animales.",
+    "signInToMessage": "Inicia sesión para escribir"
   },
   "detail": {
     "backToFeed": "Volver al feed",

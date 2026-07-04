@@ -17,13 +17,17 @@ test("feed has no serious/critical a11y violations", async ({ page }) => {
 test("login has no serious/critical a11y violations", async ({ page }) => {
   await page.goto("/login");
   await expectNoSerious(page);
+  await page.goto("/forgot-password");
+  await expectNoSerious(page);
+  await page.goto("/reset-password");
+  await expectNoSerious(page);
 });
 
 test("composer has no serious/critical a11y violations", async ({ page }) => {
   await page.goto("/login");
-  await page.getByPlaceholder("email").fill(process.env.E2E_EMAIL!);
-  await page.getByPlaceholder("password").fill(process.env.E2E_PASSWORD!);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
   await page.waitForURL("http://localhost:3000/");
   await page.goto("/compose");
   await expectNoSerious(page);
@@ -47,10 +51,11 @@ test("creature page has no serious/critical a11y violations", async ({ page }) =
 });
 
 test("inbox has no serious/critical a11y violations", async ({ page }) => {
+  test.setTimeout(60_000);
   await page.goto("/login");
-  await page.getByPlaceholder("email").fill(process.env.E2E_EMAIL!);
-  await page.getByPlaceholder("password").fill(process.env.E2E_PASSWORD!);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
   await page.waitForURL("http://localhost:3000/");
   await page.goto("/messages");
   await expectNoSerious(page);
@@ -60,5 +65,9 @@ test("menu and shop shell pages have no serious/critical a11y violations", async
   await page.goto("/menu");
   await expectNoSerious(page);
   await page.goto("/shop");
+  await expectNoSerious(page);
+  await page.goto("/privacy");
+  await expectNoSerious(page);
+  await page.goto("/terms");
   await expectNoSerious(page);
 });

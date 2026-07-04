@@ -6,9 +6,9 @@ const RBAC_MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
 
 async function signIn(page: Page) {
   await page.goto("/login");
-  await page.getByPlaceholder("email").fill(process.env.E2E_EMAIL!);
-  await page.getByPlaceholder("password").fill(process.env.E2E_PASSWORD!);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/");
 }
 

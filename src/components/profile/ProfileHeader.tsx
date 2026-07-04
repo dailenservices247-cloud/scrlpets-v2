@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Profile } from "@/lib/profiles/queries";
 import { MessageButton } from "@/components/messaging/MessageButton";
+import { loginHrefFor } from "@/lib/auth/redirect";
 
 export async function ProfileHeader({
   profile,
@@ -47,7 +48,17 @@ export async function ProfileHeader({
               {t("edit")}
             </Link>
           ) : (
-            viewerSignedIn && <MessageButton profileId={profile.id} />
+            viewerSignedIn ? (
+              <MessageButton profileId={profile.id} />
+            ) : (
+              <Link
+                href={loginHrefFor(`/u/${profile.username}`)}
+                className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+                data-testid="profile-message-signin"
+              >
+                {t("signInToMessage")}
+              </Link>
+            )
           )}
         </header>
 

@@ -20,3 +20,7 @@ export function safeNextPath(
     return fallback;
   }
 }
+
+export function loginHrefFor(nextPath: string): string {
+  return `/login?next=${encodeURIComponent(safeNextPath(nextPath))}`;
+}

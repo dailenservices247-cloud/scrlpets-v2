@@ -171,9 +171,9 @@ test("listing inquiry preserves evidence and stays inside its participants", asy
   await expect(page.getByTestId("listing-price")).toHaveText("$2,450.00");
   await page.getByTestId("listing-inquiry-signin").click();
   await expect(page).toHaveURL(/\/login\?next=/);
-  await page.getByPlaceholder("email").fill(BUYER_EMAIL);
-  await page.getByPlaceholder("password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByLabel("Email address").fill(BUYER_EMAIL);
+  await page.getByLabel("Password").fill(password);
+  await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL(
     `http://localhost:3000/listing/${listing!.id}`,
   );

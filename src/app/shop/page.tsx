@@ -20,7 +20,7 @@ export default function ShopPage() {
           </div>
           <h2 className="text-xl font-semibold tracking-tight">Shop foundation</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            This area stays truthful until real product inventory, recommendations, and checkout rules are ready.
+            This area stays truthful until real product inventory and recommendations are ready. Checkout will always require an account.
           </p>
           <Link
             href="/"
