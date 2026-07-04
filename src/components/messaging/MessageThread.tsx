@@ -4,19 +4,20 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { sendMessage } from "@/lib/messaging/actions";
 import type { ThreadMessage } from "@/lib/messaging/queries";
+import type { MessageContext } from "@/lib/messaging/context";
 import { Button } from "@/components/ui/button";
-import { MessageContextPill, type MessageContext } from "./MessageContextPill";
+import { MessageContextPill } from "./MessageContextPill";
 
 export function MessageThread({
   conversationId,
   meId,
   initial,
-  context,
+  contexts = [],
 }: {
   conversationId: string;
   meId: string;
   initial: ThreadMessage[];
-  context?: MessageContext;
+  contexts?: MessageContext[];
 }) {
   const t = useTranslations("messages");
   const [items, setItems] = useState<ThreadMessage[]>(initial);
@@ -74,7 +75,17 @@ export function MessageThread({
 
   return (
     <div className="flex flex-col gap-3" data-testid="message-thread">
-      {context && <MessageContextPill context={context} />}
+      {contexts.length > 0 && (
+        <section
+          className="flex flex-col gap-2"
+          aria-label={t("listingContexts")}
+          data-testid="message-contexts"
+        >
+          {contexts.map((context) => (
+            <MessageContextPill key={context.id} context={context} />
+          ))}
+        </section>
+      )}
       <div className="flex flex-col gap-2">
         {items.map((m) => (
           <div

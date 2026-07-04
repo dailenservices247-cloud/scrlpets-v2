@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
 import { FeedDestinationShell } from "@/components/feed/FeedDestinationShell";
+import { ListingInquiryPanel } from "@/components/marketplace/ListingInquiryPanel";
 import { getFeedItemById } from "@/lib/feed/query";
 import { getSessionUser } from "@/lib/auth/session";
+import { getBrandRole } from "@/lib/brands/queries";
+import { getListingMarketplaceDetail } from "@/lib/marketplace/queries";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,7 +19,27 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ListingDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [item, user] = await Promise.all([getFeedItemById(id), getSessionUser()]);
-  if (!item || item.type !== "listing") notFound();
-  return <FeedDestinationShell item={item} viewerId={user?.id} />;
+  const [item, user, marketplace] = await Promise.all([
+    getFeedItemById(id),
+    getSessionUser(),
+    getListingMarketplaceDetail(id),
+  ]);
+  if (!item || item.type !== "listing" || !marketplace) notFound();
+  const viewerIsOperator = Boolean(
+    user &&
+      item.brand &&
+      (await getBrandRole(user.id, item.brand.id)),
+  );
+
+  return (
+    <FeedDestinationShell item={item} viewerId={user?.id}>
+      <ListingInquiryPanel
+        listingId={marketplace.id}
+        sellerId={marketplace.sellerId}
+        priceCents={marketplace.priceCents}
+        viewerId={user?.id}
+        viewerIsOperator={viewerIsOperator}
+      />
+    </FeedDestinationShell>
+  );
 }

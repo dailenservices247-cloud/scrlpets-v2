@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import type { FeedItem, FeedItemType } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
@@ -25,9 +26,11 @@ const copyByType: Record<FeedItemType, DetailCopy> = {
 export async function FeedDestinationShell({
   item,
   viewerId,
+  children,
 }: {
   item: FeedItem;
   viewerId?: string | null;
+  children?: ReactNode;
 }) {
   const t = await getTranslations("detail");
   const tc = await getTranslations("content");
@@ -108,6 +111,7 @@ export async function FeedDestinationShell({
             </div>
           )}
         </Card>
+        {children}
       </section>
     </main>
   );

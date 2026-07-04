@@ -158,6 +158,25 @@
     "placeholder": "Write a message…",
     "send": "Send",
     "you": "You",
-    "back": "Back"
+    "back": "Back",
+    "listingContexts": "Listing inquiry context",
+    "listingContext": "Listing inquiry · {price}",
+    "listingContextUnavailable": "Past listing · {price} · unavailable"
+  },
+  "marketplace": {
+    "label": "Marketplace inquiry",
+    "inquiryOnly": "Inquiry only",
+    "evidenceTitle": "Listing context is preserved",
+    "evidenceBody": "Starting a conversation saves the listing title, price, animal, seller, and time. Scrlpets does not process payments for this listing yet.",
+    "operatorState": "You operate this listing. Buyer inquiries will appear in Messages.",
+    "ask": "Ask about this listing",
+    "starting": "Opening conversation…",
+    "signIn": "Sign in to ask",
+    "errors": {
+      "listing_unavailable": "This listing is no longer available.",
+      "self_inquiry": "Listing operators cannot start a buyer inquiry.",
+      "auth_required": "Sign in to ask about this listing.",
+      "inquiry_failed": "The conversation could not be opened. Please try again."
+    }
   }
 }

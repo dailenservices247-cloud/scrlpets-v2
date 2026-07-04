@@ -158,6 +158,25 @@
     "placeholder": "Escribe un mensaje…",
     "send": "Enviar",
     "you": "Tú",
-    "back": "Atrás"
+    "back": "Atrás",
+    "listingContexts": "Contexto de consulta del anuncio",
+    "listingContext": "Consulta del anuncio · {price}",
+    "listingContextUnavailable": "Anuncio anterior · {price} · no disponible"
+  },
+  "marketplace": {
+    "label": "Consulta del marketplace",
+    "inquiryOnly": "Solo consulta",
+    "evidenceTitle": "El contexto del anuncio queda preservado",
+    "evidenceBody": "Al iniciar una conversación se guardan el título, precio, animal, vendedor y hora del anuncio. Scrlpets todavía no procesa pagos para este anuncio.",
+    "operatorState": "Operas este anuncio. Las consultas de compradores aparecerán en Mensajes.",
+    "ask": "Preguntar por este anuncio",
+    "starting": "Abriendo conversación…",
+    "signIn": "Inicia sesión para preguntar",
+    "errors": {
+      "listing_unavailable": "Este anuncio ya no está disponible.",
+      "self_inquiry": "Los operadores del anuncio no pueden iniciar una consulta de comprador.",
+      "auth_required": "Inicia sesión para preguntar por este anuncio.",
+      "inquiry_failed": "No se pudo abrir la conversación. Inténtalo de nuevo."
+    }
   }
 }
