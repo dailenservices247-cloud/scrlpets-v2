@@ -63,7 +63,7 @@ export function ContentOwnerActions({ item }: { item: FeedItem }) {
 
       <AlertDialog.Root>
         <AlertDialog.Trigger
-          className="rounded-lg border border-destructive/40 bg-destructive/10 px-2.5 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/20"
+          className="rounded-lg border border-red-400/50 bg-red-950/70 px-2.5 py-1.5 text-xs font-medium text-red-200 hover:bg-red-900/80"
           data-testid="delete-content"
         >
           {t("delete")}
@@ -94,7 +94,7 @@ export function ContentOwnerActions({ item }: { item: FeedItem }) {
                   type="button"
                   onClick={remove}
                   disabled={busy}
-                  className="rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground disabled:opacity-50"
+                  className="rounded-lg bg-red-700 px-3 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50"
                   data-testid="confirm-delete"
                 >
                   {busy ? t("deleting") : isListing ? t("remove") : t("deletePermanently")}

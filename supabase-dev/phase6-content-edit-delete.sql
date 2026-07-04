@@ -83,6 +83,32 @@ create trigger listings_identity_immutable
 before update on public.listings
 for each row execute function public.enforce_content_identity_immutable();
 
+-- A normal UPDATE cannot both return through PostgREST and make the row fail its
+-- own SELECT policy. Keep the soft-delete atomic in a narrowly scoped function
+-- that still enforces ownership from the caller's JWT.
+create or replace function public.soft_delete_own_listing(target_listing_id uuid)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  affected integer;
+begin
+  update public.listings as l
+     set deleted_at = now()
+   where l.id = target_listing_id
+     and l.seller_id = auth.uid()
+     and l.deleted_at is null;
+
+  get diagnostics affected = row_count;
+  return affected = 1;
+end;
+$$;
+
+revoke execute on function public.soft_delete_own_listing(uuid) from anon, public;
+grant execute on function public.soft_delete_own_listing(uuid) to authenticated;
+
 -- Owner-only mutations. Server actions also scope by owner as defense in depth.
 create policy "own update posts" on public.posts
 for update to authenticated

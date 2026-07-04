@@ -57,6 +57,7 @@ drop trigger listings_identity_immutable on public.listings;
 
 drop function public.touch_updated_at();
 drop function public.enforce_content_identity_immutable();
+drop function public.soft_delete_own_listing(uuid);
 
 alter table public.posts drop column updated_at;
 alter table public.listings drop column updated_at;

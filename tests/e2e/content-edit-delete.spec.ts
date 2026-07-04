@@ -18,6 +18,7 @@ function databaseClient() {
 }
 
 async function expectNoSeriousA11y(page: Page) {
+  await expect(page).toHaveTitle(/\S+/);
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa"])
     .analyze();
@@ -60,14 +61,19 @@ test.describe("content edit/delete", () => {
     await expect(page).toHaveURL(/\/post\/[^/]+\/edit$/);
     const postId = page.url().split("/").at(-2)!;
 
-    await expect(page.getByTestId("locked-attribution")).toBeDisabled();
+    await expect(page.getByTestId("locked-attribution")).toHaveAttribute(
+      "disabled",
+      "",
+    );
     await expect(page.getByTestId("edit-post-form")).toBeVisible();
     await expectNoSeriousA11y(page);
     await page.getByTestId("post-body").fill(edited);
     await page.getByTestId("post-submit").click();
 
     await expect(page).toHaveURL(new RegExp(`/post/${postId}$`));
-    await expect(page.getByText(edited)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: edited, exact: true }),
+    ).toBeVisible();
     await expect(page.getByTestId("edited-chip")).toBeVisible();
 
     await page.getByTestId("delete-content").click();
@@ -105,13 +111,18 @@ test.describe("content edit/delete", () => {
     await expect(page).toHaveURL(/\/listing\/[^/]+\/edit$/);
     const listingId = page.url().split("/").at(-2)!;
 
-    await expect(page.getByTestId("locked-attribution")).toBeDisabled();
+    await expect(page.getByTestId("locked-attribution")).toHaveAttribute(
+      "disabled",
+      "",
+    );
     await page.getByTestId("listing-title").fill(edited);
     await page.getByTestId("listing-price").fill("150.00");
     await page.getByTestId("listing-submit").click();
 
     await expect(page).toHaveURL(new RegExp(`/listing/${listingId}$`));
-    await expect(page.getByText(edited)).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: edited, exact: true }),
+    ).toBeVisible();
     await expect(page.getByTestId("edited-chip")).toBeVisible();
 
     const db = databaseClient();

@@ -170,15 +170,12 @@ export async function editListing(listingId: string, formData: FormData): Promis
 }
 
 export async function deleteListing(listingId: string): Promise<ActionResult> {
-  const { supabase, user } = await requireUser();
-  const { count, error } = await supabase
-    .from("listings")
-    .update({ deleted_at: new Date().toISOString() }, { count: "exact" })
-    .eq("id", listingId)
-    .eq("seller_id", user.id)
-    .is("deleted_at", null);
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("soft_delete_own_listing", {
+    target_listing_id: listingId,
+  });
   if (error) return { ok: false, error: error.message };
-  if (count !== 1) return { ok: false, error: "not_found" };
+  if (data !== true) return { ok: false, error: "not_found" };
 
   revalidatePath("/");
   revalidatePath(`/listing/${listingId}`);
