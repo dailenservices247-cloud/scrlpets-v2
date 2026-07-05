@@ -55,6 +55,9 @@ test("account form exposes accessible browser semantics and recovery", async ({ 
   await page.getByTestId("auth-mode-signup").click();
   await expect(password).toHaveAttribute("autocomplete", "new-password");
   await expect(password).toHaveAttribute("minlength", "8");
+  const ageConfirmation = page.getByTestId("age-confirmation");
+  await expect(ageConfirmation).toBeVisible();
+  await expect(ageConfirmation).toHaveAttribute("required", "");
 
   await page.goto("/forgot-password");
   await expect(page.getByRole("heading", { name: "Reset your password" })).toBeVisible();
@@ -103,17 +106,17 @@ test("optional analytics waits for a guest decision", async ({ page }) => {
     localStorage.removeItem("scrlpets_analytics_consent"),
   );
   await page.reload();
-  if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-    const consent = page.getByTestId("analytics-consent");
-    await expect(consent).toBeVisible();
-    await consent.getByRole("button", { name: "Decline" }).click();
-    await expect(consent).toHaveCount(0);
-    await expect
-      .poll(() =>
-        page.evaluate(() =>
-          localStorage.getItem("scrlpets_analytics_consent"),
-        ),
-      )
-      .toBe("declined");
-  }
+  // Unconditional: playwright.config injects a dummy PostHog key so this
+  // can never pass vacuously when the real key is absent.
+  const consent = page.getByTestId("analytics-consent");
+  await expect(consent).toBeVisible();
+  await consent.getByRole("button", { name: "Decline" }).click();
+  await expect(consent).toHaveCount(0);
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        localStorage.getItem("scrlpets_analytics_consent"),
+      ),
+    )
+    .toBe("declined");
 });

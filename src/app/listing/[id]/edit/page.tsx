@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { ContentEditShell } from "@/components/content/ContentEditShell";
 import { getSessionUser } from "@/lib/auth/session";
+import { loginHrefFor } from "@/lib/auth/redirect";
 import { getEditableListing } from "@/lib/content/queries";
 
 export default async function EditListingPage({
@@ -10,7 +11,7 @@ export default async function EditListingPage({
 }) {
   const { id } = await params;
   const user = await getSessionUser();
-  if (!user) redirect("/login");
+  if (!user) redirect(loginHrefFor(`/listing/${id}/edit`));
 
   const listing = await getEditableListing(id, user.id);
   if (!listing) notFound();

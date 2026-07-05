@@ -25,6 +25,14 @@ export default defineConfig({
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: true,
+    // Fresh server every run: guarantees the dummy PostHog key below is
+    // present so the consent test can never pass vacuously, and the suite
+    // always runs the committed code instead of a stale dev server.
+    reuseExistingServer: false,
+    env: {
+      ...process.env,
+      NEXT_PUBLIC_POSTHOG_KEY:
+        process.env.NEXT_PUBLIC_POSTHOG_KEY ?? "phc_e2e_dummy_key",
+    },
   },
 });

@@ -15,7 +15,7 @@ const sections = [
   },
   {
     title: "Service providers",
-    body: "Supabase provides authentication and application data storage, Vercel hosts the web application, Sentry receives technical error reports, and PostHog receives optional analytics only after consent.",
+    body: "Supabase provides authentication and application data storage, Vercel hosts the web application, Sentry receives technical error reports and a small sample of performance timing measurements, and PostHog receives optional analytics only after consent.",
   },
   {
     title: "Your choices",

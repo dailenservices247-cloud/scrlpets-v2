@@ -47,11 +47,13 @@
       "invalid_credentials": "The email or password is incorrect.",
       "link_expired": "That link is invalid or has expired. Request a new one.",
       "rate_limited": "Too many attempts were made. Wait a moment and try again.",
-      "unknown": "We could not complete that request. Please try again."
+      "unknown": "We could not complete that request. Please try again.",
+      "already_registered": "An account with this email already exists. Sign in or reset your password instead."
     },
     "notices": {
       "password_updated": "Your password was updated. Sign in with the new password."
-    }
+    },
+    "ageConfirmation": "I confirm I am at least 18 years old."
   },
   "consent": {
     "label": "Analytics choice",

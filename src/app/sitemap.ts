@@ -14,40 +14,30 @@ function contentPath(item: { id: string; kind: string; subtype: string | null })
 /** Public discovery surfaces only. Private/account routes stay out of search. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
-  const [
-    { data: profiles },
-    { data: creatures },
-    { data: brands },
-    { data: content },
-  ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("username")
-      .not("username", "like", "scrlpets-rbac-%")
-      .limit(1000),
-    supabase.from("creatures").select("slug").limit(1000),
-    supabase
-      .from("brands")
-      .select("slug")
-      .not("slug", "like", "e2e-%")
-      .limit(1000),
-    supabase
-      .from("unified_feed")
-      .select("id,kind,subtype")
-      .not("title", "like", "E2E %")
-      .limit(1000),
-  ]);
+  // Profile URLs stay out of the sitemap until username editing ships:
+  // auto-generated usernames derive from the email localpart, and the privacy
+  // notice promises email addresses are not public.
+  const [{ data: creatures }, { data: brands }, { data: content }] =
+    await Promise.all([
+      supabase.from("creatures").select("slug").limit(1000),
+      supabase
+        .from("brands")
+        .select("slug")
+        .not("slug", "like", "e2e-%")
+        .limit(1000),
+      supabase
+        .from("unified_feed")
+        .select("id,kind,subtype")
+        // NULL-safe: plain `not like` would drop caption-less media posts.
+        .or("title.is.null,title.not.like.E2E *")
+        .limit(1000),
+    ]);
 
   return [
     { url: BASE_URL, changeFrequency: "hourly", priority: 1 },
     { url: `${BASE_URL}/shop`, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/privacy`, changeFrequency: "monthly", priority: 0.2 },
     { url: `${BASE_URL}/terms`, changeFrequency: "monthly", priority: 0.2 },
-    ...(profiles ?? []).map((p) => ({
-      url: `${BASE_URL}/u/${p.username}`,
-      changeFrequency: "daily" as const,
-      priority: 0.8,
-    })),
     ...(creatures ?? []).map((c) => ({
       url: `${BASE_URL}/c/${c.slug}`,
       changeFrequency: "weekly" as const,

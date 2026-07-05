@@ -1,4 +1,5 @@
 export type AuthErrorKey =
+  | "already_registered"
   | "confirmation_failed"
   | "email_not_confirmed"
   | "invalid_credentials"
@@ -7,6 +8,7 @@ export type AuthErrorKey =
   | "unknown";
 
 const AUTH_ERROR_KEYS = new Set<AuthErrorKey>([
+  "already_registered",
   "confirmation_failed",
   "email_not_confirmed",
   "invalid_credentials",
@@ -18,6 +20,12 @@ const AUTH_ERROR_KEYS = new Set<AuthErrorKey>([
 export function authErrorKey(message: string): AuthErrorKey {
   const normalized = message.toLowerCase();
   if (normalized.includes("email not confirmed")) return "email_not_confirmed";
+  if (
+    normalized.includes("already registered") ||
+    normalized.includes("already exists")
+  ) {
+    return "already_registered";
+  }
   if (
     normalized.includes("invalid login credentials") ||
     normalized.includes("invalid credentials")
@@ -31,7 +39,12 @@ export function authErrorKey(message: string): AuthErrorKey {
   ) {
     return "link_expired";
   }
-  if (normalized.includes("rate") || normalized.includes("too many")) {
+  if (
+    normalized.includes("rate") ||
+    normalized.includes("too many") ||
+    // Supabase per-user cooldown: "For security purposes, you can only request this after N seconds"
+    normalized.includes("security purposes")
+  ) {
     return "rate_limited";
   }
   return "unknown";

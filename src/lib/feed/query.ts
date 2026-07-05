@@ -51,7 +51,9 @@ export async function getFeed(tab: FeedTab): Promise<FeedItem[]> {
     .select("*")
     .order("created_at", { ascending: false });
   if (process.env.NODE_ENV === "production") {
-    query = query.not("title", "like", "E2E %");
+    // NULL-safe: `not like` alone is NULL-eliminating in SQL and would drop
+    // caption-less media posts (NULL title) from the production feed.
+    query = query.or("title.is.null,title.not.like.E2E *");
   }
   const { data, error } = await query.limit(
     process.env.NODE_ENV === "production" ? 50 : 200,

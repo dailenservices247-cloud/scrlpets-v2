@@ -2,6 +2,10 @@ import Link from "next/link";
 
 const sections = [
   {
+    title: "Eligibility",
+    body: "You must be at least 18 years old to create a Scrlpets account, publish content, or participate in the marketplace. Browsing public content does not require an account.",
+  },
+  {
     title: "Using Scrlpets",
     body: "Public animal, seller, listing, and product content can be browsed without an account. An account is required to publish, message, inquire, or begin any checkout.",
   },

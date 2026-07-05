@@ -29,6 +29,7 @@ export function LoginForm({
   const [busy, setBusy] = useState(false);
   const [awaitingVerification, setAwaitingVerification] = useState(false);
   const [resent, setResent] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
 
   function callbackUrl() {
     const callback = new URL("/auth/callback", location.origin);
@@ -52,6 +53,13 @@ export function LoginForm({
         setError(authErrorKey(signUpError.message));
         return;
       }
+      // With email confirmation on, Supabase obfuscates existing confirmed
+      // accounts as a success with no identities — no email will arrive.
+      if (data.user && data.user.identities?.length === 0) {
+        setMode("signin");
+        setError("already_registered");
+        return;
+      }
       if (!data.session) {
         setAwaitingVerification(true);
         return;
@@ -63,7 +71,13 @@ export function LoginForm({
       });
       setBusy(false);
       if (signInError) {
-        setError(authErrorKey(signInError.message));
+        const key = authErrorKey(signInError.message);
+        // Unconfirmed accounts get the pending/resend screen, not a dead end.
+        if (key === "email_not_confirmed") {
+          setAwaitingVerification(true);
+          return;
+        }
+        setError(key);
         return;
       }
     }
@@ -194,6 +208,20 @@ export function LoginForm({
         </label>
         {mode === "signup" && (
           <p className="text-xs leading-5 text-muted-foreground">{t("passwordHint")}</p>
+        )}
+        {mode === "signup" && (
+          <label className="flex min-h-11 items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              name="age-confirmation"
+              data-testid="age-confirmation"
+              required
+              className="size-5 shrink-0 accent-primary"
+              checked={ageConfirmed}
+              onChange={(event) => setAgeConfirmed(event.target.checked)}
+            />
+            {t("ageConfirmation")}
+          </label>
         )}
         {error && <AuthError error={error} />}
         <Button className="min-h-11" type="submit" disabled={busy} data-testid="auth-submit">
