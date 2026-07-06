@@ -169,7 +169,9 @@ test.describe("content edit/delete", () => {
 
     await page.context().clearCookies();
     await page.goto(`/post/${postId}`);
-    await expect(page.getByText(marker)).toBeVisible();
+    // Heading role only: Next streams <title> into the body, so getByText(marker)
+    // intermittently strict-mode-collides with the document title.
+    await expect(page.getByRole("heading", { name: marker })).toBeVisible();
     await expect(page.getByTestId("edit-content")).toHaveCount(0);
     await expect(page.getByTestId("delete-content")).toHaveCount(0);
 

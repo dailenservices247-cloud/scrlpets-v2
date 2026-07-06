@@ -9,6 +9,13 @@ After any UI-touching change, before reporting the task complete, run self-verif
 - For mobile screens, verify the corresponding mobile runtime.
 - Fix unexpected state or errors before marking the work complete.
 
+## Ship verification (every release)
+
+Every ship runs `./ship-verify.sh` (types → lint → unit → e2e → prod build) and,
+after deploying, `./ship-verify.sh --prod` (live CSP header, sitemap /u/-leak and
+fixture-leak guards, feed render). Paste its SUMMARY block into the session log as
+the verification evidence. Do not report a ship complete without it.
+
 ## Scrlpets legacy-intent gate
 
 Before recommending, planning, or implementing a Scrlpets feature:

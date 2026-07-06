@@ -23,6 +23,12 @@ code. Check these when standing up a new environment or rotating projects.
   resend, password recovery, and Google OAuth all redirect through it.
 - **Email confirmation** toggle controls whether signup shows the
   check-your-email pending state.
+- **Custom SMTP (configured 2026-07-05, dev project):** Resend — host
+  `smtp.resend.com`, port 465, username `resend`, password = Resend API key
+  scoped to `synapsedynamics.io` (key name `scripets-supabase-smtp` in the SDS
+  Resend account). Sender: `Scrlpets <auth@synapsedynamics.io>` — interim until
+  scrlpets.com transfers out of Lovable/name.com and gets its own verified
+  sending domain. Both templates below are token_hash-based and LIVE.
 - **Email templates:** for confirmation and recovery links that work when
   opened in a different browser or device than the one that started the flow
   (phone mail apps, in-app browsers), point the templates at the callback with

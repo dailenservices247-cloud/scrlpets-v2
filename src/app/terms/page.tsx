@@ -51,7 +51,7 @@ export default function TermsPage() {
         ))}
       </div>
       <p className="mt-8 text-sm">
-        Questions: legal@scrlpets.com ·{" "}
+        Questions: legal@synapsedynamics.io ·{" "}
         <Link href="/privacy" className="text-brand-link underline">
           Privacy Notice
         </Link>

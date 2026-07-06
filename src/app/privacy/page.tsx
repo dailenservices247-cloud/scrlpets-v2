@@ -19,7 +19,7 @@ const sections = [
   },
   {
     title: "Your choices",
-    body: "You can decline optional analytics. Account correction, export, and deletion controls are being prepared; until those controls ship, privacy requests can be sent to privacy@scrlpets.com.",
+    body: "You can decline optional analytics. Account correction, export, and deletion controls are being prepared; until those controls ship, privacy requests can be sent to privacy@synapsedynamics.io.",
   },
   {
     title: "Safety and retention",
