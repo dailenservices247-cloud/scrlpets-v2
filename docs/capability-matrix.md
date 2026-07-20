@@ -16,8 +16,8 @@ Roles: `guest` (anon) · `user` (authed, no brand tie) · `contributor` / `admin
 | 3 | Create brand-attributed post/listing | ❌ | ❌ | — | ✅* | ✅ | ✅ | membership check (live). *Default any-member; per-brand setting can restrict to admin+owner (planned — decision 1) |
 | 4 | Edit own person-attributed content | ❌ | — | ✅ | — | — | — | RLS author-only (live) |
 | 5 | Delete own person-attributed content | ❌ | — | ✅ | — | — | — | RLS author-only (live) |
-| 6 | Edit brand-attributed content | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | GAP — slice B (today author-only) |
-| 7 | Delete brand-attributed content | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | PARTIAL — listing soft-delete live; post soft-delete = slice B |
+| 6 | Edit brand-attributed content | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | RLS `own or managed brand update posts/listings` (author-or-`is_brand_manager`); manager mutations audited to `brand_content_events` (live) |
+| 7 | Delete brand-attributed content | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | `soft_delete_managed_listing` + `soft_delete_managed_post` (author-or-manager); soft-delete hidden at SELECT policy; audited (live) |
 | 8 | Edit brand profile / avatar / slug | ❌ | ❌ | — | ❌ | ✅ | ✅ | Brand OS actions (live) |
 | 9 | Add/remove contributor | ❌ | ❌ | — | ❌ | ✅ | ✅ | `manage_brand_member` RPC (live) |
 | 10 | Add/remove admin; change roles | ❌ | ❌ | — | ❌ | ❌ | ✅ | `manage_brand_member` RPC (live) |

@@ -114,7 +114,8 @@ export async function editPost(postId: string, formData: FormData): Promise<Acti
       body: body.trim() || null,
       media_url: mediaUrl,
     }, { count: "exact" })
-    .eq("id", postId);
+    .eq("id", postId)
+    .is("deleted_at", null);
   if (error) return { ok: false, error: error.message };
   if (count !== 1) return { ok: false, error: "not_found" };
 
@@ -127,12 +128,13 @@ export async function editPost(postId: string, formData: FormData): Promise<Acti
 
 export async function deletePost(postId: string): Promise<ActionResult> {
   const { supabase } = await requireUser();
-  const { count, error } = await supabase
-    .from("posts")
-    .delete({ count: "exact" })
-    .eq("id", postId);
+  // Soft-delete via author-or-manager RPC (mirrors deleteListing). Post rows
+  // are now retained with deleted_at; the SELECT policy hides them everywhere.
+  const { data, error } = await supabase.rpc("soft_delete_managed_post", {
+    target_post_id: postId,
+  });
   if (error) return { ok: false, error: error.message };
-  if (count !== 1) return { ok: false, error: "not_found" };
+  if (data !== true) return { ok: false, error: "not_found" };
 
   revalidatePath("/");
   revalidatePath(`/post/${postId}`);

@@ -58,6 +58,7 @@ export async function FeedList({
       <div className="flex flex-col gap-4" data-testid="feed-list">
         {items.map((item) => {
           const Tile = MAP[item.type];
+          // matrix rows 6-7: author OR admin/owner of the attributed brand.
           const canManage =
             viewerId === item.author.id ||
             Boolean(item.brand && manageableBrandIds.has(item.brand.id));

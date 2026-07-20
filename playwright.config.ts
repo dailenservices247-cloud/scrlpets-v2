@@ -5,6 +5,7 @@ dotenv({ path: ".env.local" });
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   // Serial: tests share one dev DB; parallel workers race on mutated rows
   // (e.g. profile-edit vs profile-read of the same seed user).
   workers: 1,

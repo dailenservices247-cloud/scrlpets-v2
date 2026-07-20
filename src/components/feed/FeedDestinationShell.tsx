@@ -42,6 +42,7 @@ export async function FeedDestinationShell({
   const manageableBrandIds = new Set(
     viewerId ? await getManageableBrandIds(viewerId) : [],
   );
+  // matrix rows 6-7: author OR admin/owner of the attributed brand.
   const canManage =
     viewerId === item.author.id ||
     Boolean(item.brand && manageableBrandIds.has(item.brand.id));

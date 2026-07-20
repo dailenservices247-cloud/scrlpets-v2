@@ -13,14 +13,17 @@ export function isBrandRole(value: string): value is BrandRole {
   return VALID_ROLES.has(value as BrandRole);
 }
 
+// matrix rows 6-7: edit/delete brand-attributed content = author, admin, owner.
 export function canManageBrandContent(role: BrandRole | null): boolean {
   return role === "owner" || role === "admin";
 }
 
+// matrix row 9: add/remove contributors = admin, owner.
 export function canManageContributors(role: BrandRole | null): boolean {
   return role === "owner" || role === "admin";
 }
 
+// matrix row 10: add/remove admins, change roles = owner only.
 export function canChangeBrandRoles(role: BrandRole | null): boolean {
   return role === "owner";
 }

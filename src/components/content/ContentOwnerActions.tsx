@@ -41,7 +41,8 @@ export function ContentOwnerActions({ item }: { item: FeedItem }) {
 
     capture("content_deleted", {
       content_type: isListing ? "listing" : "post",
-      delete_semantics: isListing ? "soft" : "hard",
+      // Posts and listings both soft-delete now (Slice B).
+      delete_semantics: "soft",
     });
     const destination = getFeedDestination(item).href;
     if (pathname === destination) router.push("/");
