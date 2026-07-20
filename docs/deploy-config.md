@@ -37,6 +37,38 @@ code. Check these when standing up a new environment or rotating projects.
   (and `type=signup` for confirmations). The callback route supports both
   `token_hash` and `code` parameters.
 
+## Database migrations (Supabase CLI)
+
+Schema is managed through the Supabase CLI as of 2026-07-20 (Slice D). The
+`supabase-dev/phase*.sql` files are frozen history under `supabase-dev/history/`;
+`schema.sql` and `seed.sql` remain the local-setup/seed reference.
+
+- **Auth:** `export SUPABASE_ACCESS_TOKEN=$(get-secret scrlpets-v2-supabase-token)`
+  and `export SUPABASE_DB_PASSWORD=$(get-secret scrlpets-v2-dev-db-password)`
+  before any CLI command. The token belongs to the `allday24seven's Org`
+  account that owns the dev project — NOT the legacy Keychain
+  `supabase-access-token` (different account/org).
+- **Baseline:** `supabase/migrations/<ts>_baseline_public.sql` is migration 0,
+  dumped directly from the live dev DB (`supabase db dump --linked --schema public`)
+  and marked applied in remote history. New schema changes:
+  `supabase migration new <name>` → edit → `supabase db push`.
+- **Baseline scope = `public` only.** The `storage` schema is excluded.
+  The live dev project has a public `media` bucket with one owner-pathed policy
+  (`"media owner upload"`, INSERT, `with_check (bucket_id='media' AND
+  (storage.foldername(name))[1] = auth.uid()::text)`). A future prod-promote
+  MUST recreate the `media` bucket and this policy by hand — it is not in the
+  migration baseline. `auth`/`extensions` schemas are Supabase-managed and also
+  excluded by design.
+- **Zero-diff proof:** the baseline was verified equal to live by dump-source
+  equivalence plus object-count parity (11 tables / 22 policies / 12 functions /
+  4 triggers / 1 view, confirmed against `pg_catalog`). The shadow-based
+  `supabase db diff --linked` is NOT usable on this machine — its throwaway
+  Docker Postgres enters a health-check retry loop and never converges; use
+  count parity or a re-dump comparison instead.
+- **Promote path (dev → a future prod project):** `supabase link --project-ref
+  <prod-ref>` → `supabase db push` (replays the baseline + later migrations) →
+  recreate the `media` bucket + policy above → set the prod env vars in this doc.
+
 ## Behavior notes
 
 - The Content-Security-Policy header is only emitted when
