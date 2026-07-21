@@ -48,11 +48,22 @@ async function resolveAttribution(
   if (!brandId) return null;
   const { data, error } = await supabase
     .from("brand_memberships")
-    .select("id")
+    .select("role, brands ( restrict_posting_to_managers )")
     .eq("brand_id", brandId)
     .eq("profile_id", userId)
     .maybeSingle();
   if (error || !data) return null;
+  // matrix row 3: contributors may not post as a restricted brand. The insert
+  // RLS is the real gate; this returns the clean brand_denied instead of an
+  // RLS failure. Supabase types the embedded relation as an array.
+  const membership = data as {
+    role: string;
+    brands: { restrict_posting_to_managers: boolean } | { restrict_posting_to_managers: boolean }[] | null;
+  };
+  const rel = membership.brands;
+  const brand = Array.isArray(rel) ? rel[0] : rel;
+  const isManager = membership.role === "owner" || membership.role === "admin";
+  if (brand?.restrict_posting_to_managers && !isManager) return null;
   return { posting_as_type: "brand", brand_id: brandId, about_type: aboutType, about_id: aboutId };
 }
 

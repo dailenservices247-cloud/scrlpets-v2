@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BadgeDollarSign, Building2, MessageCircle, PawPrint, PenSquare, UsersRound } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { BrandMembersPanel } from "@/components/brand/BrandMembersPanel";
+import { BrandPostingSetting } from "@/components/brand/BrandPostingSetting";
 import { getSessionUser } from "@/lib/auth/session";
 import {
   getMyBrands,
@@ -142,6 +143,14 @@ export default async function BrandOSPage({
             );
           })}
         </div>
+      </section>
+
+      <section className="px-3 py-3">
+        <BrandPostingSetting
+          brandId={brand.id}
+          viewerRole={brand.role}
+          initialRestrict={brand.restrictPostingToManagers}
+        />
       </section>
 
       <section className="px-3 py-3">

@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostForm } from "./PostForm";
 import { ListingForm } from "./ListingForm";
-import type { MyBrand } from "@/lib/brands/queries";
+import type { BrandAccess } from "@/lib/brands/queries";
 import { cn } from "@/lib/utils";
 
 export type ComposeAttribution = {
@@ -71,7 +71,7 @@ export function ComposerTabs({
   userId: string;
   actorName: string;
   creatures: { id: string; name: string }[];
-  brands: MyBrand[];
+  brands: BrandAccess[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -91,7 +91,10 @@ export function ComposerTabs({
     brandId: postingAs === "brand" ? selectedBrandId : null,
     aboutType: about,
   };
-  const brandReady = postingAs === "person" || (postingAs === "brand" && !!selectedBrandId);
+  // matrix row 3: a contributor cannot post as a restricted brand.
+  const brandReady =
+    postingAs === "person" ||
+    (postingAs === "brand" && !!selectedBrandId && (selectedBrand?.canPostAs ?? false));
   const subjectLabel = useMemo(() => {
     const firstAnimal = creatures[0]?.name ?? "Animal";
     const map: Record<About, string> = {
@@ -167,11 +170,21 @@ export function ComposerTabs({
                     className="w-full rounded-xl border border-input bg-transparent p-2"
                   >
                     {brands.map((b) => (
-                      <option key={b.id} value={b.id}>
+                      <option key={b.id} value={b.id} disabled={!b.canPostAs}>
                         {b.name}
+                        {b.canPostAs ? "" : " — admins only"}
                       </option>
                     ))}
                   </select>
+                  {selectedBrand && !selectedBrand.canPostAs && (
+                    <p
+                      className="mt-2 text-xs text-muted-foreground"
+                      role="note"
+                      data-testid="brand-restricted-note"
+                    >
+                      Only admins and owners can post as this brand.
+                    </p>
+                  )}
                 </label>
               ) : (
                 <Link

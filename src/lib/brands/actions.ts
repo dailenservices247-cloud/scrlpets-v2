@@ -119,3 +119,24 @@ export async function removeBrandMember(
   revalidatePath("/compose");
   return { ok: true };
 }
+
+// matrix row 3 setting: admin/owner restrict posting-as-brand to managers.
+// The RPC re-checks is_brand_manager; the flag has no direct UPDATE policy.
+export async function setBrandPostingRestriction(
+  formData: FormData,
+): Promise<BrandActionResult> {
+  const { supabase } = await requireUser();
+  const brandId = String(formData.get("brandId") ?? "");
+  const restrict = formData.get("restrict") === "true";
+  if (!brandId) return { ok: false, error: "required" };
+
+  const { error } = await supabase.rpc("set_brand_posting_restriction", {
+    target_brand_id: brandId,
+    restrict,
+  });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/brand-os");
+  revalidatePath("/compose");
+  return { ok: true };
+}

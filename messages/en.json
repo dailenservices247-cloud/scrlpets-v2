@@ -161,7 +161,15 @@
       "roleChanged": "Role updated.",
       "removed": "Member removed.",
       "left": "You left the brand."
-    }
+    },
+    "restrictTitle": "Who can post as this brand",
+    "restrictBody": "Restrict posting to admins and owners. Contributors keep managing their own content.",
+    "restrictOn": "Admins and owners only",
+    "restrictOff": "Any member",
+    "restrictEnable": "Restrict to admins & owners",
+    "restrictAllow": "Allow any member",
+    "restrictSaving": "Saving…",
+    "restrictError": "Could not update the setting. Try again."
   },
   "profile": {
     "tabPosts": "Posts",

@@ -161,7 +161,15 @@
       "roleChanged": "Rol actualizado.",
       "removed": "Miembro eliminado.",
       "left": "Saliste de la marca."
-    }
+    },
+    "restrictTitle": "Quién puede publicar como esta marca",
+    "restrictBody": "Restringe la publicación a administradores y propietarios. Los colaboradores siguen gestionando su propio contenido.",
+    "restrictOn": "Solo administradores y propietarios",
+    "restrictOff": "Cualquier miembro",
+    "restrictEnable": "Restringir a administradores y propietarios",
+    "restrictAllow": "Permitir a cualquier miembro",
+    "restrictSaving": "Guardando…",
+    "restrictError": "No se pudo actualizar la configuración. Inténtalo de nuevo."
   },
   "profile": {
     "tabPosts": "Publicaciones",
