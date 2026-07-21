@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import type { Profile } from "@/lib/profiles/queries";
 import { MessageButton } from "@/components/messaging/MessageButton";
 import { FollowButton } from "@/components/social/FollowButton";
+import { ProfileSafetyActions } from "@/components/social/ProfileSafetyActions";
 import { loginHrefFor } from "@/lib/auth/redirect";
 
 export async function ProfileHeader({
@@ -10,6 +11,7 @@ export async function ProfileHeader({
   isOwn,
   viewerSignedIn,
   viewerFollowing,
+  viewerBlocked,
   followCounts,
   metrics,
 }: {
@@ -17,6 +19,7 @@ export async function ProfileHeader({
   isOwn: boolean;
   viewerSignedIn: boolean;
   viewerFollowing: boolean;
+  viewerBlocked: boolean;
   followCounts: { followers: number; following: number };
   metrics: { label: string; value: string | number; testId: string }[];
 }) {
@@ -61,11 +64,19 @@ export async function ProfileHeader({
             </Link>
           ) : viewerSignedIn ? (
             <div className="flex shrink-0 flex-col items-end gap-2">
-              <FollowButton
+              {!viewerBlocked && (
+                <>
+                  <FollowButton
+                    targetProfileId={profile.id}
+                    initialFollowing={viewerFollowing}
+                  />
+                  <MessageButton profileId={profile.id} />
+                </>
+              )}
+              <ProfileSafetyActions
                 targetProfileId={profile.id}
-                initialFollowing={viewerFollowing}
+                initialBlocked={viewerBlocked}
               />
-              <MessageButton profileId={profile.id} />
             </div>
           ) : (
             <Link

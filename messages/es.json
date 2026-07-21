@@ -200,7 +200,10 @@
     "follow": "Seguir",
     "following": "Siguiendo",
     "followers": "seguidores",
-    "followingCount": "siguiendo"
+    "followingCount": "siguiendo",
+    "block": "Bloquear",
+    "unblock": "Desbloquear",
+    "blockedNote": "Bloqueaste a este usuario. No verás su contenido ni intercambiarás mensajes."
   },
   "detail": {
     "backToFeed": "Volver al feed",
@@ -250,6 +253,23 @@
       "self_inquiry": "Los operadores del anuncio no pueden iniciar una consulta de comprador.",
       "auth_required": "Inicia sesión para preguntar por este anuncio.",
       "inquiry_failed": "No se pudo abrir la conversación. Inténtalo de nuevo."
+    }
+  },
+  "report": {
+    "report": "Reportar",
+    "title": "¿Por qué lo reportas?",
+    "submit": "Enviar reporte",
+    "submitting": "Enviando…",
+    "cancel": "Cancelar",
+    "done": "Reporte enviado. Gracias.",
+    "error": "No se pudo enviar el reporte. Inténtalo de nuevo.",
+    "detailsPlaceholder": "Agrega detalles (opcional)",
+    "reasons": {
+      "spam": "Spam",
+      "harassment": "Acoso o intimidación",
+      "scam": "Estafa o fraude",
+      "inappropriate": "Contenido inapropiado",
+      "other": "Otra cosa"
     }
   }
 }

@@ -8,6 +8,7 @@ import { ContentTypeBadge } from "./ContentTypeBadge";
 import { FeedTileAction } from "./FeedTileAction";
 import { TileMedia } from "./TileMedia";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
+import { ReportButton } from "@/components/social/ReportButton";
 import { getManageableBrandIds } from "@/lib/brands/queries";
 
 type DetailCopy = {
@@ -106,10 +107,20 @@ export async function FeedDestinationShell({
             <p className="text-xs text-muted-foreground">{t("nextAction")}</p>
             <FeedTileAction item={item} />
           </div>
-          {canManage && (
+          {canManage ? (
             <div className="mt-4 border-t border-border/70 pt-4">
               <ContentOwnerActions item={item} />
             </div>
+          ) : (
+            viewerId &&
+            item.type !== "promo" && (
+              <div className="mt-4 flex justify-end border-t border-border/70 pt-4">
+                <ReportButton
+                  targetKind={item.type === "listing" ? "listing" : "post"}
+                  targetId={item.id}
+                />
+              </div>
+            )
           )}
         </Card>
         {children}

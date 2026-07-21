@@ -43,3 +43,64 @@ export async function toggleFollow(
   revalidatePath("/");
   return { ok: true, following: true };
 }
+
+export type BlockResult =
+  | { ok: true; blocked: boolean }
+  | { ok: false; error: string };
+
+// Block via the definer RPC (records the block + severs both follow edges).
+export async function setBlock(
+  targetProfileId: string,
+  blocked: boolean,
+): Promise<BlockResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "auth_required" };
+  if (user.id === targetProfileId) return { ok: false, error: "self" };
+
+  const { error } = await supabase.rpc(blocked ? "block_user" : "unblock_user", {
+    target_id: targetProfileId,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/");
+  return { ok: true, blocked };
+}
+
+const REPORT_REASONS = new Set([
+  "spam",
+  "harassment",
+  "scam",
+  "inappropriate",
+  "other",
+]);
+const REPORT_KINDS = new Set(["post", "listing", "profile"]);
+
+export type ReportResult = { ok: true } | { ok: false; error: string };
+
+export async function createReport(formData: FormData): Promise<ReportResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "auth_required" };
+
+  const targetKind = String(formData.get("targetKind") ?? "");
+  const targetId = String(formData.get("targetId") ?? "");
+  const reason = String(formData.get("reason") ?? "");
+  const details = (String(formData.get("details") ?? "").trim() || null)?.slice(0, 2000) ?? null;
+  if (!REPORT_KINDS.has(targetKind) || !targetId || !REPORT_REASONS.has(reason)) {
+    return { ok: false, error: "invalid" };
+  }
+
+  const { error } = await supabase.from("content_reports").insert({
+    reporter_id: user.id,
+    target_kind: targetKind,
+    target_id: targetId,
+    reason,
+    details,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}

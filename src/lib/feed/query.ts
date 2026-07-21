@@ -64,6 +64,18 @@ export async function getFeed(
     // caption-less media posts (NULL title) from the production feed.
     query = query.or("title.is.null,title.not.like.E2E *");
   }
+  if (viewerId) {
+    const { getBlockedFeedIds } = await import("@/lib/social/follows");
+    const blocked = await getBlockedFeedIds(viewerId);
+    // Hide content from anyone you blocked or who blocked you, on both tabs.
+    if (blocked.length > 0) {
+      query = query.not(
+        "author_id",
+        "in",
+        `(${blocked.join(",")})`,
+      );
+    }
+  }
   if (tab === "following" && viewerId) {
     const { getFollowingIds } = await import("@/lib/social/follows");
     const followed = await getFollowingIds(viewerId);

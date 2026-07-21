@@ -200,7 +200,10 @@
     "follow": "Follow",
     "following": "Following",
     "followers": "followers",
-    "followingCount": "following"
+    "followingCount": "following",
+    "block": "Block",
+    "unblock": "Unblock",
+    "blockedNote": "You blocked this user. You won't see their content or exchange messages."
   },
   "detail": {
     "backToFeed": "Back to feed",
@@ -250,6 +253,23 @@
       "self_inquiry": "Listing operators cannot start a buyer inquiry.",
       "auth_required": "Sign in to ask about this listing.",
       "inquiry_failed": "The conversation could not be opened. Please try again."
+    }
+  },
+  "report": {
+    "report": "Report",
+    "title": "Why are you reporting this?",
+    "submit": "Submit report",
+    "submitting": "Submitting…",
+    "cancel": "Cancel",
+    "done": "Report submitted. Thank you.",
+    "error": "Could not submit the report. Try again.",
+    "detailsPlaceholder": "Add any details (optional)",
+    "reasons": {
+      "spam": "Spam",
+      "harassment": "Harassment or bullying",
+      "scam": "Scam or fraud",
+      "inappropriate": "Inappropriate content",
+      "other": "Something else"
     }
   }
 }

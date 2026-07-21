@@ -7,7 +7,7 @@ import {
   getProfileFeed,
   getCreaturesByOwner,
 } from "@/lib/profiles/queries";
-import { getFollowCounts, isFollowing } from "@/lib/social/follows";
+import { getFollowCounts, isFollowing, hasBlocked } from "@/lib/social/follows";
 import { AnimalRail } from "@/components/profile/AnimalRail";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileIdentityPanel } from "@/components/profile/ProfileIdentityPanel";
@@ -53,10 +53,13 @@ export default async function ProfilePage({
     getBrandsByOwner(profile.id),
     getFollowCounts(profile.id),
   ]);
-  const viewerFollowing =
+  const [viewerFollowing, viewerBlocked] =
     !!user && user.id !== profile.id
-      ? await isFollowing(user.id, profile.id)
-      : false;
+      ? await Promise.all([
+          isFollowing(user.id, profile.id),
+          hasBlocked(user.id, profile.id),
+        ])
+      : [false, false];
   const metrics = [
     { label: t("metricAnimals"), value: creatures.length, testId: "metric-animals" },
     { label: t("metricPosts"), value: countType(profileFeed, ["post", "reel", "long_video"]), testId: "metric-posts" },
@@ -71,6 +74,7 @@ export default async function ProfilePage({
           isOwn={user?.id === profile.id}
           viewerSignedIn={!!user}
           viewerFollowing={viewerFollowing}
+          viewerBlocked={viewerBlocked}
           followCounts={followCounts}
           metrics={metrics}
         />
