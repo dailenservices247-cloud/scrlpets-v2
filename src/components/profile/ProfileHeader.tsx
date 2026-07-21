@@ -2,17 +2,22 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Profile } from "@/lib/profiles/queries";
 import { MessageButton } from "@/components/messaging/MessageButton";
+import { FollowButton } from "@/components/social/FollowButton";
 import { loginHrefFor } from "@/lib/auth/redirect";
 
 export async function ProfileHeader({
   profile,
   isOwn,
   viewerSignedIn,
+  viewerFollowing,
+  followCounts,
   metrics,
 }: {
   profile: Profile;
   isOwn: boolean;
   viewerSignedIn: boolean;
+  viewerFollowing: boolean;
+  followCounts: { followers: number; following: number };
   metrics: { label: string; value: string | number; testId: string }[];
 }) {
   const t = await getTranslations("profile");
@@ -38,6 +43,13 @@ export async function ProfileHeader({
             <p className="eyebrow">{t("profileLabel")}</p>
             <h1 className="mt-1 truncate text-2xl font-semibold leading-tight">{profile.displayName ?? profile.username}</h1>
             <p className="truncate text-sm text-muted-foreground">@{profile.username}</p>
+            <p className="mt-1 text-sm text-muted-foreground" data-testid="follow-counts">
+              <span className="font-semibold text-foreground">{followCounts.followers}</span>{" "}
+              {t("followers")}
+              {" · "}
+              <span className="font-semibold text-foreground">{followCounts.following}</span>{" "}
+              {t("followingCount")}
+            </p>
           </div>
           {isOwn ? (
             <Link
@@ -47,18 +59,22 @@ export async function ProfileHeader({
             >
               {t("edit")}
             </Link>
-          ) : (
-            viewerSignedIn ? (
+          ) : viewerSignedIn ? (
+            <div className="flex shrink-0 flex-col items-end gap-2">
+              <FollowButton
+                targetProfileId={profile.id}
+                initialFollowing={viewerFollowing}
+              />
               <MessageButton profileId={profile.id} />
-            ) : (
-              <Link
-                href={loginHrefFor(`/u/${profile.username}`)}
-                className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
-                data-testid="profile-message-signin"
-              >
-                {t("signInToMessage")}
-              </Link>
-            )
+            </div>
+          ) : (
+            <Link
+              href={loginHrefFor(`/u/${profile.username}`)}
+              className="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+              data-testid="profile-message-signin"
+            >
+              {t("signInToMessage")}
+            </Link>
           )}
         </header>
 

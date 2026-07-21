@@ -20,10 +20,12 @@ export async function FeedList({
   items,
   showTabs = true,
   viewerId,
+  followingEmpty = false,
 }: {
   items: FeedItem[];
   showTabs?: boolean;
   viewerId?: string | null;
+  followingEmpty?: boolean;
 }) {
   const t = await getTranslations("feed");
   const manageableBrandIds = new Set(
@@ -39,12 +41,19 @@ export async function FeedList({
         )}
         <div
           className="mt-20 rounded-2xl border border-border/70 bg-card/70 p-8 text-center shadow-[0_16px_40px_rgba(0,0,0,.22)]"
-          data-testid="feed-empty"
+          data-testid={followingEmpty ? "feed-following-empty" : "feed-empty"}
         >
           <p className="mx-auto mb-4 grid size-14 place-items-center rounded-full bg-primary/15 text-2xl text-brand-link">
             +
           </p>
-          <h2 className="text-xl font-semibold tracking-tight">{t("empty")}</h2>
+          <h2 className="text-xl font-semibold tracking-tight">
+            {followingEmpty ? t("followingEmptyTitle") : t("empty")}
+          </h2>
+          {followingEmpty && (
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t("followingEmptyBody")}
+            </p>
+          )}
         </div>
       </section>
     );

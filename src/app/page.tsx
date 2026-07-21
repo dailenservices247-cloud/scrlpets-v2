@@ -16,9 +16,11 @@ export default async function HomePage({
   const { tab } = await searchParams;
   const feedTab: FeedTab = tab === "for_you" ? "for_you" : "following";
   const [items, profile] = await Promise.all([
-    getFeed(feedTab),
+    getFeed(feedTab, user?.id),
     user ? getProfileById(user.id) : Promise.resolve(null),
   ]);
+  // A signed-in Following feed that comes back empty = you follow nobody yet.
+  const followingEmpty = feedTab === "following" && !!user && items.length === 0;
   return (
     <AppPage>
       <AppHeader signedIn={Boolean(user)}>
@@ -29,7 +31,7 @@ export default async function HomePage({
         />
       </AppHeader>
       <UpdatesMomentsRail items={items} signedIn={Boolean(user)} />
-      <FeedList items={items} viewerId={user?.id} />
+      <FeedList items={items} viewerId={user?.id} followingEmpty={followingEmpty} />
     </AppPage>
   );
 }

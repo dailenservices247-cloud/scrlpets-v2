@@ -42,8 +42,17 @@ export function hashId(s: string): number {
   return h;
 }
 
-/** Following = chronological. For You = stable hash shuffle (placeholder until real ranking). */
-export async function getFeed(tab: FeedTab): Promise<FeedItem[]> {
+/**
+ * Following = content from profiles the signed-in viewer follows (plus their own).
+ * Until you follow anyone (and for guests, who can't follow), Following falls back
+ * to all public content — a discovery bootstrap so a new or guest feed is never
+ * empty and G1 discovery never breaks. Once you follow someone it becomes a real
+ * filtered feed. For You = all public content, stable hash shuffle.
+ */
+export async function getFeed(
+  tab: FeedTab,
+  viewerId?: string | null,
+): Promise<FeedItem[]> {
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
   let query = supabase
@@ -54,6 +63,15 @@ export async function getFeed(tab: FeedTab): Promise<FeedItem[]> {
     // NULL-safe: `not like` alone is NULL-eliminating in SQL and would drop
     // caption-less media posts (NULL title) from the production feed.
     query = query.or("title.is.null,title.not.like.E2E *");
+  }
+  if (tab === "following" && viewerId) {
+    const { getFollowingIds } = await import("@/lib/social/follows");
+    const followed = await getFollowingIds(viewerId);
+    // Only filter once you actually follow someone; otherwise show all content
+    // (discovery bootstrap) so the default feed is never empty on first run.
+    if (followed.length > 0) {
+      query = query.in("author_id", [...followed, viewerId]); // + your own posts
+    }
   }
   const { data, error } = await query.limit(
     process.env.NODE_ENV === "production" ? 50 : 200,

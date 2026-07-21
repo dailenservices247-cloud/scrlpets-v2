@@ -80,7 +80,9 @@
     "productIntent": "Product path",
     "productContext": "Care products and recommendations will live here.",
     "shortVideoContext": "Short-form animal moment",
-    "longVideoContext": "Long-form watch surface"
+    "longVideoContext": "Long-form watch surface",
+    "followingEmptyTitle": "Your Following feed is empty",
+    "followingEmptyBody": "Follow people to fill this feed, or switch to For You to discover more."
   },
   "compose": {
     "title": "Create",
@@ -194,7 +196,11 @@
     "metricListings": "Listings",
     "animalsFirst": "Animals first",
     "animalsFirstHint": "Profiles start with the animals.",
-    "signInToMessage": "Sign in to message"
+    "signInToMessage": "Sign in to message",
+    "follow": "Follow",
+    "following": "Following",
+    "followers": "followers",
+    "followingCount": "following"
   },
   "detail": {
     "backToFeed": "Back to feed",

@@ -80,7 +80,9 @@
     "productIntent": "Ruta de producto",
     "productContext": "Los productos de cuidado y recomendaciones vivirán aquí.",
     "shortVideoContext": "Momento animal corto",
-    "longVideoContext": "Superficie de video largo"
+    "longVideoContext": "Superficie de video largo",
+    "followingEmptyTitle": "Tu feed de Siguiendo está vacío",
+    "followingEmptyBody": "Sigue a personas para llenar este feed, o cambia a Para ti para descubrir más."
   },
   "compose": {
     "title": "Crear",
@@ -194,7 +196,11 @@
     "metricListings": "Anuncios",
     "animalsFirst": "Animales primero",
     "animalsFirstHint": "Los perfiles empiezan con los animales.",
-    "signInToMessage": "Inicia sesión para escribir"
+    "signInToMessage": "Inicia sesión para escribir",
+    "follow": "Seguir",
+    "following": "Siguiendo",
+    "followers": "seguidores",
+    "followingCount": "siguiendo"
   },
   "detail": {
     "backToFeed": "Volver al feed",

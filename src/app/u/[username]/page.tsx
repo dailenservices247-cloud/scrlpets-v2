@@ -7,6 +7,7 @@ import {
   getProfileFeed,
   getCreaturesByOwner,
 } from "@/lib/profiles/queries";
+import { getFollowCounts, isFollowing } from "@/lib/social/follows";
 import { AnimalRail } from "@/components/profile/AnimalRail";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileIdentityPanel } from "@/components/profile/ProfileIdentityPanel";
@@ -46,11 +47,16 @@ export default async function ProfilePage({
   if (!profile) notFound();
   const user = await getSessionUser();
   const active = tab === "pets" || tab === "about" ? tab : "posts";
-  const [creatures, profileFeed, ownedBrands] = await Promise.all([
+  const [creatures, profileFeed, ownedBrands, followCounts] = await Promise.all([
     getCreaturesByOwner(profile.id),
     getProfileFeed(profile.id),
     getBrandsByOwner(profile.id),
+    getFollowCounts(profile.id),
   ]);
+  const viewerFollowing =
+    !!user && user.id !== profile.id
+      ? await isFollowing(user.id, profile.id)
+      : false;
   const metrics = [
     { label: t("metricAnimals"), value: creatures.length, testId: "metric-animals" },
     { label: t("metricPosts"), value: countType(profileFeed, ["post", "reel", "long_video"]), testId: "metric-posts" },
@@ -64,6 +70,8 @@ export default async function ProfilePage({
           profile={profile}
           isOwn={user?.id === profile.id}
           viewerSignedIn={!!user}
+          viewerFollowing={viewerFollowing}
+          followCounts={followCounts}
           metrics={metrics}
         />
         <ProfileIdentityPanel brands={ownedBrands} />
