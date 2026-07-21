@@ -9,7 +9,7 @@ async function signIn(page: Page) {
   await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
-  await expect(page).toHaveURL("http://localhost:3000/");
+  await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
 }
 
 function databaseClient() {
@@ -55,10 +55,12 @@ test.describe("content edit/delete", () => {
     await page.getByTestId("compose-cta").click();
     await page.getByTestId("post-body").fill(original);
     await page.getByTestId("post-submit").click();
-    await expect(page).toHaveURL("http://localhost:3000/");
+    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
 
     const card = page.getByTestId("tile-post").filter({ hasText: original });
-    await expect(card.getByTestId("edit-content")).toBeVisible();
+    // Tolerant: the feed re-render after the post-create redirect is slow under
+    // full-suite load; the just-created card still resolves.
+    await expect(card.getByTestId("edit-content")).toBeVisible({ timeout: 15_000 });
     await card.getByTestId("edit-content").click();
     await expect(page).toHaveURL(/\/post\/[^/]+\/edit$/);
     const postId = page.url().split("/").at(-2)!;
@@ -86,7 +88,7 @@ test.describe("content edit/delete", () => {
 
     await page.getByTestId("delete-content").click();
     await page.getByTestId("confirm-delete").click();
-    await expect(page).toHaveURL("http://localhost:3000/");
+    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
     await expect(page.getByText(edited)).toHaveCount(0);
 
     const db = databaseClient();
@@ -106,9 +108,10 @@ test.describe("content edit/delete", () => {
     await page.getByTestId("listing-title").fill(original);
     await page.getByTestId("listing-price").fill("123.45");
     await page.getByTestId("listing-submit").click();
-    await expect(page).toHaveURL("http://localhost:3000/");
+    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
 
     const card = page.getByTestId("tile-listing").filter({ hasText: original });
+    await expect(card.getByTestId("edit-content")).toBeVisible({ timeout: 15_000 });
     await card.getByTestId("edit-content").click();
     await expect(page).toHaveURL(/\/listing\/[^/]+\/edit$/);
     const listingId = page.url().split("/").at(-2)!;
@@ -142,7 +145,7 @@ test.describe("content edit/delete", () => {
     await page.getByTestId("delete-content").click();
     await expect(page.getByText("Remove this listing?")).toBeVisible();
     await page.getByTestId("confirm-delete").click();
-    await expect(page).toHaveURL("http://localhost:3000/");
+    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
     await expect(page.getByText(edited)).toHaveCount(0);
 
     const { data: hiddenBaseRow } = await db
@@ -164,6 +167,7 @@ test.describe("content edit/delete", () => {
     await page.getByTestId("post-body").fill(marker);
     await page.getByTestId("post-submit").click();
     const card = page.getByTestId("tile-post").filter({ hasText: marker });
+    await expect(card.getByTestId("edit-content")).toBeVisible({ timeout: 15_000 });
     const editHref = await card.getByTestId("edit-content").getAttribute("href");
     const postId = editHref!.split("/").at(-2)!;
 

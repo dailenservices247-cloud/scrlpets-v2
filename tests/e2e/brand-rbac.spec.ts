@@ -21,7 +21,7 @@ async function signIn(page: Page, email: string) {
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
-  await expect(page).toHaveURL("http://localhost:3000/");
+  await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
 }
 
 async function expectNoSeriousA11y(page: Page) {

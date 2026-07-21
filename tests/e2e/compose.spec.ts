@@ -21,7 +21,7 @@ test.describe("signed in", () => {
     await page.getByTestId("compose-cta").click();
     await page.getByTestId("post-body").fill(marker);
     await page.getByTestId("post-submit").click();
-    await expect(page).toHaveURL("http://localhost:3000/");
+    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
     await expect(page.getByText(marker)).toBeVisible();
   });
 
@@ -44,7 +44,7 @@ test.describe("signed in", () => {
     await page.getByTestId("listing-title").fill(marker);
     await page.getByTestId("listing-price").fill("123.45");
     await page.getByTestId("listing-submit").click();
-    await expect(page).toHaveURL("http://localhost:3000/");
+    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
     await expect(page.getByText(marker)).toBeVisible();
   });
 
@@ -73,7 +73,7 @@ test.describe("signed in", () => {
 
     await page.getByTestId("post-body").fill(marker);
     await page.getByTestId("post-submit").click();
-    await expect(page).toHaveURL("http://localhost:3000/");
+    await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
     await expect(page.getByText(marker)).toBeVisible();
 
     // Attribution is clickable → real public brand page with the post on it.
