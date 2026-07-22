@@ -82,7 +82,9 @@
     "shortVideoContext": "Short-form animal moment",
     "longVideoContext": "Long-form watch surface",
     "followingEmptyTitle": "Your Following feed is empty",
-    "followingEmptyBody": "Follow people to fill this feed, or switch to For You to discover more."
+    "followingEmptyBody": "Follow people to fill this feed, or switch to For You to discover more.",
+    "comment": "Comment",
+    "commentCount": "{count} comments"
   },
   "compose": {
     "title": "Create",
@@ -126,7 +128,8 @@
     "deletePermanently": "Delete permanently",
     "remove": "Remove listing",
     "deleting": "Removing…",
-    "deleteError": "We couldn't remove this content. Try again."
+    "deleteError": "We couldn't remove this content. Try again.",
+    "moreOptions": "More options"
   },
   "brandAccess": {
     "label": "Operators",
@@ -285,7 +288,8 @@
     "savedLabel": "Saved",
     "savedTitle": "Saved posts",
     "savedEmpty": "Posts you save appear here.",
-    "savedUntitled": "Untitled post"
+    "savedUntitled": "Untitled post",
+    "react": "React"
   },
   "comments": {
     "heading": "Comments ({count})",

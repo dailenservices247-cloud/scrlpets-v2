@@ -152,7 +152,7 @@ test("brand owner controls a departed contributor's brand content, audited", asy
     .eq("id", brandPost!.id);
   expect(feedHidden).toEqual([]);
   await page.goto(`/post/${brandPost!.id}`);
-  await expect(page.getByTestId("edit-content")).toHaveCount(0);
+  await expect(page.getByTestId("owner-menu")).toHaveCount(0);
 
   // The departed contributor (outsider, still nominal author) can neither
   // resurrect nor re-delete the removed post — it is terminal.

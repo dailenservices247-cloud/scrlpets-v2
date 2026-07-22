@@ -76,3 +76,47 @@ export async function getSavedPosts(viewerId: string): Promise<SavedItem[]> {
     };
   });
 }
+
+export type PostSocialContext = {
+  reactions: ReactionSummary;
+  commentCount: number;
+};
+
+/** Batched per-post social context for a page of feed items (one query per table). */
+export async function getFeedSocialContext(
+  postIds: string[],
+  viewerId?: string | null,
+): Promise<Map<string, PostSocialContext>> {
+  const map = new Map<string, PostSocialContext>();
+  if (postIds.length === 0) return map;
+  const supabase = await createClient();
+  const [{ data: reactions }, { data: comments }] = await Promise.all([
+    supabase
+      .from("post_reactions")
+      .select("post_id, reaction_type, user_id")
+      .in("post_id", postIds),
+    supabase
+      .from("comments")
+      .select("post_id, deleted_at")
+      .in("post_id", postIds),
+  ]);
+  for (const id of postIds) {
+    map.set(id, { reactions: { counts: emptyCounts(), mine: null }, commentCount: 0 });
+  }
+  for (const row of (reactions ?? []) as {
+    post_id: string;
+    reaction_type: ReactionType;
+    user_id: string;
+  }[]) {
+    const ctx = map.get(row.post_id);
+    if (!ctx) continue;
+    if (ctx.reactions.counts[row.reaction_type] !== undefined)
+      ctx.reactions.counts[row.reaction_type] += 1;
+    if (viewerId && row.user_id === viewerId) ctx.reactions.mine = row.reaction_type;
+  }
+  for (const row of (comments ?? []) as { post_id: string; deleted_at: string | null }[]) {
+    const ctx = map.get(row.post_id);
+    if (ctx && row.deleted_at === null) ctx.commentCount += 1;
+  }
+  return map;
+}

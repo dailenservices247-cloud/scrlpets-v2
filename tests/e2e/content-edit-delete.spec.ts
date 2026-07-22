@@ -60,8 +60,9 @@ test.describe("content edit/delete", () => {
     const card = page.getByTestId("tile-post").filter({ hasText: original });
     // Tolerant: the feed re-render after the post-create redirect is slow under
     // full-suite load; the just-created card still resolves.
-    await expect(card.getByTestId("edit-content")).toBeVisible({ timeout: 15_000 });
-    await card.getByTestId("edit-content").click();
+    await expect(card.getByTestId("owner-menu")).toBeVisible({ timeout: 15_000 });
+    await card.getByTestId("owner-menu").click();
+    await page.getByTestId("edit-content").click();
     await expect(page).toHaveURL(/\/post\/[^/]+\/edit$/);
     const postId = page.url().split("/").at(-2)!;
 
@@ -80,12 +81,14 @@ test.describe("content edit/delete", () => {
     ).toBeVisible();
     await expect(page.getByTestId("edited-chip")).toBeVisible();
 
+    await page.getByTestId("owner-menu").click();
     await page.getByTestId("delete-content").click();
     await expect(page.getByTestId("delete-dialog")).toBeVisible();
     await expectNoSeriousA11y(page);
     await page.keyboard.press("Escape");
     await expect(page.getByTestId("delete-dialog")).toBeHidden();
 
+    await page.getByTestId("owner-menu").click();
     await page.getByTestId("delete-content").click();
     await page.getByTestId("confirm-delete").click();
     await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
@@ -111,8 +114,9 @@ test.describe("content edit/delete", () => {
     await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
 
     const card = page.getByTestId("tile-listing").filter({ hasText: original });
-    await expect(card.getByTestId("edit-content")).toBeVisible({ timeout: 15_000 });
-    await card.getByTestId("edit-content").click();
+    await expect(card.getByTestId("owner-menu")).toBeVisible({ timeout: 15_000 });
+    await card.getByTestId("owner-menu").click();
+    await page.getByTestId("edit-content").click();
     await expect(page).toHaveURL(/\/listing\/[^/]+\/edit$/);
     const listingId = page.url().split("/").at(-2)!;
 
@@ -142,6 +146,7 @@ test.describe("content edit/delete", () => {
       .single();
     expect(beforeDelete).toEqual({ title: edited, price_cents: 15000 });
 
+    await page.getByTestId("owner-menu").click();
     await page.getByTestId("delete-content").click();
     await expect(page.getByText("Remove this listing?")).toBeVisible();
     await page.getByTestId("confirm-delete").click();
@@ -167,20 +172,22 @@ test.describe("content edit/delete", () => {
     await page.getByTestId("post-body").fill(marker);
     await page.getByTestId("post-submit").click();
     const card = page.getByTestId("tile-post").filter({ hasText: marker });
-    await expect(card.getByTestId("edit-content")).toBeVisible({ timeout: 15_000 });
-    const editHref = await card.getByTestId("edit-content").getAttribute("href");
-    const postId = editHref!.split("/").at(-2)!;
+    await expect(card.getByTestId("owner-menu")).toBeVisible({ timeout: 15_000 });
+    await card.getByTestId("owner-menu").click();
+    await page.getByTestId("edit-content").click();
+    await expect(page).toHaveURL(/\/post\/[^/]+\/edit$/);
+    const postId = page.url().split("/").at(-2)!;
 
     await page.context().clearCookies();
     await page.goto(`/post/${postId}`);
     // Heading role only: Next streams <title> into the body, so getByText(marker)
     // intermittently strict-mode-collides with the document title.
     await expect(page.getByRole("heading", { name: marker })).toBeVisible();
-    await expect(page.getByTestId("edit-content")).toHaveCount(0);
-    await expect(page.getByTestId("delete-content")).toHaveCount(0);
+    await expect(page.getByTestId("owner-menu")).toHaveCount(0);
 
     await signIn(page);
     await page.goto(`/post/${postId}`);
+    await page.getByTestId("owner-menu").click();
     await page.getByTestId("delete-content").click();
     await page.getByTestId("confirm-delete").click();
   });

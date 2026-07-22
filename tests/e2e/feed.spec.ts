@@ -14,7 +14,10 @@ test("feed shows all 5 content types + creature awareness", async ({ page }) => 
   await expect(page.getByTestId("create-moment")).toBeVisible();
   for (const t of ["post", "reel", "long_video", "listing", "promo"]) {
     await expect(page.getByTestId(`tile-${t}`).first()).toBeVisible();
-    await expect(page.getByTestId(`content-type-${t}`).first()).toBeVisible();
+    // Plain posts render FB-style with no type badge (punch list A2).
+    if (t !== "post") {
+      await expect(page.getByTestId(`content-type-${t}`).first()).toBeVisible();
+    }
   }
   await expect(page.getByTestId("creature-name").first()).toBeVisible();
   await expect(page.getByTestId("listing-summary").first()).toBeVisible();
@@ -32,7 +35,12 @@ test("each feed type opens its destination surface", async ({ page }) => {
 
   for (const [type, url] of cases) {
     await page.goto("/");
-    await page.getByTestId(`tile-destination-${type}`).first().click();
+    // Posts read inline (A2); their destination is reached via the comment link.
+    if (type === "post") {
+      await page.getByTestId("post-comments-link").first().click();
+    } else {
+      await page.getByTestId(`tile-destination-${type}`).first().click();
+    }
     await expect(page).toHaveURL(url);
     await expect(page.getByTestId(`destination-${type}`)).toBeVisible();
     await expect(page.getByTestId("destination-heading")).toBeVisible();

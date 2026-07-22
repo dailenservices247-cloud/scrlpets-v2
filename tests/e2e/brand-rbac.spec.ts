@@ -196,9 +196,9 @@ test("owner, admin, and contributor permissions stay inside the brand boundary",
   await expect(page.getByText("Your access: Contributor")).toBeVisible();
   await expect(page.getByTestId("brand-member-add-form")).toHaveCount(0);
   await page.goto(`/post/${memberBrandPost!.id}`);
-  await expect(page.getByTestId("edit-content")).toBeVisible();
+  await expect(page.getByTestId("owner-menu")).toBeVisible();
   await page.goto(`/post/${ownerBrandPost!.id}`);
-  await expect(page.getByTestId("edit-content")).toHaveCount(0);
+  await expect(page.getByTestId("owner-menu")).toHaveCount(0);
 
   await signIn(page, process.env.E2E_EMAIL!);
   await page.goto(`/brand-os?brand=${brandId}`);
@@ -256,7 +256,7 @@ test("owner, admin, and contributor permissions stay inside the brand boundary",
   expect(hiddenListing).toEqual([]);
 
   await page.goto(`/post/${ownerBrandPost!.id}`);
-  await expect(page.getByTestId("edit-content")).toBeVisible();
+  await expect(page.getByTestId("owner-menu")).toBeVisible();
   await page.goto(`/brand-os?brand=${brandId}`);
   await thirdRow
     .getByRole("button", { name: "Remove member" })

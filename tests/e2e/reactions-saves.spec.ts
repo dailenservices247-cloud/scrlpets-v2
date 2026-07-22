@@ -49,9 +49,15 @@ test("react (one per user, changeable) and save (private) on a post", async ({
   await page.goto(`/post/${postId}`);
 
   // React "like", then switch to "love" — still exactly one reaction row.
+  // The picker pops from the single React trigger (punch list A7).
+  await page.getByTestId("reaction-trigger").click();
   await page.getByTestId("reaction-like").click();
+  await expect(page.getByTestId("reaction-trigger")).toContainText("Like");
+  await page.getByTestId("reaction-trigger").click();
   await expect(page.getByTestId("reaction-like")).toHaveAttribute("aria-pressed", "true");
   await page.getByTestId("reaction-love").click();
+  await expect(page.getByTestId("reaction-trigger")).toContainText("Love");
+  await page.getByTestId("reaction-trigger").click();
   await expect(page.getByTestId("reaction-love")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("reaction-like")).toHaveAttribute("aria-pressed", "false");
 
@@ -66,9 +72,9 @@ test("react (one per user, changeable) and save (private) on a post", async ({
     })
     .toEqual(["love"]);
 
-  // Toggling the active reaction off clears it.
+  // Toggling the active reaction off clears it (picker already open from above).
   await page.getByTestId("reaction-love").click();
-  await expect(page.getByTestId("reaction-love")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByTestId("reaction-trigger")).toContainText("React");
   await expect
     .poll(async () => {
       const { count } = await ownerDb

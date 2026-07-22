@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { FeedItem } from "@/lib/feed/types";
 import { getManageableBrandIds } from "@/lib/brands/queries";
+import { getFeedSocialContext } from "@/lib/social/reactions";
 import { PostTile } from "./tiles/PostTile";
 import { ReelTile } from "./tiles/ReelTile";
 import { LongVideoTile } from "./tiles/LongVideoTile";
@@ -28,9 +29,15 @@ export async function FeedList({
   followingEmpty?: boolean;
 }) {
   const t = await getTranslations("feed");
-  const manageableBrandIds = new Set(
-    viewerId ? await getManageableBrandIds(viewerId) : [],
-  );
+  const [manageableBrandIds, socialContext] = await Promise.all([
+    (viewerId ? getManageableBrandIds(viewerId) : Promise.resolve([])).then(
+      (ids) => new Set(ids),
+    ),
+    getFeedSocialContext(
+      items.filter((item) => item.type === "post").map((item) => item.id),
+      viewerId,
+    ),
+  ]);
   if (items.length === 0)
     return (
       <section className="px-3 py-4" data-testid="feed-stream">
@@ -71,6 +78,17 @@ export async function FeedList({
           const canManage =
             viewerId === item.author.id ||
             Boolean(item.brand && manageableBrandIds.has(item.brand.id));
+          if (item.type === "post") {
+            return (
+              <PostTile
+                key={item.id}
+                item={item}
+                canManage={canManage}
+                social={socialContext.get(item.id) ?? null}
+                signedIn={Boolean(viewerId)}
+              />
+            );
+          }
           return <Tile key={item.id} item={item} canManage={canManage} />;
         })}
       </div>

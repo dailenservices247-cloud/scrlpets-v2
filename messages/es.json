@@ -82,7 +82,9 @@
     "shortVideoContext": "Momento animal corto",
     "longVideoContext": "Superficie de video largo",
     "followingEmptyTitle": "Tu feed de Siguiendo está vacío",
-    "followingEmptyBody": "Sigue a personas para llenar este feed, o cambia a Para ti para descubrir más."
+    "followingEmptyBody": "Sigue a personas para llenar este feed, o cambia a Para ti para descubrir más.",
+    "comment": "Comentar",
+    "commentCount": "{count} comentarios"
   },
   "compose": {
     "title": "Crear",
@@ -126,7 +128,8 @@
     "deletePermanently": "Eliminar permanentemente",
     "remove": "Quitar anuncio",
     "deleting": "Quitando…",
-    "deleteError": "No pudimos quitar este contenido. Inténtalo de nuevo."
+    "deleteError": "No pudimos quitar este contenido. Inténtalo de nuevo.",
+    "moreOptions": "Más opciones"
   },
   "brandAccess": {
     "label": "Operadores",
@@ -285,7 +288,8 @@
     "savedLabel": "Guardados",
     "savedTitle": "Publicaciones guardadas",
     "savedEmpty": "Las publicaciones que guardes aparecen aquí.",
-    "savedUntitled": "Publicación sin título"
+    "savedUntitled": "Publicación sin título",
+    "react": "Reaccionar"
   },
   "comments": {
     "heading": "Comentarios ({count})",

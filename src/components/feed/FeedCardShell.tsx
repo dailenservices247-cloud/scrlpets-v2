@@ -37,8 +37,7 @@ export function FeedCardShell({
     >
       <header className="flex items-start justify-between gap-3">
         <AttributionStack item={item} className="flex-1" />
-        <div className="flex flex-col items-end gap-2">
-          <ContentTypeBadge type={item.type} />
+        <div className="flex items-center gap-1.5">
           {edited && (
             <span
               className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
@@ -47,10 +46,12 @@ export function FeedCardShell({
               {t("edited")}
             </span>
           )}
+          {/* Plain posts read FB-style — no type badge (punch list A2). */}
+          {item.type !== "post" && <ContentTypeBadge type={item.type} />}
+          {canManage && <ContentOwnerActions item={item} />}
         </div>
       </header>
       {children}
-      {canManage && <ContentOwnerActions item={item} />}
     </Card>
   );
 }

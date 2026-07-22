@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { AlertDialog } from "@base-ui/react/alert-dialog";
+import { Menu } from "@base-ui/react/menu";
+import { MoreHorizontal } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
@@ -13,12 +14,15 @@ import { capture } from "@/lib/analytics";
 import { getFeedDestination } from "@/lib/feed/destinations";
 import type { FeedItem } from "@/lib/feed/types";
 
+// punch list A14: owner controls live behind a single FB/IG-style ⋯ menu
+// instead of exposed Edit/Delete buttons.
 export function ContentOwnerActions({ item }: { item: FeedItem }) {
   const t = useTranslations("content");
   const router = useRouter();
   const pathname = usePathname();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   if (item.type === "promo") return null;
 
@@ -41,34 +45,47 @@ export function ContentOwnerActions({ item }: { item: FeedItem }) {
 
     capture("content_deleted", {
       content_type: isListing ? "listing" : "post",
-      // Posts and listings both soft-delete now (Slice B).
       delete_semantics: "soft",
     });
+    setConfirmOpen(false);
     const destination = getFeedDestination(item).href;
     if (pathname === destination) router.push("/");
     else router.refresh();
   }
 
   return (
-    <div
-      className="flex items-center justify-end gap-2"
-      data-testid={`owner-actions-${item.id}`}
-    >
-      <Link
-        href={editHref}
-        className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-brand-link hover:bg-muted"
-        data-testid="edit-content"
-      >
-        {t("edit")}
-      </Link>
-
-      <AlertDialog.Root>
-        <AlertDialog.Trigger
-          className="rounded-lg border border-red-400/50 bg-red-950/70 px-2.5 py-1.5 text-xs font-medium text-red-200 hover:bg-red-900/80"
-          data-testid="delete-content"
+    <div data-testid={`owner-actions-${item.id}`}>
+      <Menu.Root>
+        <Menu.Trigger
+          className="grid size-9 place-items-center rounded-full text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+          aria-label={t("moreOptions")}
+          data-testid="owner-menu"
         >
-          {t("delete")}
-        </AlertDialog.Trigger>
+          <MoreHorizontal className="size-5" aria-hidden />
+        </Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner align="end" sideOffset={4} className="z-50">
+            <Menu.Popup className="min-w-40 rounded-xl border border-border bg-popover p-1 shadow-xl">
+              <Menu.Item
+                className="flex w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-medium outline-none data-[highlighted]:bg-muted"
+                data-testid="edit-content"
+                onClick={() => router.push(editHref)}
+              >
+                {t("edit")}
+              </Menu.Item>
+              <Menu.Item
+                className="flex w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-medium text-destructive outline-none data-[highlighted]:bg-destructive/10"
+                data-testid="delete-content"
+                onClick={() => setConfirmOpen(true)}
+              >
+                {isListing ? t("remove") : t("delete")}
+              </Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+
+      <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Backdrop className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm" />
           <AlertDialog.Viewport className="fixed inset-0 z-50 grid place-items-center p-4">
