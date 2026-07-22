@@ -286,5 +286,20 @@
     "savedTitle": "Saved posts",
     "savedEmpty": "Posts you save appear here.",
     "savedUntitled": "Untitled post"
+  },
+  "comments": {
+    "heading": "Comments ({count})",
+    "placeholder": "Add a comment",
+    "submit": "Comment",
+    "reply": "Reply",
+    "replyPlaceholder": "Write a reply",
+    "edit": "Edit",
+    "editLabel": "Edit comment",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edited": "Edited",
+    "deleted": "This comment was deleted",
+    "signInToComment": "Sign in to comment"
   }
 }

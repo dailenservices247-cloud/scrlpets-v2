@@ -75,7 +75,7 @@ const REPORT_REASONS = new Set([
   "inappropriate",
   "other",
 ]);
-const REPORT_KINDS = new Set(["post", "listing", "profile"]);
+const REPORT_KINDS = new Set(["post", "listing", "profile", "comment"]);
 
 export type ReportResult = { ok: true } | { ok: false; error: string };
 

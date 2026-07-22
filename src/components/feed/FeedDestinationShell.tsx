@@ -11,8 +11,11 @@ import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { ReportButton } from "@/components/social/ReportButton";
 import { ReactionBar } from "@/components/social/ReactionBar";
 import { SaveButton } from "@/components/social/SaveButton";
+import { CommentThread } from "@/components/social/CommentThread";
 import { getManageableBrandIds } from "@/lib/brands/queries";
 import { getReactionSummary, isSaved } from "@/lib/social/reactions";
+import { getComments } from "@/lib/social/comments";
+import { loginHrefFor } from "@/lib/auth/redirect";
 
 type DetailCopy = {
   titleKey: "postDetail" | "reelDetail" | "videoDetail" | "listingDetail" | "productDetail";
@@ -54,12 +57,13 @@ export async function FeedDestinationShell({
   // Reactions + saves are posts-family only (post/reel/long_video are posts rows).
   const isPostFamily =
     item.type === "post" || item.type === "reel" || item.type === "long_video";
-  const [reactions, saved] = isPostFamily
+  const [reactions, saved, comments] = isPostFamily
     ? await Promise.all([
         getReactionSummary(item.id, viewerId),
         viewerId ? isSaved(viewerId, item.id) : Promise.resolve(false),
+        getComments(item.id, viewerId),
       ])
-    : [null, false];
+    : [null, false, null];
 
   return (
     <main className="min-h-dvh pb-10" data-testid={`destination-${item.type}`}>
@@ -147,6 +151,15 @@ export async function FeedDestinationShell({
             )
           )}
         </Card>
+        {isPostFamily && comments && (
+          <CommentThread
+            postId={item.id}
+            nodes={comments.nodes}
+            count={comments.count}
+            signedIn={Boolean(viewerId)}
+            loginHref={loginHrefFor(`/post/${item.id}`)}
+          />
+        )}
         {children}
       </section>
     </main>

@@ -10,7 +10,7 @@ export function ReportButton({
   targetKind,
   targetId,
 }: {
-  targetKind: "post" | "listing" | "profile";
+  targetKind: "post" | "listing" | "profile" | "comment";
   targetId: string;
 }) {
   const t = useTranslations("report");

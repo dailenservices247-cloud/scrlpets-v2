@@ -286,5 +286,20 @@
     "savedTitle": "Publicaciones guardadas",
     "savedEmpty": "Las publicaciones que guardes aparecen aquí.",
     "savedUntitled": "Publicación sin título"
+  },
+  "comments": {
+    "heading": "Comentarios ({count})",
+    "placeholder": "Añade un comentario",
+    "submit": "Comentar",
+    "reply": "Responder",
+    "replyPlaceholder": "Escribe una respuesta",
+    "edit": "Editar",
+    "editLabel": "Editar comentario",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edited": "Editado",
+    "deleted": "Este comentario fue eliminado",
+    "signInToComment": "Inicia sesión para comentar"
   }
 }
