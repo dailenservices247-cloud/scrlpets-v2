@@ -271,5 +271,20 @@
       "inappropriate": "Contenido inapropiado",
       "other": "Otra cosa"
     }
+  },
+  "reactions": {
+    "label": "Reacciona",
+    "like": "Me gusta",
+    "love": "Me encanta",
+    "laugh": "Me divierte",
+    "wow": "Me asombra",
+    "sad": "Me entristece",
+    "strong": "Fuerza",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "savedLabel": "Guardados",
+    "savedTitle": "Publicaciones guardadas",
+    "savedEmpty": "Las publicaciones que guardes aparecen aquí.",
+    "savedUntitled": "Publicación sin título"
   }
 }

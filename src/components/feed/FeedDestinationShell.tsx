@@ -9,7 +9,10 @@ import { FeedTileAction } from "./FeedTileAction";
 import { TileMedia } from "./TileMedia";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { ReportButton } from "@/components/social/ReportButton";
+import { ReactionBar } from "@/components/social/ReactionBar";
+import { SaveButton } from "@/components/social/SaveButton";
 import { getManageableBrandIds } from "@/lib/brands/queries";
+import { getReactionSummary, isSaved } from "@/lib/social/reactions";
 
 type DetailCopy = {
   titleKey: "postDetail" | "reelDetail" | "videoDetail" | "listingDetail" | "productDetail";
@@ -47,6 +50,16 @@ export async function FeedDestinationShell({
   const canManage =
     viewerId === item.author.id ||
     Boolean(item.brand && manageableBrandIds.has(item.brand.id));
+
+  // Reactions + saves are posts-family only (post/reel/long_video are posts rows).
+  const isPostFamily =
+    item.type === "post" || item.type === "reel" || item.type === "long_video";
+  const [reactions, saved] = isPostFamily
+    ? await Promise.all([
+        getReactionSummary(item.id, viewerId),
+        viewerId ? isSaved(viewerId, item.id) : Promise.resolve(false),
+      ])
+    : [null, false];
 
   return (
     <main className="min-h-dvh pb-10" data-testid={`destination-${item.type}`}>
@@ -107,6 +120,17 @@ export async function FeedDestinationShell({
             <p className="text-xs text-muted-foreground">{t("nextAction")}</p>
             <FeedTileAction item={item} />
           </div>
+          {isPostFamily && reactions && (
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
+              <ReactionBar
+                postId={item.id}
+                initialCounts={reactions.counts}
+                initialMine={reactions.mine}
+                signedIn={Boolean(viewerId)}
+              />
+              {viewerId && <SaveButton postId={item.id} initialSaved={saved} />}
+            </div>
+          )}
           {canManage ? (
             <div className="mt-4 border-t border-border/70 pt-4">
               <ContentOwnerActions item={item} />

@@ -104,3 +104,83 @@ export async function createReport(formData: FormData): Promise<ReportResult> {
   if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
+
+const REACTION_TYPES = new Set([
+  "like",
+  "love",
+  "laugh",
+  "wow",
+  "sad",
+  "strong",
+]);
+
+export type ReactionResult =
+  | { ok: true; mine: string | null }
+  | { ok: false; error: string };
+
+// Set (or clear, when type is null) the viewer's single reaction on a post.
+export async function setReaction(
+  postId: string,
+  type: string | null,
+): Promise<ReactionResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "auth_required" };
+
+  if (type === null) {
+    const { error } = await supabase
+      .from("post_reactions")
+      .delete()
+      .eq("post_id", postId)
+      .eq("user_id", user.id);
+    if (error) return { ok: false, error: error.message };
+    revalidatePath("/");
+    return { ok: true, mine: null };
+  }
+
+  if (!REACTION_TYPES.has(type)) return { ok: false, error: "invalid" };
+  // Upsert on the (post_id, user_id) unique pair so re-reacting swaps the type.
+  const { error } = await supabase
+    .from("post_reactions")
+    .upsert(
+      { post_id: postId, user_id: user.id, reaction_type: type },
+      { onConflict: "post_id,user_id" },
+    );
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/");
+  return { ok: true, mine: type };
+}
+
+export type SaveResult = { ok: true; saved: boolean } | { ok: false; error: string };
+
+export async function toggleSave(postId: string): Promise<SaveResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "auth_required" };
+
+  const { data: existing } = await supabase
+    .from("saved_posts")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("post_id", postId)
+    .maybeSingle();
+
+  if (existing) {
+    const { error } = await supabase.from("saved_posts").delete().eq("id", existing.id);
+    if (error) return { ok: false, error: error.message };
+    revalidatePath("/saved");
+    return { ok: true, saved: false };
+  }
+  const { error } = await supabase
+    .from("saved_posts")
+    .insert({ user_id: user.id, post_id: postId });
+  if (error && !error.message.toLowerCase().includes("duplicate")) {
+    return { ok: false, error: error.message };
+  }
+  revalidatePath("/saved");
+  return { ok: true, saved: true };
+}

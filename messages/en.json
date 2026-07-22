@@ -271,5 +271,20 @@
       "inappropriate": "Inappropriate content",
       "other": "Something else"
     }
+  },
+  "reactions": {
+    "label": "React to this",
+    "like": "Like",
+    "love": "Love",
+    "laugh": "Laugh",
+    "wow": "Wow",
+    "sad": "Sad",
+    "strong": "Strength",
+    "save": "Save",
+    "saved": "Saved",
+    "savedLabel": "Saved",
+    "savedTitle": "Saved posts",
+    "savedEmpty": "Posts you save appear here.",
+    "savedUntitled": "Untitled post"
   }
 }
