@@ -52,11 +52,11 @@ test("react (one per user, changeable) and save (private) on a post", async ({
   // The picker pops from the single React trigger (punch list A7).
   await page.getByTestId("reaction-trigger").click();
   await page.getByTestId("reaction-like").click();
-  await expect(page.getByTestId("reaction-trigger")).toContainText("Like");
+  await expect(page.getByTestId("reaction-trigger")).toHaveAttribute("data-reaction", "like");
   await page.getByTestId("reaction-trigger").click();
   await expect(page.getByTestId("reaction-like")).toHaveAttribute("aria-pressed", "true");
   await page.getByTestId("reaction-love").click();
-  await expect(page.getByTestId("reaction-trigger")).toContainText("Love");
+  await expect(page.getByTestId("reaction-trigger")).toHaveAttribute("data-reaction", "love");
   await page.getByTestId("reaction-trigger").click();
   await expect(page.getByTestId("reaction-love")).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("reaction-like")).toHaveAttribute("aria-pressed", "false");
@@ -74,7 +74,7 @@ test("react (one per user, changeable) and save (private) on a post", async ({
 
   // Toggling the active reaction off clears it (picker already open from above).
   await page.getByTestId("reaction-love").click();
-  await expect(page.getByTestId("reaction-trigger")).toContainText("React");
+  await expect(page.getByTestId("reaction-trigger")).toHaveAttribute("data-reaction", "none");
   await expect
     .poll(async () => {
       const { count } = await ownerDb
@@ -107,5 +107,5 @@ test("react (one per user, changeable) and save (private) on a post", async ({
   // Cleanup: reactions/saves cascade on post delete; remove the member post.
   await ownerDb.from("post_reactions").delete().eq("post_id", postId);
   await ownerDb.from("saved_posts").delete().eq("post_id", postId);
-  await memberDb.from("posts").delete().eq("id", postId);
+  await memberDb.rpc("soft_delete_managed_post", { target_post_id: postId });
 });

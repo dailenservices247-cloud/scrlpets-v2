@@ -100,5 +100,5 @@ test("follow round-trip, counts, and self-follow guard", async ({ page }) => {
     })
     .toBe(0);
 
-  await memberDb.from("posts").delete().eq("id", memberPost.data!.id);
+  await memberDb.rpc("soft_delete_managed_post", { target_post_id: memberPost.data!.id });
 });

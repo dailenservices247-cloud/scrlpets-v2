@@ -35,9 +35,10 @@ export function FollowButton({
       aria-pressed={following}
       data-testid="follow-button"
       className={
+        // Button system #3: soft wine tint for the standard action.
         following
-          ? "min-h-11 rounded-md border border-input px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
-          : "min-h-11 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          ? "min-h-11 rounded-lg border border-input px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
+          : "min-h-11 rounded-lg bg-primary/15 px-4 py-2 text-sm font-medium text-brand-link hover:bg-primary/25 disabled:opacity-50"
       }
     >
       {following ? t("following") : t("follow")}

@@ -187,5 +187,5 @@ test("brand owner controls a departed contributor's brand content, audited", asy
 
   // Cleanup: personal post hard-deletes (author path unchanged); the brand post
   // stays soft-deleted as evidence (matches listings; known dev-row chore).
-  await memberDb.from("posts").delete().eq("id", personalPost!.id);
+  await memberDb.rpc("soft_delete_managed_post", { target_post_id: personalPost!.id });
 });

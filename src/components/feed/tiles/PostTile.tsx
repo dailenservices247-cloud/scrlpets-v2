@@ -37,13 +37,17 @@ export function PostTile({
           />
           <Link
             href={`/post/${item.id}`}
-            className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-muted-foreground transition hover:bg-muted/60"
+            className="flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-medium text-muted-foreground transition hover:bg-muted/60"
+            aria-label={
+              social.commentCount > 0
+                ? t("commentCount", { count: social.commentCount })
+                : t("comment")
+            }
             data-testid="post-comments-link"
           >
-            <MessageCircle className="size-4" aria-hidden />
-            {social.commentCount > 0
-              ? t("commentCount", { count: social.commentCount })
-              : t("comment")}
+            {/* Button system #2 (IG minimal): icon + bare count. */}
+            <MessageCircle className="size-6" aria-hidden />
+            {social.commentCount > 0 && <span aria-hidden>{social.commentCount}</span>}
           </Link>
         </div>
       )}

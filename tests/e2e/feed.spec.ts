@@ -25,6 +25,8 @@ test("feed shows all 5 content types + creature awareness", async ({ page }) => 
 });
 
 test("each feed type opens its destination surface", async ({ page }) => {
+  // Five destination routes × dev-mode first-compile exceeds the default 30s.
+  test.setTimeout(120_000);
   const cases = [
     ["post", /\/post\//],
     ["reel", /\/watch\/reel\//],
@@ -41,7 +43,9 @@ test("each feed type opens its destination surface", async ({ page }) => {
     } else {
       await page.getByTestId(`tile-destination-${type}`).first().click();
     }
-    await expect(page).toHaveURL(url);
+    // Tolerant: first hit of each destination route pays dev-mode compile;
+    // the URL only commits when the compiled response lands.
+    await expect(page).toHaveURL(url, { timeout: 20_000 });
     await expect(page.getByTestId(`destination-${type}`)).toBeVisible();
     await expect(page.getByTestId("destination-heading")).toBeVisible();
     await expect(page.getByTestId(`content-type-${type}`)).toBeVisible();

@@ -300,9 +300,7 @@ test("owner, admin, and contributor permissions stay inside the brand boundary",
     .eq("profile_id", MEMBER_PROFILE_ID);
   expect(departedMembership).toEqual([]);
 
-  await ownerDb.from("posts").delete().in("id", [
-    ownerBrandPost!.id,
-    ownerPersonalPost!.id,
-    memberBrandPost!.id,
-  ]);
+  for (const id of [ownerBrandPost!.id, ownerPersonalPost!.id, memberBrandPost!.id]) {
+    await ownerDb.rpc("soft_delete_managed_post", { target_post_id: id });
+  }
 });

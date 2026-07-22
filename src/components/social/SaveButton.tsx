@@ -1,5 +1,6 @@
 "use client";
 
+import { Bookmark } from "lucide-react";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toggleSave } from "@/lib/social/actions";
@@ -28,15 +29,15 @@ export function SaveButton({
       onClick={onClick}
       disabled={busy}
       aria-pressed={saved}
+      aria-label={saved ? t("saved") : t("save")}
       data-testid="save-button"
       className={
-        "min-h-11 rounded-md border px-3 py-2 text-sm font-medium transition disabled:opacity-50 " +
-        (saved
-          ? "border-primary/70 bg-primary/15 text-brand-link"
-          : "border-input hover:bg-muted")
+        "grid min-h-11 min-w-11 place-items-center rounded-lg transition hover:bg-muted/60 disabled:opacity-50 " +
+        (saved ? "text-brand-link" : "text-muted-foreground")
       }
     >
-      {saved ? t("saved") : t("save")}
+      {/* Button system #2 (IG minimal): bookmark icon only, filled when saved. */}
+      <Bookmark aria-hidden className={saved ? "size-6 fill-current" : "size-6"} />
     </button>
   );
 }

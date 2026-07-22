@@ -160,7 +160,7 @@ test("block severs follows, hides feed, stops DMs; report is append-only", async
 
   // Cleanup.
   await memberDb.from("messages").delete().eq("conversation_id", convId);
-  await memberDb.from("posts").delete().eq("id", memberPost.data!.id);
+  await memberDb.rpc("soft_delete_managed_post", { target_post_id: memberPost.data!.id });
   await memberDb.from("content_reports").delete().eq("id", report.data!.id);
   await ownerDb
     .from("follows")

@@ -6,6 +6,10 @@ dotenv({ path: ".env.local" });
 export default defineConfig({
   testDir: "./tests/e2e",
   globalSetup: "./tests/e2e/global-setup.ts",
+  // Dev-server suite: first-compile of routes and tolerant auth windows make
+  // multi-step tests exceed the 30s default under full-suite load. Individual
+  // expect timeouts still fail fast on real defects.
+  timeout: 90_000,
   // Serial: tests share one dev DB; parallel workers race on mutated rows
   // (e.g. profile-edit vs profile-read of the same seed user).
   workers: 1,

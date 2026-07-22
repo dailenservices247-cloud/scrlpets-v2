@@ -257,7 +257,7 @@ test.describe("content edit/delete", () => {
       about_type: own!.about_type,
     });
 
-    await db.from("posts").delete().eq("id", own!.id);
-    await otherDb.from("posts").delete().eq("id", other!.id);
+    await db.rpc("soft_delete_managed_post", { target_post_id: own!.id });
+    await otherDb.rpc("soft_delete_managed_post", { target_post_id: other!.id });
   });
 });

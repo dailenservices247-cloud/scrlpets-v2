@@ -1,6 +1,7 @@
 "use client";
 
 import { Popover } from "@base-ui/react/popover";
+import { Heart } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -61,17 +62,21 @@ export function ReactionBar({
     <div className="flex items-center gap-2" data-testid="reaction-bar">
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger
-          className={`flex min-h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition hover:bg-muted/60 disabled:opacity-60 ${
+          className={`grid min-h-11 min-w-11 place-items-center rounded-lg transition hover:bg-muted/60 disabled:opacity-60 ${
             mine ? "text-brand-link" : "text-muted-foreground"
           }`}
           disabled={!signedIn}
-          aria-label={t("label")}
+          aria-label={mine ? t(mine) : t("react")}
+          data-reaction={mine ?? "none"}
           data-testid="reaction-trigger"
         >
-          <span aria-hidden className="text-base leading-none">
-            {mine ? EMOJI[mine] : "👍"}
-          </span>
-          {mine ? t(mine) : t("react")}
+          {/* Button system #2 (IG minimal): icon-only — the current reaction
+              emoji, or an outline heart when none. */}
+          {mine ? (
+            <span aria-hidden className="text-[22px] leading-none">{EMOJI[mine]}</span>
+          ) : (
+            <Heart aria-hidden className="size-6" />
+          )}
         </Popover.Trigger>
         <Popover.Portal>
           <Popover.Positioner side="top" align="start" sideOffset={6} className="z-50">

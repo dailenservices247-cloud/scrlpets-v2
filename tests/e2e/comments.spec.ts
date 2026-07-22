@@ -118,5 +118,5 @@ test("comment, reply, edit, soft-delete tombstone, permissions, block-hide", asy
   await ownerDb.rpc("unblock_user", { target_id: MEMBER_PROFILE_ID });
   await memberDb.from("content_reports").delete().eq("id", report.data!.id);
   await ownerDb.from("comments").delete().eq("post_id", postId);
-  await ownerDb.from("posts").delete().eq("id", postId);
+  await ownerDb.rpc("soft_delete_managed_post", { target_post_id: postId });
 });

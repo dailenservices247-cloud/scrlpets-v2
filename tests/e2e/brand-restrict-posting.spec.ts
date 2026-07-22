@@ -124,5 +124,5 @@ test("owner can restrict posting-as-brand to managers", async ({ page }) => {
     .single();
   expect(personal.error).toBeNull();
 
-  await memberDb.from("posts").delete().eq("id", personal.data!.id);
+  await memberDb.rpc("soft_delete_managed_post", { target_post_id: personal.data!.id });
 });

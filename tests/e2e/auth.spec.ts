@@ -69,7 +69,10 @@ test("failed auth callback returns a friendly error without losing the destinati
   await expect(page).toHaveURL(
     "http://localhost:3000/login?error=confirmation_failed&next=%2Flisting%2Fabc",
   );
-  await expect(page.getByRole("alert")).toContainText("invalid or has expired");
+  // Scoped: Next's route announcer is also role="alert" after client nav.
+  await expect(
+    page.getByRole("alert").filter({ hasText: "invalid or has expired" }),
+  ).toBeVisible();
 });
 
 test("guest discovery stays public while participation preserves its return path", async ({ page }) => {
