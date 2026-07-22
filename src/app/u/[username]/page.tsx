@@ -9,6 +9,7 @@ import {
 } from "@/lib/profiles/queries";
 import { getFollowCounts, isFollowing, hasBlocked } from "@/lib/social/follows";
 import { AnimalRail } from "@/components/profile/AnimalRail";
+import { FeedComposerPrompt } from "@/components/feed/FeedComposerPrompt";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileIdentityPanel } from "@/components/profile/ProfileIdentityPanel";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
@@ -86,7 +87,19 @@ export default async function ProfilePage({
       </div>
 
       {active === "posts" && (
-        <FeedList items={profileFeed} showTabs={false} viewerId={user?.id} />
+        <>
+          {/* punch list A1: FB-style — post from your own profile page. */}
+          {user?.id === profile.id && (
+            <div className="border-b border-border/60 px-3 py-3">
+              <FeedComposerPrompt
+                signedIn
+                avatarUrl={profile.avatarUrl}
+                fallbackLabel={profile.displayName ?? profile.username}
+              />
+            </div>
+          )}
+          <FeedList items={profileFeed} showTabs={false} viewerId={user?.id} />
+        </>
       )}
 
       {active === "pets" && (

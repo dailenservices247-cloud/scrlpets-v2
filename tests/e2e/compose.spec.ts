@@ -28,6 +28,8 @@ test.describe("signed in", () => {
   test("composer alignment exposes identity, mode, subject, and preview", async ({ page }) => {
     await page.goto("/compose?mode=listing");
     await expect(page.getByTestId("composer-alignment")).toBeVisible();
+    // Options are collapsed by default (A9 quick-post); expand them first.
+    await page.getByTestId("composer-more-options").click();
     await expect(page.getByTestId("posting-as-selector")).toBeVisible();
     await expect(page.getByTestId("mode-selector")).toBeVisible();
     await expect(page.getByTestId("about-selector")).toBeVisible();
