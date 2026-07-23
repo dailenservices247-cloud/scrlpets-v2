@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { getMyCreatures } from "@/lib/compose/actions";
 import { getMyBrands } from "@/lib/brands/queries";
+import { getMySubjects } from "@/lib/subjects/queries";
 import { AppPage } from "@/components/app/AppPage";
 import { ComposerTabs } from "@/components/compose/ComposerTabs";
 import { getProfileById } from "@/lib/profiles/queries";
@@ -15,6 +16,10 @@ export default async function ComposePage() {
     getProfileById(user.id),
     getMyBrands(user.id),
   ]);
+  const subjects = await getMySubjects(
+    user.id,
+    brands.map((b) => b.id),
+  );
   const actorName = profile?.displayName ?? profile?.username ?? user.email ?? "You";
   return (
     <AppPage showBottomNav={false}>
@@ -34,7 +39,7 @@ export default async function ComposePage() {
           </div>
         </div>
       </section>
-      <ComposerTabs userId={user.id} actorName={actorName} creatures={creatures} brands={brands} />
+      <ComposerTabs userId={user.id} actorName={actorName} creatures={creatures} brands={brands} subjects={subjects} />
     </AppPage>
   );
 }

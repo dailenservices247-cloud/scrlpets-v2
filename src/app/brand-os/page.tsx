@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BadgeDollarSign, Building2, MessageCircle, PawPrint, PenSquare, UsersRound } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { BrandIdentityPanel } from "@/components/brand/BrandIdentityPanel";
+import { SubjectEntitiesPanel } from "@/components/brand/SubjectEntitiesPanel";
 import { BrandMembersPanel } from "@/components/brand/BrandMembersPanel";
 import { BrandPostingSetting } from "@/components/brand/BrandPostingSetting";
 import { getSessionUser } from "@/lib/auth/session";
@@ -10,6 +11,7 @@ import {
   getBrandContentCounts,
   getBrandMembers,
 } from "@/lib/brands/queries";
+import { getBrandSubjects } from "@/lib/subjects/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 
 const quickActions = [
@@ -60,9 +62,10 @@ export default async function BrandOSPage({
 
   const brand =
     brands.find((candidate) => candidate.id === requestedBrandId) ?? brands[0];
-  const [counts, members] = await Promise.all([
+  const [counts, members, subjects] = await Promise.all([
     getBrandContentCounts(brand.id),
     getBrandMembers(brand.id),
+    getBrandSubjects(brand.id),
   ]);
   const overview = [
     { label: "Brand posts", value: counts.posts },
@@ -153,6 +156,15 @@ export default async function BrandOSPage({
           viewerRole={brand.role}
           bannerUrl={brand.bannerUrl}
           avatarUrl={brand.avatarUrl}
+        />
+      </section>
+
+      <section className="px-3 py-3">
+        <SubjectEntitiesPanel
+          brandId={brand.id}
+          viewerRole={brand.role}
+          litters={subjects.litters}
+          services={subjects.services}
         />
       </section>
 

@@ -48,7 +48,7 @@ export function MediaInput({
       {err && <p className="text-destructive text-sm">{err}</p>}
       {preview &&
         (isVideoUrl(preview) ? (
-          // eslint-disable-next-line jsx-a11y/media-has-caption
+           
           <video
             src={preview}
             controls

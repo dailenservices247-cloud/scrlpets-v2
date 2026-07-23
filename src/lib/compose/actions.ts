@@ -7,7 +7,8 @@ import { validatePost, validateListing, parsePriceCents } from "./validation";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
-const ABOUT_TYPES = new Set(["none", "animal", "litter", "product", "service", "brand", "collaboration"]);
+// Slice C: the shrunken subject enum — animals reference via FK columns.
+const ABOUT_TYPES = new Set(["none", "product", "brand", "litter", "service"]);
 
 type Attribution = {
   posting_as_type: "person" | "brand";

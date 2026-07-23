@@ -21,7 +21,7 @@ export function TileMedia({
   if (isVideoUrl(src)) {
     if (variant === "player") {
       return (
-        // eslint-disable-next-line jsx-a11y/media-has-caption
+         
         <video
           src={src}
           controls

@@ -62,7 +62,7 @@ export function ListingForm(props: ListingFormProps) {
       res = await editListing(edit.id, fd);
     } else {
       if (creatureId) fd.set("creatureId", creatureId);
-      applyAttribution(fd, attribution!, creatureId);
+      applyAttribution(fd, attribution!);
       res = await createListing(fd);
     }
     setBusy(false);

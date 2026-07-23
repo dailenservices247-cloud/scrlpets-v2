@@ -29,7 +29,7 @@ export function FeedVideo({
   }, []);
 
   return (
-    // eslint-disable-next-line jsx-a11y/media-has-caption
+     
     <video
       ref={ref}
       src={src}

@@ -63,7 +63,7 @@ export function PostForm(props: PostFormProps) {
       res = await editPost(edit.id, fd);
     } else {
       if (creatureId) fd.set("creatureId", creatureId);
-      applyAttribution(fd, attribution!, creatureId);
+      applyAttribution(fd, attribution!);
       res = await createPost(fd);
     }
     setBusy(false);

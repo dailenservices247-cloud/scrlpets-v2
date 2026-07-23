@@ -23,11 +23,19 @@ export type ComposeAttribution = {
   postingAsType: "person" | "brand";
   brandId: string | null;
   aboutType: string;
+  aboutId: string | null;
+};
+
+export type SubjectOption = { id: string; name: string; brandId?: string | null };
+export type ComposerSubjects = {
+  litters: SubjectOption[];
+  services: SubjectOption[];
+  products: SubjectOption[];
 };
 
 type Mode = "post" | "listing" | "product" | "service" | "promotion" | "recommendation" | "collaboration";
 type PostingAs = "person" | "brand";
-type About = "none" | "animal" | "litter" | "product" | "service" | "brand" | "collaboration";
+type About = "none" | "product" | "brand" | "litter" | "service";
 
 const modeOptions: {
   value: Mode;
@@ -44,14 +52,14 @@ const modeOptions: {
   { value: "collaboration", label: "Collaboration", icon: Handshake, live: false },
 ];
 
+// Slice C: exactly the shrunken enum. Animals attach via the creature picker
+// in the form itself; collaboration is banked (locked decision 5).
 const aboutOptions: { value: About; label: string }[] = [
   { value: "none", label: "No object" },
-  { value: "animal", label: "Animal" },
-  { value: "litter", label: "Litter" },
   { value: "product", label: "Product" },
-  { value: "service", label: "Service" },
   { value: "brand", label: "Brand" },
-  { value: "collaboration", label: "Collaboration" },
+  { value: "litter", label: "Litter" },
+  { value: "service", label: "Service" },
 ];
 
 const modeLabels: Record<Mode, string> = Object.fromEntries(modeOptions.map((mode) => [mode.value, mode.label])) as Record<Mode, string>;
@@ -68,11 +76,13 @@ export function ComposerTabs({
   actorName,
   creatures,
   brands,
+  subjects,
 }: {
   userId: string;
   actorName: string;
   creatures: { id: string; name: string }[];
   brands: BrandAccess[];
+  subjects: ComposerSubjects;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -84,38 +94,41 @@ export function ComposerTabs({
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(
     requestedBrand?.id ?? brands[0]?.id ?? null,
   );
-  const [about, setAbout] = useState<About>(() => (searchParams.get("mode") === "listing" ? "animal" : "none"));
+  const [about, setAbout] = useState<About>("none");
+  const [aboutId, setAboutId] = useState<string | null>(null);
   // Arriving from brand creation expands the options so the preselected
   // identity is visible; everyone else gets the quick-post surface.
   const [showOptions, setShowOptions] = useState<boolean>(!!requestedBrand);
   const selectedBrand = brands.find((b) => b.id === selectedBrandId) ?? null;
   const postingLabel = postingAs === "brand" ? (selectedBrand?.name ?? "Select a brand") : actorName;
+  // A non-none subject must carry its entity id (the DB trigger enforces it too).
   const attribution = {
     postingAsType: postingAs,
     brandId: postingAs === "brand" ? selectedBrandId : null,
-    aboutType: about,
+    aboutType: about !== "none" && !aboutId ? "none" : about,
+    aboutId: about !== "none" ? aboutId : null,
   };
   // matrix row 3: a contributor cannot post as a restricted brand.
   const brandReady =
     postingAs === "person" ||
     (postingAs === "brand" && !!selectedBrandId && (selectedBrand?.canPostAs ?? false));
+  const subjectPools: Record<Exclude<About, "none">, SubjectOption[]> = useMemo(
+    () => ({
+      product: subjects.products,
+      brand: brands.map((b) => ({ id: b.id, name: b.name })),
+      litter: subjects.litters,
+      service: subjects.services,
+    }),
+    [subjects, brands],
+  );
   const subjectLabel = useMemo(() => {
-    const firstAnimal = creatures[0]?.name ?? "Animal";
-    const map: Record<About, string> = {
-      none: "General update",
-      animal: firstAnimal,
-      litter: "Litter context",
-      product: "Product",
-      service: "Service",
-      brand: postingLabel,
-      collaboration: "Partner brand",
-    };
-    return map[about];
-  }, [about, creatures, postingLabel]);
+    if (about === "none") return "General update";
+    const pool = subjectPools[about];
+    return pool.find((e) => e.id === aboutId)?.name ?? "Pick one";
+  }, [about, aboutId, subjectPools]);
 
   function selectMode(next: string) {
     const mode = normalizeMode(next);
-    if (mode === "listing") setAbout("animal");
     const params = new URLSearchParams(searchParams.toString());
     params.set("mode", mode);
     router.replace(`/compose?${params.toString()}`, { scroll: false });
@@ -289,22 +302,54 @@ export function ComposerTabs({
 
           <section className="premium-panel rounded-2xl p-4" data-testid="about-selector">
             <p className="eyebrow mb-2">About</p>
+            <p className="mb-2 text-xs text-muted-foreground">
+              Tag an animal below in the form; other subjects attach here.
+            </p>
             <div className="flex flex-wrap gap-2">
-              {aboutOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setAbout(option.value)}
-                  aria-pressed={about === option.value}
-                  className={cn(
-                    "min-h-11 rounded-full border px-3 text-sm font-medium transition",
-                    about === option.value ? "border-accent/70 bg-accent/15" : "border-border/70 bg-muted/30 text-muted-foreground",
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
+              {aboutOptions.map((option) => {
+                const pool = option.value === "none" ? null : subjectPools[option.value];
+                const empty = pool !== null && pool.length === 0;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    disabled={empty}
+                    onClick={() => {
+                      setAbout(option.value);
+                      setAboutId(null);
+                    }}
+                    aria-pressed={about === option.value}
+                    data-testid={`about-${option.value}`}
+                    className={cn(
+                      "min-h-11 rounded-full border px-3 text-sm font-medium transition disabled:opacity-45",
+                      about === option.value ? "border-accent/70 bg-accent/15" : "border-border/70 bg-muted/30 text-muted-foreground",
+                    )}
+                  >
+                    {option.label}
+                    {empty && <span className="ml-1 text-[10px]">(none yet)</span>}
+                  </button>
+                );
+              })}
             </div>
+            {about !== "none" && (
+              <label className="mt-3 block text-sm">
+                <span className="mb-1 block text-xs text-muted-foreground">Which one</span>
+                <select
+                  value={aboutId ?? ""}
+                  onChange={(e) => setAboutId(e.target.value || null)}
+                  aria-label="Which one"
+                  data-testid="subject-select"
+                  className="w-full rounded-xl border border-input bg-transparent p-2"
+                >
+                  <option value="">Pick one</option>
+                  {subjectPools[about].map((entity) => (
+                    <option key={entity.id} value={entity.id}>
+                      {entity.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
           </section>
 
           <p
