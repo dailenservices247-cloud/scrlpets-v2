@@ -84,7 +84,11 @@
     "followingEmptyTitle": "Your Following feed is empty",
     "followingEmptyBody": "Follow people to fill this feed, or switch to For You to discover more.",
     "comment": "Comment",
-    "commentCount": "{count} comments"
+    "commentCount": "{count} comments",
+    "videoUnplayable": "This video can't play on this device (format not supported).",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "openReel": "Open reel"
   },
   "compose": {
     "title": "Create",
@@ -108,7 +112,8 @@
     "success": "Published!",
     "videoKindLabel": "Video type",
     "videoKindReel": "Reel",
-    "videoKindLong": "Long video"
+    "videoKindLong": "Long video",
+    "videoCompatWarning": "iPhone/iPad videos (.mov) may not play on Android or Windows. MP4 plays everywhere."
   },
   "content": {
     "edit": "Edit",

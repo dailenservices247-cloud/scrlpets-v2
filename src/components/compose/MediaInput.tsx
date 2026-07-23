@@ -15,20 +15,27 @@ export function MediaInput({
   const [preview, setPreview] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [warn, setWarn] = useState<string | null>(null);
 
   async function handle(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setBusy(true);
     setErr(null);
+    setWarn(null);
+    // A18: preview immediately from the local file, before the upload lands.
+    setPreview(URL.createObjectURL(file));
+    if (file.type === "video/quicktime") {
+      setWarn("compat");
+    }
     const res = await uploadMedia(file, userId);
     setBusy(false);
     if ("error" in res) {
       setErr(res.error);
+      setPreview(null);
       onUploaded(null);
       return;
     }
-    setPreview(res.url);
     onUploaded(res.url, res.kind);
   }
 
@@ -46,8 +53,13 @@ export function MediaInput({
         />
       </label>
       {err && <p className="text-destructive text-sm">{err}</p>}
+      {warn === "compat" && (
+        <p className="text-sm text-muted-foreground" role="note" data-testid="video-compat-warning">
+          {t("videoCompatWarning")}
+        </p>
+      )}
       {preview &&
-        (isVideoUrl(preview) ? (
+        (isVideoUrl(preview) || preview.startsWith("blob:") ? (
            
           <video
             src={preview}

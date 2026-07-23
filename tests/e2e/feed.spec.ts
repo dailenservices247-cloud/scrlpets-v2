@@ -40,6 +40,9 @@ test("each feed type opens its destination surface", async ({ page }) => {
     // Posts read inline (A2/A17); the destination deep link is the timestamp.
     if (type === "post") {
       await page.getByTestId("tile-post").first().getByTestId("post-permalink").click();
+    } else if (type === "reel") {
+      // F6/A19: no CTA — tapping the reel media itself opens the realm.
+      await page.getByTestId("reel-open").first().click();
     } else {
       await page.getByTestId(`tile-destination-${type}`).first().click();
     }

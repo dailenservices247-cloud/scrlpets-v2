@@ -2,32 +2,44 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, VideoOff, Volume2, VolumeX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { FeedItem } from "@/lib/feed/types";
 import { isVideoUrl } from "@/lib/media/media-kind";
 import { ReactionBar } from "@/components/social/ReactionBar";
 import { FeedCommentSection } from "@/components/social/FeedCommentSection";
+import { SaveButton } from "@/components/social/SaveButton";
+import { FollowButton } from "@/components/social/FollowButton";
 import { loginHrefFor } from "@/lib/auth/redirect";
 import type { PostSocialContext } from "@/lib/social/reactions";
 
-// F4 / punch list A4: tapping a reel drops you into the realm — a vertical
-// snap-scroll of reels, TikTok-style. The active slide plays; tap toggles sound.
+// F4 / A4: vertical snap-scroll reel realm. F6 / A20: the FB/TikTok viewer
+// layout — RIGHT-side vertical action rail (react/comment/save), author +
+// Follow chip bottom-left, caption under it. A18: codec failures degrade to
+// an honest placeholder.
 function ReelSlide({
   item,
   social,
+  saved,
+  following,
+  viewerId,
   signedIn,
   muted,
   onToggleMuted,
 }: {
   item: FeedItem;
   social: PostSocialContext | null;
+  saved: boolean;
+  following: boolean;
+  viewerId: string | null;
   signedIn: boolean;
   muted: boolean;
   onToggleMuted: () => void;
 }) {
+  const t = useTranslations("feed");
   const videoRef = useRef<HTMLVideoElement>(null);
   const slideRef = useRef<HTMLDivElement>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const slide = slideRef.current;
@@ -45,10 +57,12 @@ function ReelSlide({
     );
     observer.observe(slide);
     return () => observer.disconnect();
-  }, []);
+  }, [failed]);
 
   const personName = item.author.displayName ?? item.author.username;
   const actorName = item.brand?.name ?? personName;
+  const actorHref = item.brand ? `/b/${item.brand.slug}` : `/u/${item.author.username}`;
+  const avatarUrl = item.brand?.avatarUrl ?? item.author.avatarUrl;
 
   return (
     <div
@@ -57,8 +71,8 @@ function ReelSlide({
       data-testid="reel-slide"
       data-reel-id={item.id}
     >
-      {isVideoUrl(item.mediaUrl) ? (
-         
+      {isVideoUrl(item.mediaUrl) && !failed ? (
+        // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
           ref={videoRef}
           src={item.mediaUrl!}
@@ -66,10 +80,16 @@ function ReelSlide({
           playsInline
           loop
           preload="metadata"
+          onError={() => setFailed(true)}
           onClick={onToggleMuted}
           className="h-full w-full object-contain"
           data-testid="reel-video"
         />
+      ) : failed ? (
+        <div className="grid place-items-center gap-3 text-white/70" data-testid="video-unplayable">
+          <VideoOff className="size-10" aria-hidden />
+          <p className="px-8 text-center text-sm">{t("videoUnplayable")}</p>
+        </div>
       ) : item.mediaUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={item.mediaUrl} alt="" className="h-full w-full object-contain" />
@@ -77,31 +97,51 @@ function ReelSlide({
         <p className="px-8 text-center text-lg text-white/85">{item.title}</p>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-4 pb-8">
-        <Link
-          href={item.brand ? `/b/${item.brand.slug}` : `/u/${item.author.username}`}
-          className="text-sm font-semibold text-white"
+      {/* A20: the right-side vertical action rail. */}
+      {social && (
+        <div
+          className="absolute bottom-24 right-2 z-10 flex flex-col items-center gap-4"
+          data-testid="reel-rail"
         >
-          {actorName}
-        </Link>
+          <ReactionBar
+            postId={item.id}
+            initialCounts={social.reactions.counts}
+            initialMine={social.reactions.mine}
+            signedIn={signedIn}
+          />
+          <FeedCommentSection
+            postId={item.id}
+            initialCount={social.commentCount}
+            signedIn={signedIn}
+            loginHref={loginHrefFor(`/watch/reel/${item.id}`)}
+          />
+          {signedIn && <SaveButton postId={item.id} initialSaved={saved} />}
+        </div>
+      )}
+
+      {/* A20: author + Follow bottom-left, caption underneath. */}
+      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 to-transparent p-4 pb-8 pr-16">
+        <div className="flex items-center gap-2">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="" className="size-9 rounded-full object-cover" />
+          ) : (
+            <span className="grid size-9 place-items-center rounded-full bg-primary/40 text-sm font-semibold text-white">
+              {actorName.charAt(0).toUpperCase()}
+            </span>
+          )}
+          <Link href={actorHref} className="text-sm font-semibold text-white">
+            {actorName}
+          </Link>
+          {signedIn && viewerId !== item.author.id && !item.brand && (
+            <FollowButton
+              targetProfileId={item.author.id}
+              initialFollowing={following}
+            />
+          )}
+        </div>
         {item.title && (
-          <p className="mt-1 line-clamp-2 text-sm text-white/85">{item.title}</p>
-        )}
-        {social && (
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <ReactionBar
-              postId={item.id}
-              initialCounts={social.reactions.counts}
-              initialMine={social.reactions.mine}
-              signedIn={signedIn}
-            />
-            <FeedCommentSection
-              postId={item.id}
-              initialCount={social.commentCount}
-              signedIn={signedIn}
-              loginHref={loginHrefFor(`/watch/reel/${item.id}`)}
-            />
-          </div>
+          <p className="mt-2 line-clamp-2 text-sm text-white/85">{item.title}</p>
         )}
       </div>
     </div>
@@ -112,16 +152,24 @@ export function ReelRealm({
   items,
   startId,
   social,
+  savedIds,
+  followingIds,
+  viewerId,
   signedIn,
 }: {
   items: FeedItem[];
   startId: string;
   social: Record<string, PostSocialContext>;
+  savedIds: string[];
+  followingIds: string[];
+  viewerId: string | null;
   signedIn: boolean;
 }) {
   const t = useTranslations("detail");
   const containerRef = useRef<HTMLDivElement>(null);
   const [muted, setMuted] = useState(true);
+  const savedSet = new Set(savedIds);
+  const followingSet = new Set(followingIds);
 
   useEffect(() => {
     // Land on the tapped reel without an animated scroll.
@@ -159,6 +207,9 @@ export function ReelRealm({
             key={item.id}
             item={item}
             social={social[item.id] ?? null}
+            saved={savedSet.has(item.id)}
+            following={followingSet.has(item.author.id)}
+            viewerId={viewerId}
             signedIn={signedIn}
             muted={muted}
             onToggleMuted={() => setMuted((m) => !m)}

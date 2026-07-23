@@ -120,3 +120,18 @@ export async function getFeedSocialContext(
   }
   return map;
 }
+
+/** F6: which of these posts the viewer saved (one query). */
+export async function getSavedSet(
+  viewerId: string,
+  postIds: string[],
+): Promise<Set<string>> {
+  if (postIds.length === 0) return new Set();
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("saved_posts")
+    .select("post_id")
+    .eq("user_id", viewerId)
+    .in("post_id", postIds);
+  return new Set(((data ?? []) as { post_id: string }[]).map((r) => r.post_id));
+}

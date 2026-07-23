@@ -63,19 +63,27 @@ test("video tiles, the reel realm, and the long-video player", async ({
   // A3: the reel's FEED tile renders an autoplay-wired <video>, not an <img>.
   const reelTile = page.getByTestId("tile-reel").filter({ hasText: reelMarker });
   await expect(reelTile).toBeVisible({ timeout: 15_000 });
-  await expect(reelTile.getByTestId("tile-media-video")).toBeVisible();
+  // The fake URL may legitimately trip the A18 unplayable fallback — either
+  // render proves the video pipeline (element first, honest fallback after).
+  await expect(
+    reelTile.locator('[data-testid="tile-media-video"], [data-testid="video-unplayable"]'),
+  ).toBeVisible();
 
-  // A4: tapping the reel lands in the swipe realm with the tapped reel active.
-  await reelTile.getByTestId("tile-destination-reel").click();
+  // A4/A19: tapping the reel VIDEO lands in the swipe realm (no CTA button).
+  await reelTile.getByTestId("reel-open").click();
   await expect(page).toHaveURL(new RegExp(`/watch/reel/${reel!.id}`), {
     timeout: 20_000,
   });
   await expect(page.getByTestId("reel-realm")).toBeVisible();
   const slide = page.locator(`[data-reel-id="${reel!.id}"]`);
   await expect(slide).toBeVisible();
-  await expect(slide.getByTestId("reel-video")).toBeVisible();
+  await expect(
+    slide.locator('[data-testid="reel-video"], [data-testid="video-unplayable"]'),
+  ).toBeVisible();
   await expect(page.getByTestId("reel-mute-toggle")).toBeVisible();
   await expect(page.getByTestId("reel-back")).toBeVisible();
+  // A20: the FB/TikTok right-side action rail on the active slide.
+  await expect(slide.getByTestId("reel-rail")).toBeVisible();
 
   // A5: the long-video destination renders a real player with controls.
   await page.goto(`/watch/${longVideo!.id}`);

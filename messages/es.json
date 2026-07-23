@@ -84,7 +84,11 @@
     "followingEmptyTitle": "Tu feed de Siguiendo está vacío",
     "followingEmptyBody": "Sigue a personas para llenar este feed, o cambia a Para ti para descubrir más.",
     "comment": "Comentar",
-    "commentCount": "{count} comentarios"
+    "commentCount": "{count} comentarios",
+    "videoUnplayable": "Este video no se puede reproducir en este dispositivo (formato no compatible).",
+    "mute": "Silenciar",
+    "unmute": "Activar sonido",
+    "openReel": "Abrir reel"
   },
   "compose": {
     "title": "Crear",
@@ -108,7 +112,8 @@
     "success": "¡Publicado!",
     "videoKindLabel": "Tipo de video",
     "videoKindReel": "Reel",
-    "videoKindLong": "Video largo"
+    "videoKindLong": "Video largo",
+    "videoCompatWarning": "Los videos de iPhone/iPad (.mov) pueden no reproducirse en Android o Windows. MP4 funciona en todos lados."
   },
   "content": {
     "edit": "Editar",
