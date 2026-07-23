@@ -10,7 +10,7 @@ export default async function MessagesPage() {
   const inbox = await getInbox(user.id);
 
   return (
-    <main>
+    <main className="mx-auto w-full max-w-2xl lg:border-x lg:border-border/60">
       <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 p-3 backdrop-blur">
         <h1 className="text-lg font-bold">{t("title")}</h1>
         <Link href="/" className="text-sm text-brand-link underline" aria-label="Back to feed">

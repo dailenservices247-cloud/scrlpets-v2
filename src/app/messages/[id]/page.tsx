@@ -46,7 +46,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   }));
 
   return (
-    <main className="flex flex-col">
+    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col lg:border-x lg:border-border/60">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background/80 p-3 backdrop-blur">
         <Link href="/messages" className="text-sm text-brand-link underline" aria-label="Back to messages">
           ←

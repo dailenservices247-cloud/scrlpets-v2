@@ -32,7 +32,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
-      <body className="min-h-dvh bg-background text-foreground mx-auto max-w-md">
+      <body className="min-h-dvh bg-background text-foreground">
         <NextIntlClientProvider>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>

@@ -18,7 +18,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md border-t border-border/80 bg-[#202124]/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl"
+      className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md border-t lg:hidden border-border/80 bg-[#202124]/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl"
       aria-label="Primary"
       data-testid="bottom-nav"
     >

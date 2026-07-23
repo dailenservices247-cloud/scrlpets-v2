@@ -15,6 +15,10 @@ export default defineConfig({
   workers: 1,
   use: {
     baseURL: "http://localhost:3000",
+    // Mobile-first is the primary form factor; the desktop web shell (F7) hides
+    // the bottom nav behind a sidebar at lg+. Default the suite to phone width so
+    // it exercises the layout most users see; desktop-specific tests override.
+    viewport: { width: 390, height: 844 },
     storageState: {
       cookies: [],
       origins: [

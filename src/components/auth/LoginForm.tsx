@@ -262,7 +262,7 @@ export function LoginForm({
 
 function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="flex flex-col gap-4 p-6">
+    <main className="mx-auto flex max-w-md flex-col gap-4 p-6">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/brand/scrlpets-mark-full.png"
