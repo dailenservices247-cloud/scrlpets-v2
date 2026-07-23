@@ -86,3 +86,39 @@ export async function deleteComment(commentId: string): Promise<CommentResult> {
   revalidatePath("/");
   return { ok: true };
 }
+
+// F5 / punch list A16: one active reaction per user per comment; null clears.
+export async function setCommentReaction(
+  commentId: string,
+  type: string | null,
+): Promise<CommentResult> {
+  const { supabase, user } = await requireUser();
+  if (!user) return { ok: false, error: "auth_required" };
+  if (type === null) {
+    const { error } = await supabase
+      .from("comment_reactions")
+      .delete()
+      .eq("comment_id", commentId)
+      .eq("user_id", user.id);
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }
+  const { error } = await supabase
+    .from("comment_reactions")
+    .upsert(
+      { comment_id: commentId, user_id: user.id, reaction_type: type },
+      { onConflict: "comment_id,user_id" },
+    );
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+// F5 / punch list A17: the feed fetches a post's thread on expand.
+export async function fetchComments(postId: string) {
+  const { getComments } = await import("./comments");
+  const { supabase } = await requireUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return getComments(postId, user?.id ?? null);
+}

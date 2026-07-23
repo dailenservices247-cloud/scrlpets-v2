@@ -120,3 +120,56 @@ test("comment, reply, edit, soft-delete tombstone, permissions, block-hide", asy
   await ownerDb.from("comments").delete().eq("post_id", postId);
   await ownerDb.rpc("soft_delete_managed_post", { target_post_id: postId });
 });
+
+// F5: commenting happens IN the feed (A17) and comments take reactions (A16).
+test("inline feed commenting and comment reactions", async ({ page }) => {
+  test.setTimeout(120_000);
+  const password = process.env.E2E_PASSWORD!;
+  const ownerDb = databaseClient();
+  const ownerAuth = await ownerDb.auth.signInWithPassword({
+    email: process.env.E2E_EMAIL!,
+    password,
+  });
+  const ownerId = ownerAuth.data.user!.id;
+  const marker = `E2E inline thread post ${Date.now()}`;
+  const post = await ownerDb
+    .from("posts")
+    .insert({ author_id: ownerId, content_type: "post", body: marker })
+    .select("id")
+    .single();
+  const postId = post.data!.id;
+
+  await signIn(page, process.env.E2E_EMAIL!);
+  const card = page.getByTestId("tile-post").filter({ hasText: marker });
+  await expect(card).toBeVisible({ timeout: 15_000 });
+
+  // Expanding comments stays ON the feed — no navigation.
+  await card.getByTestId("post-comments-link").click();
+  await expect(page).toHaveURL("http://localhost:3000/");
+  await expect(card.getByTestId("inline-comments")).toBeVisible();
+
+  await card.getByTestId("comment-input").fill("E2E inline comment");
+  await card.getByTestId("comment-submit").click();
+  await expect(card.getByTestId("comment-body")).toContainText("E2E inline comment");
+
+  // React to the comment from the inline thread.
+  await card.getByTestId("comment-react").click();
+  await page.getByTestId("comment-reaction-love").click();
+  await expect(card.getByTestId("comment-react")).toHaveAttribute(
+    "data-reaction",
+    "love",
+  );
+  await expect(card.getByTestId("comment-reaction-total")).toContainText("1");
+
+  // The reaction row is real and constrained to one per user.
+  const { data: rows } = await ownerDb
+    .from("comment_reactions")
+    .select("reaction_type")
+    .eq("user_id", ownerId);
+  expect(rows?.length).toBe(1);
+  expect(rows?.[0]?.reaction_type).toBe("love");
+
+  // Cleanup.
+  await ownerDb.from("comments").delete().eq("post_id", postId);
+  await ownerDb.rpc("soft_delete_managed_post", { target_post_id: postId });
+});

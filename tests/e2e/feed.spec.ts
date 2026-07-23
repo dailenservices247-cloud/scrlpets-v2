@@ -37,9 +37,9 @@ test("each feed type opens its destination surface", async ({ page }) => {
 
   for (const [type, url] of cases) {
     await page.goto("/");
-    // Posts read inline (A2); their destination is reached via the comment link.
+    // Posts read inline (A2/A17); the destination deep link is the timestamp.
     if (type === "post") {
-      await page.getByTestId("post-comments-link").first().click();
+      await page.getByTestId("tile-post").first().getByTestId("post-permalink").click();
     } else {
       await page.getByTestId(`tile-destination-${type}`).first().click();
     }

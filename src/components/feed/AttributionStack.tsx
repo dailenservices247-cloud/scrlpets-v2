@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { FeedItem } from "@/lib/feed/types";
 import { cn } from "@/lib/utils";
+import { getFeedDestination } from "@/lib/feed/destinations";
 import { relativeTime } from "@/lib/feed/relative-time";
 import { AnimalIdentityChip } from "./AnimalIdentityChip";
 
@@ -75,7 +76,13 @@ export function AttributionStack({
               {personName}
             </Link>
             <span aria-hidden>·</span>
-            <time dateTime={item.createdAt}>{time}</time>
+            <Link
+              href={getFeedDestination(item).href}
+              className="hover:underline"
+              data-testid="post-permalink"
+            >
+              <time dateTime={item.createdAt}>{time}</time>
+            </Link>
           </div>
           {item.creature ? <AnimalIdentityChip creature={item.creature} className="mt-1" /> : null}
         </div>
@@ -94,7 +101,13 @@ export function AttributionStack({
           {personName}
         </Link>
         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <time dateTime={item.createdAt}>{time}</time>
+          <Link
+            href={getFeedDestination(item).href}
+            className="hover:underline"
+            data-testid="post-permalink"
+          >
+            <time dateTime={item.createdAt}>{time}</time>
+          </Link>
         </div>
         {item.creature ? <AnimalIdentityChip creature={item.creature} className="mt-1" /> : null}
       </div>

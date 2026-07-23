@@ -1,4 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { REACTION_TYPES, type ReactionType } from "./reaction-types";
+
+export type CommentReactions = {
+  counts: Record<ReactionType, number>;
+  mine: ReactionType | null;
+};
 
 export type CommentNode = {
   id: string;
@@ -11,6 +17,7 @@ export type CommentNode = {
   edited: boolean;
   isMine: boolean;
   isDeleted: boolean;
+  reactions: CommentReactions;
   replies: CommentNode[];
 };
 
@@ -28,6 +35,10 @@ type Row = {
     | null;
 };
 
+function emptyCounts(): Record<ReactionType, number> {
+  return { like: 0, love: 0, laugh: 0, wow: 0, sad: 0, strong: 0 };
+}
+
 function toNode(r: Row, viewerId?: string | null): CommentNode {
   const p = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles;
   const isDeleted = r.deleted_at !== null;
@@ -43,6 +54,7 @@ function toNode(r: Row, viewerId?: string | null): CommentNode {
     edited: new Date(r.updated_at).getTime() > new Date(r.created_at).getTime(),
     isMine: !!viewerId && r.author_id === viewerId,
     isDeleted,
+    reactions: { counts: emptyCounts(), mine: null },
     replies: [],
   };
 }
@@ -51,7 +63,7 @@ function toNode(r: Row, viewerId?: string | null): CommentNode {
  * Root comments + one reply level. Blocked authors are hidden. A deleted root is
  * kept as a "[deleted]" tombstone only when it still has visible replies (so the
  * conversation stays readable); deleted leaves are dropped. `count` counts live
- * comments only.
+ * comments only. Each node carries its reaction summary (A16).
  */
 export async function getComments(
   postId: string,
@@ -75,19 +87,45 @@ export async function getComments(
   const blockedSet = new Set(blocked);
   const rows = ((data ?? []) as Row[]).filter((r) => !blockedSet.has(r.author_id));
 
+  const byId = new Map<string, CommentNode>();
+  for (const r of rows) byId.set(r.id, toNode(r, viewerId));
+
+  // One batched reactions query for every visible comment (A16).
+  if (rows.length > 0) {
+    const { data: reactionRows } = await supabase
+      .from("comment_reactions")
+      .select("comment_id, reaction_type, user_id")
+      .in(
+        "comment_id",
+        rows.map((r) => r.id),
+      );
+    for (const row of (reactionRows ?? []) as {
+      comment_id: string;
+      reaction_type: ReactionType;
+      user_id: string;
+    }[]) {
+      const node = byId.get(row.comment_id);
+      if (!node) continue;
+      if (node.reactions.counts[row.reaction_type] !== undefined)
+        node.reactions.counts[row.reaction_type] += 1;
+      if (viewerId && row.user_id === viewerId) node.reactions.mine = row.reaction_type;
+    }
+  }
+
   const roots = new Map<string, CommentNode>();
   for (const r of rows) {
-    if (r.parent_id === null) roots.set(r.id, toNode(r, viewerId));
+    if (r.parent_id === null) roots.set(r.id, byId.get(r.id)!);
   }
   for (const r of rows) {
     if (r.parent_id !== null && r.deleted_at === null) {
-      roots.get(r.parent_id)?.replies.push(toNode(r, viewerId));
+      roots.get(r.parent_id)?.replies.push(byId.get(r.id)!);
     }
   }
-  // Drop deleted roots with no surviving replies; keep the rest.
   const nodes = [...roots.values()].filter(
     (n) => !n.isDeleted || n.replies.length > 0,
   );
   const count = rows.filter((r) => r.deleted_at === null).length;
   return { nodes, count };
 }
+
+export { REACTION_TYPES };

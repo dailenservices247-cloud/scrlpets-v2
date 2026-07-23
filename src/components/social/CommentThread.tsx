@@ -4,13 +4,111 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { Popover } from "@base-ui/react/popover";
+import { Heart } from "lucide-react";
 import {
   addComment,
   editComment,
   deleteComment,
+  setCommentReaction,
 } from "@/lib/social/comment-actions";
+import { REACTION_TYPES, type ReactionType } from "@/lib/social/reaction-types";
 import { ReportButton } from "./ReportButton";
 import type { CommentNode } from "@/lib/social/comments";
+
+const EMOJI: Record<ReactionType, string> = {
+  like: "👍",
+  love: "❤️",
+  laugh: "😂",
+  wow: "😮",
+  sad: "😢",
+  strong: "💪",
+};
+
+// F5 / punch list A16: compact per-comment reaction picker (same 6-set).
+function CommentReactButton({
+  node,
+  signedIn,
+  onMutated,
+}: {
+  node: CommentNode;
+  signedIn: boolean;
+  onMutated: () => void;
+}) {
+  const t = useTranslations("reactions");
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const mine = node.reactions.mine;
+  const total = REACTION_TYPES.reduce((sum, k) => sum + node.reactions.counts[k], 0);
+  const top = REACTION_TYPES.filter((k) => node.reactions.counts[k] > 0)
+    .sort((a, b) => node.reactions.counts[b] - node.reactions.counts[a])
+    .slice(0, 2);
+
+  async function react(type: ReactionType) {
+    if (!signedIn || busy) return;
+    setBusy(true);
+    setOpen(false);
+    const result = await setCommentReaction(node.id, mine === type ? null : type);
+    setBusy(false);
+    if (result.ok) onMutated();
+  }
+
+  return (
+    <span className="flex items-center gap-1">
+      <Popover.Root open={open} onOpenChange={setOpen}>
+        <Popover.Trigger
+          className={`grid min-h-11 min-w-9 place-items-center rounded-lg transition hover:bg-muted/60 disabled:opacity-60 ${
+            mine ? "text-brand-link" : "text-muted-foreground"
+          }`}
+          disabled={!signedIn}
+          aria-label={mine ? t(mine) : t("react")}
+          data-reaction={mine ?? "none"}
+          data-testid="comment-react"
+        >
+          {mine ? (
+            <span aria-hidden className="text-base leading-none">{EMOJI[mine]}</span>
+          ) : (
+            <Heart aria-hidden className="size-4" />
+          )}
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner side="top" align="start" sideOffset={4} className="z-50">
+            <Popover.Popup
+              className="flex gap-0.5 rounded-full border border-border bg-popover px-1.5 py-1 shadow-xl"
+              role="group"
+              aria-label={t("label")}
+            >
+              {REACTION_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => react(type)}
+                  disabled={busy}
+                  aria-pressed={mine === type}
+                  aria-label={t(type)}
+                  data-testid={`comment-reaction-${type}`}
+                  className={`grid size-9 place-items-center rounded-full text-lg transition hover:scale-125 hover:bg-muted/60 ${
+                    mine === type ? "bg-primary/20" : ""
+                  }`}
+                >
+                  <span aria-hidden>{EMOJI[type]}</span>
+                </button>
+              ))}
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>
+      {total > 0 && (
+        <span
+          className="text-xs text-muted-foreground"
+          data-testid="comment-reaction-total"
+        >
+          <span aria-hidden>{top.map((k) => EMOJI[k]).join("")}</span> {total}
+        </span>
+      )}
+    </span>
+  );
+}
 
 export function CommentThread({
   postId,
@@ -18,12 +116,15 @@ export function CommentThread({
   count,
   signedIn,
   loginHref,
+  onMutated,
 }: {
   postId: string;
   nodes: CommentNode[];
   count: number;
   signedIn: boolean;
   loginHref: string;
+  /** Feed usage refetches; destination usage defaults to router.refresh(). */
+  onMutated?: () => void;
 }) {
   const t = useTranslations("comments");
   const router = useRouter();
@@ -34,6 +135,8 @@ export function CommentThread({
   const [editId, setEditId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
 
+  const mutated = onMutated ?? (() => router.refresh());
+
   async function post(body: string, parentId?: string | null) {
     if (!body.trim()) return;
     setBusy(true);
@@ -43,7 +146,7 @@ export function CommentThread({
       setText("");
       setReplyText("");
       setReplyTo(null);
-      router.refresh();
+      mutated();
     }
   }
 
@@ -54,7 +157,7 @@ export function CommentThread({
     setBusy(false);
     if (result.ok) {
       setEditId(null);
-      router.refresh();
+      mutated();
     }
   }
 
@@ -62,7 +165,7 @@ export function CommentThread({
     setBusy(true);
     const result = await deleteComment(id);
     setBusy(false);
-    if (result.ok) router.refresh();
+    if (result.ok) mutated();
   }
 
   function Comment({ node, isReply }: { node: CommentNode; isReply: boolean }) {
@@ -122,7 +225,8 @@ export function CommentThread({
           )}
 
           {!node.isDeleted && editId !== node.id && (
-            <div className="mt-2 flex flex-wrap items-center gap-2">
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <CommentReactButton node={node} signedIn={signedIn} onMutated={mutated} />
               {node.isMine ? (
                 <>
                   <button
