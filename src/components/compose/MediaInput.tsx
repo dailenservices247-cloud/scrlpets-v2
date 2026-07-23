@@ -1,14 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { uploadPhoto } from "@/lib/media/upload";
+import { uploadMedia, type MediaKind } from "@/lib/media/upload";
+import { isVideoUrl } from "@/lib/media/media-kind";
 
 export function MediaInput({
   userId,
   onUploaded,
 }: {
   userId: string;
-  onUploaded: (url: string | null) => void;
+  onUploaded: (url: string | null, kind?: MediaKind) => void;
 }) {
   const t = useTranslations("compose");
   const [preview, setPreview] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export function MediaInput({
     if (!file) return;
     setBusy(true);
     setErr(null);
-    const res = await uploadPhoto(file, userId);
+    const res = await uploadMedia(file, userId);
     setBusy(false);
     if ("error" in res) {
       setErr(res.error);
@@ -28,7 +29,7 @@ export function MediaInput({
       return;
     }
     setPreview(res.url);
-    onUploaded(res.url);
+    onUploaded(res.url, res.kind);
   }
 
   return (
@@ -37,7 +38,7 @@ export function MediaInput({
         {busy ? t("uploading") : t("addPhoto")}
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
           onChange={handle}
           className="block mt-1 text-sm"
           data-testid="media-input"
@@ -45,17 +46,28 @@ export function MediaInput({
         />
       </label>
       {err && <p className="text-destructive text-sm">{err}</p>}
-      {preview && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={preview}
-          alt=""
-          width={800}
-          height={600}
-          className="h-auto w-full max-h-60 rounded-md object-cover"
-          data-testid="media-preview"
-        />
-      )}
+      {preview &&
+        (isVideoUrl(preview) ? (
+          // eslint-disable-next-line jsx-a11y/media-has-caption
+          <video
+            src={preview}
+            controls
+            muted
+            playsInline
+            className="max-h-60 w-full rounded-md bg-black"
+            data-testid="media-preview-video"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={preview}
+            alt=""
+            width={800}
+            height={600}
+            className="h-auto w-full max-h-60 rounded-md object-cover"
+            data-testid="media-preview"
+          />
+        ))}
     </div>
   );
 }

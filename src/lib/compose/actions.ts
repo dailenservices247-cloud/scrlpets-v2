@@ -76,9 +76,15 @@ export async function createPost(formData: FormData): Promise<ActionResult> {
   if (!v.ok) return { ok: false, error: v.error };
   const attribution = await resolveAttribution(supabase, user.id, formData);
   if (!attribution) return { ok: false, error: "brand_denied" };
+  // F4: a video upload publishes as a reel or long video; anything else is a post.
+  const requestedType = String(formData.get("contentType") ?? "post");
+  const contentType =
+    (requestedType === "reel" || requestedType === "long_video") && mediaUrl
+      ? requestedType
+      : "post";
   const { error } = await supabase.from("posts").insert({
     author_id: user.id,
-    content_type: "post",
+    content_type: contentType,
     body: body.trim() || null,
     media_url: mediaUrl,
     tagged_creature_id: creatureId,

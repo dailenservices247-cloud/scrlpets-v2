@@ -122,7 +122,7 @@ export async function FeedDestinationShell({
           )}
 
           <h2 className="mt-4 text-lg font-semibold">{item.title ?? t("untitled")}</h2>
-          <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
+          <TileMedia src={item.mediaUrl} alt={item.title ?? ""} variant="player" />
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground">{t("nextAction")}</p>
             <FeedTileAction item={item} />

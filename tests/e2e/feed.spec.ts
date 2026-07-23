@@ -46,6 +46,11 @@ test("each feed type opens its destination surface", async ({ page }) => {
     // Tolerant: first hit of each destination route pays dev-mode compile;
     // the URL only commits when the compiled response lands.
     await expect(page).toHaveURL(url, { timeout: 20_000 });
+    // F4: the reel destination IS the swipe realm, not the generic shell.
+    if (type === "reel") {
+      await expect(page.getByTestId("reel-realm")).toBeVisible();
+      continue;
+    }
     await expect(page.getByTestId(`destination-${type}`)).toBeVisible();
     await expect(page.getByTestId("destination-heading")).toBeVisible();
     await expect(page.getByTestId(`content-type-${type}`)).toBeVisible();

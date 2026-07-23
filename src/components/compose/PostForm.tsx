@@ -6,6 +6,7 @@ import { createPost, editPost } from "@/lib/compose/actions";
 import { applyAttribution } from "./attribution";
 import type { ComposeAttribution } from "./ComposerTabs";
 import { MediaInput } from "./MediaInput";
+import { isVideoUrl } from "@/lib/media/media-kind";
 import { CreaturePicker } from "./CreaturePicker";
 import { Button } from "@/components/ui/button";
 import { capture } from "@/lib/analytics";
@@ -43,6 +44,8 @@ export function PostForm(props: PostFormProps) {
   const router = useRouter();
   const [body, setBody] = useState(edit?.body ?? "");
   const [mediaUrl, setMediaUrl] = useState<string | null>(edit?.mediaUrl ?? null);
+  // F4: a video upload turns the post into a reel or long video.
+  const [videoKind, setVideoKind] = useState<"reel" | "long_video">("reel");
   const [creatureId, setCreatureId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -54,6 +57,7 @@ export function PostForm(props: PostFormProps) {
     const fd = new FormData();
     fd.set("body", body);
     fd.set("mediaUrl", mediaUrl ?? "");
+    if (!edit && isVideoUrl(mediaUrl)) fd.set("contentType", videoKind);
     let res;
     if (edit) {
       res = await editPost(edit.id, fd);
@@ -100,7 +104,26 @@ export function PostForm(props: PostFormProps) {
           </Button>
         </div>
       )}
-      <MediaInput userId={userId} onUploaded={setMediaUrl} />
+      <MediaInput userId={userId} onUploaded={(url) => setMediaUrl(url)} />
+      {!isEditing && isVideoUrl(mediaUrl) && (
+        <div className="flex gap-1 rounded-full bg-muted/45 p-1 self-start" role="group" aria-label={t("videoKindLabel")}>
+          {(["reel", "long_video"] as const).map((kind) => (
+            <button
+              key={kind}
+              type="button"
+              onClick={() => setVideoKind(kind)}
+              aria-pressed={videoKind === kind}
+              data-testid={`video-kind-${kind}`}
+              className={
+                "min-h-9 rounded-full px-4 text-sm font-medium transition " +
+                (videoKind === kind ? "bg-primary/15 text-brand-link" : "text-muted-foreground hover:bg-muted")
+              }
+            >
+              {kind === "reel" ? t("videoKindReel") : t("videoKindLong")}
+            </button>
+          ))}
+        </div>
+      )}
       {!isEditing && (
         <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
       )}

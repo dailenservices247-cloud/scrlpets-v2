@@ -93,7 +93,7 @@
     "bodyPlaceholder": "What's happening with your animals?",
     "titlePlaceholder": "Listing title",
     "pricePlaceholder": "Price (USD)",
-    "addPhoto": "Add photo",
+    "addPhoto": "Add photo or video",
     "uploading": "Uploading…",
     "creature": "Creature",
     "noCreature": "No creature",
@@ -105,7 +105,10 @@
     "submitListing": "Publish listing",
     "errorRequired": "Required fields are missing.",
     "errorPrice": "Enter a valid price.",
-    "success": "Published!"
+    "success": "Published!",
+    "videoKindLabel": "Video type",
+    "videoKindReel": "Reel",
+    "videoKindLong": "Long video"
   },
   "content": {
     "edit": "Edit",

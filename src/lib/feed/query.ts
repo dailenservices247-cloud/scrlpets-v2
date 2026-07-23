@@ -145,3 +145,17 @@ export async function getMoreListingsFrom(
   if (error) throw error;
   return (data as Row[]).map(rowToFeedItem);
 }
+
+/** F4 / punch list A4: the reel realm's vertical queue, newest first. */
+export async function getReelQueue(limit = 50): Promise<FeedItem[]> {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("unified_feed")
+    .select("*")
+    .eq("subtype", "reel")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data as Row[]).map(rowToFeedItem);
+}

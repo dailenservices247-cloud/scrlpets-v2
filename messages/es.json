@@ -93,7 +93,7 @@
     "bodyPlaceholder": "¿Qué pasa con tus animales?",
     "titlePlaceholder": "Título del anuncio",
     "pricePlaceholder": "Precio (USD)",
-    "addPhoto": "Agregar foto",
+    "addPhoto": "Agregar foto o video",
     "uploading": "Subiendo…",
     "creature": "Criatura",
     "noCreature": "Sin criatura",
@@ -105,7 +105,10 @@
     "submitListing": "Publicar anuncio",
     "errorRequired": "Faltan campos obligatorios.",
     "errorPrice": "Ingresa un precio válido.",
-    "success": "¡Publicado!"
+    "success": "¡Publicado!",
+    "videoKindLabel": "Tipo de video",
+    "videoKindReel": "Reel",
+    "videoKindLong": "Video largo"
   },
   "content": {
     "edit": "Editar",
