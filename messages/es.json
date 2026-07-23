@@ -228,7 +228,9 @@
     "listingSummaryBody": "Esta superficie está preparada para detalles del animal, contexto del vendedor y señales de confianza del marketplace cuando esas funciones maduren.",
     "productSummaryLabel": "Contexto del producto",
     "productSummaryBody": "Esta superficie está preparada para productos de cuidado, recomendaciones del vendedor y rutas de tienda sin implicar pago todavía.",
-    "nextAction": "Siguiente acción"
+    "nextAction": "Siguiente acción",
+    "visitSeller": "Mira qué más tienen disponible",
+    "moreFromSeller": "Más de este vendedor"
   },
   "messages": {
     "title": "Mensajes",

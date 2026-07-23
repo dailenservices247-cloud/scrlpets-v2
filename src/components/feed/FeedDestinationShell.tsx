@@ -15,6 +15,7 @@ import { CommentThread } from "@/components/social/CommentThread";
 import { getManageableBrandIds } from "@/lib/brands/queries";
 import { getReactionSummary, isSaved } from "@/lib/social/reactions";
 import { getComments } from "@/lib/social/comments";
+import { getMoreListingsFrom } from "@/lib/feed/query";
 import { loginHrefFor } from "@/lib/auth/redirect";
 
 type DetailCopy = {
@@ -64,6 +65,8 @@ export async function FeedDestinationShell({
         getComments(item.id, viewerId),
       ])
     : [null, false, null];
+  // F3 / punch list A6: a listing is a gateway into the seller's world.
+  const moreListings = isListing ? await getMoreListingsFrom(item) : [];
 
   return (
     <main className="min-h-dvh pb-10" data-testid={`destination-${item.type}`}>
@@ -151,6 +154,60 @@ export async function FeedDestinationShell({
             )
           )}
         </Card>
+        {isListing && (
+          <section className="mt-1" data-testid="listing-brand-gateway">
+            <Link
+              href={item.brand ? `/b/${item.brand.slug}` : `/u/${item.author.username}`}
+              className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/70 p-3 transition hover:border-primary/45"
+              data-testid="gateway-link"
+            >
+              {(item.brand?.avatarUrl ?? item.author.avatarUrl) ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={(item.brand?.avatarUrl ?? item.author.avatarUrl)!}
+                  alt=""
+                  className="size-11 rounded-xl object-cover"
+                />
+              ) : (
+                <span className="grid size-11 place-items-center rounded-xl bg-primary/20 text-base font-semibold text-brand-link">
+                  {(item.brand?.name ?? item.author.displayName ?? item.author.username)
+                    .charAt(0)
+                    .toUpperCase()}
+                </span>
+              )}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold">
+                  {item.brand?.name ?? item.author.displayName ?? item.author.username}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {t("visitSeller")}
+                </span>
+              </span>
+            </Link>
+            {moreListings.length > 0 && (
+              <div className="mt-3">
+                <p className="eyebrow mb-2">{t("moreFromSeller")}</p>
+                <div className="flex gap-3 overflow-x-auto pb-2" data-testid="more-listings-rail">
+                  {moreListings.map((listing) => (
+                    <Link
+                      key={listing.id}
+                      href={`/listing/${listing.id}`}
+                      className="w-36 shrink-0 overflow-hidden rounded-xl border border-border/70 bg-card/70 transition hover:border-primary/45"
+                    >
+                      {listing.mediaUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={listing.mediaUrl} alt="" className="h-24 w-full object-cover" />
+                      )}
+                      <span className="block truncate p-2 text-xs font-medium">
+                        {listing.title ?? t("untitled")}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
         {isPostFamily && comments && (
           <CommentThread
             postId={item.id}

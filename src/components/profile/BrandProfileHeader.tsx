@@ -18,7 +18,18 @@ export function BrandProfileHeader({
 }) {
   return (
     <section className="px-3 pt-4" data-testid="brand-profile-header">
-      <div className="premium-panel rounded-2xl p-4">
+      <div className="premium-panel overflow-hidden rounded-2xl">
+        {/* F3 / punch list A12: brand banner. */}
+        {brand.bannerUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={brand.bannerUrl}
+            alt=""
+            className="h-32 w-full object-cover"
+            data-testid="brand-banner"
+          />
+        )}
+        <div className="p-4">
         <header className="flex items-start gap-3">
           <div className="grid size-18 shrink-0 place-items-center overflow-hidden rounded-2xl border border-accent/35 bg-accent/15 text-accent">
             {brand.avatarUrl ? (
@@ -61,6 +72,7 @@ export function BrandProfileHeader({
             </div>
           ))}
         </dl>
+        </div>
       </div>
     </section>
   );

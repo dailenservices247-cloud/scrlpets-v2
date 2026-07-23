@@ -140,3 +140,24 @@ export async function setBrandPostingRestriction(
   revalidatePath("/compose");
   return { ok: true };
 }
+
+// F3 / punch list A12: managers set the brand's visual identity. The RPC is
+// the only writer (brands has no UPDATE policy).
+export async function setBrandIdentity(
+  formData: FormData,
+): Promise<BrandActionResult> {
+  const { supabase } = await requireUser();
+  const brandId = String(formData.get("brandId") ?? "");
+  const bannerUrl = (formData.get("bannerUrl") as string) || null;
+  const avatarUrl = (formData.get("avatarUrl") as string) || null;
+  if (!brandId || (!bannerUrl && !avatarUrl)) return { ok: false, error: "required" };
+
+  const { error } = await supabase.rpc("set_brand_identity", {
+    target_brand_id: brandId,
+    new_banner_url: bannerUrl,
+    new_avatar_url: avatarUrl,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath("/brand-os");
+  return { ok: true };
+}

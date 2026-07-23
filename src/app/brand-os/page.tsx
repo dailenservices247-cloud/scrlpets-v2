@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BadgeDollarSign, Building2, MessageCircle, PawPrint, PenSquare, UsersRound } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
+import { BrandIdentityPanel } from "@/components/brand/BrandIdentityPanel";
 import { BrandMembersPanel } from "@/components/brand/BrandMembersPanel";
 import { BrandPostingSetting } from "@/components/brand/BrandPostingSetting";
 import { getSessionUser } from "@/lib/auth/session";
@@ -143,6 +144,16 @@ export default async function BrandOSPage({
             );
           })}
         </div>
+      </section>
+
+      <section className="px-3 py-3">
+        <BrandIdentityPanel
+          brandId={brand.id}
+          viewerId={user.id}
+          viewerRole={brand.role}
+          bannerUrl={brand.bannerUrl}
+          avatarUrl={brand.avatarUrl}
+        />
       </section>
 
       <section className="px-3 py-3">

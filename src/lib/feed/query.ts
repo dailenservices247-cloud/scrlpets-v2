@@ -119,3 +119,29 @@ export async function getFeedItemById(id: string): Promise<FeedItem | null> {
   if (error) throw error;
   return data ? rowToFeedItem(data as Row) : null;
 }
+
+/**
+ * F3 / punch list A6: the listing destination is a gateway into the seller's
+ * world — other live listings from the same brand (or the same person when
+ * unbranded), newest first.
+ */
+export async function getMoreListingsFrom(
+  item: FeedItem,
+  limit = 6,
+): Promise<FeedItem[]> {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+  let query = supabase
+    .from("unified_feed")
+    .select("*")
+    .eq("kind", "listing")
+    .neq("id", item.id)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  query = item.brand
+    ? query.eq("brand_id", item.brand.id)
+    : query.eq("author_id", item.author.id).is("brand_id", null);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data as Row[]).map(rowToFeedItem);
+}

@@ -21,9 +21,12 @@ test.describe("signed in", () => {
     await page.goto("/brands/new");
     await page.getByTestId("brand-name").fill(brandName);
     await page.getByTestId("brand-create-submit").click();
-    await expect(page).toHaveURL(/\/compose/);
+    await expect(page).toHaveURL(/\/compose\?brand=/, { timeout: 20_000 });
+    // Pin the just-created brand explicitly — the Brand OS DEFAULT selection is
+    // the oldest membership, which other specs' brands can occupy.
+    const brandId = new URL(page.url()).searchParams.get("brand")!;
 
-    await page.goto("/brand-os");
+    await page.goto(`/brand-os?brand=${brandId}`);
     await expect(page.getByTestId("brand-os-header")).toBeVisible();
     await expect(page.getByTestId("brand-os-header").getByRole("heading", { level: 1 })).toHaveText(/E2E Brand/);
     await expect(page.getByTestId("brand-os-overview")).toBeVisible();

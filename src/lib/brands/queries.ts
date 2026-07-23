@@ -17,6 +17,7 @@ export type MyBrand = {
   slug: string;
   brandType: BrandType;
   avatarUrl: string | null;
+  bannerUrl: string | null;
   restrictPostingToManagers: boolean;
 };
 
@@ -43,6 +44,7 @@ type BrandRow = {
   slug: string;
   brand_type: BrandType;
   avatar_url: string | null;
+  banner_url: string | null;
   restrict_posting_to_managers: boolean;
 };
 
@@ -53,6 +55,7 @@ function toMyBrand(b: BrandRow): MyBrand {
     slug: b.slug,
     brandType: b.brand_type,
     avatarUrl: b.avatar_url,
+    bannerUrl: b.banner_url,
     restrictPostingToManagers: b.restrict_posting_to_managers,
   };
 }
@@ -63,7 +66,7 @@ export async function getMyBrands(userId: string): Promise<BrandAccess[]> {
   const { data, error } = await supabase
     .from("brand_memberships")
     .select(
-      "id, role, brands ( id, name, slug, brand_type, avatar_url, restrict_posting_to_managers )",
+      "id, role, brands ( id, name, slug, brand_type, avatar_url, banner_url, restrict_posting_to_managers )",
     )
     .eq("profile_id", userId)
     .order("created_at", { ascending: true });
@@ -160,7 +163,7 @@ export async function getBrandBySlug(slug: string): Promise<PublicBrand | null> 
   const supabase = await createClient();
   const { data } = await supabase
     .from("brands")
-    .select("id, name, slug, brand_type, avatar_url, restrict_posting_to_managers, owner_id, created_at")
+    .select("id, name, slug, brand_type, avatar_url, banner_url, restrict_posting_to_managers, owner_id, created_at")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) return null;
@@ -172,7 +175,7 @@ export async function getBrandsByOwner(ownerId: string): Promise<MyBrand[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("brands")
-    .select("id, name, slug, brand_type, avatar_url, restrict_posting_to_managers")
+    .select("id, name, slug, brand_type, avatar_url, banner_url, restrict_posting_to_managers")
     .eq("owner_id", ownerId)
     .order("created_at", { ascending: true });
   return ((data ?? []) as BrandRow[]).map(toMyBrand);

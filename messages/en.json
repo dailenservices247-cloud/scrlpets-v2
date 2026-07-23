@@ -228,7 +228,9 @@
     "listingSummaryBody": "This surface is prepared for animal details, seller context, and marketplace trust signals as those features mature.",
     "productSummaryLabel": "Product context",
     "productSummaryBody": "This surface is prepared for care products, seller recommendations, and shop paths without implying checkout yet.",
-    "nextAction": "Next action"
+    "nextAction": "Next action",
+    "visitSeller": "See what else they have going on",
+    "moreFromSeller": "More from this seller"
   },
   "messages": {
     "title": "Messages",
