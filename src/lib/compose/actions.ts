@@ -102,6 +102,8 @@ export async function createListing(formData: FormData): Promise<ActionResult> {
   const priceCents = parsePriceCents(String(formData.get("price") ?? ""));
   const mediaUrl = (formData.get("mediaUrl") as string) || null;
   const creatureId = (formData.get("creatureId") as string) || null;
+  const description = (formData.get("description") as string)?.trim() || null;
+  const category = (formData.get("category") as string)?.trim() || null;
   const v = validateListing({ title, priceCents });
   if (!v.ok) return { ok: false, error: v.error };
   const attribution = await resolveAttribution(supabase, user.id, formData);
@@ -112,6 +114,8 @@ export async function createListing(formData: FormData): Promise<ActionResult> {
     price_cents: priceCents!,
     media_url: mediaUrl,
     creature_id: creatureId,
+    description,
+    category,
     ...attribution,
   });
   if (error) return { ok: false, error: error.message };

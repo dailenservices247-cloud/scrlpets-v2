@@ -46,6 +46,8 @@ export function ListingForm(props: ListingFormProps) {
   const [price, setPrice] = useState(edit?.price ?? "");
   const [mediaUrl, setMediaUrl] = useState<string | null>(edit?.mediaUrl ?? null);
   const [creatureId, setCreatureId] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -62,6 +64,8 @@ export function ListingForm(props: ListingFormProps) {
       res = await editListing(edit.id, fd);
     } else {
       if (creatureId) fd.set("creatureId", creatureId);
+      fd.set("description", description);
+      fd.set("category", category);
       applyAttribution(fd, attribution!);
       res = await createListing(fd);
     }
@@ -103,6 +107,26 @@ export function ListingForm(props: ListingFormProps) {
         onChange={(e) => setPrice(e.target.value)}
         data-testid="listing-price"
       />
+      {!isEditing && (
+        <>
+          <textarea
+            className="min-h-24 rounded border border-input bg-transparent p-2"
+            placeholder={t("descriptionPlaceholder")}
+            aria-label={t("descriptionPlaceholder")}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            data-testid="listing-description"
+          />
+          <input
+            className="rounded border border-input bg-transparent p-2"
+            placeholder={t("categoryPlaceholder")}
+            aria-label={t("categoryPlaceholder")}
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            data-testid="listing-category"
+          />
+        </>
+      )}
       {isEditing && mediaUrl && (
         <div className="rounded-xl border border-border/70 p-3" data-testid="current-media">
           {/* eslint-disable-next-line @next/next/no-img-element */}

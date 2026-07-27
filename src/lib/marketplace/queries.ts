@@ -4,6 +4,10 @@ export type ListingMarketplaceDetail = {
   id: string;
   sellerId: string;
   priceCents: number;
+  currency: string;
+  description: string | null;
+  category: string | null;
+  availability: string;
 };
 
 export type ListingInquiryContext = {
@@ -22,7 +26,7 @@ export async function getListingMarketplaceDetail(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id,seller_id,price_cents")
+    .select("id,seller_id,price_cents,currency,description,category,availability")
     .eq("id", listingId)
     .maybeSingle();
   if (error) throw error;
@@ -31,6 +35,10 @@ export async function getListingMarketplaceDetail(
     id: data.id,
     sellerId: data.seller_id,
     priceCents: data.price_cents,
+    currency: data.currency,
+    description: data.description,
+    category: data.category,
+    availability: data.availability,
   };
 }
 

@@ -113,7 +113,9 @@
     "videoKindLabel": "Tipo de video",
     "videoKindReel": "Reel",
     "videoKindLong": "Video largo",
-    "videoCompatWarning": "Los videos de iPhone/iPad (.mov) pueden no reproducirse en Android o Windows. MP4 funciona en todos lados."
+    "videoCompatWarning": "Los videos de iPhone/iPad (.mov) pueden no reproducirse en Android o Windows. MP4 funciona en todos lados.",
+    "descriptionPlaceholder": "Descripción (opcional)",
+    "categoryPlaceholder": "Categoría, p. ej. Aseo (opcional)"
   },
   "content": {
     "edit": "Editar",
@@ -227,13 +229,13 @@
     "videoDetail": "Ver video",
     "videoDetailBody": "Esta es la superficie de video largo para reproducción tipo YouTube, capítulos y comentarios por tiempo más adelante.",
     "listingDetail": "Detalle del anuncio",
-    "listingDetailBody": "Este es el destino del animal/camada donde la confianza, registros, contexto del vendedor y compra maduran en la fase de marketplace.",
+    "listingDetailBody": "El vendedor, el animal detrás de este anuncio y los registros que ha proporcionado.",
     "productDetail": "Detalle del producto",
     "productDetailBody": "Este es el destino de tienda/producto para futuros productos de cuidado recomendados por criadores y promociones.",
     "listingActivity": "Ver actividad de anuncio para este animal",
     "animalProfile": "Perfil del animal",
     "listingSummaryLabel": "Contexto del anuncio",
-    "listingSummaryBody": "Esta superficie está preparada para detalles del animal, contexto del vendedor y señales de confianza del marketplace cuando esas funciones maduren.",
+    "listingSummaryBody": "Los datos del vendedor y los registros proporcionados por el dueño aparecen abajo.",
     "productSummaryLabel": "Contexto del producto",
     "productSummaryBody": "Esta superficie está preparada para productos de cuidado, recomendaciones del vendedor y rutas de tienda sin implicar pago todavía.",
     "nextAction": "Siguiente acción",
@@ -484,6 +486,49 @@
       "vaccinations": "Vacunas (declaradas por el dueño)",
       "healthNotes": "Notas de salud (declaradas por el dueño)",
       "pedigreeNotes": "Notas de pedigrí (declaradas por el dueño)"
+    }
+  },
+  "shop": {
+    "eyebrow": "Tienda",
+    "title": "Productos",
+    "empty": "Aún no hay productos.",
+    "categories": "Categorías",
+    "allCategories": "Todo",
+    "checkoutOffNotice": "El pago aún no está activado. Escribe al vendedor para acordar la compra.",
+    "availability": {
+      "pending": "Venta pendiente",
+      "sold": "Vendido"
+    }
+  },
+  "applications": {
+    "pageTitle": "Solicitudes",
+    "pageSubtitle": "Solicitudes que enviaste y solicitudes que recibiste.",
+    "applyTitle": "Solicitar",
+    "waitlistTitle": "Unirse a la lista de espera",
+    "applyHelp": "Cuéntale al vendedor sobre tu hogar y lo que buscas. Ellos deciden.",
+    "waitlistHelp": "Pide a este vendedor que te tenga en cuenta para lo próximo.",
+    "checkoutOff": "El pago aún no está activado: aquí no se cobra nada.",
+    "messagePlaceholder": "Tu mensaje al vendedor",
+    "submitApplication": "Enviar solicitud",
+    "joinWaitlist": "Unirme a la lista",
+    "signInToApply": "Inicia sesión para solicitar",
+    "applicationOpen": "Tu solicitud está abierta.",
+    "viewApplications": "Ver solicitudes",
+    "alreadyApplied": "Ya tienes una solicitud abierta aquí.",
+    "empty": "Nada por aquí todavía.",
+    "kindApplication": "Solicitud",
+    "kindWaitlist": "Lista de espera",
+    "generalInterest": "Interés general",
+    "fromBuyer": "De",
+    "toSeller": "Para",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "withdraw": "Retirar",
+    "status": {
+      "submitted": "Abierta",
+      "accepted": "Aceptada",
+      "declined": "Rechazada",
+      "withdrawn": "Retirada"
     }
   }
 }

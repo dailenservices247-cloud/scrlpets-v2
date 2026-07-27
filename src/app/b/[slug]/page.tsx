@@ -6,6 +6,8 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getBrandBySlug, getBrandRole } from "@/lib/brands/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 import { getBrandFeed } from "@/lib/feed/query";
+import { listBrandProducts } from "@/lib/shop/queries";
+import { ProductCard } from "@/components/shop/ProductCard";
 import { getProfileById } from "@/lib/profiles/queries";
 import type { FeedItem } from "@/lib/feed/types";
 
@@ -37,10 +39,11 @@ export default async function BrandPage({
   if (!brand) notFound();
 
   const user = await getSessionUser();
-  const [owner, feed, role] = await Promise.all([
+  const [owner, feed, role, products] = await Promise.all([
     getProfileById(brand.ownerId),
     getBrandFeed(brand.id),
     user ? getBrandRole(user.id, brand.id) : Promise.resolve(null),
+    listBrandProducts(brand.id),
   ]);
   if (!owner) notFound();
 
@@ -60,6 +63,16 @@ export default async function BrandPage({
           metrics={metrics}
         />
       </div>
+      {products.length > 0 && (
+        <section className="px-4 py-5" data-testid="brand-shop">
+          <h2 className="pb-3 text-sm font-semibold">Shop</h2>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
       <FeedList items={feed} showTabs={false} viewerId={user?.id} />
     </AppPage>
   );

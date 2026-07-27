@@ -16,6 +16,7 @@ describe("guest access contract", () => {
     "/saved",
     "/brands/new",
     "/brand-os",
+    "/applications",
   ])("protects participation route %s", (pathname) => {
     expect(isProtectedPath(pathname)).toBe(true);
   });

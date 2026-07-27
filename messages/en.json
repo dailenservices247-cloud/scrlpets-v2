@@ -113,7 +113,9 @@
     "videoKindLabel": "Video type",
     "videoKindReel": "Reel",
     "videoKindLong": "Long video",
-    "videoCompatWarning": "iPhone/iPad videos (.mov) may not play on Android or Windows. MP4 plays everywhere."
+    "videoCompatWarning": "iPhone/iPad videos (.mov) may not play on Android or Windows. MP4 plays everywhere.",
+    "descriptionPlaceholder": "Description (optional)",
+    "categoryPlaceholder": "Category, e.g. Grooming (optional)"
   },
   "content": {
     "edit": "Edit",
@@ -227,13 +229,13 @@
     "videoDetail": "Watch video",
     "videoDetailBody": "This is the long-form watch surface for YouTube-style playback, chapters, and time-aware comments later.",
     "listingDetail": "Listing detail",
-    "listingDetailBody": "This is the litter/listing destination where trust, records, seller context, and purchase flow mature in the marketplace phase.",
+    "listingDetailBody": "The seller, the animal behind this listing, and the records they have provided.",
     "productDetail": "Product detail",
     "productDetailBody": "This is the shop/product destination for future breeder-recommended care products and promos.",
     "listingActivity": "View listing activity for this animal",
     "animalProfile": "Animal profile",
     "listingSummaryLabel": "Listing context",
-    "listingSummaryBody": "This surface is prepared for animal details, seller context, and marketplace trust signals as those features mature.",
+    "listingSummaryBody": "Seller details and any records the owner has provided appear below.",
     "productSummaryLabel": "Product context",
     "productSummaryBody": "This surface is prepared for care products, seller recommendations, and shop paths without implying checkout yet.",
     "nextAction": "Next action",
@@ -484,6 +486,49 @@
       "vaccinations": "Vaccinations (owner-declared)",
       "healthNotes": "Health notes (owner-declared)",
       "pedigreeNotes": "Pedigree notes (owner-declared)"
+    }
+  },
+  "shop": {
+    "eyebrow": "Shop",
+    "title": "Products",
+    "empty": "No products listed yet.",
+    "categories": "Categories",
+    "allCategories": "All",
+    "checkoutOffNotice": "Checkout is not switched on yet. Message the seller to arrange a purchase.",
+    "availability": {
+      "pending": "Sale pending",
+      "sold": "Sold"
+    }
+  },
+  "applications": {
+    "pageTitle": "Applications",
+    "pageSubtitle": "Applications you sent and applications sent to you.",
+    "applyTitle": "Apply for this",
+    "waitlistTitle": "Join the waitlist",
+    "applyHelp": "Tell the seller about your home and what you're looking for. They decide.",
+    "waitlistHelp": "Ask this seller to keep you in mind for what comes next.",
+    "checkoutOff": "Checkout is not switched on yet — nothing is charged here.",
+    "messagePlaceholder": "Your message to the seller",
+    "submitApplication": "Send application",
+    "joinWaitlist": "Join waitlist",
+    "signInToApply": "Sign in to apply",
+    "applicationOpen": "Your application is open.",
+    "viewApplications": "View applications",
+    "alreadyApplied": "You already have an open application here.",
+    "empty": "Nothing here yet.",
+    "kindApplication": "Application",
+    "kindWaitlist": "Waitlist",
+    "generalInterest": "General interest",
+    "fromBuyer": "From",
+    "toSeller": "To",
+    "accept": "Accept",
+    "decline": "Decline",
+    "withdraw": "Withdraw",
+    "status": {
+      "submitted": "Open",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn"
     }
   }
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, Building2, ChevronRight, MessageCircle, PawPrint, Search, Settings, ShieldCheck, Store } from "lucide-react";
+import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, ClipboardList, Building2, ChevronRight, MessageCircle, PawPrint, Search, Settings, ShieldCheck, Store } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
@@ -13,6 +13,7 @@ const actions = [
   { href: "/messages", label: "Chat", icon: MessageCircle },
   { href: "/saved", label: "Saved", icon: Bookmark },
   { href: "/guides", label: "Guides", icon: BookOpen },
+  { href: "/applications", label: "Applications", icon: ClipboardList },
   { href: "/settings/profile", label: "Profile", icon: Settings },
   { href: "/settings/account", label: "Account", icon: ShieldCheck },
   { href: "/settings/verification", label: "Verification", icon: BadgeCheck },

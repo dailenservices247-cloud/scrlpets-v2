@@ -39,7 +39,12 @@ test("app shell routes expose menu and shop surfaces", async ({ page }) => {
   await expect(page.getByTestId("bottom-nav")).toBeVisible();
 
   await page.goto("/shop");
-  await expect(page.getByTestId("shop-placeholder")).toBeVisible();
+  // Phase 4 replaced the placeholder with the real product surface; it renders
+  // either the grid or its empty state, never nothing.
+  const shopRendered =
+    (await page.getByTestId("shop-grid").count()) +
+    (await page.getByTestId("shop-empty").count());
+  expect(shopRendered).toBeGreaterThan(0);
   await expect(page.getByTestId("bottom-nav")).toBeVisible();
 });
 
@@ -89,9 +94,11 @@ test("guest discovery stays public while participation preserves its return path
     "http://localhost:3000/login?next=%2Fcompose%3Fkind%3Dlisting",
   );
 
+  // The shop stays browsable to guests, and says plainly that checkout is off
+  // rather than showing a control that cannot work.
   await page.goto("/shop");
-  await expect(page.getByTestId("shop-placeholder")).toContainText(
-    "Checkout will always require an account",
+  await expect(page.getByTestId("shop-checkout-notice")).toContainText(
+    "Checkout is not switched on yet",
   );
 });
 
