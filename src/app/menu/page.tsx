@@ -1,16 +1,19 @@
 import Link from "next/link";
-import { Bell, Bone, Bookmark, Building2, ChevronRight, MessageCircle, PawPrint, Settings, Store } from "lucide-react";
+import { Bell, Bone, Bookmark, Building2, ChevronRight, MessageCircle, PawPrint, Search, Settings, ShieldCheck, Store } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
 
 const actions = [
   { href: "/", label: "Feed", icon: PawPrint },
+  { href: "/search", label: "Search", icon: Search },
+  { href: "/notifications", label: "Notifications", icon: Bell },
   { href: "/shop", label: "Shop", icon: Store },
   { href: "/brand-os", label: "Brand OS", icon: Building2 },
   { href: "/messages", label: "Chat", icon: MessageCircle },
   { href: "/saved", label: "Saved", icon: Bookmark },
-  { href: "/settings/profile", label: "Settings", icon: Settings },
+  { href: "/settings/profile", label: "Profile", icon: Settings },
+  { href: "/settings/account", label: "Account", icon: ShieldCheck },
 ];
 
 export default async function MenuPage() {

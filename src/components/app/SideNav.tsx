@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Menu, MessageCircle, Plus, ShoppingBag } from "lucide-react";
+import { Bell, Home, Menu, MessageCircle, Plus, Search, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // F7 / punch list A21: on desktop the web app uses a left sidebar nav (like
 // Facebook web) instead of a phone-style bottom bar. Mobile keeps BottomNav.
 const items = [
   { href: "/", label: "Feed", icon: Home, match: (p: string) => p === "/" },
+  { href: "/search", label: "Search", icon: Search, match: (p: string) => p.startsWith("/search") },
+  { href: "/notifications", label: "Notifications", icon: Bell, match: (p: string) => p.startsWith("/notifications") },
   { href: "/shop", label: "Shop", icon: ShoppingBag, match: (p: string) => p.startsWith("/shop") },
   { href: "/messages", label: "Messages", icon: MessageCircle, match: (p: string) => p.startsWith("/messages") },
   { href: "/menu", label: "Menu", icon: Menu, match: (p: string) => p === "/menu" },

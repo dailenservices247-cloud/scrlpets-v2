@@ -14,6 +14,7 @@ export const PROTECTED_PREFIXES = [
   "/brands",
   "/compose",
   "/messages",
+  "/notifications",
   "/saved",
   "/settings",
 ] as const;

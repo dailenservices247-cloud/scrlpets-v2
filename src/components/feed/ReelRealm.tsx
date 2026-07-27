@@ -72,7 +72,6 @@ function ReelSlide({
       data-reel-id={item.id}
     >
       {isVideoUrl(item.mediaUrl) && !failed ? (
-        // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
           ref={videoRef}
           src={item.mediaUrl!}

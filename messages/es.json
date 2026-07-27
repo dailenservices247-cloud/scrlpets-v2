@@ -315,5 +315,54 @@
     "edited": "Editado",
     "deleted": "Este comentario fue eliminado",
     "signInToComment": "Inicia sesión para comentar"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "empty": "Aún no hay notificaciones.",
+    "markAllRead": "Marcar todo como leído",
+    "kind": {
+      "follow": "te siguió",
+      "reaction": "reaccionó a tu publicación",
+      "comment": "comentó tu publicación",
+      "comment_reply": "respondió a tu comentario",
+      "inquiry": "preguntó por tu anuncio"
+    }
+  },
+  "search": {
+    "placeholder": "Busca personas, animales, marcas, anuncios",
+    "submit": "Buscar",
+    "noResults": "No se encontró nada para «{query}».",
+    "people": "Personas",
+    "brands": "Marcas",
+    "animals": "Animales",
+    "listings": "Anuncios"
+  },
+  "account": {
+    "title": "Cuenta",
+    "back": "Volver",
+    "update": "Actualizar",
+    "working": "Trabajando…",
+    "cancel": "Cancelar",
+    "emailTitle": "Correo de acceso",
+    "emailBody": "Actualmente {email}. Se envía una confirmación al nuevo correo antes de cambiarlo.",
+    "passwordTitle": "Contraseña",
+    "passwordPlaceholder": "Nueva contraseña (8+ caracteres)",
+    "exportTitle": "Descarga tus datos",
+    "exportBody": "Todo lo que has publicado, en un archivo JSON.",
+    "exportAction": "Descargar",
+    "deleteTitle": "Eliminar cuenta",
+    "deleteBody": "Solicita la eliminación permanente de tu cuenta y contenido. Se revisa antes de completarse.",
+    "deleteAction": "Solicitar eliminación",
+    "deleteConfirm": "Sí, solicitar eliminación",
+    "notice": {
+      "saved": "Guardado.",
+      "check_new_email": "Revisa el nuevo correo para el enlace de confirmación.",
+      "password_updated": "Contraseña actualizada.",
+      "exported": "Descarga iniciada.",
+      "deletion_requested": "Eliminación solicitada. Te confirmaremos por correo."
+    },
+    "error": {
+      "generic": "No funcionó. Inténtalo de nuevo."
+    }
   }
 }

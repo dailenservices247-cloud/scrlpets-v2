@@ -315,5 +315,54 @@
     "edited": "Edited",
     "deleted": "This comment was deleted",
     "signInToComment": "Sign in to comment"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications yet.",
+    "markAllRead": "Mark all read",
+    "kind": {
+      "follow": "followed you",
+      "reaction": "reacted to your post",
+      "comment": "commented on your post",
+      "comment_reply": "replied to your comment",
+      "inquiry": "asked about your listing"
+    }
+  },
+  "search": {
+    "placeholder": "Search people, animals, brands, listings",
+    "submit": "Search",
+    "noResults": "Nothing found for “{query}”.",
+    "people": "People",
+    "brands": "Brands",
+    "animals": "Animals",
+    "listings": "Listings"
+  },
+  "account": {
+    "title": "Account",
+    "back": "Back",
+    "update": "Update",
+    "working": "Working…",
+    "cancel": "Cancel",
+    "emailTitle": "Sign-in email",
+    "emailBody": "Currently {email}. A confirmation goes to the new address before it changes.",
+    "passwordTitle": "Password",
+    "passwordPlaceholder": "New password (8+ characters)",
+    "exportTitle": "Download your data",
+    "exportBody": "Everything you have published, as a JSON file.",
+    "exportAction": "Download",
+    "deleteTitle": "Delete account",
+    "deleteBody": "Requests permanent deletion of your account and content. Reviewed before it completes.",
+    "deleteAction": "Request deletion",
+    "deleteConfirm": "Yes, request deletion",
+    "notice": {
+      "saved": "Saved.",
+      "check_new_email": "Check the new address for a confirmation link.",
+      "password_updated": "Password updated.",
+      "exported": "Download started.",
+      "deletion_requested": "Deletion requested. We will confirm by email."
+    },
+    "error": {
+      "generic": "That did not work. Try again."
+    }
   }
 }

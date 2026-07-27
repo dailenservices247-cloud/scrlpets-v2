@@ -6,6 +6,7 @@ import { AppPage } from "@/components/app/AppPage";
 import { FeedComposerPrompt } from "@/components/feed/FeedComposerPrompt";
 import { UpdatesMomentsRail } from "@/components/feed/UpdatesMomentsRail";
 import { getProfileById } from "@/lib/profiles/queries";
+import { getUnreadCount } from "@/lib/notifications/queries";
 
 export default async function HomePage({
   searchParams,
@@ -15,15 +16,16 @@ export default async function HomePage({
   const user = await getSessionUser(); // null = guest (feed is public per G1-A); seam stays federation-ready
   const { tab } = await searchParams;
   const feedTab: FeedTab = tab === "for_you" ? "for_you" : "following";
-  const [items, profile] = await Promise.all([
+  const [items, profile, unreadCount] = await Promise.all([
     getFeed(feedTab, user?.id),
     user ? getProfileById(user.id) : Promise.resolve(null),
+    user ? getUnreadCount() : Promise.resolve(0),
   ]);
   // A signed-in Following feed that comes back empty = you follow nobody yet.
   const followingEmpty = feedTab === "following" && !!user && items.length === 0;
   return (
     <AppPage>
-      <AppHeader signedIn={Boolean(user)}>
+      <AppHeader signedIn={Boolean(user)} unreadCount={unreadCount}>
         <FeedComposerPrompt
           signedIn={Boolean(user)}
           avatarUrl={profile?.avatarUrl}

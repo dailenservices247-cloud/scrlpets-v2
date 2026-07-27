@@ -56,7 +56,6 @@ export function FeedVideo({
 
   return (
     <div className="relative">
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
         ref={ref}
         src={src}

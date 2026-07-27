@@ -1,9 +1,17 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Search } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 
-export function AppHeader({ signedIn, children }: { signedIn: boolean; children?: ReactNode }) {
+export function AppHeader({
+  signedIn,
+  unreadCount = 0,
+  children,
+}: {
+  signedIn: boolean;
+  unreadCount?: number;
+  children?: ReactNode;
+}) {
   return (
     <header className="border-b border-border/80 bg-background/88 px-4 py-3 backdrop-blur-xl" data-testid="app-header">
       <div className="flex items-center justify-between">
@@ -11,13 +19,34 @@ export function AppHeader({ signedIn, children }: { signedIn: boolean; children?
           <Wordmark size={23} />
         </Link>
         <div className="flex items-center gap-2">
+          {/* R11: this icon looked like search but linked to /shop — now that
+              real search exists it goes where it says. */}
           <Link
-            href="/shop"
+            href="/search"
             className="grid size-9 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground"
-            aria-label="Shop"
+            aria-label="Search"
+            data-testid="header-search"
           >
             <Search className="size-4" aria-hidden />
           </Link>
+          {signedIn && (
+            <Link
+              href="/notifications"
+              className="relative grid size-9 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground"
+              aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
+              data-testid="header-notifications"
+            >
+              <Bell className="size-4" aria-hidden />
+              {unreadCount > 0 && (
+                <span
+                  className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"
+                  data-testid="unread-badge"
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
           {signedIn ? null : (
             <Link href="/login" className="text-sm font-medium text-brand-link underline" data-testid="signin-cta">
               Sign in

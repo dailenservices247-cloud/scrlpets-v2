@@ -11,6 +11,9 @@ describe("guest access contract", () => {
     "/messages",
     "/messages/abc",
     "/settings/profile",
+    "/settings/account",
+    "/notifications",
+    "/saved",
     "/brands/new",
     "/brand-os",
   ])("protects participation route %s", (pathname) => {
@@ -29,6 +32,7 @@ describe("guest access contract", () => {
     "/watch/abc",
     "/privacy",
     "/terms",
+    "/search",
   ])("keeps discovery route %s public", (pathname) => {
     expect(isProtectedPath(pathname)).toBe(false);
   });
