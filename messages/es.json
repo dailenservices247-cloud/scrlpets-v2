@@ -530,5 +530,48 @@
       "declined": "Rechazada",
       "withdrawn": "Retirada"
     }
+  },
+  "breederOs": {
+    "readinessEyebrow": "Preparación",
+    "readinessTitle": "Lo que los compradores pueden verificar de ti",
+    "readinessHelp": "Cada punto es una verificación real. Ninguno se puede comprar.",
+    "readinessComplete": "Todo lo que un comprador puede verificar está listo.",
+    "done": "Hecho",
+    "start": "Empezar",
+    "rosterEyebrow": "Animales",
+    "rosterTitle": "Tu lista",
+    "rosterEmpty": "Aún no has añadido animales.",
+    "hasRecords": "Con registros",
+    "noRecords": "Sin registros",
+    "attested": "Certificado",
+    "notAttested": "Sin certificar",
+    "attestCta": "Certificar",
+    "listingsEyebrow": "Anuncios",
+    "listingsTitle": "Tus anuncios",
+    "listingsEmpty": "Aún no hay anuncios.",
+    "availabilityLabel": "Disponibilidad",
+    "statsEyebrow": "Tus registros",
+    "statsTitle": "Conteos, no estimaciones",
+    "reviewApplications": "Revisar solicitudes",
+    "readinessStep": {
+      "identity": "Identidad verificada",
+      "program": "Credencial de programa aprobada",
+      "animals": "Al menos un animal añadido",
+      "records": "Registros añadidos a un animal",
+      "listing": "Al menos un anuncio publicado"
+    },
+    "availability": {
+      "available": "Disponible",
+      "pending": "Pendiente",
+      "sold": "Vendido"
+    },
+    "stat": {
+      "animals": "Animales",
+      "animalsAttested": "Certificados",
+      "animalsWithRecords": "Con registros",
+      "listings": "Anuncios",
+      "listingsSold": "Marcados vendidos",
+      "openApplications": "Solicitudes abiertas"
+    }
   }
 }

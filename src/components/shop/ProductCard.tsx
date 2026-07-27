@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { formatPrice, type ShopProduct } from "@/lib/shop/queries";
+import { formatPrice } from "@/lib/shop/format";
+import type { ShopProduct } from "@/lib/shop/queries";
 
 export function ProductCard({ product }: { product: ShopProduct }) {
   return (

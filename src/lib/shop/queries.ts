@@ -89,10 +89,3 @@ export async function listShopCategories(): Promise<string[]> {
   const seen = new Set(((data ?? []) as { category: string }[]).map((r) => r.category));
   return [...seen].sort();
 }
-
-export function formatPrice(cents: number, currency: string): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(cents / 100);
-}

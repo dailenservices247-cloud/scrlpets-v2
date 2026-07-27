@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { formatPrice } from "@/lib/shop/queries";
+import { formatPrice } from "@/lib/shop/format";
 import type { ListingMarketplaceDetail } from "@/lib/marketplace/queries";
 
 /** D9: the seller's own description and category, shown as written. */

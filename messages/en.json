@@ -530,5 +530,48 @@
       "declined": "Declined",
       "withdrawn": "Withdrawn"
     }
+  },
+  "breederOs": {
+    "readinessEyebrow": "Readiness",
+    "readinessTitle": "What buyers can verify about you",
+    "readinessHelp": "Each item is a real check. None of them can be bought.",
+    "readinessComplete": "Everything a buyer can check is in place.",
+    "done": "Done",
+    "start": "Start",
+    "rosterEyebrow": "Animals",
+    "rosterTitle": "Your roster",
+    "rosterEmpty": "No animals added yet.",
+    "hasRecords": "Records added",
+    "noRecords": "No records",
+    "attested": "Attested",
+    "notAttested": "Not attested",
+    "attestCta": "Attest",
+    "listingsEyebrow": "Listings",
+    "listingsTitle": "Your listings",
+    "listingsEmpty": "No listings yet.",
+    "availabilityLabel": "Availability",
+    "statsEyebrow": "Your records",
+    "statsTitle": "Counts, not estimates",
+    "reviewApplications": "Review applications",
+    "readinessStep": {
+      "identity": "Identity verified",
+      "program": "A program credential approved",
+      "animals": "At least one animal added",
+      "records": "Records added for an animal",
+      "listing": "At least one listing published"
+    },
+    "availability": {
+      "available": "Available",
+      "pending": "Pending",
+      "sold": "Sold"
+    },
+    "stat": {
+      "animals": "Animals",
+      "animalsAttested": "Attested",
+      "animalsWithRecords": "With records",
+      "listings": "Listings",
+      "listingsSold": "Marked sold",
+      "openApplications": "Open applications"
+    }
   }
 }

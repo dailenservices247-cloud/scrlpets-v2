@@ -12,6 +12,16 @@ import {
   getBrandMembers,
 } from "@/lib/brands/queries";
 import { getBrandSubjects } from "@/lib/subjects/queries";
+import {
+  getBreederStats,
+  getReadiness,
+  getRoster,
+  getSellerListings,
+} from "@/lib/breeder-os/queries";
+import { RosterPanel } from "@/components/brand/RosterPanel";
+import { SellerListingsPanel } from "@/components/brand/SellerListingsPanel";
+import { ReadinessPanel } from "@/components/brand/ReadinessPanel";
+import { BreederStatsPanel } from "@/components/brand/BreederStatsPanel";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 
 const quickActions = [
@@ -34,6 +44,17 @@ export default async function BrandOSPage({
   const brands = await getMyBrands(user.id);
   const { brand: requestedBrandId } = await searchParams;
 
+  // R16: the operating modules are scoped to the OPERATOR, not the brand —
+  // animals belong to a profile. A solo breeder with no brand still needs them.
+  const [roster, sellerListings] = await Promise.all([
+    getRoster(user.id),
+    getSellerListings(user.id),
+  ]);
+  const [readiness, stats] = await Promise.all([
+    getReadiness(user.id, roster, sellerListings),
+    getBreederStats(user.id, roster, sellerListings),
+  ]);
+
   if (brands.length === 0) {
     return (
       <AppPage>
@@ -55,6 +76,19 @@ export default async function BrandOSPage({
               Create a brand
             </Link>
           </div>
+        </section>
+
+        <section className="px-3 py-3">
+          <ReadinessPanel steps={readiness} />
+        </section>
+        <section className="px-3 py-3">
+          <BreederStatsPanel stats={stats} />
+        </section>
+        <section className="px-3 py-3">
+          <RosterPanel animals={roster} />
+        </section>
+        <section className="px-3 py-3">
+          <SellerListingsPanel listings={sellerListings} />
         </section>
       </AppPage>
     );
@@ -147,6 +181,22 @@ export default async function BrandOSPage({
             );
           })}
         </div>
+      </section>
+
+      <section className="px-3 py-3">
+        <ReadinessPanel steps={readiness} />
+      </section>
+
+      <section className="px-3 py-3">
+        <BreederStatsPanel stats={stats} />
+      </section>
+
+      <section className="px-3 py-3">
+        <RosterPanel animals={roster} />
+      </section>
+
+      <section className="px-3 py-3">
+        <SellerListingsPanel listings={sellerListings} />
       </section>
 
       <section className="px-3 py-3">
