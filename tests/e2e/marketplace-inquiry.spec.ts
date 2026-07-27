@@ -75,6 +75,10 @@ test("listing inquiry preserves evidence and stays inside its participants", asy
   });
   expect(ownerMembership.error).toBeNull();
 
+  // Phase 2 gate: an animal listing needs the animal attested by its owner.
+  // (The E2E seller fixture is a seeded verified seller in dev data.)
+  await sellerDb.rpc("attest_animal_eligibility", { target_creature: creature!.id });
+
   const { data: listing, error: listingError } = await sellerDb
     .from("listings")
     .insert({

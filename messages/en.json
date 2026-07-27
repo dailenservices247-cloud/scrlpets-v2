@@ -364,5 +364,70 @@
     "error": {
       "generic": "That did not work. Try again."
     }
+  },
+  "verification": {
+    "title": "Verification",
+    "back": "Back",
+    "working": "Working…",
+    "identityTitle": "Identity",
+    "identityBody": "Verified through Stripe Identity. They hold your documents — Scrlpets only ever stores whether the check passed.",
+    "startIdentity": "Verify my identity",
+    "identityStatus": {
+      "none": "Not started",
+      "pending": "In review",
+      "verified": "Verified",
+      "failed": "Needs another try",
+      "canceled": "Canceled"
+    },
+    "programTitle": "Program credential",
+    "programBody": "Your kennel, business, rescue or USDA credential — number and issuing authority only, checked against public records. No documents to upload.",
+    "programTypeLabel": "Credential type",
+    "issuingAuthority": "Issuing authority (e.g. Ohio Dept. of Agriculture)",
+    "credentialNumber": "Credential number",
+    "publicUrl": "Public record link (optional)",
+    "submitProgram": "Submit credential",
+    "programType": {
+      "kennel": "Kennel license",
+      "business": "Business registration",
+      "rescue": "Rescue / shelter",
+      "usda": "USDA license",
+      "breed_club": "Breed club membership"
+    },
+    "programStatus": {
+      "pending": "In review",
+      "approved": "Approved",
+      "rejected": "Not approved"
+    },
+    "animalsTitle": "Animals you can list",
+    "animalsBody": "Being a verified seller does not automatically clear every animal. Confirm each one you intend to list.",
+    "animalsEmpty": "No animals yet.",
+    "attestAnimal": "Confirm",
+    "animalAttested": "Confirmed",
+    "buyerTitle": "Buyer readiness",
+    "buyerBody": "Confirm you understand what bringing an animal home involves.",
+    "attestBuyer": "Confirm readiness",
+    "buyerAttested": "Confirmed",
+    "notice": {
+      "programSubmitted": "Credential submitted for review."
+    },
+    "error": {
+      "generic": "That did not work. Try again.",
+      "notConfigured": "Identity checks are not switched on yet."
+    }
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Program credentials awaiting review.",
+    "queueEmpty": "Nothing waiting.",
+    "approve": "Approve",
+    "reject": "Reject",
+    "notesPlaceholder": "Review notes (optional)",
+    "programType": {
+      "kennel": "Kennel license",
+      "business": "Business registration",
+      "rescue": "Rescue / shelter",
+      "usda": "USDA license",
+      "breed_club": "Breed club membership"
+    }
   }
 }

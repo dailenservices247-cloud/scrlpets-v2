@@ -10,6 +10,7 @@ export const PUBLIC_DISCOVERY_PREFIXES = [
 ] as const;
 
 export const PROTECTED_PREFIXES = [
+  "/admin",
   "/brand-os",
   "/brands",
   "/compose",

@@ -364,5 +364,70 @@
     "error": {
       "generic": "No funcionó. Inténtalo de nuevo."
     }
+  },
+  "verification": {
+    "title": "Verificación",
+    "back": "Volver",
+    "working": "Trabajando…",
+    "identityTitle": "Identidad",
+    "identityBody": "Verificada con Stripe Identity. Ellos guardan tus documentos: Scrlpets solo guarda si la verificación pasó.",
+    "startIdentity": "Verificar mi identidad",
+    "identityStatus": {
+      "none": "Sin iniciar",
+      "pending": "En revisión",
+      "verified": "Verificada",
+      "failed": "Intenta de nuevo",
+      "canceled": "Cancelada"
+    },
+    "programTitle": "Credencial del programa",
+    "programBody": "Tu licencia de criadero, negocio, rescate o USDA: solo número y autoridad emisora, verificados contra registros públicos. No subas documentos.",
+    "programTypeLabel": "Tipo de credencial",
+    "issuingAuthority": "Autoridad emisora",
+    "credentialNumber": "Número de credencial",
+    "publicUrl": "Enlace al registro público (opcional)",
+    "submitProgram": "Enviar credencial",
+    "programType": {
+      "kennel": "Licencia de criadero",
+      "business": "Registro de negocio",
+      "rescue": "Rescate / refugio",
+      "usda": "Licencia USDA",
+      "breed_club": "Membresía de club de raza"
+    },
+    "programStatus": {
+      "pending": "En revisión",
+      "approved": "Aprobada",
+      "rejected": "No aprobada"
+    },
+    "animalsTitle": "Animales que puedes publicar",
+    "animalsBody": "Ser vendedor verificado no habilita automáticamente a cada animal. Confirma cada uno que quieras publicar.",
+    "animalsEmpty": "Aún no hay animales.",
+    "attestAnimal": "Confirmar",
+    "animalAttested": "Confirmado",
+    "buyerTitle": "Preparación del comprador",
+    "buyerBody": "Confirma que entiendes lo que implica llevar un animal a casa.",
+    "attestBuyer": "Confirmar preparación",
+    "buyerAttested": "Confirmado",
+    "notice": {
+      "programSubmitted": "Credencial enviada a revisión."
+    },
+    "error": {
+      "generic": "No funcionó. Inténtalo de nuevo.",
+      "notConfigured": "Las verificaciones de identidad aún no están activas."
+    }
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Credenciales pendientes de revisión.",
+    "queueEmpty": "Nada pendiente.",
+    "approve": "Aprobar",
+    "reject": "Rechazar",
+    "notesPlaceholder": "Notas de revisión (opcional)",
+    "programType": {
+      "kennel": "Licencia de criadero",
+      "business": "Registro de negocio",
+      "rescue": "Rescate / refugio",
+      "usda": "Licencia USDA",
+      "breed_club": "Membresía de club de raza"
+    }
   }
 }
