@@ -1,8 +1,13 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 
-// Dev-only fixture granted the admin role; prod has no equivalent seed.
-const ADMIN_EMAIL = "scrlpets-rbac-third@scrlpets.com";
+/**
+ * Opt-in only. This project's Supabase instance serves production as well as
+ * local dev, so a permanently-admin test fixture would be a real admin account
+ * on the live database with a shared password. Set E2E_ADMIN_EMAIL locally,
+ * against a throwaway project, to run the admin-surface test.
+ */
+const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL;
 
 function databaseClient() {
   return createClient(
@@ -145,10 +150,14 @@ test("guides surface renders and shows only published guides", async ({ page }) 
 
 /** The admin surface renders all three review queues for an actual admin. */
 test("admin surface renders reports, programs and guide drafts", async ({ page }) => {
+  test.skip(
+    !ADMIN_EMAIL,
+    "needs E2E_ADMIN_EMAIL; no standing admin fixture exists on the shared project",
+  );
   test.setTimeout(120_000);
   await page.context().clearCookies();
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(ADMIN_EMAIL);
+  await page.getByLabel("Email address").fill(ADMIN_EMAIL!);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 20_000 });
