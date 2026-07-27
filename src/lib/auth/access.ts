@@ -2,6 +2,7 @@ export const PUBLIC_DISCOVERY_PREFIXES = [
   "/",
   "/b/",
   "/c/",
+  "/guides",
   "/listing/",
   "/post/",
   "/shop",

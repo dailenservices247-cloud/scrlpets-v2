@@ -64,6 +64,7 @@ export type CreatureProfile = {
   species: string | null;
   slug: string;
   avatarUrl: string | null;
+  ownerId: string;
   owner: { username: string; displayName: string | null };
 };
 
@@ -71,7 +72,7 @@ export async function getCreatureBySlug(slug: string): Promise<CreatureProfile |
   const supabase = await createClient();
   const { data } = await supabase
     .from("creatures")
-    .select("id,name,species,slug,avatar_url,profiles(username,display_name)")
+    .select("id,name,species,slug,avatar_url,owner_id,profiles(username,display_name)")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) return null;
@@ -82,6 +83,7 @@ export async function getCreatureBySlug(slug: string): Promise<CreatureProfile |
     species: data.species,
     slug: data.slug,
     avatarUrl: data.avatar_url,
+    ownerId: data.owner_id,
     owner: { username: owner.username, displayName: owner.display_name },
   };
 }

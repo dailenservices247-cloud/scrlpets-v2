@@ -428,6 +428,62 @@
       "rescue": "Rescue / shelter",
       "usda": "USDA license",
       "breed_club": "Breed club membership"
+    },
+    "reportsHeading": "Reports",
+    "programsHeading": "Program credentials",
+    "reportsEmpty": "No open reports.",
+    "dismiss": "Dismiss",
+    "hideContent": "Hide content",
+    "suspendAccount": "Suspend account",
+    "viewTarget": "View reported item",
+    "targetKind": {
+      "post": "Post",
+      "listing": "Listing",
+      "profile": "Profile",
+      "comment": "Comment"
+    },
+    "reason": {
+      "spam": "Spam",
+      "harassment": "Harassment",
+      "scam": "Scam",
+      "inappropriate": "Inappropriate",
+      "other": "Other"
+    },
+    "guidesHeading": "Guide drafts",
+    "guidesEmpty": "No drafts awaiting approval.",
+    "readDraft": "Read draft",
+    "hideDraft": "Hide draft",
+    "publishGuide": "Publish",
+    "guideAudience": {
+      "owner": "For owners",
+      "breeder": "For breeders",
+      "buyer": "For buyers"
+    }
+  },
+  "guides": {
+    "title": "Guides",
+    "subtitle": "Care, breeding and buying, written plainly.",
+    "empty": "No guides published yet.",
+    "backToGuides": "← All guides",
+    "audience": {
+      "owner": "For owners",
+      "breeder": "For breeders",
+      "buyer": "For buyers"
+    }
+  },
+  "records": {
+    "title": "Records",
+    "ownerDeclaredNotice": "Provided by the owner. Scrlpets has not verified these details.",
+    "empty": "No records added yet.",
+    "edit": "Edit records",
+    "save": "Save",
+    "cancel": "Cancel",
+    "vetAttested": "A veterinarian has attested these records.",
+    "field": {
+      "birthDate": "Birth date (owner-declared)",
+      "vaccinations": "Vaccinations (owner-declared)",
+      "healthNotes": "Health notes (owner-declared)",
+      "pedigreeNotes": "Pedigree notes (owner-declared)"
     }
   }
 }

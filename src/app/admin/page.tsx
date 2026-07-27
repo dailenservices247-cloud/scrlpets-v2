@@ -2,14 +2,22 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { getPendingPrograms, isPlatformAdmin } from "@/lib/verification/queries";
+import { getOpenReports } from "@/lib/moderation/queries";
+import { getDraftGuides } from "@/lib/guides/queries";
 import { ProgramReviewQueue } from "@/components/admin/ProgramReviewQueue";
+import { ReportQueue } from "@/components/admin/ReportQueue";
+import { GuideApprovalQueue } from "@/components/admin/GuideApprovalQueue";
 
 // D4: the platform-admin surface. Not linked from anywhere public; the DB
 // refuses every action for non-admins regardless of what reaches this page.
 export default async function AdminPage() {
   const t = await getTranslations("admin");
   if (!(await isPlatformAdmin())) notFound();
-  const programs = await getPendingPrograms();
+  const [programs, reports, drafts] = await Promise.all([
+    getPendingPrograms(),
+    getOpenReports(),
+    getDraftGuides(),
+  ]);
 
   return (
     <AppPage>
@@ -18,7 +26,12 @@ export default async function AdminPage() {
         <p className="mt-1 text-xs text-muted-foreground">{t("subtitle")}</p>
       </header>
       <div className="px-3 pb-6">
+        <h2 className="pb-2 text-sm font-semibold">{t("reportsHeading")}</h2>
+        <ReportQueue reports={reports} />
+        <h2 className="pb-2 pt-6 text-sm font-semibold">{t("programsHeading")}</h2>
         <ProgramReviewQueue programs={programs} />
+        <h2 className="pb-2 pt-6 text-sm font-semibold">{t("guidesHeading")}</h2>
+        <GuideApprovalQueue drafts={drafts} />
       </div>
     </AppPage>
   );

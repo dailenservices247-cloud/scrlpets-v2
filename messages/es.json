@@ -428,6 +428,62 @@
       "rescue": "Rescate / refugio",
       "usda": "Licencia USDA",
       "breed_club": "Membresía de club de raza"
+    },
+    "reportsHeading": "Denuncias",
+    "programsHeading": "Credenciales de programa",
+    "reportsEmpty": "No hay denuncias abiertas.",
+    "dismiss": "Descartar",
+    "hideContent": "Ocultar contenido",
+    "suspendAccount": "Suspender cuenta",
+    "viewTarget": "Ver elemento denunciado",
+    "targetKind": {
+      "post": "Publicación",
+      "listing": "Anuncio",
+      "profile": "Perfil",
+      "comment": "Comentario"
+    },
+    "reason": {
+      "spam": "Spam",
+      "harassment": "Acoso",
+      "scam": "Estafa",
+      "inappropriate": "Inapropiado",
+      "other": "Otro"
+    },
+    "guidesHeading": "Borradores de guías",
+    "guidesEmpty": "No hay borradores pendientes.",
+    "readDraft": "Leer borrador",
+    "hideDraft": "Ocultar borrador",
+    "publishGuide": "Publicar",
+    "guideAudience": {
+      "owner": "Para dueños",
+      "breeder": "Para criadores",
+      "buyer": "Para compradores"
+    }
+  },
+  "guides": {
+    "title": "Guías",
+    "subtitle": "Cuidado, cría y compra, explicados con claridad.",
+    "empty": "Aún no hay guías publicadas.",
+    "backToGuides": "← Todas las guías",
+    "audience": {
+      "owner": "Para dueños",
+      "breeder": "Para criadores",
+      "buyer": "Para compradores"
+    }
+  },
+  "records": {
+    "title": "Registros",
+    "ownerDeclaredNotice": "Proporcionado por el dueño. Scrlpets no ha verificado estos datos.",
+    "empty": "Aún no hay registros.",
+    "edit": "Editar registros",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "vetAttested": "Un veterinario ha certificado estos registros.",
+    "field": {
+      "birthDate": "Fecha de nacimiento (declarada por el dueño)",
+      "vaccinations": "Vacunas (declaradas por el dueño)",
+      "healthNotes": "Notas de salud (declaradas por el dueño)",
+      "pedigreeNotes": "Notas de pedigrí (declaradas por el dueño)"
     }
   }
 }
