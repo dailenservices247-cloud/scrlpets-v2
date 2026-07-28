@@ -606,5 +606,56 @@
     "cancel": "Cancelar",
     "ratingRequired": "Elige una calificación general.",
     "alreadyReviewed": "Ya reseñaste esta entrega."
+  },
+  "services": {
+    "eyebrow": "Servicios",
+    "title": "Proveedores",
+    "vettingNotice": "Scrlpets no ha evaluado a estos proveedores. Cada tarjeta indica si esa persona completó la verificación de identidad.",
+    "categories": "Categorías",
+    "allCategories": "Todo",
+    "empty": "Aún no hay proveedores.",
+    "providerVerified": "Identidad verificada",
+    "providerUnverified": "Identidad no verificada",
+    "contactForQuote": "Consultar precio",
+    "category": {
+      "grooming": "Aseo",
+      "training": "Adiestramiento",
+      "boarding": "Alojamiento",
+      "transport": "Transporte",
+      "veterinary": "Veterinaria",
+      "other": "Otro"
+    }
+  },
+  "rewards": {
+    "title": "Recompensas",
+    "subtitle": "Se ganan haciendo lo que hace funcionar el mercado.",
+    "balance": "Tus puntos",
+    "earnHelp": "Los puntos vienen de publicar tu primer anuncio, completar una entrega y reseñar a alguien. No se compran ni se convierten en dinero.",
+    "badgesHeading": "Lo que has hecho",
+    "badgesNotice": "Cuentan actividad real. No son un respaldo de Scrlpets.",
+    "spendHeading": "Gastar puntos",
+    "redemptionsHeading": "Tus canjes",
+    "historyHeading": "Historial",
+    "noHistory": "Aún no hay actividad.",
+    "redeem": "Canjear",
+    "needMore": "Faltan {n} puntos",
+    "notEnoughPoints": "Aún no tienes suficientes puntos.",
+    "choosePost": "Elige qué publicación promocionar.",
+    "choosePostLabel": "¿Qué publicación?",
+    "selectPost": "Selecciona una publicación",
+    "notAvailable": "Esa recompensa aún no está disponible.",
+    "pendingLegalReview": "Aún no disponible: pendiente de revisión legal.",
+    "badge": {
+      "listings": "{count} anuncios publicados",
+      "handovers": "{count} entregas completadas",
+      "reviews": "{count} reseñas escritas",
+      "animals": "{count} animales"
+    },
+    "redemptionStatus": {
+      "requested": "Solicitado",
+      "approved": "Aprobado",
+      "rejected": "Rechazado: puntos devueltos",
+      "fulfilled": "Aplicado"
+    }
   }
 }

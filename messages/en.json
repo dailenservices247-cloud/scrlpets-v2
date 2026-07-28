@@ -606,5 +606,56 @@
     "cancel": "Cancel",
     "ratingRequired": "Choose an overall rating.",
     "alreadyReviewed": "You already reviewed this handover."
+  },
+  "services": {
+    "eyebrow": "Services",
+    "title": "Providers",
+    "vettingNotice": "Scrlpets has not vetted these providers. Each card shows whether that person has completed identity verification — check it, and meet safely.",
+    "categories": "Categories",
+    "allCategories": "All",
+    "empty": "No providers listed yet.",
+    "providerVerified": "Identity verified",
+    "providerUnverified": "Not identity verified",
+    "contactForQuote": "Contact for a quote",
+    "category": {
+      "grooming": "Grooming",
+      "training": "Training",
+      "boarding": "Boarding",
+      "transport": "Transport",
+      "veterinary": "Veterinary",
+      "other": "Other"
+    }
+  },
+  "rewards": {
+    "title": "Rewards",
+    "subtitle": "Earned by doing the things that make the marketplace work.",
+    "balance": "Your points",
+    "earnHelp": "Points come from publishing your first listing, completing a handover, and reviewing someone you dealt with. They cannot be bought and do not convert to cash.",
+    "badgesHeading": "What you've done",
+    "badgesNotice": "These count real activity. They are not an endorsement by Scrlpets.",
+    "spendHeading": "Spend points",
+    "redemptionsHeading": "Your redemptions",
+    "historyHeading": "History",
+    "noHistory": "No points activity yet.",
+    "redeem": "Redeem",
+    "needMore": "{n} more points needed",
+    "notEnoughPoints": "You don't have enough points yet.",
+    "choosePost": "Choose which post to promote.",
+    "choosePostLabel": "Which post?",
+    "selectPost": "Select a post",
+    "notAvailable": "That reward isn't available yet.",
+    "pendingLegalReview": "Not available yet — pending legal review.",
+    "badge": {
+      "listings": "{count} listings published",
+      "handovers": "{count} completed handovers",
+      "reviews": "{count} reviews written",
+      "animals": "{count} animals"
+    },
+    "redemptionStatus": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "rejected": "Rejected — points refunded",
+      "fulfilled": "Applied"
+    }
   }
 }

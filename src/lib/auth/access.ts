@@ -6,6 +6,7 @@ export const PUBLIC_DISCOVERY_PREFIXES = [
   "/guides",
   "/listing/",
   "/post/",
+  "/services",
   "/shop",
   "/u/",
   "/watch/",
@@ -19,6 +20,7 @@ export const PROTECTED_PREFIXES = [
   "/compose",
   "/messages",
   "/notifications",
+  "/rewards",
   "/saved",
   "/settings",
 ] as const;

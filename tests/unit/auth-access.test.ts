@@ -17,6 +17,7 @@ describe("guest access contract", () => {
     "/brands/new",
     "/brand-os",
     "/applications",
+    "/rewards",
   ])("protects participation route %s", (pathname) => {
     expect(isProtectedPath(pathname)).toBe(true);
   });
@@ -37,6 +38,7 @@ describe("guest access contract", () => {
     "/guides",
     "/guides/puppy-first-week",
     "/adopt",
+    "/services",
   ])("keeps discovery route %s public", (pathname) => {
     expect(isProtectedPath(pathname)).toBe(false);
   });
