@@ -657,5 +657,58 @@
       "rejected": "Rejected — points refunded",
       "fulfilled": "Applied"
     }
+  },
+  "subscriptions": {
+    "title": "Plans",
+    "back": "Back",
+    "subtitle": "A plan lowers the fee on your own completed sales. It buys nothing else.",
+    "sellerPaysNotice": "The seller pays the fee on every plan. Buyers pay the same price no matter which plan a seller is on.",
+    "plansHeading": "Plans",
+    "currentHeading": "Your plan",
+    "freePrice": "Free",
+    "perMonth": "{amount}/month",
+    "feeRate": "{rate}% fee per completed sale",
+    "currentPlan": "Your current plan",
+    "choosePlan": "Choose this plan",
+    "notEnabled": "Plans aren't switched on yet. Nothing here can be purchased.",
+    "tierNotAvailable": "That plan isn't available yet.",
+    "status": {
+      "inactive": "Not active",
+      "active": "Active",
+      "past_due": "Payment overdue",
+      "cancelled": "Cancelled"
+    }
+  },
+  "referrals": {
+    "title": "Invite people",
+    "back": "Back",
+    "linkTitle": "Your invite link",
+    "linkBody": "Anyone who joins with this link is recorded as invited by you.",
+    "linkUnavailable": "Your invite link isn't ready yet. Try again in a moment.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "statsTitle": "Your invites",
+    "statJoined": "joined with your link",
+    "statConverted": "got active",
+    "empty": "No one has used your link yet.",
+    "howTitle": "When you get points",
+    "howBody": "Points arrive when someone you invited actually does something — publishes a listing, or completes a handover you both confirmed. Sending the link earns nothing on its own.",
+    "howNotice": "You're paid once per person, and only for people who were new to Scrlpets."
+  },
+  "groups": {
+    "eyebrow": "Breeds & species",
+    "title": "Groups",
+    "scopeNotice": "Every group here is one breed or one species. Groups are curated, so the list stays about animals rather than everything else.",
+    "empty": "No groups yet.",
+    "memberCount": "{count, plural, =0 {No members yet} =1 {# member} other {# members}}",
+    "backToGroups": "← All groups",
+    "join": "Join",
+    "leave": "Leave",
+    "signInToJoin": "Sign in to join",
+    "joinToPost": "Join this group to post in it.",
+    "postsEmpty": "No posts in this group yet.",
+    "postPlaceholder": "Share something about this breed…",
+    "submitPost": "Post to group",
+    "errorRequired": "Add some text or a photo."
   }
 }

@@ -657,5 +657,58 @@
       "rejected": "Rechazado: puntos devueltos",
       "fulfilled": "Aplicado"
     }
+  },
+  "subscriptions": {
+    "title": "Planes",
+    "back": "Atrás",
+    "subtitle": "Un plan reduce la comisión de tus ventas completadas. No compra nada más.",
+    "sellerPaysNotice": "El vendedor paga la comisión en todos los planes. Los compradores pagan el mismo precio sin importar el plan del vendedor.",
+    "plansHeading": "Planes",
+    "currentHeading": "Tu plan",
+    "freePrice": "Gratis",
+    "perMonth": "{amount}/mes",
+    "feeRate": "{rate}% de comisión por venta completada",
+    "currentPlan": "Tu plan actual",
+    "choosePlan": "Elegir este plan",
+    "notEnabled": "Los planes aún no están activados. Aquí no se puede comprar nada.",
+    "tierNotAvailable": "Ese plan aún no está disponible.",
+    "status": {
+      "inactive": "Inactivo",
+      "active": "Activo",
+      "past_due": "Pago vencido",
+      "cancelled": "Cancelado"
+    }
+  },
+  "referrals": {
+    "title": "Invitar personas",
+    "back": "Atrás",
+    "linkTitle": "Tu enlace de invitación",
+    "linkBody": "Quien se una con este enlace queda registrado como invitado por ti.",
+    "linkUnavailable": "Tu enlace aún no está listo. Inténtalo en un momento.",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "statsTitle": "Tus invitaciones",
+    "statJoined": "se unieron con tu enlace",
+    "statConverted": "se activaron",
+    "empty": "Nadie ha usado tu enlace todavía.",
+    "howTitle": "Cuándo recibes puntos",
+    "howBody": "Los puntos llegan cuando alguien que invitaste realmente hace algo: publica un anuncio o completa una entrega confirmada. Enviar el enlace por sí solo no gana nada.",
+    "howNotice": "Se paga una vez por persona, y solo por personas nuevas en Scrlpets."
+  },
+  "groups": {
+    "eyebrow": "Razas y especies",
+    "title": "Grupos",
+    "scopeNotice": "Cada grupo aquí es una raza o una especie. Los grupos son curados para que la lista siga siendo sobre animales.",
+    "empty": "Aún no hay grupos.",
+    "memberCount": "{count, plural, =0 {Sin miembros} =1 {# miembro} other {# miembros}}",
+    "backToGroups": "← Todos los grupos",
+    "join": "Unirme",
+    "leave": "Salir",
+    "signInToJoin": "Inicia sesión para unirte",
+    "joinToPost": "Únete a este grupo para publicar.",
+    "postsEmpty": "Aún no hay publicaciones en este grupo.",
+    "postPlaceholder": "Comparte algo sobre esta raza…",
+    "submitPost": "Publicar en el grupo",
+    "errorRequired": "Añade texto o una foto."
   }
 }

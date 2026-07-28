@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, ClipboardList, Building2, ChevronRight, Heart, MessageCircle, PawPrint, Search, Settings, Gift, Wrench, ShieldAlert, ShieldCheck, Store } from "lucide-react";
+import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, ClipboardList, Building2, ChevronRight, CreditCard, Heart, MessageCircle, PawPrint, Search, Settings, Gift, UserPlus, Users, Wrench, ShieldAlert, ShieldCheck, Store } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
@@ -13,6 +13,7 @@ const actions = [
   { href: "/adopt", label: "Adoption", icon: Heart },
   { href: "/services", label: "Services", icon: Wrench },
   { href: "/rewards", label: "Rewards", icon: Gift },
+  { href: "/groups", label: "Groups", icon: Users },
   { href: "/brand-os", label: "Brand OS", icon: Building2 },
   { href: "/messages", label: "Chat", icon: MessageCircle },
   { href: "/saved", label: "Saved", icon: Bookmark },
@@ -21,6 +22,8 @@ const actions = [
   { href: "/settings/profile", label: "Profile", icon: Settings },
   { href: "/settings/account", label: "Account", icon: ShieldCheck },
   { href: "/settings/verification", label: "Verification", icon: BadgeCheck },
+  { href: "/settings/subscription", label: "Plans", icon: CreditCard },
+  { href: "/settings/referrals", label: "Invite", icon: UserPlus },
 ];
 
 export default async function MenuPage() {

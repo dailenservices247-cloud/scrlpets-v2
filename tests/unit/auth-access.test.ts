@@ -39,6 +39,8 @@ describe("guest access contract", () => {
     "/guides/puppy-first-week",
     "/adopt",
     "/services",
+    "/groups",
+    "/groups/german-shepherds",
   ])("keeps discovery route %s public", (pathname) => {
     expect(isProtectedPath(pathname)).toBe(false);
   });

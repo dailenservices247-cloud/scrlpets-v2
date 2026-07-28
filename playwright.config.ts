@@ -10,9 +10,33 @@ export default defineConfig({
   // multi-step tests exceed the 30s default under full-suite load. Individual
   // expect timeouts still fail fast on real defects.
   timeout: 90_000,
-  // Serial: tests share one dev DB; parallel workers race on mutated rows
-  // (e.g. profile-edit vs profile-read of the same seed user).
-  workers: 1,
+  // File-level parallelism, NOT test-level. Tests share one real dev DB and the
+  // same fixture accounts, so the races we care about are between tests that
+  // mutate and read the same seed row — and those all live inside one file
+  // (e.g. profiles.spec.ts edits breeder_jane's bio, then reads it back).
+  // fullyParallel:false keeps tests within a file serial and in declaration
+  // order on a single worker, while different files run concurrently. That is
+  // safe here because every cross-file mutation is already scoped to a value
+  // the test itself owns: unique per-run markers (`Date.now()`), self-created
+  // listing ids, or DB-queried ids. The "no animal listing in /shop" style
+  // assertions in adoption/commerce are invariants over ids they fetched
+  // themselves, not counts of global state, so a concurrent insert in another
+  // file cannot fail them.
+  //
+  // 3 workers, not 4: all workers share ONE `next dev` server (Playwright
+  // starts webServer once regardless of worker count), and dev-mode route
+  // compilation is the bottleneck. 4 cold-compiling workers push multi-step
+  // tests toward the 90s timeout above; 3 gets ~3x on 27 files with headroom.
+  // Tune per-run with `npx playwright test --workers=N` — no config edit needed.
+  //
+  // If a NEW spec file asserts on UNSCOPED global state (a raw row count, "the
+  // feed has exactly N posts", a shared profile field without a unique marker),
+  // it is not safe under this setting. Fix it in the spec — scope the assertion
+  // to a marker the test owns, or add `test.describe.configure({ mode: "serial" })`
+  // if its own tests must fail-fast as a chain. Dropping back to workers:1 is
+  // the last resort, not the first.
+  fullyParallel: false,
+  workers: 3,
   use: {
     baseURL: "http://localhost:3000",
     // Mobile-first is the primary form factor; the desktop web shell (F7) hides

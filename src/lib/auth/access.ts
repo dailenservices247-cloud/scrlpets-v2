@@ -3,6 +3,7 @@ export const PUBLIC_DISCOVERY_PREFIXES = [
   "/adopt",
   "/b/",
   "/c/",
+  "/groups",
   "/guides",
   "/listing/",
   "/post/",
