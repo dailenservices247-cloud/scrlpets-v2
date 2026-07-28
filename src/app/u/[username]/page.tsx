@@ -18,6 +18,8 @@ import { AppPage } from "@/components/app/AppPage";
 import { Card } from "@/components/ui/card";
 import type { FeedItem } from "@/lib/feed/types";
 import { getBrandsByOwner } from "@/lib/brands/queries";
+import { getReviewsFor } from "@/lib/reviews/queries";
+import { ReviewList } from "@/components/reviews/ReviewList";
 
 function countType(items: FeedItem[], types: FeedItem["type"][]) {
   return items.filter((item) => types.includes(item.type)).length;
@@ -48,11 +50,12 @@ export default async function ProfilePage({
   if (!profile) notFound();
   const user = await getSessionUser();
   const active = tab === "pets" || tab === "about" ? tab : "posts";
-  const [creatures, profileFeed, ownedBrands, followCounts] = await Promise.all([
+  const [creatures, profileFeed, ownedBrands, followCounts, reviews] = await Promise.all([
     getCreaturesByOwner(profile.id),
     getProfileFeed(profile.id),
     getBrandsByOwner(profile.id),
     getFollowCounts(profile.id),
+    getReviewsFor(profile.id),
   ]);
   const [viewerFollowing, viewerBlocked] =
     !!user && user.id !== profile.id
@@ -99,6 +102,9 @@ export default async function ProfilePage({
             </div>
           )}
           <FeedList items={profileFeed} showTabs={false} viewerId={user?.id} />
+          {/* The trust surface that replaced the deleted score: real reviews
+              from confirmed handovers, or an honest empty state. */}
+          <ReviewList reviews={reviews} />
         </>
       )}
 

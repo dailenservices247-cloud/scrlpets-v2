@@ -11,6 +11,8 @@ export type BuyerApplication = {
   message: string | null;
   status: ApplicationStatus;
   createdAt: string;
+  buyerConfirmedAt: string | null;
+  sellerConfirmedAt: string | null;
   buyerUsername: string | null;
   sellerUsername: string | null;
 };
@@ -23,6 +25,8 @@ type Row = {
   message: string | null;
   status: ApplicationStatus;
   created_at: string;
+  buyer_confirmed_at: string | null;
+  seller_confirmed_at: string | null;
   listings: { title: string } | null;
   buyer: { username: string } | null;
   seller: { username: string } | null;
@@ -30,6 +34,7 @@ type Row = {
 
 const SELECT =
   "id,buyer_id,seller_id,listing_id,message,status,created_at," +
+  "buyer_confirmed_at,seller_confirmed_at," +
   "listings(title)," +
   "buyer:profiles!buyer_applications_buyer_id_fkey(username)," +
   "seller:profiles!buyer_applications_seller_id_fkey(username)";
@@ -44,6 +49,8 @@ function toApplication(r: Row): BuyerApplication {
     message: r.message,
     status: r.status,
     createdAt: r.created_at,
+    buyerConfirmedAt: r.buyer_confirmed_at,
+    sellerConfirmedAt: r.seller_confirmed_at,
     buyerUsername: r.buyer?.username ?? null,
     sellerUsername: r.seller?.username ?? null,
   };

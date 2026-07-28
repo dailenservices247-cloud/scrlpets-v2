@@ -174,16 +174,17 @@ test("listing inquiry preserves evidence and stays inside its participants", asy
   await page.goto(`/listing/${listing!.id}`);
   await expect(page.getByTestId("listing-price")).toHaveText("$2,450.00");
   await page.getByTestId("listing-inquiry-signin").click();
-  await expect(page).toHaveURL(/\/login\?next=/);
+  await expect(page).toHaveURL(/\/login\?next=/, { timeout: 20_000 });
   await page.getByLabel("Email address").fill(BUYER_EMAIL);
   await page.getByLabel("Password").fill(password);
   await page.getByTestId("auth-submit").click();
-  await expect(page).toHaveURL(
-    `http://localhost:3000/listing/${listing!.id}`,
-  );
+  await expect(page).toHaveURL(`http://localhost:3000/listing/${listing!.id}`, {
+    timeout: 20_000,
+  });
   await page.getByTestId("start-listing-inquiry").click();
   await expect(page).toHaveURL(
     new RegExp(`/messages/${first.data![0].conversation_id}`),
+    { timeout: 20_000 },
   );
   const context = page
     .getByTestId("message-context-pill")

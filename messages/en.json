@@ -531,7 +531,10 @@
       "accepted": "Accepted",
       "declined": "Declined",
       "withdrawn": "Withdrawn"
-    }
+    },
+    "confirmHandover": "Confirm the handover happened",
+    "handoverAwaitingOther": "You confirmed. Waiting on the other person.",
+    "handoverComplete": "Handover confirmed by both people."
   },
   "breederOs": {
     "readinessEyebrow": "Readiness",
@@ -583,5 +586,25 @@
     "empty": "No animals are listed for adoption right now.",
     "noFee": "No adoption fee",
     "feeAmount": "Adoption fee {amount}"
+  },
+  "reviews": {
+    "heading": "Reviews",
+    "noneYet": "No reviews yet. Reviews can only be left after both people confirm a handover.",
+    "verifiedNotice": "Every review here follows a handover both people confirmed.",
+    "fromCount": "from {count} reviews",
+    "accuracy": "Accuracy",
+    "communication": "Communication",
+    "health": "Health",
+    "pending": "Waiting on your review",
+    "leaveReviewFor": "Review @{name}",
+    "reviewing": "Your review",
+    "aHandover": "A completed handover",
+    "overall": "Overall",
+    "titlePlaceholder": "Summary (optional)",
+    "bodyPlaceholder": "What was the experience like?",
+    "publishReview": "Publish review",
+    "cancel": "Cancel",
+    "ratingRequired": "Choose an overall rating.",
+    "alreadyReviewed": "You already reviewed this handover."
   }
 }

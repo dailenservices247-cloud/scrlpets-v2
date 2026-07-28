@@ -531,7 +531,10 @@
       "accepted": "Aceptada",
       "declined": "Rechazada",
       "withdrawn": "Retirada"
-    }
+    },
+    "confirmHandover": "Confirmar que la entrega ocurrió",
+    "handoverAwaitingOther": "Confirmaste. Esperando a la otra persona.",
+    "handoverComplete": "Entrega confirmada por ambas partes."
   },
   "breederOs": {
     "readinessEyebrow": "Preparación",
@@ -583,5 +586,25 @@
     "empty": "Ahora mismo no hay animales en adopción.",
     "noFee": "Sin cuota de adopción",
     "feeAmount": "Cuota de adopción {amount}"
+  },
+  "reviews": {
+    "heading": "Reseñas",
+    "noneYet": "Aún no hay reseñas. Solo se pueden dejar tras confirmar la entrega ambas partes.",
+    "verifiedNotice": "Cada reseña sigue a una entrega confirmada por ambas partes.",
+    "fromCount": "de {count} reseñas",
+    "accuracy": "Precisión",
+    "communication": "Comunicación",
+    "health": "Salud",
+    "pending": "Esperando tu reseña",
+    "leaveReviewFor": "Reseñar a @{name}",
+    "reviewing": "Tu reseña",
+    "aHandover": "Una entrega completada",
+    "overall": "General",
+    "titlePlaceholder": "Resumen (opcional)",
+    "bodyPlaceholder": "¿Cómo fue la experiencia?",
+    "publishReview": "Publicar reseña",
+    "cancel": "Cancelar",
+    "ratingRequired": "Elige una calificación general.",
+    "alreadyReviewed": "Ya reseñaste esta entrega."
   }
 }

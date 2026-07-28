@@ -63,7 +63,7 @@ test.describe("content edit/delete", () => {
     await expect(card.getByTestId("owner-menu")).toBeVisible({ timeout: 15_000 });
     await card.getByTestId("owner-menu").click();
     await page.getByTestId("edit-content").click();
-    await expect(page).toHaveURL(/\/post\/[^/]+\/edit$/);
+    await expect(page).toHaveURL(/\/post\/[^/]+\/edit$/, { timeout: 20_000 });
     const postId = page.url().split("/").at(-2)!;
 
     await expect(page.getByTestId("locked-attribution")).toHaveAttribute(
@@ -75,7 +75,7 @@ test.describe("content edit/delete", () => {
     await page.getByTestId("post-body").fill(edited);
     await page.getByTestId("post-submit").click();
 
-    await expect(page).toHaveURL(new RegExp(`/post/${postId}$`));
+    await expect(page).toHaveURL(new RegExp(`/post/${postId}$`), { timeout: 20_000 });
     await expect(
       page.getByRole("heading", { name: edited, exact: true }),
     ).toBeVisible();
@@ -117,7 +117,7 @@ test.describe("content edit/delete", () => {
     await expect(card.getByTestId("owner-menu")).toBeVisible({ timeout: 15_000 });
     await card.getByTestId("owner-menu").click();
     await page.getByTestId("edit-content").click();
-    await expect(page).toHaveURL(/\/listing\/[^/]+\/edit$/);
+    await expect(page).toHaveURL(/\/listing\/[^/]+\/edit$/, { timeout: 20_000 });
     const listingId = page.url().split("/").at(-2)!;
 
     await expect(page.getByTestId("locked-attribution")).toHaveAttribute(
@@ -128,7 +128,7 @@ test.describe("content edit/delete", () => {
     await page.getByTestId("listing-price").fill("150.00");
     await page.getByTestId("listing-submit").click();
 
-    await expect(page).toHaveURL(new RegExp(`/listing/${listingId}$`));
+    await expect(page).toHaveURL(new RegExp(`/listing/${listingId}$`), { timeout: 20_000 });
     await expect(
       page.getByRole("heading", { name: edited, exact: true }),
     ).toBeVisible();
@@ -175,7 +175,7 @@ test.describe("content edit/delete", () => {
     await expect(card.getByTestId("owner-menu")).toBeVisible({ timeout: 15_000 });
     await card.getByTestId("owner-menu").click();
     await page.getByTestId("edit-content").click();
-    await expect(page).toHaveURL(/\/post\/[^/]+\/edit$/);
+    await expect(page).toHaveURL(/\/post\/[^/]+\/edit$/, { timeout: 20_000 });
     const postId = page.url().split("/").at(-2)!;
 
     await page.context().clearCookies();

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { setApplicationStatus } from "@/lib/applications/actions";
+import { confirmHandover } from "@/lib/reviews/actions";
 import type { BuyerApplication } from "@/lib/applications/queries";
 
 // D13: both sides of the same table. The seller decides, the buyer withdraws.
@@ -18,6 +19,13 @@ export function ApplicationList({
   const t = useTranslations("applications");
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
+
+  async function confirm(id: string) {
+    setBusy(id);
+    const result = await confirmHandover(id);
+    setBusy(null);
+    if (result.ok) router.refresh();
+  }
 
   async function decide(id: string, status: "withdrawn" | "accepted" | "declined") {
     setBusy(id);
@@ -57,6 +65,28 @@ export function ApplicationList({
               {viewerIsSeller ? t("fromBuyer") : t("toSeller")} @{counterparty ?? "—"}
             </p>
             {a.message && <p className="mt-2 text-sm">{a.message}</p>}
+
+            {a.status === "accepted" && (
+              <div className="mt-3">
+                {(viewerIsSeller ? a.sellerConfirmedAt : a.buyerConfirmedAt) ? (
+                  <p className="text-xs text-muted-foreground" data-testid={`handover-confirmed-${a.id}`}>
+                    {a.buyerConfirmedAt && a.sellerConfirmedAt
+                      ? t("handoverComplete")
+                      : t("handoverAwaitingOther")}
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => confirm(a.id)}
+                    disabled={busy === a.id}
+                    data-testid={`handover-confirm-${a.id}`}
+                    className="min-h-11 w-full rounded-xl border border-input px-4 text-sm font-medium disabled:opacity-50"
+                  >
+                    {t("confirmHandover")}
+                  </button>
+                )}
+              </div>
+            )}
 
             {a.status === "submitted" && (
               <div className="mt-3 flex gap-2">
