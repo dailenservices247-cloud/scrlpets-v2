@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, ClipboardList, Building2, ChevronRight, Heart, MessageCircle, PawPrint, Search, Settings, ShieldCheck, Store } from "lucide-react";
+import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, ClipboardList, Building2, ChevronRight, Heart, MessageCircle, PawPrint, Search, Settings, ShieldAlert, ShieldCheck, Store } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
+import { isPlatformAdmin } from "@/lib/verification/queries";
 
 const actions = [
   { href: "/", label: "Feed", icon: PawPrint },
@@ -22,7 +23,15 @@ const actions = [
 
 export default async function MenuPage() {
   const user = await getSessionUser();
-  const profile = user ? await getProfileById(user.id) : null;
+  const [profile, viewerIsAdmin] = await Promise.all([
+    user ? getProfileById(user.id) : Promise.resolve(null),
+    user ? isPlatformAdmin() : Promise.resolve(false),
+  ]);
+  // /admin is unlinked for everyone else, but an admin having to remember the
+  // URL is not "hidden", it is unusable.
+  const items = viewerIsAdmin
+    ? [...actions, { href: "/admin", label: "Admin", icon: ShieldAlert }]
+    : actions;
   const displayName = profile?.displayName ?? profile?.username ?? user?.email ?? "Guest";
 
   return (
@@ -78,7 +87,7 @@ export default async function MenuPage() {
       <section className="mt-5 px-4">
         <p className="eyebrow mb-3">Quick actions</p>
         <div className="grid grid-cols-2 gap-3">
-          {actions.map((action) => {
+          {items.map((action) => {
             const Icon = action.icon;
             return (
               <Link key={action.href} href={action.href} className="premium-panel rounded-2xl p-4 transition hover:border-primary/40">
