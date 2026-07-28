@@ -99,12 +99,21 @@ export async function createPost(formData: FormData): Promise<ActionResult> {
 export async function createListing(formData: FormData): Promise<ActionResult> {
   const { supabase, user } = await requireUser();
   const title = String(formData.get("title") ?? "");
-  const priceCents = parsePriceCents(String(formData.get("price") ?? ""));
+  const rawPrice = String(formData.get("price") ?? "").trim();
   const mediaUrl = (formData.get("mediaUrl") as string) || null;
   const creatureId = (formData.get("creatureId") as string) || null;
   const description = (formData.get("description") as string)?.trim() || null;
   const category = (formData.get("category") as string)?.trim() || null;
-  const v = validateListing({ title, priceCents });
+  // R17: adoption is the same entity under the same gate; only intent differs,
+  // and it requires an animal (enforced by a DB check constraint too).
+  const listingKind = formData.get("listingKind") === "adoption" && creatureId ? "adoption" : "sale";
+  // A rehoming with no fee is legitimate; parsePriceCents deliberately treats
+  // "0" as invalid for sales, so free adoptions are resolved here instead.
+  const priceCents =
+    listingKind === "adoption" && (rawPrice === "" || /^0(\.0{1,2})?$/.test(rawPrice))
+      ? 0
+      : parsePriceCents(rawPrice);
+  const v = validateListing({ title, priceCents }, { allowFree: listingKind === "adoption" });
   if (!v.ok) return { ok: false, error: v.error };
   const attribution = await resolveAttribution(supabase, user.id, formData);
   if (!attribution) return { ok: false, error: "brand_denied" };
@@ -116,6 +125,7 @@ export async function createListing(formData: FormData): Promise<ActionResult> {
     creature_id: creatureId,
     description,
     category,
+    listing_kind: listingKind,
     ...attribution,
   });
   if (error) return { ok: false, error: error.message };

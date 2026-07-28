@@ -13,8 +13,14 @@ export function parsePriceCents(raw: string): number | null {
   return cents > 0 ? cents : null;
 }
 
-export function validateListing(input: { title: string; priceCents: number | null }): Validation {
+export function validateListing(
+  input: { title: string; priceCents: number | null },
+  // R17: a rehoming may legitimately be free. Sales still require a price, so
+  // this is opt-in per call rather than a loosening of the default.
+  opts?: { allowFree?: boolean },
+): Validation {
   if (!input.title.trim()) return { ok: false, error: "required" };
-  if (!input.priceCents || input.priceCents <= 0) return { ok: false, error: "price" };
+  if (input.priceCents === null || input.priceCents < 0) return { ok: false, error: "price" };
+  if (!opts?.allowFree && input.priceCents <= 0) return { ok: false, error: "price" };
   return { ok: true };
 }

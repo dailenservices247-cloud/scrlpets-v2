@@ -54,6 +54,7 @@ export async function listShopProducts(category?: string): Promise<ShopProduct[]
   let query = supabase
     .from("listings")
     .select(SELECT)
+    .eq("listing_kind", "sale")
     .is("creature_id", null)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
@@ -70,6 +71,7 @@ export async function listBrandProducts(brandId: string): Promise<ShopProduct[]>
     .from("listings")
     .select(SELECT)
     .eq("brand_id", brandId)
+    .eq("listing_kind", "sale")
     .is("creature_id", null)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
@@ -82,6 +84,7 @@ export async function listShopCategories(): Promise<string[]> {
   const { data } = await supabase
     .from("listings")
     .select("category")
+    .eq("listing_kind", "sale")
     .is("creature_id", null)
     .is("deleted_at", null)
     .not("category", "is", null)

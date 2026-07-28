@@ -48,6 +48,7 @@ export function ListingForm(props: ListingFormProps) {
   const [creatureId, setCreatureId] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [isAdoption, setIsAdoption] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -66,6 +67,7 @@ export function ListingForm(props: ListingFormProps) {
       if (creatureId) fd.set("creatureId", creatureId);
       fd.set("description", description);
       fd.set("category", category);
+      if (creatureId && isAdoption) fd.set("listingKind", "adoption");
       applyAttribution(fd, attribution!);
       res = await createListing(fd);
     }
@@ -139,6 +141,21 @@ export function ListingForm(props: ListingFormProps) {
       <MediaInput userId={userId} onUploaded={setMediaUrl} />
       {!isEditing && (
         <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
+      )}
+      {!isEditing && creatureId && (
+        <label className="flex items-start gap-3 rounded-xl border border-input p-3">
+          <input
+            type="checkbox"
+            checked={isAdoption}
+            onChange={(e) => setIsAdoption(e.target.checked)}
+            data-testid="listing-adoption"
+            className="mt-0.5 size-4"
+          />
+          <span className="text-sm">
+            <span className="font-medium">{t("adoptionLabel")}</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">{t("adoptionHelp")}</span>
+          </span>
+        </label>
       )}
       {err && <p className="text-destructive text-sm">{err}</p>}
       <Button type="submit" disabled={busy || disabled} data-testid="listing-submit">

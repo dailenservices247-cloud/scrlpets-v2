@@ -115,7 +115,9 @@
     "videoKindLong": "Long video",
     "videoCompatWarning": "iPhone/iPad videos (.mov) may not play on Android or Windows. MP4 plays everywhere.",
     "descriptionPlaceholder": "Description (optional)",
-    "categoryPlaceholder": "Category, e.g. Grooming (optional)"
+    "categoryPlaceholder": "Category, e.g. Grooming (optional)",
+    "adoptionLabel": "List for adoption or rehoming",
+    "adoptionHelp": "Same verification checks as a sale. Leave the price blank if there is no adoption fee."
   },
   "content": {
     "edit": "Edit",
@@ -573,5 +575,13 @@
       "listingsSold": "Marked sold",
       "openApplications": "Open applications"
     }
+  },
+  "adopt": {
+    "eyebrow": "Adoption",
+    "title": "Animals looking for a home",
+    "gateNotice": "Rehoming is held to the same checks as a sale: the person listing must be identity-verified and must have attested that this specific animal is theirs and ready to place.",
+    "empty": "No animals are listed for adoption right now.",
+    "noFee": "No adoption fee",
+    "feeAmount": "Adoption fee {amount}"
   }
 }

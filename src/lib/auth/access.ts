@@ -1,5 +1,6 @@
 export const PUBLIC_DISCOVERY_PREFIXES = [
   "/",
+  "/adopt",
   "/b/",
   "/c/",
   "/guides",

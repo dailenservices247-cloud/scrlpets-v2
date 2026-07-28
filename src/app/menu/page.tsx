@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, ClipboardList, Building2, ChevronRight, MessageCircle, PawPrint, Search, Settings, ShieldCheck, Store } from "lucide-react";
+import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, ClipboardList, Building2, ChevronRight, Heart, MessageCircle, PawPrint, Search, Settings, ShieldCheck, Store } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
@@ -9,6 +9,7 @@ const actions = [
   { href: "/search", label: "Search", icon: Search },
   { href: "/notifications", label: "Notifications", icon: Bell },
   { href: "/shop", label: "Shop", icon: Store },
+  { href: "/adopt", label: "Adoption", icon: Heart },
   { href: "/brand-os", label: "Brand OS", icon: Building2 },
   { href: "/messages", label: "Chat", icon: MessageCircle },
   { href: "/saved", label: "Saved", icon: Bookmark },

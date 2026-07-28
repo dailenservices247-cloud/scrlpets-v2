@@ -115,7 +115,9 @@
     "videoKindLong": "Video largo",
     "videoCompatWarning": "Los videos de iPhone/iPad (.mov) pueden no reproducirse en Android o Windows. MP4 funciona en todos lados.",
     "descriptionPlaceholder": "Descripción (opcional)",
-    "categoryPlaceholder": "Categoría, p. ej. Aseo (opcional)"
+    "categoryPlaceholder": "Categoría, p. ej. Aseo (opcional)",
+    "adoptionLabel": "Publicar para adopción o realojamiento",
+    "adoptionHelp": "Mismas verificaciones que una venta. Deja el precio vacío si no hay cuota."
   },
   "content": {
     "edit": "Editar",
@@ -573,5 +575,13 @@
       "listingsSold": "Marcados vendidos",
       "openApplications": "Solicitudes abiertas"
     }
+  },
+  "adopt": {
+    "eyebrow": "Adopción",
+    "title": "Animales que buscan hogar",
+    "gateNotice": "El realojamiento cumple las mismas verificaciones que una venta: quien publica debe tener identidad verificada y haber certificado que ese animal es suyo y está listo.",
+    "empty": "Ahora mismo no hay animales en adopción.",
+    "noFee": "Sin cuota de adopción",
+    "feeAmount": "Cuota de adopción {amount}"
   }
 }
