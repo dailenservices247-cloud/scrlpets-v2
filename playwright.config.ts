@@ -36,7 +36,16 @@ export default defineConfig({
   // if its own tests must fail-fast as a chain. Dropping back to workers:1 is
   // the last resort, not the first.
   fullyParallel: false,
-  workers: 3,
+  // REVERTED 2026-07-28: workers: 3 with file-level parallelism failed the full
+  // suite — 6 specs stuck at /login. The data-race analysis was sound, but it
+  // missed the real constraint: EVERY spec file signs in as the same two or
+  // three fixture accounts, so concurrent workers collide on Supabase auth
+  // (rate limiting / concurrent session issuance), not on table rows. All 9
+  // auth specs pass at workers: 1.
+  //
+  // Parallelism needs per-worker fixture accounts (e.g. e2e-w0@, e2e-w1@ keyed
+  // off TEST_WORKER_INDEX), which is real work rather than a config change.
+  workers: 1,
   use: {
     baseURL: "http://localhost:3000",
     // Mobile-first is the primary form factor; the desktop web shell (F7) hides
