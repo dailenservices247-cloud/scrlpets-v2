@@ -102,7 +102,23 @@ test("a review requires a handover both parties confirmed", async () => {
   expect(rehome.data!.subject_id, "subject is fixed at creation").toBe(seller.userId);
   expect(rehome.data!.rating).toBe(4);
 
-  await seller.db.from("buyer_applications").delete().eq("id", applicationId);
+  // 8. The AUTHOR may retract their own review; the seller still cannot.
+  const retracted = await buyer.db
+    .from("reviews")
+    .delete({ count: "exact" })
+    .eq("application_id", applicationId);
+  expect(retracted.count, "author can retract their own review").toBe(1);
+
+  // Cleanup must actually happen: this database is also production, and a
+  // review is a PUBLIC trust surface. Asserting it rather than assuming it —
+  // the first version of this test silently left three reviews on a live
+  // profile because buyer_applications has no DELETE policy.
+  const leftover = await buyer.db
+    .from("reviews")
+    .select("id")
+    .eq("application_id", applicationId);
+  expect(leftover.data ?? [], "no review residue left behind").toEqual([]);
+
   await seller.db.from("listings").delete().eq("id", listingId);
 });
 
