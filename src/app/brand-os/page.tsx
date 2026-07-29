@@ -23,6 +23,8 @@ import { SellerListingsPanel } from "@/components/brand/SellerListingsPanel";
 import { ReadinessPanel } from "@/components/brand/ReadinessPanel";
 import { BreederStatsPanel } from "@/components/brand/BreederStatsPanel";
 import { ServicesManagerPanel } from "@/components/brand/ServicesManagerPanel";
+import { BrandKitPanel } from "@/components/brand/BrandKitPanel";
+import { getBrandKit, getBrandGallery } from "@/lib/brand-kit/queries";
 import { listMyServices } from "@/lib/services/queries";
 import { BRAND_TYPE_OPTIONS, canManageBrandContent } from "@/lib/brands/types";
 
@@ -106,10 +108,12 @@ export default async function BrandOSPage({
 
   const brand =
     brands.find((candidate) => candidate.id === requestedBrandId) ?? brands[0];
-  const [counts, members, subjects] = await Promise.all([
+  const [counts, members, subjects, kit, gallery] = await Promise.all([
     getBrandContentCounts(brand.id),
     getBrandMembers(brand.id),
     getBrandSubjects(brand.id),
+    getBrandKit(brand.id),
+    getBrandGallery(brand.id),
   ]);
   const overview = [
     { label: "Brand posts", value: counts.posts },
@@ -220,6 +224,17 @@ export default async function BrandOSPage({
           viewerRole={brand.role}
           bannerUrl={brand.bannerUrl}
           avatarUrl={brand.avatarUrl}
+        />
+      </section>
+
+      <section className="px-3 py-3">
+        <BrandKitPanel
+          brandId={brand.id}
+          brandSlug={brand.slug}
+          viewerId={user.id}
+          viewerRole={brand.role}
+          kit={kit}
+          gallery={gallery}
         />
       </section>
 

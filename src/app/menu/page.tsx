@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, ClipboardList, Building2, ChevronRight, CreditCard, Heart, MessageCircle, PawPrint, Search, Settings, Gift, UserPlus, Users, Wrench, ShieldAlert, ShieldCheck, Store } from "lucide-react";
+import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, CalendarDays, ClipboardList, Building2, ChevronRight, CreditCard, Heart, HeartPulse, MessageCircle, PawPrint, Search, Settings, Gift, TreeDeciduous, UserPlus, Users, Wrench, ShieldAlert, ShieldCheck, Store } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
@@ -15,6 +15,10 @@ const actions = [
   { href: "/rewards", label: "Rewards", icon: Gift },
   { href: "/groups", label: "Groups", icon: Users },
   { href: "/brand-os", label: "Brand OS", icon: Building2 },
+  { href: "/tree", label: "Tree", icon: TreeDeciduous },
+  { href: "/litters", label: "Litters", icon: Bone },
+  { href: "/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/health", label: "Health", icon: HeartPulse },
   { href: "/messages", label: "Chat", icon: MessageCircle },
   { href: "/saved", label: "Saved", icon: Bookmark },
   { href: "/guides", label: "Guides", icon: BookOpen },

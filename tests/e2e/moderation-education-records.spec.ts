@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, SELLER_EMAIL, signInCached } from "./fixtures";
 
 /**
  * Opt-in only. This project's Supabase instance serves production as well as
@@ -18,11 +18,8 @@ function databaseClient() {
 }
 
 async function signIn() {
-  const db = databaseClient();
-  const auth = await db.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password: process.env.E2E_PASSWORD!,
-  });
+  const { db: db, userId: __uid_db } = await signInCached(SELLER_EMAIL);
+  const auth = { data: { user: { id: __uid_db } }, error: null };
   return { db, userId: auth.data.user!.id };
 }
 

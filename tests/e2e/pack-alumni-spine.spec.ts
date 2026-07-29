@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, SELLER_EMAIL, THIRD_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, SELLER_EMAIL, THIRD_EMAIL, signInCached } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -10,12 +10,7 @@ function databaseClient() {
 }
 
 async function signIn(email: string) {
-  const db = databaseClient();
-  const auth = await db.auth.signInWithPassword({
-    email,
-    password: process.env.E2E_PASSWORD!,
-  });
-  return { db, userId: auth.data.user!.id };
+  return signInCached(email);
 }
 
 /**
@@ -280,7 +275,10 @@ test("commerce guards: adoption cap + eight-week rule refuse at the database", a
   });
   expect(tooYoung.error?.message ?? "").toContain("under_eight_weeks");
 
-  // A dog with no recorded dates cannot be listed at all.
+  // An animal with NO recorded dates lists fine — unknown age is unknown, not
+  // a violation. 9 CFR 2.130 regulates transferring an underage animal, and
+  // demanding dates as proof-of-innocence blocked every existing seller (the
+  // full suite caught that over-reach; the guard now enforces on KNOWN dates).
   const dateless = await seller.db
     .from("creatures")
     .insert({
@@ -298,7 +296,17 @@ test("commerce guards: adoption cap + eight-week rule refuse at the database", a
     price_cents: 10000,
     creature_id: dateless.data!.id,
   });
-  expect(noDates.error?.message ?? "").toContain("age_weaning_dates_required");
+  expect(noDates.error, "unknown age is not a violation").toBeNull();
+
+  await seller.db.rpc("soft_delete_managed_listing", {
+    target_listing_id: (
+      await seller.db
+        .from("listings")
+        .select("id")
+        .eq("title", `E2E dateless listing ${stamp}`)
+        .single()
+    ).data!.id,
+  });
 
   // Cleanup — asserted. No owner hard-delete exists on creatures; hiding is
   // the available control and every guard above REFUSED, so nothing public

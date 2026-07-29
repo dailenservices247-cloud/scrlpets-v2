@@ -5,6 +5,9 @@ import { ProductCard } from "@/components/shop/ProductCard";
 import { listShopCategories, listShopProducts } from "@/lib/shop/queries";
 import { isPaymentsEnabled } from "@/lib/orders/queries";
 
+export const dynamic = "force-dynamic";
+
+
 // D9: real products, not a placeholder. A product is a listing with no animal
 // attached, so animals never appear here and the listing gate is not forked.
 export default async function ShopPage({

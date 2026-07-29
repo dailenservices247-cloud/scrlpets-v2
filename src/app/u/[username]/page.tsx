@@ -21,6 +21,9 @@ import { getBrandsByOwner } from "@/lib/brands/queries";
 import { getReviewsFor } from "@/lib/reviews/queries";
 import { ReviewList } from "@/components/reviews/ReviewList";
 
+export const dynamic = "force-dynamic";
+
+
 function countType(items: FeedItem[], types: FeedItem["type"][]) {
   return items.filter((item) => types.includes(item.type)).length;
 }
@@ -109,6 +112,16 @@ export default async function ProfilePage({
       )}
 
       {active === "pets" && (
+        <>
+        <div className="px-3 pt-3">
+          <Link
+            href={`/u/${profile.username}/tree`}
+            data-testid="profile-tree-link"
+            className="inline-flex min-h-11 items-center rounded-xl border border-input px-4 text-sm font-medium text-brand-link"
+          >
+            {t("viewTree")}
+          </Link>
+        </div>
         <div className="grid grid-cols-2 gap-3 p-3" data-testid="pets-list">
           {creatures.map((c) => (
             <Link key={c.id} href={`/c/${c.slug}`} className="focus:outline-none focus:ring-2 focus:ring-ring">
@@ -132,6 +145,7 @@ export default async function ProfilePage({
             <p className="col-span-2 rounded-2xl border border-border/70 p-6 text-muted-foreground">{t("noPets")}</p>
           )}
         </div>
+        </>
       )}
 
       {active === "about" && (

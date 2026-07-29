@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, SELLER_EMAIL, signInCached } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -25,11 +25,8 @@ test("litter creation, subject-tagged post, and DB refusal of fake subjects", as
   page,
 }) => {
   test.setTimeout(120_000);
-  const db = databaseClient();
-  const auth = await db.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password: process.env.E2E_PASSWORD!,
-  });
+  const { db: db, userId: __uid_db } = await signInCached(SELLER_EMAIL);
+  const auth = { data: { user: { id: __uid_db } }, error: null };
   const userId = auth.data.user!.id;
   const brandName = `E2E Subject Brand ${Date.now()}`;
   const litterName = `E2E Spring Litter ${Date.now()}`;

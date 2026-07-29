@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL, signInCached } from "./fixtures";
 
 const BUYER_EMAIL = MEMBER_EMAIL;
 const BUYER_PROFILE_ID = MEMBER_PROFILE_ID;
@@ -34,19 +34,13 @@ test("listing inquiry preserves evidence and stays inside its participants", asy
   const listingTitle = `E2E inquiry listing ${stamp}`;
   const editedTitle = `${listingTitle} edited later`;
 
-  const sellerDb = databaseClient();
-  const sellerAuth = await sellerDb.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password,
-  });
+  const { db: sellerDb, userId: __uid_sellerDb } = await signInCached(SELLER_EMAIL);
+  const sellerAuth = { data: { user: { id: __uid_sellerDb } }, error: null };
   expect(sellerAuth.error).toBeNull();
   const sellerId = sellerAuth.data.user!.id;
 
-  const buyerDb = databaseClient();
-  const buyerAuth = await buyerDb.auth.signInWithPassword({
-    email: BUYER_EMAIL,
-    password,
-  });
+  const { db: buyerDb, userId: __uid_buyerDb } = await signInCached(BUYER_EMAIL);
+  const buyerAuth = { data: { user: { id: __uid_buyerDb } }, error: null };
   expect(buyerAuth.error).toBeNull();
 
   const { data: creature, error: creatureError } = await sellerDb

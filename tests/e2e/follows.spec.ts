@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, signInCached } from "./fixtures";
 
 // Seeded fixture users (see brand-rbac.spec.ts).
 
@@ -25,11 +25,8 @@ test("follow round-trip, counts, and self-follow guard", async ({ page }) => {
   const password = process.env.E2E_PASSWORD!;
 
   // The DB refuses a self-follow (CHECK constraint), regardless of the app.
-  const ownerDb = databaseClient();
-  const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password,
-  });
+  const { db: ownerDb, userId: __uid_ownerDb } = await signInCached(SELLER_EMAIL);
+  const ownerAuth = { data: { user: { id: __uid_ownerDb } }, error: null };
   expect(ownerAuth.error).toBeNull();
   const ownerId = ownerAuth.data.user!.id;
   const selfFollow = await ownerDb
@@ -70,8 +67,7 @@ test("follow round-trip, counts, and self-follow guard", async ({ page }) => {
 
   // A post by the followed member appears in the follower's Following feed;
   // the same post is absent before following (verified by the edge existing now).
-  const memberDb = databaseClient();
-  await memberDb.auth.signInWithPassword({ email: MEMBER_EMAIL, password });
+  const { db: memberDb } = await signInCached(MEMBER_EMAIL);
   const marker = `E2E follow feed post ${Date.now()}`;
   const memberPost = await memberDb
     .from("posts")

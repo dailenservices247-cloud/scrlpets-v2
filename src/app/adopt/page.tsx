@@ -4,6 +4,9 @@ import { AppPage } from "@/components/app/AppPage";
 import { formatPrice } from "@/lib/shop/format";
 import { listAdoptions } from "@/lib/adoption/queries";
 
+export const dynamic = "force-dynamic";
+
+
 export const metadata = {
   title: "Adoption & rehoming",
   description: "Animals looking for a new home on Scrlpets.",

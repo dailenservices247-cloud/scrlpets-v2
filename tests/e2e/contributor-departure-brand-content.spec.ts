@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, signInCached } from "./fixtures";
 
 // Reuses the seeded RBAC fixture users (see brand-rbac.spec.ts).
 
@@ -49,19 +49,13 @@ test("brand owner controls a departed contributor's brand content, audited", asy
     page.getByTestId(`brand-member-${MEMBER_PROFILE_ID}`),
   ).toContainText("Contributor");
 
-  const ownerDb = databaseClient();
-  const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password,
-  });
+  const { db: ownerDb, userId: __uid_ownerDb } = await signInCached(SELLER_EMAIL);
+  const ownerAuth = { data: { user: { id: __uid_ownerDb } }, error: null };
   expect(ownerAuth.error).toBeNull();
   const ownerId = ownerAuth.data.user!.id;
 
-  const memberDb = databaseClient();
-  const memberAuth = await memberDb.auth.signInWithPassword({
-    email: MEMBER_EMAIL,
-    password,
-  });
+  const { db: memberDb, userId: __uid_memberDb } = await signInCached(MEMBER_EMAIL);
+  const memberAuth = { data: { user: { id: __uid_memberDb } }, error: null };
   expect(memberAuth.error).toBeNull();
 
   const { data: memberMembership } = await ownerDb

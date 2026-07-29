@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL, signInCached } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -24,14 +24,10 @@ test("comment, reply, edit, soft-delete tombstone, permissions, block-hide", asy
   test.setTimeout(120_000);
   const password = process.env.E2E_PASSWORD!;
 
-  const ownerDb = databaseClient();
-  const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password,
-  });
+  const { db: ownerDb, userId: __uid_ownerDb } = await signInCached(SELLER_EMAIL);
+  const ownerAuth = { data: { user: { id: __uid_ownerDb } }, error: null };
   const ownerId = ownerAuth.data.user!.id;
-  const memberDb = databaseClient();
-  await memberDb.auth.signInWithPassword({ email: MEMBER_EMAIL, password });
+  const { db: memberDb } = await signInCached(MEMBER_EMAIL);
 
   // Clean any block between the fixtures so hidden-content assertions are clean.
   await ownerDb.rpc("unblock_user", { target_id: MEMBER_PROFILE_ID });
@@ -123,11 +119,8 @@ test("comment, reply, edit, soft-delete tombstone, permissions, block-hide", asy
 test("inline feed commenting and comment reactions", async ({ page }) => {
   test.setTimeout(120_000);
   const password = process.env.E2E_PASSWORD!;
-  const ownerDb = databaseClient();
-  const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password,
-  });
+  const { db: ownerDb, userId: __uid_ownerDb } = await signInCached(SELLER_EMAIL);
+  const ownerAuth = { data: { user: { id: __uid_ownerDb } }, error: null };
   const ownerId = ownerAuth.data.user!.id;
   const marker = `E2E inline thread post ${Date.now()}`;
   const post = await ownerDb

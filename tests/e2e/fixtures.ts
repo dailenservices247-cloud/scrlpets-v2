@@ -59,3 +59,48 @@ export const THIRD_PROFILE_ID =
   WORKER === 0
     ? "2138dc38-36de-41b0-863e-34028cbd301a"
     : `00000000-0000-0000-0000-0000000000${WORKER}3`;
+
+/**
+ * Cached API sign-in.
+ *
+ * 26 spec files each call `signInWithPassword` — 47 call sites, several per
+ * test. Against a production-build server the suite runs fast enough that
+ * those pack into a window Supabase auth starts refusing, and a refused
+ * sign-in surfaces as `auth.data.user` being null deep inside a spec (18
+ * failures, all "Cannot read properties of null"). Sessions are per-account
+ * and reusable, so each worker signs in ONCE per account and hands the same
+ * authenticated client back afterwards.
+ *
+ * Retries exist for the genuinely-first sign-in of a run, where several
+ * workers still race each other.
+ */
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+const sessions = new Map<string, { db: SupabaseClient; userId: string }>();
+
+export async function signInCached(
+  email: string,
+): Promise<{ db: SupabaseClient; userId: string }> {
+  const cached = sessions.get(email);
+  if (cached) return cached;
+
+  let lastError = "";
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const db = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+    const auth = await db.auth.signInWithPassword({
+      email,
+      password: process.env.E2E_PASSWORD!,
+    });
+    if (auth.data.user) {
+      const entry = { db, userId: auth.data.user.id };
+      sessions.set(email, entry);
+      return entry;
+    }
+    lastError = auth.error?.message ?? "no user returned";
+    await new Promise((r) => setTimeout(r, 400 * (attempt + 1)));
+  }
+  throw new Error(`E2E sign-in failed for ${email}: ${lastError}`);
+}

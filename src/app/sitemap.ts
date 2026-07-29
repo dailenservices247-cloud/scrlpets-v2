@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Profile URLs stay out of the sitemap until username editing ships:
   // auto-generated usernames derive from the email localpart, and the privacy
   // notice promises email addresses are not public.
-  const [{ data: creatures }, { data: brands }, { data: content }] =
+  const [{ data: creatures }, { data: brands }, { data: content }, { data: litters }] =
     await Promise.all([
       supabase.from("creatures").select("slug").limit(1000),
       supabase
@@ -30,6 +30,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .select("id,kind,subtype")
         // NULL-safe: plain `not like` would drop caption-less media posts.
         .or("title.is.null,title.not.like.E2E *")
+        .limit(1000),
+      supabase
+        .from("litters")
+        .select("id")
+        .not("name", "like", "E2E %")
         .limit(1000),
     ]);
 
@@ -52,6 +57,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${BASE_URL}${contentPath(item)}`,
       changeFrequency: "daily" as const,
       priority: item.kind === "listing" ? 0.8 : 0.6,
+    })),
+    ...(litters ?? []).map((l) => ({
+      url: `${BASE_URL}/litters/${l.id}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
     })),
   ];
 }

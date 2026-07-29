@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, signInCached } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -42,16 +42,12 @@ test("owner can restrict posting-as-brand to managers", async ({ page }) => {
     page.getByTestId(`brand-member-${MEMBER_PROFILE_ID}`),
   ).toContainText("Contributor");
 
-  const ownerDb = databaseClient();
-  const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password,
-  });
+  const { db: ownerDb, userId: __uid_ownerDb } = await signInCached(SELLER_EMAIL);
+  const ownerAuth = { data: { user: { id: __uid_ownerDb } }, error: null };
   expect(ownerAuth.error).toBeNull();
   const ownerId = ownerAuth.data.user!.id;
 
-  const memberDb = databaseClient();
-  await memberDb.auth.signInWithPassword({ email: MEMBER_EMAIL, password });
+  const { db: memberDb } = await signInCached(MEMBER_EMAIL);
 
   // Default (unrestricted): the contributor CAN post as the brand.
   const beforeRestrict = await memberDb

@@ -1,4 +1,7 @@
 import { getFeed, type FeedTab } from "@/lib/feed/query";
+
+// The feed is per-viewer and changes on every post; never serve it from the
+// static shell (the production-build E2E run caught stale content here).
 import { getSessionUser } from "@/lib/auth/session";
 import { FeedList } from "@/components/feed/FeedList";
 import { AppHeader } from "@/components/app/AppHeader";
@@ -7,6 +10,8 @@ import { FeedComposerPrompt } from "@/components/feed/FeedComposerPrompt";
 import { UpdatesMomentsRail } from "@/components/feed/UpdatesMomentsRail";
 import { getProfileById } from "@/lib/profiles/queries";
 import { getUnreadCount } from "@/lib/notifications/queries";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage({
   searchParams,

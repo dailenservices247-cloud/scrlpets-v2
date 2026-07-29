@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { SELLER_EMAIL } from "./fixtures";
+import { SELLER_EMAIL, signInCached } from "./fixtures";
 
 // A tiny real MP4 URL is unnecessary — realm/tile rendering keys off the URL
 // extension; playback itself is browser-policy territory, not app logic.
@@ -29,11 +29,8 @@ test("video tiles, the reel realm, and the long-video player", async ({
   page,
 }) => {
   test.setTimeout(120_000);
-  const db = databaseClient();
-  const auth = await db.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password: process.env.E2E_PASSWORD!,
-  });
+  const { db: db, userId: __uid_db } = await signInCached(SELLER_EMAIL);
+  const auth = { data: { user: { id: __uid_db } }, error: null };
   const userId = auth.data.user!.id;
 
   const reelMarker = `E2E realm reel ${Date.now()}`;

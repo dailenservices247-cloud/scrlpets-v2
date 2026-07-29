@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, SELLER_EMAIL, signInCached } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -10,12 +10,7 @@ function databaseClient() {
 }
 
 async function signIn(email: string) {
-  const db = databaseClient();
-  const auth = await db.auth.signInWithPassword({
-    email,
-    password: process.env.E2E_PASSWORD!,
-  });
-  return { db, userId: auth.data.user!.id };
+  return signInCached(email);
 }
 
 async function signInBrowser(page: import("@playwright/test").Page, email: string) {

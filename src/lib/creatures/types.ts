@@ -1,0 +1,69 @@
+/** Creature page phase 2 — shared enums, option lists, and guards.
+ * Mirrors the style of src/lib/brands/types.ts: plain value lists (no
+ * hardcoded English labels) so every component resolves display text through
+ * next-intl at render time.
+ */
+
+export const CREATURE_ROLES = ["pet", "breeding"] as const;
+export type CreatureRole = (typeof CREATURE_ROLES)[number];
+
+export const GENDERS = ["male", "female", "unknown"] as const;
+export type Gender = (typeof GENDERS)[number];
+
+export const GENETIC_TEST_TYPES = [
+  "hip",
+  "elbow",
+  "cardiac",
+  "eye",
+  "patella",
+  "thyroid",
+  "pennhip",
+  "dna_panel",
+  "dna_single",
+  "other",
+] as const;
+export type GeneticTestType = (typeof GENETIC_TEST_TYPES)[number];
+
+export const GENETIC_TEST_RESULTS = [
+  "clear",
+  "carrier",
+  "affected",
+  "normal",
+  "abnormal",
+  "pending",
+] as const;
+export type GeneticTestResult = (typeof GENETIC_TEST_RESULTS)[number];
+
+const ROLE_SET = new Set<string>(CREATURE_ROLES);
+export function isCreatureRole(v: string): v is CreatureRole {
+  return ROLE_SET.has(v);
+}
+
+const GENDER_SET = new Set<string>(GENDERS);
+export function isGender(v: string): v is Gender {
+  return GENDER_SET.has(v);
+}
+
+const TEST_TYPE_SET = new Set<string>(GENETIC_TEST_TYPES);
+export function isGeneticTestType(v: string): v is GeneticTestType {
+  return TEST_TYPE_SET.has(v);
+}
+
+const RESULT_SET = new Set<string>(GENETIC_TEST_RESULTS);
+export function isGeneticTestResult(v: string): v is GeneticTestResult {
+  return RESULT_SET.has(v);
+}
+
+/** Color-coding for the public result badge: green/amber/red per the spec. */
+export type ResultTone = "good" | "warn" | "bad";
+const RESULT_TONES: Record<GeneticTestResult, ResultTone> = {
+  clear: "good",
+  normal: "good",
+  carrier: "warn",
+  pending: "warn",
+  affected: "bad",
+  abnormal: "bad",
+};
+export function resultTone(result: GeneticTestResult): ResultTone {
+  return RESULT_TONES[result];
+}

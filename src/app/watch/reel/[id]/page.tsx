@@ -5,6 +5,9 @@ import { getFeedItemById, getReelQueue } from "@/lib/feed/query";
 import { getFeedSocialContext, getSavedSet } from "@/lib/social/reactions";
 import { getFollowingIds } from "@/lib/social/follows";
 
+export const dynamic = "force-dynamic";
+
+
 // F4 / punch list A4: the reel destination IS the realm.
 export default async function ReelDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

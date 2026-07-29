@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL, signInCached } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -18,11 +18,8 @@ test("animal listings are BLOCKED without verification (the P0)", async () => {
   test.setTimeout(120_000);
   // Uses the MEMBER fixture, which is deliberately NOT a verified seller, so
   // this never disturbs the seeded verified seller other specs rely on.
-  const db = databaseClient();
-  const auth = await db.auth.signInWithPassword({
-    email: MEMBER_EMAIL,
-    password: process.env.E2E_PASSWORD!,
-  });
+  const { db: db, userId: __uid_db } = await signInCached(MEMBER_EMAIL);
+  const auth = { data: { user: { id: __uid_db } }, error: null };
   const userId = auth.data.user!.id;
   expect(userId).toBe(MEMBER_PROFILE_ID);
 
@@ -98,11 +95,8 @@ test("a verified seller with an attested animal CAN list", async () => {
     "needs SUPABASE_SERVICE_ROLE_KEY; identity results are webhook-only by design",
   );
   test.setTimeout(120_000);
-  const db = databaseClient();
-  const auth = await db.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password: process.env.E2E_PASSWORD!,
-  });
+  const { db: db, userId: __uid_db } = await signInCached(SELLER_EMAIL);
+  const auth = { data: { user: { id: __uid_db } }, error: null };
   const userId = auth.data.user!.id;
   const stamp = Date.now();
 
@@ -142,11 +136,8 @@ test("a verified seller with an attested animal CAN list", async () => {
 
 /** Program credentials: reference-only, self-approval impossible. */
 test("program credentials are admin-reviewed and never self-approved", async () => {
-  const db = databaseClient();
-  const auth = await db.auth.signInWithPassword({
-    email: SELLER_EMAIL,
-    password: process.env.E2E_PASSWORD!,
-  });
+  const { db: db, userId: __uid_db } = await signInCached(SELLER_EMAIL);
+  const auth = { data: { user: { id: __uid_db } }, error: null };
   const userId = auth.data.user!.id;
 
   const submitted = await db

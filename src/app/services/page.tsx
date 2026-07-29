@@ -5,6 +5,9 @@ import { AppPage } from "@/components/app/AppPage";
 import { formatPrice } from "@/lib/shop/format";
 import { listServiceCategories, listServices } from "@/lib/services/queries";
 
+export const dynamic = "force-dynamic";
+
+
 export const metadata = {
   title: "Services",
   description: "Grooming, training, boarding, transport and veterinary providers on Scrlpets.",

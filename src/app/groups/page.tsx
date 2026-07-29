@@ -3,6 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { listGroups } from "@/lib/groups/queries";
 
+export const dynamic = "force-dynamic";
+
+
 export const metadata = {
   title: "Groups",
   description: "Breed and species communities on Scrlpets.",

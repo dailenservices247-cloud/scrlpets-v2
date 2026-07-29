@@ -71,14 +71,24 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: "npm run dev",
+    // PRODUCTION BUILD, not `next dev` (switched 2026-07-29): dev-mode
+    // first-compiles of cold routes were the root cause of the recurring
+    // stuck-at-/login timeout class — every route added made it worse, and
+    // the 5th recurrence (Phase B's six new routes) pushed sign-ins past any
+    // sane window at 3 workers. One ~30s build up front beats per-route
+    // compile stalls, and the suite now exercises the artifact that ships.
+    command: "npm run build && npm run start -- -p 3000",
     url: "http://localhost:3000",
+    timeout: 240_000,
     // Fresh server every run: guarantees the dummy PostHog key below is
     // present so the consent test can never pass vacuously, and the suite
     // always runs the committed code instead of a stale dev server.
     reuseExistingServer: false,
     env: {
       ...process.env,
+      // The suite asserts on its own `E2E *` marker content; the production
+      // build would otherwise hide it (see hideFixtures in lib/feed/query).
+      E2E_KEEP_FIXTURES: "1",
       NEXT_PUBLIC_POSTHOG_KEY:
         process.env.NEXT_PUBLIC_POSTHOG_KEY ?? "phc_e2e_dummy_key",
     },

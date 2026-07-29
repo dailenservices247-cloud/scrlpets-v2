@@ -49,6 +49,20 @@ export function hashId(s: string): number {
  * empty and G1 discovery never breaks. Once you follow someone it becomes a real
  * filtered feed. For You = all public content, stable hash shuffle.
  */
+/**
+ * Fixture hiding is a DEPLOYMENT concern, not a build-mode one.
+ *
+ * It used to key off NODE_ENV, which broke the moment the E2E suite moved to a
+ * production build (2026-07-29): the suite's own `E2E *` markers became
+ * invisible to the feed it was asserting on — ten specs failed for doing
+ * exactly what they were written to do. `E2E_KEEP_FIXTURES=1` is set only by
+ * the test server, so real deploys keep hiding fixtures as before.
+ */
+function hideFixtures(): boolean {
+  if (process.env.E2E_KEEP_FIXTURES === "1") return false;
+  return process.env.NODE_ENV === "production";
+}
+
 export async function getFeed(
   tab: FeedTab,
   viewerId?: string | null,
@@ -59,7 +73,7 @@ export async function getFeed(
     .from("unified_feed")
     .select("*")
     .order("created_at", { ascending: false });
-  if (process.env.NODE_ENV === "production") {
+  if (hideFixtures()) {
     // NULL-safe: `not like` alone is NULL-eliminating in SQL and would drop
     // caption-less media posts (NULL title) from the production feed.
     query = query.or("title.is.null,title.not.like.E2E *");
@@ -85,9 +99,7 @@ export async function getFeed(
       query = query.in("author_id", [...followed, viewerId]); // + your own posts
     }
   }
-  const { data, error } = await query.limit(
-    process.env.NODE_ENV === "production" ? 50 : 200,
-  );
+  const { data, error } = await query.limit(hideFixtures() ? 50 : 200);
   if (error) throw error;
   const items = (data as Row[]).map(rowToFeedItem);
   if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
