@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, SELLER_EMAIL, THIRD_EMAIL } from "./fixtures";
 
-const BUYER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
+const BUYER_EMAIL = MEMBER_EMAIL;
 
 function databaseClient() {
   return createClient(
@@ -26,7 +27,7 @@ async function signIn(email: string) {
  */
 test("money cannot move while payments are disabled", async () => {
   test.setTimeout(120_000);
-  const seller = await signIn(process.env.E2E_EMAIL!);
+  const seller = await signIn(SELLER_EMAIL);
   const stamp = Date.now();
 
   const productTitle = `E2E commerce product ${stamp}`;
@@ -79,7 +80,7 @@ test("money cannot move while payments are disabled", async () => {
 /** D13 — applications: the seller decides, and the buyer cannot self-accept. */
 test("buyer applications are decided by the seller only", async () => {
   test.setTimeout(120_000);
-  const seller = await signIn(process.env.E2E_EMAIL!);
+  const seller = await signIn(SELLER_EMAIL);
   const stamp = Date.now();
 
   const listingTitle = `E2E application listing ${stamp}`;
@@ -142,7 +143,7 @@ test("buyer applications are decided by the seller only", async () => {
   expect(after.data!.decided_by).toBe(seller.userId);
 
   // Applications are private to the two parties.
-  const third = await signIn("scrlpets-rbac-third@scrlpets.com").catch(() => null);
+  const third = await signIn(THIRD_EMAIL).catch(() => null);
   if (third) {
     const seen = await third.db
       .from("buyer_applications")
@@ -158,7 +159,7 @@ test("buyer applications are decided by the seller only", async () => {
 /** D9 — the shop shows products and never animals. */
 test("shop lists products and excludes animal listings", async ({ page }) => {
   test.setTimeout(120_000);
-  const seller = await signIn(process.env.E2E_EMAIL!);
+  const seller = await signIn(SELLER_EMAIL);
   const stamp = Date.now();
 
   const productTitle = `E2E shop product ${stamp}`;

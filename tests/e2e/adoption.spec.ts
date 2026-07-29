@@ -1,7 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
+import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -67,7 +66,7 @@ test("adoption cannot be used to dodge the verification gate", async () => {
 /** An adoption must be about an animal — it cannot be a product in disguise. */
 test("a product cannot be listed as an adoption", async () => {
   test.setTimeout(120_000);
-  const { db, userId } = await signIn(process.env.E2E_EMAIL!);
+  const { db, userId } = await signIn(SELLER_EMAIL);
   const attempt = await db.from("listings").insert({
     seller_id: userId,
     title: `E2E product-as-adoption ${Date.now()}`,
@@ -89,7 +88,7 @@ test("fee model is seller-paid percentage with an unset rate", async () => {
 
   // The rate is not client-writable, same as the payments switch.
   await db.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const tamper = await db

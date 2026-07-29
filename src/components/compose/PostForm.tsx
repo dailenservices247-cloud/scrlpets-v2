@@ -10,12 +10,14 @@ import { isVideoUrl } from "@/lib/media/media-kind";
 import { CreaturePicker } from "./CreaturePicker";
 import { Button } from "@/components/ui/button";
 import { capture } from "@/lib/analytics";
+import type { MyGroup } from "@/lib/groups/queries";
 
 type PostFormProps =
   | {
       userId: string;
       creatures: { id: string; name: string }[];
       attribution: ComposeAttribution;
+      groups?: MyGroup[];
       disabled?: boolean;
       edit?: never;
     }
@@ -29,6 +31,7 @@ type PostFormProps =
       };
       creatures?: never;
       attribution?: never;
+      groups?: never;
       disabled?: never;
     };
 
@@ -37,6 +40,7 @@ export function PostForm(props: PostFormProps) {
   const edit = props.edit;
   const creatures = props.creatures ?? [];
   const attribution = props.attribution;
+  const groups = props.groups ?? [];
   const disabled = props.disabled ?? false;
   const isEditing = Boolean(edit);
   const t = useTranslations("compose");
@@ -47,8 +51,14 @@ export function PostForm(props: PostFormProps) {
   // F4: a video upload turns the post into a reel or long video.
   const [videoKind, setVideoKind] = useState<"reel" | "long_video">("reel");
   const [creatureId, setCreatureId] = useState<string | null>(null);
+  const [groupId, setGroupId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Group posts are person-voice only, matching the in-group composer; group_id
+  // is frozen after publish (RESTRICTIVE update policy), so editing never shows it.
+  const groupChoiceVisible =
+    !isEditing && groups.length > 0 && attribution?.postingAsType === "person";
+  const chosenGroup = groupChoiceVisible ? groups.find((g) => g.id === groupId) ?? null : null;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -63,6 +73,7 @@ export function PostForm(props: PostFormProps) {
       res = await editPost(edit.id, fd);
     } else {
       if (creatureId) fd.set("creatureId", creatureId);
+      if (chosenGroup) fd.set("groupId", chosenGroup.id);
       applyAttribution(fd, attribution!);
       res = await createPost(fd);
     }
@@ -75,8 +86,13 @@ export function PostForm(props: PostFormProps) {
       capture("content_edited", { content_type: "post", has_media: !!mediaUrl });
       router.push(edit.returnPath);
     } else {
-      capture("post_created", { has_media: !!mediaUrl, has_creature: !!creatureId });
-      router.push("/");
+      capture("post_created", {
+        has_media: !!mediaUrl,
+        has_creature: !!creatureId,
+        in_group: !!chosenGroup,
+      });
+      // A group post lives on the group timeline — land where it landed.
+      router.push(chosenGroup ? `/groups/${chosenGroup.slug}` : "/");
     }
     router.refresh();
   }
@@ -126,6 +142,24 @@ export function PostForm(props: PostFormProps) {
       )}
       {!isEditing && (
         <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
+      )}
+      {groupChoiceVisible && (
+        <label className="flex flex-col gap-1.5 text-sm font-medium">
+          {t("groupLabel")}
+          <select
+            value={groupId ?? ""}
+            onChange={(e) => setGroupId(e.target.value || null)}
+            data-testid="post-group-select"
+            className="min-h-11 rounded border border-input bg-transparent p-2"
+          >
+            <option value="">{t("groupNone")}</option>
+            {groups.map((g) => (
+              <option key={g.id} value={g.id}>
+                {g.name}
+              </option>
+            ))}
+          </select>
+        </label>
       )}
       {err && <p className="text-destructive text-sm">{err}</p>}
       <Button type="submit" disabled={busy || disabled} data-testid="post-submit">

@@ -22,7 +22,9 @@ import { RosterPanel } from "@/components/brand/RosterPanel";
 import { SellerListingsPanel } from "@/components/brand/SellerListingsPanel";
 import { ReadinessPanel } from "@/components/brand/ReadinessPanel";
 import { BreederStatsPanel } from "@/components/brand/BreederStatsPanel";
-import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
+import { ServicesManagerPanel } from "@/components/brand/ServicesManagerPanel";
+import { listMyServices } from "@/lib/services/queries";
+import { BRAND_TYPE_OPTIONS, canManageBrandContent } from "@/lib/brands/types";
 
 const quickActions = [
   { label: "Post update", icon: PenSquare, href: "/compose" },
@@ -46,10 +48,15 @@ export default async function BrandOSPage({
 
   // R16: the operating modules are scoped to the OPERATOR, not the brand —
   // animals belong to a profile. A solo breeder with no brand still needs them.
-  const [roster, sellerListings] = await Promise.all([
+  const [roster, sellerListings, myServices] = await Promise.all([
     getRoster(user.id),
     getSellerListings(user.id),
+    listMyServices(user.id),
   ]);
+  // Brand attach on a new service needs manager rights (RLS is_brand_manager).
+  const attachableBrands = brands
+    .filter((b) => canManageBrandContent(b.role))
+    .map((b) => ({ id: b.id, name: b.name }));
   const [readiness, stats] = await Promise.all([
     getReadiness(user.id, roster, sellerListings),
     getBreederStats(user.id, roster, sellerListings),
@@ -89,6 +96,9 @@ export default async function BrandOSPage({
         </section>
         <section className="px-3 py-3">
           <SellerListingsPanel listings={sellerListings} />
+        </section>
+        <section className="px-3 py-3">
+          <ServicesManagerPanel services={myServices} brands={[]} />
         </section>
       </AppPage>
     );
@@ -197,6 +207,10 @@ export default async function BrandOSPage({
 
       <section className="px-3 py-3">
         <SellerListingsPanel listings={sellerListings} />
+      </section>
+
+      <section className="px-3 py-3">
+        <ServicesManagerPanel services={myServices} brands={attachableBrands} />
       </section>
 
       <section className="px-3 py-3">

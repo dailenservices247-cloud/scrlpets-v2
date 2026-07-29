@@ -17,6 +17,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { PostForm } from "./PostForm";
 import { ListingForm } from "./ListingForm";
 import type { BrandAccess } from "@/lib/brands/queries";
+import type { MyGroup } from "@/lib/groups/queries";
 import { cn } from "@/lib/utils";
 
 export type ComposeAttribution = {
@@ -77,12 +78,14 @@ export function ComposerTabs({
   creatures,
   brands,
   subjects,
+  groups = [],
 }: {
   userId: string;
   actorName: string;
   creatures: { id: string; name: string }[];
   brands: BrandAccess[];
   subjects: ComposerSubjects;
+  groups?: MyGroup[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -180,7 +183,7 @@ export function ComposerTabs({
             Choose a brand in options before publishing as a brand.
           </p>
         )}
-        {tab === "post" && <PostForm userId={userId} creatures={creatures} attribution={attribution} disabled={!brandReady} />}
+        {tab === "post" && <PostForm userId={userId} creatures={creatures} attribution={attribution} groups={groups} disabled={!brandReady} />}
         {tab === "listing" && <ListingForm userId={userId} creatures={creatures} attribution={attribution} disabled={!brandReady} />}
         {tab !== "post" && tab !== "listing" && (
           <PlannedModePanel mode={modeLabels[tab]} postingLabel={postingLabel} subjectLabel={subjectLabel} />

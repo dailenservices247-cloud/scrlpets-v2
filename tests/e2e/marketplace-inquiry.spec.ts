@@ -1,9 +1,10 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL } from "./fixtures";
 
-const BUYER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
-const BUYER_PROFILE_ID = "8f62eba7-aa0a-4603-8134-5e37ca74ab23";
+const BUYER_EMAIL = MEMBER_EMAIL;
+const BUYER_PROFILE_ID = MEMBER_PROFILE_ID;
 
 function databaseClient() {
   return createClient(
@@ -35,7 +36,7 @@ test("listing inquiry preserves evidence and stays inside its participants", asy
 
   const sellerDb = databaseClient();
   const sellerAuth = await sellerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   expect(sellerAuth.error).toBeNull();

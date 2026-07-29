@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
 
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
 const BANNER_URL = "https://example.com/e2e-brand-banner.png";
 
 function databaseClient() {
@@ -32,7 +32,7 @@ test("brand banner renders and a listing gateways into the brand's world", async
 
   const ownerDb = databaseClient();
   const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   const ownerId = ownerAuth.data.user!.id;
@@ -40,7 +40,7 @@ test("brand banner renders and a listing gateways into the brand's world", async
   await memberDb.auth.signInWithPassword({ email: MEMBER_EMAIL, password });
 
   // Owner creates a brand through the UI (slug derives from the name).
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await page.goto("/brands/new");
   await page.getByTestId("brand-name").fill(brandName);
   await page.getByTestId("brand-create-submit").click();

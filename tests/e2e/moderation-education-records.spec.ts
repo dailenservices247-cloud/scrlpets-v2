@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
 
 /**
  * Opt-in only. This project's Supabase instance serves production as well as
@@ -19,7 +20,7 @@ function databaseClient() {
 async function signIn() {
   const db = databaseClient();
   const auth = await db.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   return { db, userId: auth.data.user!.id };
@@ -114,7 +115,7 @@ test("animal records are owner-declared and vet attestation cannot be self-writt
   // A different owner cannot write records for an animal that is not theirs.
   const other = databaseClient();
   await other.auth.signInWithPassword({
-    email: "scrlpets-rbac-e2e@scrlpets.com",
+    email: MEMBER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const notOwner = await other

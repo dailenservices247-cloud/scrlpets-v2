@@ -1,7 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, SELLER_EMAIL, THIRD_EMAIL } from "./fixtures";
 
-const BUYER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
+const BUYER_EMAIL = MEMBER_EMAIL;
 
 function databaseClient() {
   return createClient(
@@ -27,7 +28,7 @@ async function signIn(email: string) {
  */
 test("a review requires a handover both parties confirmed", async () => {
   test.setTimeout(120_000);
-  const seller = await signIn(process.env.E2E_EMAIL!);
+  const seller = await signIn(SELLER_EMAIL);
   const buyer = await signIn(BUYER_EMAIL);
   const stamp = Date.now();
 
@@ -125,7 +126,7 @@ test("a review requires a handover both parties confirmed", async () => {
 /** Nobody can confirm a handover on the other party's behalf. */
 test("handover confirmation cannot be forged by an outsider", async () => {
   test.setTimeout(120_000);
-  const seller = await signIn(process.env.E2E_EMAIL!);
+  const seller = await signIn(SELLER_EMAIL);
   const buyer = await signIn(BUYER_EMAIL);
   const stamp = Date.now();
 
@@ -147,7 +148,7 @@ test("handover confirmation cannot be forged by an outsider", async () => {
 
   const outsider = databaseClient();
   await outsider.auth.signInWithPassword({
-    email: "scrlpets-rbac-third@scrlpets.com",
+    email: THIRD_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const forged = await outsider.rpc("confirm_handover", { target_application: applicationId });

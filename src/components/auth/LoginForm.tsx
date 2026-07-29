@@ -14,15 +14,19 @@ export function LoginForm({
   nextPath,
   initialError,
   notice,
+  initialMode = "signin",
+  referralCode = null,
 }: {
   nextPath: string;
   initialError?: AuthErrorKey | null;
   notice?: AuthNoticeKey | null;
+  initialMode?: Mode;
+  referralCode?: string | null;
 }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const supabase = createClient();
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<AuthErrorKey | null>(initialError ?? null);
@@ -34,6 +38,9 @@ export function LoginForm({
   function callbackUrl() {
     const callback = new URL("/auth/callback", location.origin);
     callback.searchParams.set("next", nextPath);
+    // OAuth cannot carry signup metadata, so the invite code rides the
+    // callback URL; the callback route claims it once a session exists.
+    if (referralCode) callback.searchParams.set("ref", referralCode);
     return callback.toString();
   }
 
@@ -46,7 +53,13 @@ export function LoginForm({
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: callbackUrl() },
+        options: {
+          emailRedirectTo: callbackUrl(),
+          // The confirmation link may be opened on another device, where the
+          // ref query param of THIS page no longer exists. Metadata survives
+          // the hop; the callback claims it and clears the key.
+          ...(referralCode ? { data: { referral_code: referralCode } } : {}),
+        },
       });
       setBusy(false);
       if (signUpError) {
@@ -63,6 +76,12 @@ export function LoginForm({
       if (!data.session) {
         setAwaitingVerification(true);
         return;
+      }
+      // Confirmation off (dev/E2E): the session exists right here and no
+      // callback will ever run, so this is the only chance to claim. Best
+      // effort — every real refusal lives in the definer and stays silent.
+      if (referralCode) {
+        await supabase.rpc("claim_referral", { code: referralCode });
       }
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({

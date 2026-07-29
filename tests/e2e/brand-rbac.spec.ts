@@ -1,12 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
-
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
-const MEMBER_PROFILE_ID = "8f62eba7-aa0a-4603-8134-5e37ca74ab23";
-const MEMBER_USERNAME = "scrlpets-rbac-e2e_8f62";
-const THIRD_PROFILE_ID = "2138dc38-36de-41b0-863e-34028cbd301a";
-const THIRD_USERNAME = "scrlpets-rbac-third_2138";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, THIRD_PROFILE_ID, THIRD_USERNAME } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -57,7 +52,7 @@ test("owner, admin, and contributor permissions stay inside the brand boundary",
   const ownerPersonalPostBody = `E2E owner personal post ${Date.now()}`;
   const ownerBrandListingTitle = `E2E owner brand listing ${Date.now()}`;
 
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await page.goto("/brands/new");
   await page.getByTestId("brand-name").fill(brandName);
   await page.getByTestId("brand-create-submit").click();
@@ -81,7 +76,7 @@ test("owner, admin, and contributor permissions stay inside the brand boundary",
 
   const ownerDb = databaseClient();
   const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   expect(ownerAuth.error).toBeNull();
@@ -200,7 +195,7 @@ test("owner, admin, and contributor permissions stay inside the brand boundary",
   await page.goto(`/post/${ownerBrandPost!.id}`);
   await expect(page.getByTestId("owner-menu")).toHaveCount(0);
 
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await page.goto(`/brand-os?brand=${brandId}`);
   await memberRow.getByRole("button", { name: "Make Admin" }).click();
   await expect(page.getByRole("status")).toHaveText("Role updated.");

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { SELLER_EMAIL } from "./fixtures";
 
 async function expectNoSerious(page: Page) {
   const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze();
@@ -25,7 +26,7 @@ test("login has no serious/critical a11y violations", async ({ page }) => {
 
 test("composer has no serious/critical a11y violations", async ({ page }) => {
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await page.waitForURL("http://localhost:3000/");
@@ -54,7 +55,7 @@ test("creature page has no serious/critical a11y violations", async ({ page }) =
 test("inbox has no serious/critical a11y violations", async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await page.waitForURL("http://localhost:3000/");

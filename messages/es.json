@@ -117,7 +117,9 @@
     "descriptionPlaceholder": "Descripción (opcional)",
     "categoryPlaceholder": "Categoría, p. ej. Aseo (opcional)",
     "adoptionLabel": "Publicar para adopción o realojamiento",
-    "adoptionHelp": "Mismas verificaciones que una venta. Deja el precio vacío si no hay cuota."
+    "adoptionHelp": "Mismas verificaciones que una venta. Deja el precio vacío si no hay cuota.",
+    "groupLabel": "Compartir en un grupo",
+    "groupNone": "Sin grupo — publicar en tu feed"
   },
   "content": {
     "edit": "Editar",
@@ -624,6 +626,32 @@
       "transport": "Transporte",
       "veterinary": "Veterinaria",
       "other": "Otro"
+    },
+    "manage": {
+      "eyebrow": "Herramientas de proveedor",
+      "title": "Tus servicios",
+      "browseLink": "Página pública",
+      "empty": "Aún no ofreces servicios. Un servicio es cómo el trabajo de peluquería, entrenamiento, hospedaje, transporte o veterinaria aparece en la página pública de proveedores.",
+      "offer": "Ofrecer un servicio",
+      "name": "Nombre del servicio",
+      "category": "Categoría",
+      "noCategory": "Sin categoría",
+      "price": "Precio (USD)",
+      "priceHint": "Déjalo vacío para “contactar para cotizar”",
+      "area": "Zona de servicio",
+      "description": "Descripción",
+      "contactNote": "Cómo contactarte",
+      "brand": "Ofrecer como",
+      "personal": "Personal — sin marca",
+      "create": "Publicar servicio",
+      "save": "Guardar cambios",
+      "cancel": "Cancelar",
+      "edit": "Editar",
+      "retire": "Retirar",
+      "reactivate": "Reactivar",
+      "activeChip": "Activo",
+      "retired": "Retirado",
+      "error": "No se pudo guardar. Revisa los campos e inténtalo de nuevo."
     }
   },
   "rewards": {

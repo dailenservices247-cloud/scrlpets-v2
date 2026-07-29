@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { SELLER_EMAIL, SELLER_USERNAME } from "./fixtures";
 
 test("guest views a profile: tabs, posts, pets → creature page", async ({ page }) => {
   await page.goto("/u/breeder_jane");
@@ -34,14 +35,15 @@ test("feed creature link navigates to creature page", async ({ page }) => {
 test("profile edit roundtrip (bio appears on About)", async ({ page }) => {
   const marker = `Trusted breeder since 2020 — ${Date.now()}`;
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
   await page.goto("/settings/profile");
   await page.getByTestId("edit-bio").fill(marker);
   await page.getByTestId("edit-save").click();
-  await expect(page).toHaveURL(/\/u\/breeder_jane\?tab=about/);
+  // Own-profile redirect: each worker signs in as its own seller fixture.
+  await expect(page).toHaveURL(new RegExp(`/u/${SELLER_USERNAME}\\?tab=about`));
   await expect(page.getByTestId("about-panel").getByText(marker)).toBeVisible();
 });
 

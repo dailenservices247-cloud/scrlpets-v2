@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { SELLER_EMAIL } from "./fixtures";
 
 test("signed-out user sees the public feed + sign-in CTA (G1-A)", async ({ page }) => {
   await page.goto("/");
@@ -24,7 +25,7 @@ test("home header scrolls away while bottom nav stays fixed", async ({ page }) =
 
 test("email sign-in lands on the feed", async ({ page }) => {
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
@@ -129,4 +130,15 @@ test("optional analytics waits for a guest decision", async ({ page }) => {
       ),
     )
     .toBe("declined");
+});
+
+test("a referral link lands on the signup tab with the invite preserved", async ({ page }) => {
+  await page.goto("/signup?ref=AB12CD34");
+  // /signup preserves the code across its redirect, and the form honors both
+  // params instead of silently opening the sign-in tab without the invite.
+  await expect(page).toHaveURL(/\/login\?mode=signup&ref=AB12CD34/);
+  await expect(page.getByTestId("auth-mode-signup")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 });

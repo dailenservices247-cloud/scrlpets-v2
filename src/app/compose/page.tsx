@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { getMyCreatures } from "@/lib/compose/actions";
 import { getMyBrands } from "@/lib/brands/queries";
+import { listMyGroups } from "@/lib/groups/queries";
 import { getMySubjects } from "@/lib/subjects/queries";
 import { AppPage } from "@/components/app/AppPage";
 import { ComposerTabs } from "@/components/compose/ComposerTabs";
@@ -11,10 +12,11 @@ import { getProfileById } from "@/lib/profiles/queries";
 export default async function ComposePage() {
   const t = await getTranslations("compose");
   const user = (await getSessionUser())!; // middleware guarantees auth on /compose
-  const [creatures, profile, brands] = await Promise.all([
+  const [creatures, profile, brands, groups] = await Promise.all([
     getMyCreatures(),
     getProfileById(user.id),
     getMyBrands(user.id),
+    listMyGroups(user.id),
   ]);
   const subjects = await getMySubjects(
     user.id,
@@ -39,7 +41,7 @@ export default async function ComposePage() {
           </div>
         </div>
       </section>
-      <ComposerTabs userId={user.id} actorName={actorName} creatures={creatures} brands={brands} subjects={subjects} />
+      <ComposerTabs userId={user.id} actorName={actorName} creatures={creatures} brands={brands} subjects={subjects} groups={groups} />
     </AppPage>
   );
 }

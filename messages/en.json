@@ -117,7 +117,9 @@
     "descriptionPlaceholder": "Description (optional)",
     "categoryPlaceholder": "Category, e.g. Grooming (optional)",
     "adoptionLabel": "List for adoption or rehoming",
-    "adoptionHelp": "Same verification checks as a sale. Leave the price blank if there is no adoption fee."
+    "adoptionHelp": "Same verification checks as a sale. Leave the price blank if there is no adoption fee.",
+    "groupLabel": "Share to a group",
+    "groupNone": "No group — post to your feed"
   },
   "content": {
     "edit": "Edit",
@@ -624,6 +626,32 @@
       "transport": "Transport",
       "veterinary": "Veterinary",
       "other": "Other"
+    },
+    "manage": {
+      "eyebrow": "Provider tools",
+      "title": "Your services",
+      "browseLink": "Public page",
+      "empty": "You haven't offered any services yet. A service is how grooming, training, boarding, transport or veterinary work shows up on the public providers page.",
+      "offer": "Offer a service",
+      "name": "Service name",
+      "category": "Category",
+      "noCategory": "No category",
+      "price": "Price (USD)",
+      "priceHint": "Leave empty for “contact for a quote”",
+      "area": "Service area",
+      "description": "Description",
+      "contactNote": "How to reach you",
+      "brand": "Offer as",
+      "personal": "Personal — no brand",
+      "create": "Publish service",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "retire": "Retire",
+      "reactivate": "Reactivate",
+      "activeChip": "Live",
+      "retired": "Retired",
+      "error": "Could not save. Check the fields and try again."
     }
   },
   "rewards": {

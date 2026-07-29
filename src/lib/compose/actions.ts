@@ -77,6 +77,13 @@ export async function createPost(formData: FormData): Promise<ActionResult> {
   if (!v.ok) return { ok: false, error: v.error };
   const attribution = await resolveAttribution(supabase, user.id, formData);
   if (!attribution) return { ok: false, error: "brand_denied" };
+  // Group posts are person-voice only (matches the in-group composer); a brand
+  // publishing into a breed community is a moderation surface that stays
+  // banked. Membership itself is enforced by the RESTRICTIVE RLS policy.
+  const groupId =
+    attribution.posting_as_type === "person"
+      ? (formData.get("groupId") as string) || null
+      : null;
   // F4: a video upload publishes as a reel or long video; anything else is a post.
   const requestedType = String(formData.get("contentType") ?? "post");
   const contentType =
@@ -89,6 +96,7 @@ export async function createPost(formData: FormData): Promise<ActionResult> {
     body: body.trim() || null,
     media_url: mediaUrl,
     tagged_creature_id: creatureId,
+    group_id: groupId,
     ...attribution,
   });
   if (error) return { ok: false, error: error.message };

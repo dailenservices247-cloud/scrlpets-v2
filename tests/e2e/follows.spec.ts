@@ -1,10 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL } from "./fixtures";
 
 // Seeded fixture users (see brand-rbac.spec.ts).
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
-const MEMBER_PROFILE_ID = "8f62eba7-aa0a-4603-8134-5e37ca74ab23";
-const MEMBER_USERNAME = "scrlpets-rbac-e2e_8f62";
 
 function databaseClient() {
   return createClient(
@@ -29,7 +27,7 @@ test("follow round-trip, counts, and self-follow guard", async ({ page }) => {
   // The DB refuses a self-follow (CHECK constraint), regardless of the app.
   const ownerDb = databaseClient();
   const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   expect(ownerAuth.error).toBeNull();
@@ -48,7 +46,7 @@ test("follow round-trip, counts, and self-follow guard", async ({ page }) => {
     .eq("following_id", MEMBER_PROFILE_ID);
 
   // Follow the member from their profile, then verify the edge + the button state.
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await page.goto(`/u/${MEMBER_USERNAME}`);
   const followButton = page.getByTestId("follow-button");
   await expect(followButton).toHaveText("Follow");

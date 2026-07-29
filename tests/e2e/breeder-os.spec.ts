@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -33,7 +34,7 @@ async function signInBrowser(page: import("@playwright/test").Page, email: strin
  */
 test("brand-os shows operating modules and no purchasable trust score", async ({ page }) => {
   test.setTimeout(120_000);
-  await signInBrowser(page, process.env.E2E_EMAIL!);
+  await signInBrowser(page, SELLER_EMAIL);
   await page.goto("/brand-os");
 
   await expect(page.getByTestId("readiness-panel")).toBeVisible({ timeout: 20_000 });
@@ -56,7 +57,7 @@ test("brand-os shows operating modules and no purchasable trust score", async ({
 /** Availability is seller-controlled, and only by the actual seller. */
 test("listing availability is controlled by its seller only", async () => {
   test.setTimeout(120_000);
-  const seller = await signIn(process.env.E2E_EMAIL!);
+  const seller = await signIn(SELLER_EMAIL);
   const stamp = Date.now();
 
   const listing = await seller.db
@@ -75,7 +76,7 @@ test("listing availability is controlled by its seller only", async () => {
   expect(sold.count).toBe(1);
 
   // A different signed-in member cannot flip somebody else's listing back.
-  const other = await signIn("scrlpets-rbac-e2e@scrlpets.com");
+  const other = await signIn(MEMBER_EMAIL);
   const hijack = await other.db
     .from("listings")
     .update({ availability: "available" }, { count: "exact" })
@@ -95,14 +96,14 @@ test("listing availability is controlled by its seller only", async () => {
 /** The stats panel counts real rows — it never invents a number. */
 test("breeder stats match the operator's actual records", async ({ page }) => {
   test.setTimeout(120_000);
-  const seller = await signIn(process.env.E2E_EMAIL!);
+  const seller = await signIn(SELLER_EMAIL);
   const { count: listingCount } = await seller.db
     .from("listings")
     .select("id", { count: "exact", head: true })
     .eq("seller_id", seller.userId)
     .is("deleted_at", null);
 
-  await signInBrowser(page, process.env.E2E_EMAIL!);
+  await signInBrowser(page, SELLER_EMAIL);
   await page.goto("/brand-os");
   await expect(page.getByTestId("stat-listings")).toBeVisible({ timeout: 20_000 });
   // The panel caps its query at 100; compare against the same ceiling.

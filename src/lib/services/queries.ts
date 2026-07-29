@@ -78,6 +78,55 @@ export async function listServices(category?: string): Promise<ProviderService[]
   }));
 }
 
+export type MyService = {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string | null;
+  priceCents: number | null;
+  area: string | null;
+  contactNote: string | null;
+  active: boolean;
+  brand: { id: string; name: string } | null;
+};
+
+/**
+ * Brand OS manager: every service the operator OWNS, active or retired.
+ * Owner-scoped, not brand-scoped (R16) — edit rights follow ownership, and a
+ * solo provider with no brand needs this list too.
+ */
+export async function listMyServices(userId: string): Promise<MyService[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("services")
+    .select("id,name,description,category,price_cents,area,contact_note,active,brands(id,name)")
+    .eq("owner_id", userId)
+    .order("created_at", { ascending: false });
+  return (
+    (data ?? []) as unknown as {
+      id: string;
+      name: string;
+      description: string | null;
+      category: string | null;
+      price_cents: number | null;
+      area: string | null;
+      contact_note: string | null;
+      active: boolean;
+      brands: { id: string; name: string } | null;
+    }[]
+  ).map((r) => ({
+    id: r.id,
+    name: r.name,
+    description: r.description,
+    category: r.category,
+    priceCents: r.price_cents,
+    area: r.area,
+    contactNote: r.contact_note,
+    active: r.active,
+    brand: r.brands ?? null,
+  }));
+}
+
 export async function listServiceCategories(): Promise<string[]> {
   const supabase = await createClient();
   const { data } = await supabase

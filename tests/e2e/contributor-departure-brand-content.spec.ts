@@ -1,10 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL } from "./fixtures";
 
 // Reuses the seeded RBAC fixture users (see brand-rbac.spec.ts).
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
-const MEMBER_PROFILE_ID = "8f62eba7-aa0a-4603-8134-5e37ca74ab23";
-const MEMBER_USERNAME = "scrlpets-rbac-e2e_8f62";
 
 function databaseClient() {
   return createClient(
@@ -37,7 +35,7 @@ test("brand owner controls a departed contributor's brand content, audited", asy
   const memberPersonalPostBody = `E2E departed member personal post ${Date.now()}`;
 
   // Owner creates a brand and adds MEMBER as a contributor.
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await page.goto("/brands/new");
   await page.getByTestId("brand-name").fill(brandName);
   await page.getByTestId("brand-create-submit").click();
@@ -53,7 +51,7 @@ test("brand owner controls a departed contributor's brand content, audited", asy
 
   const ownerDb = databaseClient();
   const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   expect(ownerAuth.error).toBeNull();

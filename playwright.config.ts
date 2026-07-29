@@ -10,6 +10,12 @@ export default defineConfig({
   // multi-step tests exceed the 30s default under full-suite load. Individual
   // expect timeouts still fail fast on real defects.
   timeout: 90_000,
+  // Playwright's 5s expect default predates worker parallelism. Three workers
+  // share one `next dev` server and first-compiles of route bundles regularly
+  // hold a navigation past 5s — that exact flake killed a worker, and the
+  // replacement worker cascade is documented in tests/e2e/fixtures.ts. 15s
+  // still fails fast on real defects; per-assertion overrides remain.
+  expect: { timeout: 15_000 },
   // File-level parallelism, NOT test-level. Tests share one real dev DB and the
   // same fixture accounts, so the races we care about are between tests that
   // mutate and read the same seed row — and those all live inside one file
@@ -36,16 +42,16 @@ export default defineConfig({
   // if its own tests must fail-fast as a chain. Dropping back to workers:1 is
   // the last resort, not the first.
   fullyParallel: false,
-  // REVERTED 2026-07-28: workers: 3 with file-level parallelism failed the full
-  // suite — 6 specs stuck at /login. The data-race analysis was sound, but it
-  // missed the real constraint: EVERY spec file signs in as the same two or
-  // three fixture accounts, so concurrent workers collide on Supabase auth
-  // (rate limiting / concurrent session issuance), not on table rows. All 9
-  // auth specs pass at workers: 1.
+  // RE-ENABLED 2026-07-28 (second attempt): the first try at workers: 3 failed
+  // with 6 specs stuck at /login because every file signed in as the same two
+  // or three fixture accounts — concurrent workers collided on Supabase auth,
+  // not on table rows. tests/e2e/fixtures.ts now maps each worker index to its
+  // own full account set (seeded by supabase-dev/seed-e2e-worker-fixtures.sql),
+  // so an account is only ever active on one worker at a time.
   //
-  // Parallelism needs per-worker fixture accounts (e.g. e2e-w0@, e2e-w1@ keyed
-  // off TEST_WORKER_INDEX), which is real work rather than a config change.
-  workers: 1,
+  // Raising this above 3 requires seeding another account set FIRST — worker
+  // indexes beyond the seeded range would sign in as accounts that don't exist.
+  workers: 3,
   use: {
     baseURL: "http://localhost:3000",
     // Mobile-first is the primary form factor; the desktop web shell (F7) hides

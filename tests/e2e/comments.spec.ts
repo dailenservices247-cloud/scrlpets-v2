@@ -1,8 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
-const MEMBER_PROFILE_ID = "8f62eba7-aa0a-4603-8134-5e37ca74ab23";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -28,7 +26,7 @@ test("comment, reply, edit, soft-delete tombstone, permissions, block-hide", asy
 
   const ownerDb = databaseClient();
   const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   const ownerId = ownerAuth.data.user!.id;
@@ -47,7 +45,7 @@ test("comment, reply, edit, soft-delete tombstone, permissions, block-hide", asy
   const postId = post.data!.id;
 
   // Owner comments; a reply is added; owner edits the root.
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await page.goto(`/post/${postId}`);
   await page.getByTestId("comment-input").fill("E2E first comment");
   await page.getByTestId("comment-submit").click();
@@ -127,7 +125,7 @@ test("inline feed commenting and comment reactions", async ({ page }) => {
   const password = process.env.E2E_PASSWORD!;
   const ownerDb = databaseClient();
   const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   const ownerId = ownerAuth.data.user!.id;
@@ -139,7 +137,7 @@ test("inline feed commenting and comment reactions", async ({ page }) => {
     .single();
   const postId = post.data!.id;
 
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   const card = page.getByTestId("tile-post").filter({ hasText: marker });
   await expect(card).toBeVisible({ timeout: 15_000 });
 

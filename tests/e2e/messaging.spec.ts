@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { SELLER_EMAIL } from "./fixtures";
 
 // Cross-user realtime delivery verified manually (two sessions); these cover
 // gating, thread creation, send, and persistence with the single E2E account.
@@ -11,7 +12,7 @@ test("signed-out /messages redirects to login", async ({ page }) => {
 test.describe("signed in", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/login");
-    await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+    await page.getByLabel("Email address").fill(SELLER_EMAIL);
     await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
     await page.getByTestId("auth-submit").click();
     await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });

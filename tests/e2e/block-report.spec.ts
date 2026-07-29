@@ -1,9 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
-const MEMBER_PROFILE_ID = "8f62eba7-aa0a-4603-8134-5e37ca74ab23";
-const MEMBER_USERNAME = "scrlpets-rbac-e2e_8f62";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -29,7 +26,7 @@ test("block severs follows, hides feed, stops DMs; report is append-only", async
 
   const ownerDb = databaseClient();
   const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   expect(ownerAuth.error).toBeNull();
@@ -63,7 +60,7 @@ test("block severs follows, hides feed, stops DMs; report is append-only", async
     .single();
   expect(memberPost.error).toBeNull();
 
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await page.goto("/?tab=for_you");
   await expect(page.getByText(marker)).toBeVisible();
 

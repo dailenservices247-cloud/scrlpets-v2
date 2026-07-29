@@ -1,8 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
-const MEMBER_PROFILE_ID = "8f62eba7-aa0a-4603-8134-5e37ca74ab23";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -40,7 +38,7 @@ test("notifications arrive from real events and stay private", async ({ page }) 
   const password = process.env.E2E_PASSWORD!;
   const ownerDb = databaseClient();
   const ownerAuth = await ownerDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password,
   });
   const ownerId = ownerAuth.data.user!.id;
@@ -96,7 +94,7 @@ test("notifications arrive from real events and stay private", async ({ page }) 
   expect(forged.error).not.toBeNull();
 
   // The center renders them and mark-all-read clears the badge.
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await expect(page.getByTestId("unread-badge")).toBeVisible();
   await page.getByTestId("header-notifications").click();
   await expect(page).toHaveURL(/\/notifications/, { timeout: 20_000 });
@@ -113,7 +111,7 @@ test("notifications arrive from real events and stay private", async ({ page }) 
 
 // Phase 1 / R10: the account-safety surface exists and is owner-only.
 test("account settings expose email, password, export and deletion", async ({ page }) => {
-  await signIn(page, process.env.E2E_EMAIL!);
+  await signIn(page, SELLER_EMAIL);
   await page.goto("/settings/account");
   await expect(page.getByTestId("account-settings")).toBeVisible();
   await expect(page.getByTestId("account-email-input")).toBeVisible();

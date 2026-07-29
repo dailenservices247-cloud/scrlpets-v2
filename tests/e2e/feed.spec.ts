@@ -1,8 +1,9 @@
 import { test, expect } from "@playwright/test";
+import { SELLER_EMAIL } from "./fixtures";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });

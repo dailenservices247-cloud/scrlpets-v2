@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -11,7 +12,7 @@ function databaseClient() {
 async function signIn(page: Page) {
   await page.context().clearCookies();
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 20_000 });
@@ -26,7 +27,7 @@ test("litter creation, subject-tagged post, and DB refusal of fake subjects", as
   test.setTimeout(120_000);
   const db = databaseClient();
   const auth = await db.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const userId = auth.data.user!.id;
@@ -99,7 +100,7 @@ test("litter creation, subject-tagged post, and DB refusal of fake subjects", as
   // A non-manager cannot create a litter under someone else's brand (RLS).
   const memberDb = databaseClient();
   await memberDb.auth.signInWithPassword({
-    email: "scrlpets-rbac-e2e@scrlpets.com",
+    email: MEMBER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const {

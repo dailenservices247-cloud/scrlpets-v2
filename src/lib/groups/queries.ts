@@ -92,6 +92,21 @@ export async function getGroupBySlug(
   };
 }
 
+export type MyGroup = { id: string; slug: string; name: string };
+
+/** Composer: the groups the viewer has joined — the only ones they may post into. */
+export async function listMyGroups(userId: string): Promise<MyGroup[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("group_memberships")
+    .select("groups(id,slug,name)")
+    .eq("profile_id", userId);
+  return ((data ?? []) as unknown as { groups: MyGroup | null }[])
+    .map((r) => r.groups)
+    .filter((g): g is MyGroup => g !== null)
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
 type PostRow = {
   id: string;
   content_type: string;

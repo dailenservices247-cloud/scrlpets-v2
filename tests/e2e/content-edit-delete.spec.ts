@@ -1,12 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
+import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
 
-const RBAC_MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
+const RBAC_MEMBER_EMAIL = MEMBER_EMAIL;
 
 async function signIn(page: Page) {
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
@@ -96,7 +97,7 @@ test.describe("content edit/delete", () => {
 
     const db = databaseClient();
     await db.auth.signInWithPassword({
-      email: process.env.E2E_EMAIL!,
+      email: SELLER_EMAIL,
       password: process.env.E2E_PASSWORD!,
     });
     const { data } = await db.from("posts").select("id").eq("id", postId);
@@ -136,7 +137,7 @@ test.describe("content edit/delete", () => {
 
     const db = databaseClient();
     await db.auth.signInWithPassword({
-      email: process.env.E2E_EMAIL!,
+      email: SELLER_EMAIL,
       password: process.env.E2E_PASSWORD!,
     });
     const { data: beforeDelete } = await db
@@ -195,7 +196,7 @@ test.describe("content edit/delete", () => {
   test("RLS blocks non-author writes and trigger blocks attribution rewrites", async () => {
     const db = databaseClient();
     const { data: auth, error: authError } = await db.auth.signInWithPassword({
-      email: process.env.E2E_EMAIL!,
+      email: SELLER_EMAIL,
       password: process.env.E2E_PASSWORD!,
     });
     expect(authError).toBeNull();

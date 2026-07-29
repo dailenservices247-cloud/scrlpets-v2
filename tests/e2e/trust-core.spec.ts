@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
-
-const MEMBER_EMAIL = "scrlpets-rbac-e2e@scrlpets.com";
-const MEMBER_PROFILE_ID = "8f62eba7-aa0a-4603-8134-5e37ca74ab23";
+import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL } from "./fixtures";
 
 function databaseClient() {
   return createClient(
@@ -75,7 +73,7 @@ test("animal listings are BLOCKED without verification (the P0)", async () => {
   // 5. Nobody can attest an animal they do not own.
   const otherDb = databaseClient();
   await otherDb.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const notOwner = await otherDb.rpc("attest_animal_eligibility", {
@@ -102,7 +100,7 @@ test("a verified seller with an attested animal CAN list", async () => {
   test.setTimeout(120_000);
   const db = databaseClient();
   const auth = await db.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const userId = auth.data.user!.id;
@@ -146,7 +144,7 @@ test("a verified seller with an attested animal CAN list", async () => {
 test("program credentials are admin-reviewed and never self-approved", async () => {
   const db = databaseClient();
   const auth = await db.auth.signInWithPassword({
-    email: process.env.E2E_EMAIL!,
+    email: SELLER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const userId = auth.data.user!.id;
@@ -191,7 +189,7 @@ test("program credentials are admin-reviewed and never self-approved", async () 
 test("verification page shows identity, program and animal sections", async ({ page }) => {
   await page.context().clearCookies();
   await page.goto("/login");
-  await page.getByLabel("Email address").fill(process.env.E2E_EMAIL!);
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 20_000 });
