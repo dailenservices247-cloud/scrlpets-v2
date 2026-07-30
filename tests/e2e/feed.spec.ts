@@ -39,13 +39,19 @@ test("each feed type opens its destination surface", async ({ page }) => {
   for (const [type, url] of cases) {
     await page.goto("/");
     // Posts read inline (A2/A17); the destination deep link is the timestamp.
+    // Bind to SEEDED content, never `.first()` outright: marker rows are
+    // created and soft-deleted by other spec files throughout the run, so a
+    // plain first-match can vanish between the click and the navigation. The
+    // demo seed rows carry no "E2E " marker and no spec deletes them.
+    const stable = (testId: string) =>
+      page.getByTestId(testId).filter({ hasNotText: "E2E " });
     if (type === "post") {
-      await page.getByTestId("tile-post").first().getByTestId("post-permalink").click();
+      await stable("tile-post").first().getByTestId("post-permalink").click();
     } else if (type === "reel") {
       // F6/A19: no CTA — tapping the reel media itself opens the realm.
-      await page.getByTestId("reel-open").first().click();
+      await stable("tile-reel").first().getByTestId("reel-open").click();
     } else {
-      await page.getByTestId(`tile-destination-${type}`).first().click();
+      await stable(`tile-${type}`).first().getByTestId(`tile-destination-${type}`).click();
     }
     // Tolerant: first hit of each destination route pays dev-mode compile;
     // the URL only commits when the compiled response lands.
