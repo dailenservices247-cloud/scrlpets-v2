@@ -71,7 +71,10 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
 
   return (
     <FeedDestinationShell item={item} viewerId={user?.id}>
-      <PhotoGallery photos={photos} fallbackUrl={item.mediaUrl} />
+      {/* FeedDestinationShell already renders the cover, so the gallery only
+          appears when it has extra photos to add — otherwise the same image
+          rendered twice, stacked. */}
+      {photos.length > 0 && <PhotoGallery photos={photos} fallbackUrl={null} />}
       <ProductDetails listing={marketplace} />
       {animalDetails && <PetDetailsPanel creature={animalDetails} />}
       {adoption && (
