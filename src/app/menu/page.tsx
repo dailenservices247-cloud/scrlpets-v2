@@ -16,6 +16,7 @@ import {
   Search,
   Settings,
   ShieldAlert,
+  Users,
 } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
@@ -135,6 +136,7 @@ export default async function MenuPage() {
       </MenuGroup>
 
       <MenuGroup heading="Yours">
+        <MenuRow href="/pack" icon={Users} label="Pack" />
         <MenuRow href="/saved" icon={Bookmark} label="Saved" />
         <MenuRow href="/rewards" icon={Gift} label="Rewards" />
         <MenuRow href="/health" icon={HeartPulse} label="Health" />

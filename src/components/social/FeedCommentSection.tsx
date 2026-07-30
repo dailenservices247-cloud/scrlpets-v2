@@ -24,7 +24,11 @@ export function FeedCommentSection({
   const t = useTranslations("feed");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [thread, setThread] = useState<{ nodes: CommentNode[]; count: number } | null>(null);
+  const [thread, setThread] = useState<{
+    nodes: CommentNode[];
+    count: number;
+    commentsEnabled: boolean;
+  } | null>(null);
 
   async function load() {
     setLoading(true);
@@ -80,6 +84,7 @@ export function FeedCommentSection({
               nodes={thread.nodes}
               count={thread.count}
               signedIn={signedIn}
+              commentsEnabled={thread.commentsEnabled}
               loginHref={loginHref}
               onMutated={load}
             />

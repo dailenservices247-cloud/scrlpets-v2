@@ -1,5 +1,8 @@
 import type { FeedItem, FeedItemType } from "./types";
 
+/** post/reel/long_video are all rows in `posts`; listing/promo are not. */
+export const POST_FAMILY: readonly FeedItemType[] = ["post", "reel", "long_video"];
+
 export type Row = {
   id: string; kind: string; subtype: string | null; author_id: string;
   username: string; display_name: string | null; avatar_url: string | null;
@@ -44,11 +47,31 @@ export function hashId(s: string): number {
 
 /**
  * Following = content from profiles the signed-in viewer follows (plus their own).
- * Until you follow anyone (and for guests, who can't follow), Following falls back
- * to all public content — a discovery bootstrap so a new or guest feed is never
- * empty and G1 discovery never breaks. Once you follow someone it becomes a real
- * filtered feed. For You = all public content, stable hash shuffle.
+ * Below MIN_FOLLOWING_FOR_FILTER follows (and for guests, who can't follow at
+ * all) Following falls back to all public content — a discovery bootstrap so a
+ * new or guest feed is never empty and G1 discovery never breaks. Once the
+ * graph is real it becomes a real filtered feed. For You = all public content,
+ * stable hash shuffle.
+ *
+ * Anything that broadens has to SAY it broadened: `followingFeedBroadened`
+ * exists so the tab can label itself honestly instead of presenting strangers
+ * as people you follow.
  */
+export const MIN_FOLLOWING_FOR_FILTER = 3;
+
+/**
+ * True when the Following tab is showing more than the viewer's own graph.
+ * Guests are always broadened — they have no graph to filter by.
+ */
+export async function followingFeedBroadened(
+  viewerId?: string | null,
+): Promise<boolean> {
+  if (!viewerId) return true;
+  const { getFollowingIds } = await import("@/lib/social/follows");
+  const followed = await getFollowingIds(viewerId);
+  return followed.length < MIN_FOLLOWING_FOR_FILTER;
+}
+
 /**
  * Fixture hiding is a DEPLOYMENT concern, not a build-mode one.
  *
@@ -127,9 +150,10 @@ export async function getFeed(
   if (tab === "following" && viewerId) {
     const { getFollowingIds } = await import("@/lib/social/follows");
     const followed = await getFollowingIds(viewerId);
-    // Only filter once you actually follow someone; otherwise show all content
-    // (discovery bootstrap) so the default feed is never empty on first run.
-    if (followed.length > 0) {
+    // Only filter once the graph is big enough to carry a feed; below that,
+    // show all content (discovery bootstrap) so a first-run feed is never a
+    // near-empty page. FeedTabs labels the broadened case.
+    if (followed.length >= MIN_FOLLOWING_FOR_FILTER) {
       query = query.in("author_id", [...followed, viewerId]); // + your own posts
     }
   }
@@ -138,6 +162,54 @@ export async function getFeed(
   const items = (data as Row[]).map(rowToFeedItem);
   if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
   return applyDensityCaps(items);
+}
+
+export type PostFlags = { pinnedAt: string | null; commentsEnabled: boolean };
+
+/**
+ * `pinned_at` and `comments_enabled` live on `posts`, but `unified_feed` is a
+ * three-table UNION and widening it needs a migration this lane does not own.
+ * One batched read keyed by id costs a single round trip per rendered list.
+ */
+export async function getPostFlags(
+  postIds: string[],
+): Promise<Map<string, PostFlags>> {
+  const flags = new Map<string, PostFlags>();
+  if (postIds.length === 0) return flags;
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("posts")
+    .select("id,pinned_at,comments_enabled")
+    .in("id", postIds);
+  for (const row of (data ?? []) as {
+    id: string;
+    pinned_at: string | null;
+    comments_enabled: boolean;
+  }[]) {
+    flags.set(row.id, {
+      pinnedAt: row.pinned_at,
+      commentsEnabled: row.comments_enabled,
+    });
+  }
+  return flags;
+}
+
+/**
+ * Attaches pin/comment state to post-family items that don't already carry it,
+ * so a caller that already loaded the flags (the profile feed, which sorts by
+ * them) doesn't pay for a second read.
+ */
+export async function attachPostFlags(items: FeedItem[]): Promise<FeedItem[]> {
+  const missing = items.filter(
+    (item) => POST_FAMILY.includes(item.type) && item.commentsEnabled === undefined,
+  );
+  if (missing.length === 0) return items;
+  const flags = await getPostFlags(missing.map((item) => item.id));
+  return items.map((item) => {
+    const flag = flags.get(item.id);
+    return flag ? { ...item, ...flag } : item;
+  });
 }
 
 /** All content published AS a brand (posts + listings carrying brand_id). Public per G1-A. */

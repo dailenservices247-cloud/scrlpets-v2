@@ -1,11 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
 
+/**
+ * Every kind notifications_kind_check admits. The pack and saved-search kinds
+ * have been written by triggers since A.6/A.9 but were missing here, so those
+ * rows rendered against an absent `kind.*` i18n key — widened to match the
+ * constraint, which is the canonical list.
+ */
 export type NotificationKind =
   | "follow"
   | "reaction"
   | "comment"
   | "comment_reply"
-  | "inquiry";
+  | "inquiry"
+  | "pack_invite"
+  | "pack_accepted"
+  | "saved_search_match";
 
 export type NotificationItem = {
   id: string;
@@ -68,8 +77,15 @@ export async function getUnreadCount(): Promise<number> {
   return count ?? 0;
 }
 
-/** Where a notification points. Dead targets fall back to the actor's profile. */
-export function notificationHref(n: NotificationItem): string {
+/**
+ * Where a notification points. Dead targets fall back to the actor's profile.
+ * Structural parameter so a grouped row resolves through the same rule.
+ */
+export function notificationHref(n: {
+  targetKind: string | null;
+  targetId: string | null;
+  actorUsername: string | null;
+}): string {
   if (n.targetKind === "post" && n.targetId) return `/post/${n.targetId}`;
   if (n.targetKind === "listing" && n.targetId) return `/listing/${n.targetId}`;
   if (n.actorUsername) return `/u/${n.actorUsername}`;

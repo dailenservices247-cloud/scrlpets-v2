@@ -36,7 +36,14 @@ test("composer has no serious/critical a11y violations", async ({ page }) => {
 
 test("feed destination page has no serious/critical a11y violations", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tile-destination-listing").first().click();
+  // Pinned to a seeded listing, not whatever the feed happens to show: E2E rows
+  // are created and soft-deleted by other workers mid-run, so `.first()` can
+  // click a tile whose listing is gone by the time the route renders.
+  await page
+    .getByTestId("tile-destination-listing")
+    .filter({ hasNotText: "E2E " })
+    .first()
+    .click();
   // Tolerant: dev-mode first-compile of the destination route under load.
   await expect(page.getByTestId("destination-listing")).toBeVisible({ timeout: 20_000 });
   await expectNoSerious(page);

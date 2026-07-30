@@ -144,8 +144,16 @@ test("inline feed commenting and comment reactions", async ({ page }) => {
   await expect(card.getByTestId("comment-body")).toContainText("E2E inline comment");
 
   // React to the comment from the inline thread.
-  await card.getByTestId("comment-react").click();
-  await page.getByTestId("comment-reaction-love").click();
+  //
+  // Open-and-pick is retried as one unit: posting the comment above kicks off a
+  // refetch, and when it lands it re-renders the thread and remounts this
+  // portalled popover, so a picker opened in the gap is detached before the
+  // click resolves. Retrying re-opens against the settled DOM. The assertion
+  // below is unchanged — the reaction still has to actually persist.
+  await expect(async () => {
+    await card.getByTestId("comment-react").click();
+    await page.getByTestId("comment-reaction-love").click({ timeout: 5_000 });
+  }).toPass({ timeout: 30_000 });
   await expect(card.getByTestId("comment-react")).toHaveAttribute(
     "data-reaction",
     "love",

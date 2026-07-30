@@ -15,7 +15,7 @@ import { CommentThread } from "@/components/social/CommentThread";
 import { getManageableBrandIds } from "@/lib/brands/queries";
 import { getReactionSummary, isSaved } from "@/lib/social/reactions";
 import { getComments } from "@/lib/social/comments";
-import { getMoreListingsFrom } from "@/lib/feed/query";
+import { attachPostFlags, getMoreListingsFrom } from "@/lib/feed/query";
 import { loginHrefFor } from "@/lib/auth/redirect";
 
 type DetailCopy = {
@@ -32,7 +32,7 @@ const copyByType: Record<FeedItemType, DetailCopy> = {
 };
 
 export async function FeedDestinationShell({
-  item,
+  item: rawItem,
   viewerId,
   children,
 }: {
@@ -40,6 +40,9 @@ export async function FeedDestinationShell({
   viewerId?: string | null;
   children?: ReactNode;
 }) {
+  // The permalink is where a link from anywhere lands, so it loads the pin and
+  // comment state itself rather than trusting the caller to have done it.
+  const [item] = await attachPostFlags([rawItem]);
   const t = await getTranslations("detail");
   const tc = await getTranslations("content");
   const copy = copyByType[item.type];
@@ -214,6 +217,7 @@ export async function FeedDestinationShell({
             nodes={comments.nodes}
             count={comments.count}
             signedIn={Boolean(viewerId)}
+            commentsEnabled={item.commentsEnabled !== false}
             loginHref={loginHrefFor(`/post/${item.id}`)}
           />
         )}

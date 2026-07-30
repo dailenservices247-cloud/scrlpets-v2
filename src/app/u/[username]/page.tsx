@@ -6,8 +6,9 @@ import {
   getProfileByUsername,
   getProfileFeed,
   getCreaturesByOwner,
+  getFollowList,
 } from "@/lib/profiles/queries";
-import { getFollowCounts, isFollowing, hasBlocked } from "@/lib/social/follows";
+import { isFollowing, hasBlocked } from "@/lib/social/follows";
 import { AnimalRail } from "@/components/profile/AnimalRail";
 import { FeedComposerPrompt } from "@/components/feed/FeedComposerPrompt";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
@@ -54,13 +55,18 @@ export default async function ProfilePage({
   if (!profile) notFound();
   const user = await getSessionUser();
   const active = tab === "pets" || tab === "about" ? tab : "posts";
-  const [creatures, profileFeed, ownedBrands, followCounts, reviews] = await Promise.all([
-    getCreaturesByOwner(profile.id),
-    getProfileFeed(profile.id),
-    getBrandsByOwner(profile.id),
-    getFollowCounts(profile.id),
-    getReviewsFor(profile.id),
-  ]);
+  // Counts come from the SAME reads the list pages render, so tapping a count
+  // can never land on a different number of people than the count promised.
+  const [creatures, profileFeed, ownedBrands, followers, following, reviews] =
+    await Promise.all([
+      getCreaturesByOwner(profile.id),
+      getProfileFeed(profile.id),
+      getBrandsByOwner(profile.id),
+      getFollowList(profile.id, "followers"),
+      getFollowList(profile.id, "following"),
+      getReviewsFor(profile.id),
+    ]);
+  const followCounts = { followers: followers.length, following: following.length };
   const [viewerFollowing, viewerBlocked] =
     !!user && user.id !== profile.id
       ? await Promise.all([

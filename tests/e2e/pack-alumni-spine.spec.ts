@@ -214,7 +214,25 @@ test("confirmed handover auto-creates alumni + accepted pack link, exactly once"
     target_listing_id: listing.data!.id,
   });
   expect(softDel.error).toBeNull();
-  const hide = await seller.db
+  // INVARIANT: the animal itself moved. A confirmed handover transfers
+  // creatures.owner_id to the buyer, so the SELLER can no longer touch it —
+  // that refusal is the property, and it is why the hide below runs as the
+  // buyer. Before this, alumni named the buyer as owner while the creature row
+  // still named the seller, and every owner-only path obeyed the stale one.
+  const ownerRow = await buyer.db
+    .from("creatures")
+    .select("owner_id")
+    .eq("id", creature.data!.id)
+    .single();
+  expect(ownerRow.data!.owner_id, "handover transfers the animal").toBe(buyer.userId);
+
+  const staleOwnerHide = await seller.db
+    .from("creatures")
+    .update({ page_visible: false }, { count: "exact" })
+    .eq("id", creature.data!.id);
+  expect(staleOwnerHide.count, "the previous owner loses control of the animal").toBe(0);
+
+  const hide = await buyer.db
     .from("creatures")
     .update({ page_visible: false }, { count: "exact" })
     .eq("id", creature.data!.id);

@@ -7,6 +7,8 @@ export function MessageButton({ profileId }: { profileId: string }) {
   const t = useTranslations("messages");
   const router = useRouter();
   async function go() {
+    // "direct": a DM opened off someone's profile is the cold knock the
+    // request gate exists for. Packmates are exempted inside the action.
     const res = await startConversation(profileId);
     if ("id" in res) {
       router.push(`/messages/${res.id}`);

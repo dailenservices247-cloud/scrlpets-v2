@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { FeedItem } from "@/lib/feed/types";
+import { attachPostFlags, followingFeedBroadened } from "@/lib/feed/query";
 import { getManageableBrandIds } from "@/lib/brands/queries";
 import { getFeedSocialContext } from "@/lib/social/reactions";
 import { PostTile } from "./tiles/PostTile";
@@ -18,7 +19,7 @@ const MAP = {
 } as const;
 
 export async function FeedList({
-  items,
+  items: rawItems,
   showTabs = true,
   viewerId,
   followingEmpty = false,
@@ -29,23 +30,29 @@ export async function FeedList({
   followingEmpty?: boolean;
 }) {
   const t = await getTranslations("feed");
-  const [manageableBrandIds, socialContext] = await Promise.all([
+  const [manageableBrandIds, socialContext, items, broadened] = await Promise.all([
     (viewerId ? getManageableBrandIds(viewerId) : Promise.resolve([])).then(
       (ids) => new Set(ids),
     ),
     getFeedSocialContext(
-      items
+      rawItems
         .filter((item) => item.type === "post" || item.type === "reel")
         .map((item) => item.id),
       viewerId,
     ),
+    // Pin state and the comment toggle aren't in unified_feed; one batched read
+    // per rendered list keeps the ⋯ menu and the "Pinned" chip truthful.
+    attachPostFlags(rawItems),
+    // Tab-independent: FeedTabs only shows the notice on the Following tab, but
+    // whether the graph is big enough to filter by is the same fact either way.
+    showTabs ? followingFeedBroadened(viewerId) : Promise.resolve(false),
   ]);
   if (items.length === 0)
     return (
       <section className="px-3 py-4" data-testid="feed-stream">
         {showTabs && (
           <div className="mb-3 px-1">
-            <FeedTabs />
+            <FeedTabs broadened={broadened} />
           </div>
         )}
         <div
@@ -70,7 +77,7 @@ export async function FeedList({
     <section className="px-3 py-4" data-testid="feed-stream">
       {showTabs && (
         <div className="mb-3 px-1">
-          <FeedTabs />
+          <FeedTabs broadened={broadened} />
         </div>
       )}
       <div className="flex flex-col gap-4" data-testid="feed-list">

@@ -2,15 +2,18 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { FeedList } from "@/components/feed/FeedList";
+import { MessageButton } from "@/components/messaging/MessageButton";
 import { CreatureHero } from "@/components/profile/CreatureHero";
 import { AnimalRecordsPanel } from "@/components/profile/AnimalRecordsPanel";
 import { MemorialSection } from "@/components/creature/MemorialSection";
 import { AboutInfoCard } from "@/components/creature/AboutInfoCard";
 import { HealthTestsSection } from "@/components/creature/HealthTestsSection";
+import { HighlightsSection } from "@/components/highlights/HighlightsSection";
 import { LineageSection } from "@/components/creature/LineageSection";
 import { getCreatureBySlug, getCreatureFeed } from "@/lib/profiles/queries";
 import { getAnimalRecord } from "@/lib/records/queries";
 import { getSessionUser } from "@/lib/auth/session";
+import { getFeedDestination } from "@/lib/feed/destinations";
 import {
 
   getCreatureDetail,
@@ -80,6 +83,44 @@ export default async function CreaturePage({
         />
       )}
 
+      {/* Visitor actions: a signed-in someone-else gets the two things they
+          actually came for. `listing` is the animal's live listing — the feed
+          view only returns listings that are not soft-deleted, so its presence
+          IS "currently listed" rather than "was listed once".
+          ponytail: the banner states the fact and links; price and sale-vs-
+          adoption would need a listings read this page does not do yet. */}
+      {user && !isOwner && (
+        <section
+          className="mx-auto max-w-2xl px-4 pt-3"
+          data-testid="creature-visitor-actions"
+          aria-label={t("visitor.title", { name: creature.name })}
+        >
+          <div className="rounded-2xl border bg-card p-4">
+            <p className="text-sm font-medium">{t("visitor.title", { name: creature.name })}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("visitor.messageOwnerHint", { username: creature.owner.username })}
+            </p>
+            <div className="mt-3">
+              <MessageButton profileId={creature.ownerId} />
+            </div>
+            {listing && (
+              <Link
+                href={getFeedDestination(listing).href}
+                className="mt-4 block rounded-xl border border-primary/40 bg-primary/10 p-3 text-sm transition hover:bg-primary/15"
+                data-testid="creature-visitor-listing-banner"
+              >
+                <span className="block font-medium">
+                  {t("visitor.listingBanner", { name: creature.name })}
+                </span>
+                <span className="mt-1 block text-brand-link underline">
+                  {t("visitor.listingCta")}
+                </span>
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
+
       {litter && (
         <section className="mx-auto max-w-2xl px-4 pt-3" data-testid="creature-litter-link">
           <Link href={`/litters/${litter.id}`} className="text-sm text-brand-link underline">
@@ -87,6 +128,14 @@ export default async function CreaturePage({
           </Link>
         </section>
       )}
+
+      <HighlightsSection
+        creatureId={creature.id}
+        slug={creature.slug}
+        creatureName={creature.name}
+        isOwner={isOwner}
+        viewerId={user?.id ?? null}
+      />
 
       <HealthTestsSection
         creatureId={creature.id}

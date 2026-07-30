@@ -88,7 +88,9 @@
     "videoUnplayable": "This video can't play on this device (format not supported).",
     "mute": "Mute",
     "unmute": "Unmute",
-    "openReel": "Open reel"
+    "openReel": "Open reel",
+    "broadenedLabel": "Showing more than your follows.",
+    "broadenedBody": "You don't follow enough accounts yet, so this tab is showing animals and updates from across Scrlpets — not only from people you follow. Follow a few accounts to make it yours."
   },
   "compose": {
     "title": "Create",
@@ -143,7 +145,12 @@
     "remove": "Remove listing",
     "deleting": "Removing…",
     "deleteError": "We couldn't remove this content. Try again.",
-    "moreOptions": "More options"
+    "moreOptions": "More options",
+    "pinToProfile": "Pin to profile",
+    "unpinFromProfile": "Unpin from profile",
+    "pinnedToProfile": "Pinned to profile",
+    "turnCommentsOff": "Turn off comments",
+    "turnCommentsOn": "Turn on comments"
   },
   "brandAccess": {
     "label": "Operators",
@@ -221,7 +228,13 @@
     "block": "Block",
     "unblock": "Unblock",
     "blockedNote": "You blocked this user. You won't see their content or exchange messages.",
-    "viewTree": "View family tree"
+    "viewTree": "View family tree",
+    "backToProfile": "← Back to profile",
+    "followersTitle": "Followers",
+    "followingTitle": "Following",
+    "followListSubtitle": "{count, plural, =0 {No accounts yet} =1 {# account} other {# accounts}} · {name}",
+    "followersEmpty": "No followers yet.",
+    "followingEmpty": "Not following anyone yet."
   },
   "detail": {
     "backToFeed": "Back to feed",
@@ -279,7 +292,26 @@
     "back": "Back",
     "listingContexts": "Listing inquiry context",
     "listingContext": "Listing inquiry · {price}",
-    "listingContextUnavailable": "Past listing · {price} · unavailable"
+    "listingContextUnavailable": "Past listing · {price} · unavailable",
+    "acceptRequest": "Accept",
+    "declineRequest": "Decline",
+    "requestFrom": "Message request from {name}",
+    "requestError": "That request could not be updated. Try again.",
+    "requestsTitle": "{count, plural, one {# message request} other {# message requests}}",
+    "requestsHelp": "People you're not connected with land here first. Nothing they send reaches your inbox until you accept.",
+    "requestBannerTitle": "Message request",
+    "requestBannerHelp": "Accept to move this into your inbox, or decline to close it. Declining hides it from you and stops them writing again.",
+    "pendingChip": "Pending",
+    "pendingNotice": "Waiting for {name} to accept your request.",
+    "declinedNotice": "This request was declined. You can't send messages here.",
+    "sendBlocked": "You can't send messages in this conversation.",
+    "sendFailed": "That message didn't send. Try again.",
+    "seen": "Seen",
+    "reactToMessage": "React to this message",
+    "attachmentAlt": "Photo attached to this message",
+    "privacyTitle": "Privacy",
+    "readReceiptsLabel": "Read receipts",
+    "readReceiptsHelp": "Receipts work both ways. Turn this off and others stop seeing when you've read their messages — and you stop seeing when they've read yours."
   },
   "marketplace": {
     "label": "Marketplace inquiry",
@@ -328,7 +360,8 @@
     "savedTitle": "Saved posts",
     "savedEmpty": "Posts you save appear here.",
     "savedUntitled": "Untitled post",
-    "react": "React"
+    "react": "React",
+    "paw": "Paw print"
   },
   "comments": {
     "heading": "Comments ({count})",
@@ -343,7 +376,8 @@
     "cancel": "Cancel",
     "edited": "Edited",
     "deleted": "This comment was deleted",
-    "signInToComment": "Sign in to comment"
+    "signInToComment": "Sign in to comment",
+    "disabledNote": "Comments are turned off for this post. Earlier comments stay visible."
   },
   "notifications": {
     "title": "Notifications",
@@ -354,8 +388,15 @@
       "reaction": "reacted to your post",
       "comment": "commented on your post",
       "comment_reply": "replied to your comment",
-      "inquiry": "asked about your listing"
-    }
+      "inquiry": "asked about your listing",
+      "pack_invite": "wants to join your pack",
+      "pack_accepted": "joined your pack",
+      "saved_search_match": "posted a listing matching your saved search"
+    },
+    "andOthers": "and {count, plural, one {# other} other {# others}}",
+    "clearAll": "Clear all",
+    "clearAllConfirm": "Confirm clear",
+    "announceNew": "{count, plural, one {# new notification} other {# new notifications}}"
   },
   "search": {
     "placeholder": "Search people, animals, brands, listings",
@@ -893,7 +934,11 @@
     "postsEmpty": "No posts in this group yet.",
     "postPlaceholder": "Share something about this breed…",
     "submitPost": "Post to group",
-    "errorRequired": "Add some text or a photo."
+    "errorRequired": "Add some text or a photo.",
+    "sectionsLabel": "Group sections",
+    "tabPosts": "Posts",
+    "tabGuides": "Guides",
+    "guidesEmpty": "No guides have been written for this group yet."
   },
   "calendar": {
     "eyebrow": "Planning",
@@ -1127,6 +1172,12 @@
       "deleting": "Deleting…",
       "deleteReferencedError": "This animal is part of your records — lineage, litters, or listings reference it — so it can be archived but not deleted.",
       "deleteError": "Couldn't delete. Try again."
+    },
+    "visitor": {
+      "title": "Questions about {name}?",
+      "messageOwnerHint": "Send @{username} a message.",
+      "listingBanner": "{name} has an active listing right now.",
+      "listingCta": "View the listing"
     }
   },
   "brandKit": {
@@ -1355,6 +1406,82 @@
         "label": "Groups",
         "description": "Breed and species communities."
       }
+    }
+  },
+  "pack": {
+    "eyebrow": "Your people",
+    "title": "Pack",
+    "subtitle": "Everyone you're connected to here — the people you've placed an animal with, the people you got yours from, and anyone you've invited.",
+    "alumniLink": "Alumni",
+    "alumniLinkBody": "Animals that changed hands, and the shared update timeline for each one.",
+    "requestsTitle": "Requests",
+    "requestsEmpty": "No requests waiting.",
+    "requestFrom": "@{username} wants to connect with you.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "membersTitle": "In your pack",
+    "membersEmpty": "No one yet. A sale or adoption that both sides confirm connects you automatically.",
+    "originHandover": "Connected by a completed handover",
+    "originInvite": "Connected by invite",
+    "remove": "Remove",
+    "removeTitle": "Remove @{username}?",
+    "removeBody": "This deletes the connection for both of you at once — they lose it too, and anything that depends on being pack-connected, like a buyers-only Ecosystem Tree, closes with it. Nothing else is deleted, and either of you can send a new request later.",
+    "removeConfirm": "Remove",
+    "removing": "Removing…",
+    "cancel": "Cancel",
+    "error": "Couldn't do that. Try again.",
+    "addToPack": "Add to pack",
+    "requestSending": "Sending…",
+    "requestSent": "Pack request sent.",
+    "requestAlready": "Already connected or requested."
+  },
+  "alumni": {
+    "title": "Alumni",
+    "subtitle": "Animals that changed hands here. Whoever raised the animal and whoever has them now share one timeline, and both can post to it.",
+    "back": "← Pack",
+    "backToAlumni": "← Alumni",
+    "empty": "No alumni yet. When both sides confirm a sale or adoption, the animal appears here.",
+    "unknownParty": "Account unavailable",
+    "animalGone": "Profile removed",
+    "animalGoneBody": "This animal's profile is gone, so there's nothing new to post. The record of the handover stays.",
+    "sideRaisedBy": "Raised by {name}",
+    "sideNowWith": "Now with {name}",
+    "handoverAt": "Changed hands {date, date, medium}",
+    "viewAnimal": "View {name}'s profile",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "mutedTitle": "Muted ({count})",
+    "mutedBody": "Muted animals stay off your list. The other side keeps theirs, the record stays, and you can unmute any time.",
+    "updatesTitle": "Updates",
+    "updatesEmpty": "No updates yet. Post the first one.",
+    "composerPlaceholder": "Share how {name} is doing…",
+    "composerSubmit": "Post update",
+    "composerError": "Add some text or a photo.",
+    "roleOwner": "Owner",
+    "you": "You"
+  },
+  "highlights": {
+    "title": "Highlights",
+    "addCta": "Add highlight",
+    "empty": "No highlights for {name} yet.",
+    "delete": "Delete",
+    "confirmDelete": "Tap again to delete",
+    "close": "Close",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Name this highlight",
+    "mediaCount": "{count} of {max} photos or videos added",
+    "capReached": "That's the limit of {max} for one highlight. Remove one to add another.",
+    "mediaItem": "Item {index}",
+    "removeMedia": "Remove item {index}",
+    "save": "Save highlight",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "error": {
+      "title_required": "Give this highlight a title.",
+      "title_too_long": "Titles are limited to 60 characters.",
+      "media_required": "Add at least one photo or video.",
+      "too_much_media": "A highlight holds up to 10 photos or videos.",
+      "generic": "We couldn't save this highlight. Try again."
     }
   }
 }

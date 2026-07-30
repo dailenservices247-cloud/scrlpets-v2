@@ -27,6 +27,18 @@ export async function addComment(
   if (!trimmed) return { ok: false, error: "empty" };
   if (trimmed.length > MAX_LEN) return { ok: false, error: "too_long" };
 
+  // Every comment and reply, from every surface, goes through this function, so
+  // this is the one place the toggle has to hold. Hiding the composer is a
+  // courtesy to the reader; THIS is the control.
+  const { data: post } = await supabase
+    .from("posts")
+    .select("comments_enabled")
+    .eq("id", postId)
+    .maybeSingle();
+  if (!post) return { ok: false, error: "not_found" };
+  if (post.comments_enabled === false)
+    return { ok: false, error: "comments_disabled" };
+
   let parent: string | null = null;
   if (parentId) {
     // One reply level: a reply's parent must be a ROOT comment on this post.
@@ -113,12 +125,19 @@ export async function setCommentReaction(
   return { ok: true };
 }
 
-// F5 / punch list A17: the feed fetches a post's thread on expand.
+// F5 / punch list A17: the feed fetches a post's thread on expand. It carries
+// the comment toggle back with it, so every inline surface (post tile, reel
+// tile, reel realm) learns the composer is closed from the same call that
+// loads the thread — no per-surface plumbing to forget.
 export async function fetchComments(postId: string) {
   const { getComments } = await import("./comments");
   const { supabase } = await requireUser();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  return getComments(postId, user?.id ?? null);
+  const [thread, { data: post }] = await Promise.all([
+    getComments(postId, user?.id ?? null),
+    supabase.from("posts").select("comments_enabled").eq("id", postId).maybeSingle(),
+  ]);
+  return { ...thread, commentsEnabled: post?.comments_enabled !== false };
 }

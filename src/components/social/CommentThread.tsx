@@ -115,6 +115,7 @@ export function CommentThread({
   nodes,
   count,
   signedIn,
+  commentsEnabled = true,
   loginHref,
   onMutated,
 }: {
@@ -122,6 +123,8 @@ export function CommentThread({
   nodes: CommentNode[];
   count: number;
   signedIn: boolean;
+  /** False = the author turned comments off. Existing ones stay readable. */
+  commentsEnabled?: boolean;
   loginHref: string;
   /** Feed usage refetches; destination usage defaults to router.refresh(). */
   onMutated?: () => void;
@@ -253,7 +256,7 @@ export function CommentThread({
               ) : (
                 signedIn && (
                   <>
-                    {!isReply && (
+                    {!isReply && commentsEnabled && (
                       <button
                         type="button"
                         onClick={() => {
@@ -323,7 +326,17 @@ export function CommentThread({
     >
       <h2 className="text-sm font-semibold">{t("heading", { count })}</h2>
 
-      {signedIn ? (
+      {/* Closed comments get a sentence, not a missing box. A composer that
+          silently vanishes reads as a bug; the server refuses either way. */}
+      {!commentsEnabled ? (
+        <p
+          className="mt-3 rounded-xl border border-border/70 bg-muted/40 px-3 py-2 text-sm text-muted-foreground"
+          role="status"
+          data-testid="comments-disabled-note"
+        >
+          {t("disabledNote")}
+        </p>
+      ) : signedIn ? (
         <div className="mt-3">
           <textarea
             value={text}

@@ -17,18 +17,26 @@ test("search filters narrow listings server-side and survive in the URL", async 
 
   const { db: sellerDb, userId: sellerId } = await signInCached(SELLER_EMAIL);
 
-  // Reuse an existing seeded creature (species already set) rather than
-  // creating one — a new creature can never be cleaned up afterward, since
-  // listings can only be soft-deleted and the FK would still point at it.
+  // Owns its animal instead of borrowing a seeded one. The species filter
+  // inner-joins creatures and this search runs SIGNED OUT, so the row has to be
+  // publicly visible for the listing to appear at all — and a shared creature
+  // gets hidden, archived or handed over by whatever spec is running in the
+  // next worker, which silently empties the result set. Cleanup is archive, the
+  // same disposal path archive-withdraw.spec.ts uses: listings only ever
+  // soft-delete, so the FK means nothing here is ever hard-deleted.
+  const species = "gecko";
   const { data: creature, error: creatureError } = await sellerDb
     .from("creatures")
-    .select("id,species")
-    .eq("owner_id", sellerId)
-    .not("species", "is", null)
-    .limit(1)
+    .insert({
+      owner_id: sellerId,
+      name: `E2E filter animal ${stamp}`,
+      slug: `e2e-filter-animal-${stamp}`,
+      species,
+      page_visible: true,
+    })
+    .select("id")
     .single();
   expect(creatureError).toBeNull();
-  const species = creature!.species as string;
 
   // Phase 2 gate: an animal listing needs the animal attested by its owner.
   await sellerDb.rpc("attest_animal_eligibility", { target_creature: creature!.id });
@@ -91,6 +99,13 @@ test("search filters narrow listings server-side and survive in the URL", async 
     target_listing_id: listingB.data!.id,
   });
   expect(cleanupB).toMatchObject({ data: true, error: null });
+  // Asserted cleanup: archive the animal this test created so it stops showing
+  // up in anyone else's roster or search.
+  const archived = await sellerDb.rpc("archive_creature", {
+    target_creature: creature!.id,
+    archived: true,
+  });
+  expect(archived.error, "archiving the test animal").toBeNull();
 });
 
 test("saving a search adds it to the list and deleting removes it", async ({ page }) => {

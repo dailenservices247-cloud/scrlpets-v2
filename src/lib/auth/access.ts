@@ -23,6 +23,7 @@ export const PROTECTED_PREFIXES = [
   "/health",
   "/messages",
   "/notifications",
+  "/pack",
   "/rewards",
   "/saved",
   "/settings",

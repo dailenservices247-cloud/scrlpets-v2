@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Profile } from "@/lib/profiles/queries";
 import { MessageButton } from "@/components/messaging/MessageButton";
+import { AddToPackButton } from "@/components/pack/AddToPackButton";
 import { FollowButton } from "@/components/social/FollowButton";
 import { ProfileSafetyActions } from "@/components/social/ProfileSafetyActions";
 import { loginHrefFor } from "@/lib/auth/redirect";
@@ -46,12 +47,26 @@ export async function ProfileHeader({
             <p className="eyebrow">{t("profileLabel")}</p>
             <h1 className="mt-1 truncate text-2xl font-semibold leading-tight">{profile.displayName ?? profile.username}</h1>
             <p className="truncate text-sm text-muted-foreground">@{profile.username}</p>
+            {/* The counts ARE the lists: both come from getFollowList, so the
+                number and the names it opens can never disagree. */}
             <p className="mt-1 text-sm text-muted-foreground" data-testid="follow-counts">
-              <span className="font-semibold text-foreground">{followCounts.followers}</span>{" "}
-              {t("followers")}
+              <Link
+                href={`/u/${profile.username}/followers`}
+                className="underline-offset-2 hover:underline"
+                data-testid="followers-link"
+              >
+                <span className="font-semibold text-foreground">{followCounts.followers}</span>{" "}
+                {t("followers")}
+              </Link>
               {" · "}
-              <span className="font-semibold text-foreground">{followCounts.following}</span>{" "}
-              {t("followingCount")}
+              <Link
+                href={`/u/${profile.username}/following`}
+                className="underline-offset-2 hover:underline"
+                data-testid="following-link"
+              >
+                <span className="font-semibold text-foreground">{followCounts.following}</span>{" "}
+                {t("followingCount")}
+              </Link>
             </p>
           </div>
           {isOwn ? (
@@ -71,6 +86,7 @@ export async function ProfileHeader({
                     initialFollowing={viewerFollowing}
                   />
                   <MessageButton profileId={profile.id} />
+                  <AddToPackButton profileId={profile.id} />
                 </>
               )}
               <ProfileSafetyActions

@@ -10,6 +10,7 @@ import {
   deleteListing,
   deletePost,
 } from "@/lib/compose/actions";
+import { setPostCommentsEnabled, setPostPinned } from "@/lib/feed/post-controls";
 import { capture } from "@/lib/analytics";
 import { getFeedDestination } from "@/lib/feed/destinations";
 import type { FeedItem } from "@/lib/feed/types";
@@ -27,6 +28,27 @@ export function ContentOwnerActions({ item }: { item: FeedItem }) {
   if (item.type === "promo") return null;
 
   const isListing = item.type === "listing";
+  // Pin and the comment toggle are posts-table columns, and they only render
+  // where the surface actually loaded them (`attachPostFlags`) — a menu that
+  // guesses "Pin" for an already-pinned post is worse than no menu item.
+  const pinned = item.pinnedAt ?? null;
+  const commentsEnabled = item.commentsEnabled;
+  const showPostControls = !isListing && commentsEnabled !== undefined;
+
+  async function togglePinned() {
+    setBusy(true);
+    const result = await setPostPinned(item.id, !pinned);
+    setBusy(false);
+    if (result.ok) router.refresh();
+  }
+
+  async function toggleComments() {
+    setBusy(true);
+    const result = await setPostCommentsEnabled(item.id, commentsEnabled === false);
+    setBusy(false);
+    if (result.ok) router.refresh();
+  }
+
   const editHref = isListing
     ? `/listing/${item.id}/edit`
     : `/post/${item.id}/edit`;
@@ -73,6 +95,26 @@ export function ContentOwnerActions({ item }: { item: FeedItem }) {
               >
                 {t("edit")}
               </Menu.Item>
+              {showPostControls && (
+                <>
+                  <Menu.Item
+                    className="flex w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-medium outline-none data-[highlighted]:bg-muted"
+                    data-testid="toggle-pinned"
+                    disabled={busy}
+                    onClick={togglePinned}
+                  >
+                    {pinned ? t("unpinFromProfile") : t("pinToProfile")}
+                  </Menu.Item>
+                  <Menu.Item
+                    className="flex w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-medium outline-none data-[highlighted]:bg-muted"
+                    data-testid="toggle-comments"
+                    disabled={busy}
+                    onClick={toggleComments}
+                  >
+                    {commentsEnabled === false ? t("turnCommentsOn") : t("turnCommentsOff")}
+                  </Menu.Item>
+                </>
+              )}
               <Menu.Item
                 className="flex w-full cursor-pointer items-center rounded-lg px-3 py-2.5 text-sm font-medium text-destructive outline-none data-[highlighted]:bg-destructive/10"
                 data-testid="delete-content"

@@ -88,7 +88,9 @@
     "videoUnplayable": "Este video no se puede reproducir en este dispositivo (formato no compatible).",
     "mute": "Silenciar",
     "unmute": "Activar sonido",
-    "openReel": "Abrir reel"
+    "openReel": "Abrir reel",
+    "broadenedLabel": "Mostrando más que tus seguidos.",
+    "broadenedBody": "Aún no sigues suficientes cuentas, así que esta pestaña muestra animales y novedades de todo Scrlpets, no solo de las personas que sigues. Sigue algunas cuentas para hacerla tuya."
   },
   "compose": {
     "title": "Crear",
@@ -143,7 +145,12 @@
     "remove": "Quitar anuncio",
     "deleting": "Quitando…",
     "deleteError": "No pudimos quitar este contenido. Inténtalo de nuevo.",
-    "moreOptions": "Más opciones"
+    "moreOptions": "Más opciones",
+    "pinToProfile": "Fijar en el perfil",
+    "unpinFromProfile": "Dejar de fijar en el perfil",
+    "pinnedToProfile": "Fijada en el perfil",
+    "turnCommentsOff": "Desactivar comentarios",
+    "turnCommentsOn": "Activar comentarios"
   },
   "brandAccess": {
     "label": "Operadores",
@@ -221,7 +228,13 @@
     "block": "Bloquear",
     "unblock": "Desbloquear",
     "blockedNote": "Bloqueaste a este usuario. No verás su contenido ni intercambiarás mensajes.",
-    "viewTree": "Ver árbol genealógico"
+    "viewTree": "Ver árbol genealógico",
+    "backToProfile": "← Volver al perfil",
+    "followersTitle": "Seguidores",
+    "followingTitle": "Siguiendo",
+    "followListSubtitle": "{count, plural, =0 {Aún sin cuentas} =1 {# cuenta} other {# cuentas}} · {name}",
+    "followersEmpty": "Aún no hay seguidores.",
+    "followingEmpty": "Todavía no sigue a ninguna cuenta."
   },
   "detail": {
     "backToFeed": "Volver al feed",
@@ -279,7 +292,26 @@
     "back": "Atrás",
     "listingContexts": "Contexto de consulta del anuncio",
     "listingContext": "Consulta del anuncio · {price}",
-    "listingContextUnavailable": "Anuncio anterior · {price} · no disponible"
+    "listingContextUnavailable": "Anuncio anterior · {price} · no disponible",
+    "acceptRequest": "Aceptar",
+    "declineRequest": "Rechazar",
+    "requestFrom": "Solicitud de mensaje de {name}",
+    "requestError": "No se pudo actualizar la solicitud. Inténtalo de nuevo.",
+    "requestsTitle": "{count, plural, one {# solicitud de mensaje} other {# solicitudes de mensaje}}",
+    "requestsHelp": "Quienes no están conectados contigo llegan aquí primero. Nada de lo que envíen entra en tu bandeja hasta que aceptes.",
+    "requestBannerTitle": "Solicitud de mensaje",
+    "requestBannerHelp": "Acepta para moverla a tu bandeja, o recházala para cerrarla. Al rechazarla se oculta y esa persona no podrá volver a escribirte.",
+    "pendingChip": "Pendiente",
+    "pendingNotice": "Esperando a que {name} acepte tu solicitud.",
+    "declinedNotice": "Esta solicitud fue rechazada. No puedes enviar mensajes aquí.",
+    "sendBlocked": "No puedes enviar mensajes en esta conversación.",
+    "sendFailed": "El mensaje no se envió. Inténtalo de nuevo.",
+    "seen": "Visto",
+    "reactToMessage": "Reacciona a este mensaje",
+    "attachmentAlt": "Foto adjunta a este mensaje",
+    "privacyTitle": "Privacidad",
+    "readReceiptsLabel": "Confirmaciones de lectura",
+    "readReceiptsHelp": "Las confirmaciones son recíprocas. Si las desactivas, nadie verá cuándo lees sus mensajes — y tú tampoco verás cuándo leen los tuyos."
   },
   "marketplace": {
     "label": "Consulta del marketplace",
@@ -328,7 +360,8 @@
     "savedTitle": "Publicaciones guardadas",
     "savedEmpty": "Las publicaciones que guardes aparecen aquí.",
     "savedUntitled": "Publicación sin título",
-    "react": "Reaccionar"
+    "react": "Reaccionar",
+    "paw": "Huella"
   },
   "comments": {
     "heading": "Comentarios ({count})",
@@ -343,7 +376,8 @@
     "cancel": "Cancelar",
     "edited": "Editado",
     "deleted": "Este comentario fue eliminado",
-    "signInToComment": "Inicia sesión para comentar"
+    "signInToComment": "Inicia sesión para comentar",
+    "disabledNote": "Los comentarios están desactivados en esta publicación. Los comentarios anteriores siguen visibles."
   },
   "notifications": {
     "title": "Notificaciones",
@@ -354,8 +388,15 @@
       "reaction": "reaccionó a tu publicación",
       "comment": "comentó tu publicación",
       "comment_reply": "respondió a tu comentario",
-      "inquiry": "preguntó por tu anuncio"
-    }
+      "inquiry": "preguntó por tu anuncio",
+      "pack_invite": "quiere unirse a tu manada",
+      "pack_accepted": "se unió a tu manada",
+      "saved_search_match": "publicó un anuncio que coincide con tu búsqueda guardada"
+    },
+    "andOthers": "y {count, plural, one {# persona más} other {# personas más}}",
+    "clearAll": "Borrar todo",
+    "clearAllConfirm": "Confirmar borrado",
+    "announceNew": "{count, plural, one {# notificación nueva} other {# notificaciones nuevas}}"
   },
   "search": {
     "placeholder": "Busca personas, animales, marcas, anuncios",
@@ -893,7 +934,11 @@
     "postsEmpty": "Aún no hay publicaciones en este grupo.",
     "postPlaceholder": "Comparte algo sobre esta raza…",
     "submitPost": "Publicar en el grupo",
-    "errorRequired": "Añade texto o una foto."
+    "errorRequired": "Añade texto o una foto.",
+    "sectionsLabel": "Secciones del grupo",
+    "tabPosts": "Publicaciones",
+    "tabGuides": "Guías",
+    "guidesEmpty": "Aún no se han escrito guías para este grupo."
   },
   "calendar": {
     "eyebrow": "Planificación",
@@ -1127,6 +1172,12 @@
       "deleting": "Eliminando…",
       "deleteReferencedError": "Este animal forma parte de tus registros — el linaje, las camadas o los anuncios lo referencian — así que se puede archivar pero no eliminar.",
       "deleteError": "No se pudo eliminar. Inténtalo de nuevo."
+    },
+    "visitor": {
+      "title": "¿Preguntas sobre {name}?",
+      "messageOwnerHint": "Envíale un mensaje a @{username}.",
+      "listingBanner": "{name} tiene un anuncio activo ahora mismo.",
+      "listingCta": "Ver el anuncio"
     }
   },
   "brandKit": {
@@ -1355,6 +1406,82 @@
         "label": "Grupos",
         "description": "Comunidades por raza y especie."
       }
+    }
+  },
+  "pack": {
+    "eyebrow": "Tu gente",
+    "title": "Manada",
+    "subtitle": "Todas las personas con las que tienes vínculo aquí: a quienes les entregaste un animal, de quienes recibiste el tuyo y cualquiera a quien hayas invitado.",
+    "alumniLink": "Egresados",
+    "alumniLinkBody": "Animales que cambiaron de manos y la línea de tiempo compartida de cada uno.",
+    "requestsTitle": "Solicitudes",
+    "requestsEmpty": "No hay solicitudes pendientes.",
+    "requestFrom": "@{username} quiere vincularse contigo.",
+    "accept": "Aceptar",
+    "decline": "Rechazar",
+    "membersTitle": "En tu manada",
+    "membersEmpty": "Todavía no hay nadie. Una venta o adopción confirmada por ambas partes los vincula automáticamente.",
+    "originHandover": "Vinculados por una entrega completada",
+    "originInvite": "Vinculados por invitación",
+    "remove": "Quitar",
+    "removeTitle": "¿Quitar a @{username}?",
+    "removeBody": "Esto elimina el vínculo para los dos a la vez: la otra persona también lo pierde, y todo lo que dependa del vínculo de manada, como un Árbol del Ecosistema solo para compradores, se cierra con él. No se elimina nada más, y cualquiera de los dos puede enviar una nueva solicitud después.",
+    "removeConfirm": "Quitar",
+    "removing": "Quitando…",
+    "cancel": "Cancelar",
+    "error": "No se pudo. Inténtalo de nuevo.",
+    "addToPack": "Añadir a la manada",
+    "requestSending": "Enviando…",
+    "requestSent": "Solicitud de manada enviada.",
+    "requestAlready": "Ya están vinculados o hay una solicitud."
+  },
+  "alumni": {
+    "title": "Egresados",
+    "subtitle": "Animales que cambiaron de manos aquí. Quien crió al animal y quien lo tiene ahora comparten una sola línea de tiempo, y ambos pueden publicar en ella.",
+    "back": "← Manada",
+    "backToAlumni": "← Egresados",
+    "empty": "Todavía no hay egresados. Cuando ambas partes confirman una venta o adopción, el animal aparece aquí.",
+    "unknownParty": "Cuenta no disponible",
+    "animalGone": "Perfil eliminado",
+    "animalGoneBody": "El perfil de este animal ya no existe, así que no hay nada nuevo que publicar. El registro de la entrega se conserva.",
+    "sideRaisedBy": "Criado por {name}",
+    "sideNowWith": "Ahora con {name}",
+    "handoverAt": "Cambió de manos el {date, date, medium}",
+    "viewAnimal": "Ver el perfil de {name}",
+    "mute": "Silenciar",
+    "unmute": "Reactivar",
+    "mutedTitle": "Silenciados ({count})",
+    "mutedBody": "Los animales silenciados no aparecen en tu lista. La otra parte conserva la suya, el registro se mantiene y puedes reactivarlo cuando quieras.",
+    "updatesTitle": "Novedades",
+    "updatesEmpty": "Todavía no hay novedades. Publica la primera.",
+    "composerPlaceholder": "Cuenta cómo está {name}…",
+    "composerSubmit": "Publicar novedad",
+    "composerError": "Añade texto o una foto.",
+    "roleOwner": "Dueño",
+    "you": "Tú"
+  },
+  "highlights": {
+    "title": "Destacados",
+    "addCta": "Añadir destacado",
+    "empty": "Aún no hay destacados de {name}.",
+    "delete": "Eliminar",
+    "confirmDelete": "Toca otra vez para eliminar",
+    "close": "Cerrar",
+    "titleLabel": "Título",
+    "titlePlaceholder": "Ponle nombre a este destacado",
+    "mediaCount": "{count} de {max} fotos o videos añadidos",
+    "capReached": "Ese es el límite de {max} para un destacado. Quita uno para añadir otro.",
+    "mediaItem": "Elemento {index}",
+    "removeMedia": "Quitar elemento {index}",
+    "save": "Guardar destacado",
+    "saving": "Guardando…",
+    "cancel": "Cancelar",
+    "error": {
+      "title_required": "Ponle un título a este destacado.",
+      "title_too_long": "Los títulos admiten hasta 60 caracteres.",
+      "media_required": "Añade al menos una foto o un video.",
+      "too_much_media": "Un destacado admite hasta 10 fotos o videos.",
+      "generic": "No pudimos guardar este destacado. Inténtalo de nuevo."
     }
   }
 }

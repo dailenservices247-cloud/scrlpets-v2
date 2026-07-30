@@ -39,6 +39,35 @@ export async function listGuides(): Promise<Guide[]> {
   }));
 }
 
+/**
+ * Guides authored FOR one breed/species community. Same RLS as the public list,
+ * so a group tab can only ever show published guides. A group with none gets an
+ * empty array and an empty state — never a general guide dressed up as the
+ * community's own.
+ */
+export async function listGuidesForGroup(groupId: string): Promise<Guide[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("guides")
+    .select("slug,title,summary,audience,published_at")
+    .eq("group_id", groupId)
+    .not("published_at", "is", null)
+    .order("published_at", { ascending: false });
+  return ((data ?? []) as {
+    slug: string;
+    title: string;
+    summary: string | null;
+    audience: GuideAudience;
+    published_at: string | null;
+  }[]).map((g) => ({
+    slug: g.slug,
+    title: g.title,
+    summary: g.summary,
+    audience: g.audience,
+    publishedAt: g.published_at,
+  }));
+}
+
 /** Admin-only: drafts awaiting Dailen's approval. RLS returns [] to everyone else. */
 export async function getDraftGuides(): Promise<GuideDetail[]> {
   const supabase = await createClient();

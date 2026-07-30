@@ -11,4 +11,12 @@ export type FeedItem = {
   mediaUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  /**
+   * Post-family only, and OPTIONAL because `unified_feed` doesn't carry them —
+   * `attachPostFlags` fills them in per rendered list. `undefined` means "not
+   * loaded on this surface", which is why the comment composer treats only an
+   * explicit `false` as "comments are off".
+   */
+  pinnedAt?: string | null;
+  commentsEnabled?: boolean;
 };

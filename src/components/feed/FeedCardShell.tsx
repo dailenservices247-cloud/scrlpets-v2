@@ -38,6 +38,16 @@ export function FeedCardShell({
       <header className="flex items-start justify-between gap-3">
         <AttributionStack item={item} className="flex-1" />
         <div className="flex items-center gap-1.5">
+          {/* Says WHERE it is pinned, because the same post shows up on
+              surfaces the pin has no bearing on. */}
+          {item.pinnedAt && (
+            <span
+              className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-brand-link"
+              data-testid="pinned-chip"
+            >
+              {t("pinnedToProfile")}
+            </span>
+          )}
           {edited && (
             <span
               className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"

@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { getSessionUser } from "@/lib/auth/session";
 import {
   getConversationParticipants,
+  getReceiptState,
   getThread,
   getOtherParticipantProfile,
 } from "@/lib/messaging/queries";
@@ -15,11 +16,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const user = (await getSessionUser())!; // middleware gates /messages
   const conv = await getConversationParticipants(id);
-  if (!conv || (conv.user_a !== user.id && conv.user_b !== user.id)) notFound();
-  const [initial, other, listingContexts, locale, t] = await Promise.all([
-    getThread(id),
+  if (!conv || (conv.userA !== user.id && conv.userB !== user.id)) notFound();
+  const [initial, other, listingContexts, receipts, locale, t] = await Promise.all([
+    getThread(id, user.id),
     getOtherParticipantProfile(id, user.id),
     getListingInquiryContexts(id),
+    getReceiptState(id, user.id),
     getLocale(),
     getTranslations("messages"),
   ]);
@@ -44,6 +46,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
       null,
     href: context.listingId ? `/listing/${context.listingId}` : null,
   }));
+  const otherName = other?.display_name ?? `@${other?.username ?? "unknown"}`;
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col lg:border-x lg:border-border/60">
@@ -51,9 +54,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
         <Link href="/messages" className="text-sm text-brand-link underline" aria-label="Back to messages">
           ←
         </Link>
-        <h1 className="text-base font-bold">
-          {other?.display_name ?? `@${other?.username ?? "unknown"}`}
-        </h1>
+        <h1 className="text-base font-bold">{otherName}</h1>
       </header>
       <div className="p-3">
         <MessageThread
@@ -61,6 +62,9 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
           meId={user.id}
           initial={initial}
           contexts={contexts}
+          gate={{ status: conv.status, iInitiated: conv.initiatedBy === user.id }}
+          otherName={otherName}
+          otherLastReadAt={receipts.otherLastReadAt}
         />
       </div>
     </main>
