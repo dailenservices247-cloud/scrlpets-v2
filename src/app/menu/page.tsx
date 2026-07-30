@@ -152,7 +152,6 @@ export default async function MenuPage() {
       )}
 
       <MenuGroup heading="Help">
-        {/* /support lands in Phase E; 404 until then is expected. */}
         <MenuRow href="/support" icon={LifeBuoy} label="Support" />
       </MenuGroup>
 

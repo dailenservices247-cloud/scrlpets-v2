@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Profile } from "@/lib/profiles/queries";
+import { CoverPhoto } from "@/components/profile/CoverPhoto";
 import { MessageButton } from "@/components/messaging/MessageButton";
 import { AddToPackButton } from "@/components/pack/AddToPackButton";
 import { FollowButton } from "@/components/social/FollowButton";
@@ -27,7 +28,9 @@ export async function ProfileHeader({
   const t = await getTranslations("profile");
   return (
     <section className="px-3 pt-4" data-testid="profile-header">
-      <div className="premium-panel rounded-2xl p-4">
+      <div className="premium-panel overflow-hidden rounded-2xl">
+        <CoverPhoto url={profile.coverUrl} />
+        <div className="p-4">
         <header className="flex items-start gap-3">
           {profile.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -117,6 +120,7 @@ export async function ProfileHeader({
             </div>
           ))}
         </dl>
+        </div>
       </div>
     </section>
   );

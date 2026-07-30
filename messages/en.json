@@ -48,12 +48,16 @@
       "link_expired": "That link is invalid or has expired. Request a new one.",
       "rate_limited": "Too many attempts were made. Wait a moment and try again.",
       "unknown": "We could not complete that request. Please try again.",
-      "already_registered": "An account with this email already exists. Sign in or reset your password instead."
+      "already_registered": "An account with this email already exists. Sign in or reset your password instead.",
+      "locked_out": "Too many failed sign-in attempts. This account is locked for about 15 minutes — wait and try again, or reset your password.",
+      "weak_password": "That password is too weak. Use at least 8 characters, including one letter and one number.",
+      "age_unconfirmed": "Confirm you are at least 18 years old to create an account."
     },
     "notices": {
       "password_updated": "Your password was updated. Sign in with the new password."
     },
-    "ageConfirmation": "I confirm I am at least 18 years old."
+    "ageConfirmation": "I confirm I am at least 18 years old.",
+    "passwordRule": "At least 8 characters, including one letter and one number."
   },
   "consent": {
     "label": "Analytics choice",
@@ -121,7 +125,12 @@
     "adoptionLabel": "List for adoption or rehoming",
     "adoptionHelp": "Same verification checks as a sale. Leave the price blank if there is no adoption fee.",
     "groupLabel": "Share to a group",
-    "groupNone": "No group — post to your feed"
+    "groupNone": "No group — post to your feed",
+    "uploadError": {
+      "type": "That file type isn't supported. Use a JPEG, PNG or WEBP photo, or an MP4, WEBM or MOV video.",
+      "size": "That file is too large. Photos can be up to 5MB and videos up to 50MB.",
+      "process": "We couldn't prepare that photo for upload. Try a different one."
+    }
   },
   "content": {
     "edit": "Edit",
@@ -234,7 +243,8 @@
     "followingTitle": "Following",
     "followListSubtitle": "{count, plural, =0 {No accounts yet} =1 {# account} other {# accounts}} · {name}",
     "followersEmpty": "No followers yet.",
-    "followingEmpty": "Not following anyone yet."
+    "followingEmpty": "Not following anyone yet.",
+    "cover": "Cover photo"
   },
   "detail": {
     "backToFeed": "Back to feed",
@@ -563,7 +573,64 @@
       "owner": "For owners",
       "breeder": "For breeders",
       "buyer": "For buyers"
-    }
+    },
+    "ticketsHeading": "Support tickets",
+    "ticketsEmpty": "No open tickets.",
+    "readMessage": "Read message",
+    "hideMessage": "Hide message",
+    "resolveTicket": "Mark resolved",
+    "ticketStatus": {
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved"
+    },
+    "ticketCategory": {
+      "account": "Account",
+      "listing": "Listing",
+      "transaction": "Transaction",
+      "bug": "Bug",
+      "feature": "Feature request",
+      "feedback": "Feedback",
+      "other": "Other"
+    },
+    "redemptionsHeading": "Reward redemptions",
+    "redemptionsEmpty": "No redemptions waiting.",
+    "redemptionPoints": "{points} points",
+    "markFulfilled": "Mark sent",
+    "rejectAndRefund": "Reject and refund",
+    "redemptionStatus": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "fulfilled": "Sent"
+    },
+    "suspensionsHeading": "Suspended accounts",
+    "suspendHelp": "Suspending an account needs a stated reason. It is recorded against the account and in the moderation log below.",
+    "suspendUsername": "Username",
+    "suspendReason": "Reason for suspension (required)",
+    "suspendedEmpty": "No accounts are suspended.",
+    "suspendedBy": "by {actor}",
+    "suspendedNoReason": "No reason recorded.",
+    "suspendError": {
+      "reason_required": "Give a reason of at least 4 characters.",
+      "admin_required": "Only a platform admin can suspend an account.",
+      "auth_required": "Sign in again and retry.",
+      "not_found": "No account with that username.",
+      "self": "You cannot suspend your own account.",
+      "already_suspended": "That account is already suspended.",
+      "failed": "Could not suspend that account. Please try again."
+    },
+    "auditHeading": "Moderation log",
+    "auditEmpty": "No moderation decisions recorded yet.",
+    "auditAction": {
+      "dismissed": "Report dismissed",
+      "content_hidden": "Content hidden",
+      "account_suspended": "Account suspended",
+      "account_unsuspended": "Account reactivated"
+    },
+    "auditActor": "by {actor}",
+    "auditActorUnknown": "a removed admin",
+    "auditNoNotes": "No reason recorded."
   },
   "guides": {
     "title": "Guides",
@@ -574,7 +641,19 @@
       "owner": "For owners",
       "breeder": "For breeders",
       "buyer": "For buyers"
-    }
+    },
+    "searchPlaceholder": "Search guides",
+    "searchSubmit": "Search",
+    "filterCategory": "Category",
+    "anyCategory": "Any category",
+    "filterSpecies": "Species",
+    "anySpecies": "Any species",
+    "onlySaved": "Saved only",
+    "noMatches": "No guides match that.",
+    "bookmark": "Save",
+    "bookmarked": "Saved",
+    "bookmarkThis": "Save “{title}” to your reading list",
+    "removeBookmarkOf": "Remove “{title}” from your reading list"
   },
   "records": {
     "title": "Records",
@@ -918,7 +997,14 @@
     "empty": "No one has used your link yet.",
     "howTitle": "When you get points",
     "howBody": "Points arrive when someone you invited actually does something — publishes a listing, or completes a handover you both confirmed. Sending the link earns nothing on its own.",
-    "howNotice": "You're paid once per person, and only for people who were new to Scrlpets."
+    "howNotice": "You're paid once per person, and only for people who were new to Scrlpets.",
+    "shareTitle": "Share your invite",
+    "shareHonesty": "Your link gives the other person nothing extra — the app is the same with or without it. It only records that you invited them, and it only works for people who are new to Scrlpets.",
+    "shareText": "Join me on Scrlpets — for people who keep, breed and rehome animals of any kind. My link gets you nothing extra; the app is the same either way. It just records that I invited you, and if you go on to publish a listing or complete a handover, Scrlpets credits me once. New accounts only. {link}",
+    "qrAlt": "QR code for your invite link",
+    "qrUnavailable": "The QR code could not be generated for this link.",
+    "copyMessage": "Copy message",
+    "shareButton": "Share"
   },
   "groups": {
     "eyebrow": "Breeds & species",
@@ -1482,6 +1568,180 @@
       "media_required": "Add at least one photo or video.",
       "too_much_media": "A highlight holds up to 10 photos or videos.",
       "generic": "We couldn't save this highlight. Try again."
+    }
+  },
+  "onboarding": {
+    "eyebrow": "Welcome",
+    "title": "Which animals are you here for?",
+    "body": "Pick as many as you like — or none. This only shapes what we suggest; you can follow, post about, and search for any animal either way.",
+    "legend": "Species you're interested in",
+    "hint": "Nothing is selected for you, and you can change this any time.",
+    "save": "Continue",
+    "skip": "Skip for now",
+    "working": "Working…",
+    "error": "We could not save that. Try again.",
+    "installLink": "You can also <install>add Scrlpets to your home screen</install>."
+  },
+  "install": {
+    "eyebrow": "Install",
+    "title": "Add Scrlpets to your device",
+    "body": "Installing puts Scrlpets on your home screen and opens it in its own window. It is the same site, with the browser chrome out of the way.",
+    "getsTitle": "What installing gives you",
+    "getIcon": "An app icon on your home screen or dock.",
+    "getWindow": "A full-screen window without the browser address bar.",
+    "getSameAccount": "The same account and the same data — nothing is copied onto your device.",
+    "notGetsTitle": "What it does not do",
+    "notOffline": "It does not work offline. Scrlpets needs a connection every time you open it.",
+    "notPush": "It does not add push notifications. Notifications still live inside the app.",
+    "notFaster": "It does not make anything load faster. Pages are fetched exactly as they are in the browser.",
+    "stepsTitle": "How to install",
+    "stepIos": "iPhone or iPad (Safari): tap Share, then Add to Home Screen.",
+    "stepAndroid": "Android (Chrome): open the browser menu, then Install app.",
+    "stepDesktop": "Desktop (Chrome or Edge): use the install icon in the address bar, or the browser menu.",
+    "browserNote": "The one-tap button above only appears when your browser offers it. Safari never does, so use the steps instead.",
+    "installCta": "Install Scrlpets",
+    "alreadyInstalled": "Scrlpets is already installed on this device."
+  },
+  "support": {
+    "eyebrow": "Help",
+    "title": "Support",
+    "back": "Back",
+    "intro": "Tell us what happened. You do not need an account to write to us — being locked out of one is a good reason to be here.",
+    "nextTitle": "What happens next",
+    "next1": "Your message is saved with a reference number, and a person reads it.",
+    "next2": "There is no promised response time. A number we cannot keep would be worse than no number at all.",
+    "next3": "If we need to reach you, we use the email address on this ticket.",
+    "next4NoEmail": "Automatic confirmation emails are not switched on yet, so nothing will arrive in your inbox. Write your reference number down.",
+    "nameLabel": "Your name",
+    "emailLabel": "Email address",
+    "emailLockedHint": "Tickets filed while signed in always use your account address.",
+    "categoryLabel": "What is this about?",
+    "subjectLabel": "Subject",
+    "messageLabel": "What happened?",
+    "submit": "Send to support",
+    "working": "Sending…",
+    "category": {
+      "account": "My account",
+      "listing": "A listing",
+      "transaction": "A sale, adoption or handover",
+      "bug": "Something is broken",
+      "feature": "An idea",
+      "feedback": "Feedback",
+      "other": "Something else"
+    },
+    "sentTitle": "We have your message.",
+    "sentReference": "Your reference:",
+    "sentEmailYes": "A confirmation went to {email}.",
+    "sentEmailNo": "No confirmation email was sent — that is not switched on yet. Keep your reference number.",
+    "fileAnother": "Send another message",
+    "elsewhere": "You may find it faster here:",
+    "faqLink": "FAQ",
+    "guidelinesLink": "Community guidelines",
+    "guidesLink": "Guides",
+    "error": {
+      "name": "Enter a name between 2 and 100 characters.",
+      "email": "Enter an email address we can reply to.",
+      "category": "Choose what this is about.",
+      "subject": "Give the subject between 5 and 200 characters.",
+      "message": "Tell us a little more — at least 10 characters.",
+      "submit_failed": "That did not send. Try again."
+    },
+    "faq": {
+      "lastUpdated": "Last checked against the app on July 30, 2026",
+      "title": "Questions and straight answers",
+      "intro": "Everything below describes what Scrlpets does today, not what it is going to do. Where a thing is not built yet, this page says so.",
+      "footer": "Not answered here?",
+      "footerLink": "Send us a message",
+      "q": {
+        "what": {
+          "q": "What is Scrlpets?",
+          "a": "A place to follow animals and the people who raise and keep them, and to browse animals offered for sale or adoption. It is built for every species kept as a pet — dogs, cats, rabbits, birds, reptiles, fish and more — and the app uses each family's own vocabulary instead of forcing one animal's words onto another."
+        },
+        "account": {
+          "q": "Do I need an account?",
+          "a": "Not to look. Public profiles, animals, posts, listings and guides are readable without signing in. You need an account to publish anything, to send a message, or to ask a seller about a listing."
+        },
+        "buy": {
+          "q": "Can I buy an animal on Scrlpets right now?",
+          "a": "No. Scrlpets does not process payments, and every money path is switched off in the database rather than merely hidden in the interface. You can ask a seller about a listing, and the conversation keeps that listing's details attached — but anything you agree after that happens between the two of you, off Scrlpets."
+        },
+        "identity": {
+          "q": "Are people on Scrlpets identity-verified?",
+          "a": "Not yet. Identity checks are built to run through Stripe Identity and are not switched on. When they are, Stripe holds the documents and Scrlpets stores only whether the check passed. Until then, treat every account as unverified."
+        },
+        "badge": {
+          "q": "What does a reviewed credential mean?",
+          "a": "Someone can submit a kennel licence, business registration, rescue or shelter registration, USDA licence, or breed club membership as a number and an issuing authority. No documents are uploaded. A person checks it against public records and approves or rejects it. That means a credential checked out — it does not mean Scrlpets visited anyone, inspected a facility, or met an animal."
+        },
+        "health": {
+          "q": "Are the animals health-checked?",
+          "a": "No. Scrlpets does not examine, test or health-check any animal, and does not employ a vet. Health entries and reminders in the app are recorded by the animal's own keeper. They are that person's records, not a Scrlpets verification of anything."
+        },
+        "rules": {
+          "q": "Someone is behaving badly. What can I do?",
+          "a": "Report the post, comment, listing or profile. Reports go to a queue a person works through, and they can dismiss the report, hide the content, or suspend the account. You can also block someone: a block hides them from your feed and your messages and severs follows in both directions. Their profile page stays visible for now — hiding a blocked person's content everywhere has not been built yet."
+        },
+        "data": {
+          "q": "Can I get my data out, or delete my account?",
+          "a": "You can download everything you have published as a JSON file from Account settings. Deletion is a request rather than a button: it is reviewed before it completes."
+        },
+        "reply": {
+          "q": "How quickly will support reply?",
+          "a": "There is no honest answer to that yet, so there is no promise. Tickets go into a queue that a person moves through open, in progress and resolved. If you have not heard back, sending the same reference again is fine."
+        },
+        "email": {
+          "q": "Who can see my email address?",
+          "a": "Not the public. Email addresses are not shown on profiles and are kept out of the sitemap. A support ticket stores the address you gave it, and only you and platform admins can read that ticket."
+        }
+      }
+    },
+    "guidelines": {
+      "lastUpdated": "Last checked against the app on July 30, 2026",
+      "title": "Community guidelines",
+      "intro": "One set of rules, for every species and every kind of keeper. Each one maps to something the app or a reviewer can actually do — there are no rules here that nobody can enforce.",
+      "footer": "Something unclear, or something the report button does not cover?",
+      "termsLink": "Terms",
+      "enforcementTitle": "How this is enforced",
+      "enforcementBody": "Enforcement starts with a report. A person reviews it and can dismiss it, hide the reported content, or suspend the account, and every action taken is recorded against that report.",
+      "enforcementLimits": "In practice that means nothing is scanned automatically and nobody is watching a live feed. Things get looked at because somebody reported them. If you see something wrong, report it — that is the mechanism.",
+      "rule": {
+        "species": {
+          "title": "Every species gets the same standard",
+          "body": "Dogs and cats do not get a better product here than rabbits, birds, reptiles, fish or anything else people keep, and they do not get a worse one either. Nothing on Scrlpets treats an animal as less of an animal because of its species or breed."
+        },
+        "honest": {
+          "title": "Describe the animal honestly",
+          "body": "Species, age, what is known about health and history, and what a buyer or adopter is actually getting. Misrepresenting an animal is grounds for the listing to be hidden and the account suspended."
+        },
+        "tooYoung": {
+          "title": "Do not list an animal too young to leave",
+          "body": "Where a dog's or cat's birth date is recorded and puts the animal under eight weeks old, or where a weaning date is still in the future, the app refuses the listing outright. An unrecorded date is treated as unknown rather than as proof of anything — but offering an underage or unweaned animal breaks this rule whether or not the app can see it."
+        },
+        "welfare": {
+          "title": "No cruelty, no unlawful sales",
+          "body": "Do not promote cruelty or neglect, and do not use Scrlpets to work around the breeding, sale or transport requirements that apply where you are. Content and accounts can be removed for this."
+        },
+        "people": {
+          "title": "Be decent to people",
+          "body": "No harassment, no bullying, no pile-ons, and no impersonating another person or organisation. Disagreeing about how an animal should be kept is fine; going after the person is not."
+        },
+        "spam": {
+          "title": "No spam and no scams",
+          "body": "No fraudulent listings, no scam attempts, and no flooding the app with the same content. If something reads like a scam, report it — that reason is in the report menu."
+        },
+        "ownContent": {
+          "title": "Post what is yours",
+          "body": "Photos and video of animals you actually keep or bred, or content you hold the right to publish. You keep ownership of what you post; publishing it gives Scrlpets permission to host and display it so the app can work."
+        },
+        "adults": {
+          "title": "Accounts are for adults",
+          "body": "You must be at least 18 to hold a Scrlpets account, to publish, or to take part in the marketplace. Browsing public content does not require an account."
+        },
+        "money": {
+          "title": "Money happens off Scrlpets — be careful",
+          "body": "Scrlpets does not process payments, hold funds, or refund them. If you send money to someone you met here, that is between the two of you and Scrlpets cannot reverse it. Keeping the conversation in Scrlpets messages at least leaves a record of what was agreed."
+        }
+      }
     }
   }
 }

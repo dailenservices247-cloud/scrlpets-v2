@@ -234,7 +234,8 @@ export function MessageThread({
             </Button>
           </div>
           {/* Reuses the compose picker + shared upload util — one uploader in
-              the app, EXIF-stripping and size caps included. */}
+              the app, size caps and image metadata stripping included. Video
+              metadata is NOT stripped; see the note in lib/media/upload.ts. */}
           <MediaInput userId={meId} onUploaded={(url) => setMediaUrl(url)} />
           {error && (
             <p className="text-sm text-destructive" role="alert" data-testid="message-error">

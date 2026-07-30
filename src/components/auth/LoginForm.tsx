@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { authErrorKey, type AuthErrorKey, type AuthNoticeKey } from "@/lib/auth/errors";
+import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password";
+import { signUpWithPassword } from "@/lib/auth/signup";
 
 type Mode = "signin" | "signup";
 
@@ -35,9 +37,9 @@ export function LoginForm({
   const [resent, setResent] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
 
-  function callbackUrl() {
+  function callbackUrl(destination = nextPath) {
     const callback = new URL("/auth/callback", location.origin);
-    callback.searchParams.set("next", nextPath);
+    callback.searchParams.set("next", destination);
     // OAuth cannot carry signup metadata, so the invite code rides the
     // callback URL; the callback route claims it once a session exists.
     if (referralCode) callback.searchParams.set("ref", referralCode);
@@ -50,56 +52,82 @@ export function LoginForm({
     setBusy(true);
 
     if (mode === "signup") {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: callbackUrl(),
-          // The confirmation link may be opened on another device, where the
-          // ref query param of THIS page no longer exists. Metadata survives
-          // the hop; the callback claims it and clears the key.
-          ...(referralCode ? { data: { referral_code: referralCode } } : {}),
-        },
-      });
+      // Signup runs in a server action: the password rule and the age gate are
+      // decided there, where a scripted client cannot skip them.
+      const fd = new FormData();
+      fd.set("email", email);
+      fd.set("password", password);
+      fd.set("ageConfirmed", String(ageConfirmed));
+      fd.set("nextPath", nextPath);
+      if (referralCode) fd.set("referralCode", referralCode);
+      const result = await signUpWithPassword(fd);
       setBusy(false);
-      if (signUpError) {
-        setError(authErrorKey(signUpError.message));
+      if (result.status === "error") {
+        setError(result.error);
         return;
       }
-      // With email confirmation on, Supabase obfuscates existing confirmed
-      // accounts as a success with no identities — no email will arrive.
-      if (data.user && data.user.identities?.length === 0) {
+      if (result.status === "already_registered") {
         setMode("signin");
         setError("already_registered");
         return;
       }
-      if (!data.session) {
+      if (result.status === "verify") {
         setAwaitingVerification(true);
         return;
       }
-      // Confirmation off (dev/E2E): the session exists right here and no
-      // callback will ever run, so this is the only chance to claim. Best
-      // effort — every real refusal lives in the definer and stays silent.
-      if (referralCode) {
-        await supabase.rpc("claim_referral", { code: referralCode });
-      }
-    } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Session already set by the action. A brand-new account answers the
+      // interests screen before it goes anywhere else; the confirmation-email
+      // path reaches the same screen through the callback's `next`.
+      router.push(`/onboarding?next=${encodeURIComponent(nextPath)}`);
+      router.refresh();
+      return;
+    }
+
+    // The lockout is checked BEFORE the attempt so a locked account is told
+    // the truth instead of a "wrong password" no retry can fix.
+    //
+    // ponytail: the check is a client call to a SECURITY DEFINER function, so
+    // a scripted client can skip it and keep guessing — Supabase's own
+    // per-IP sign-in rate limit is the backstop there. Closing that gap means
+    // proxying sign-in through a server action or an auth hook; the counter
+    // this reads is already server-owned and would not change.
+    const { data: locked } = await supabase.rpc("is_locked_out", {
+      target_email: email,
+    });
+    if (locked) {
       setBusy(false);
-      if (signInError) {
-        const key = authErrorKey(signInError.message);
-        // Unconfirmed accounts get the pending/resend screen, not a dead end.
-        if (key === "email_not_confirmed") {
-          setAwaitingVerification(true);
-          return;
-        }
-        setError(key);
+      setError("locked_out");
+      return;
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    setBusy(false);
+    if (signInError) {
+      const key = authErrorKey(signInError.message);
+      // Unconfirmed accounts get the pending/resend screen, not a dead end —
+      // and no failure is recorded, because their password was not the problem.
+      if (key === "email_not_confirmed") {
+        setAwaitingVerification(true);
         return;
       }
+      if (key === "invalid_credentials") {
+        await supabase.rpc("record_login_failure", { target_email: email });
+        // That failure may be the one that trips the lock. Say so now rather
+        // than after another wasted attempt.
+        const { data: nowLocked } = await supabase.rpc("is_locked_out", {
+          target_email: email,
+        });
+        setError(nowLocked ? "locked_out" : key);
+        return;
+      }
+      setError(key);
+      return;
     }
+    // A good login un-sticks the counter.
+    await supabase.rpc("clear_login_failures", { target_email: email });
 
     router.push(nextPath);
     router.refresh();
@@ -111,7 +139,11 @@ export function LoginForm({
     const { error: resendError } = await supabase.auth.resend({
       type: "signup",
       email,
-      options: { emailRedirectTo: callbackUrl() },
+      // Same destination the signup action asked for, so a resent link does
+      // not quietly skip the interests screen.
+      options: {
+        emailRedirectTo: callbackUrl(`/onboarding?next=${encodeURIComponent(nextPath)}`),
+      },
     });
     setBusy(false);
     if (resendError) {
@@ -220,13 +252,18 @@ export function LoginForm({
             name="password"
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
             required
-            minLength={mode === "signup" ? 8 : undefined}
+            minLength={mode === "signup" ? PASSWORD_MIN_LENGTH : undefined}
+            aria-describedby={mode === "signup" ? "password-rule" : undefined}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
+        {/* Stated before submitting, not discovered afterwards. The server
+            action enforces exactly this sentence. */}
         {mode === "signup" && (
-          <p className="text-xs leading-5 text-muted-foreground">{t("passwordHint")}</p>
+          <p id="password-rule" className="text-xs leading-5 text-muted-foreground" data-testid="password-rule">
+            {t("passwordRule")}
+          </p>
         )}
         {mode === "signup" && (
           <label className="flex min-h-11 items-center gap-3 text-sm">
@@ -299,7 +336,14 @@ function AuthShell({ children }: { children: React.ReactNode }) {
 function AuthError({ error }: { error: AuthErrorKey }) {
   const t = useTranslations("auth");
   return (
-    <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+    <p
+      className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+      role="alert"
+      data-testid="auth-error"
+      // The KEY, not the copy: a test can then assert which refusal happened
+      // without pinning the wording of a translated sentence.
+      data-error={error}
+    >
       {t(`errors.${error}`)}
     </p>
   );

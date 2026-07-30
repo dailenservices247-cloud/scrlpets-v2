@@ -20,6 +20,7 @@ export function ProfileEditForm({
   const [displayName, setDisplayName] = useState(initial.displayName ?? "");
   const [bio, setBio] = useState(initial.bio ?? "");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -30,7 +31,11 @@ export function ProfileEditForm({
     const fd = new FormData();
     fd.set("displayName", displayName);
     fd.set("bio", bio);
+    // ponytail: uploading replaces, and there is no "remove" — same ceiling the
+    // avatar has had since slice 2. Add one control that clears both when
+    // someone actually asks to take a picture back down.
     if (avatarUrl) fd.set("avatarUrl", avatarUrl);
+    if (coverUrl) fd.set("coverUrl", coverUrl);
     const res = await updateProfile(fd);
     setBusy(false);
     if (!res.ok) {
@@ -63,7 +68,16 @@ export function ProfileEditForm({
         onChange={(e) => setBio(e.target.value)}
         data-testid="edit-bio"
       />
-      <MediaInput userId={userId} onUploaded={setAvatarUrl} />
+      {/* Two pickers, one shared uploader. The fieldsets exist so the two
+          identical "Add photo" inputs are distinguishable to a screen reader. */}
+      <fieldset className="flex flex-col gap-1">
+        <legend className="text-sm text-muted-foreground">{t("avatar")}</legend>
+        <MediaInput userId={userId} onUploaded={setAvatarUrl} />
+      </fieldset>
+      <fieldset className="flex flex-col gap-1">
+        <legend className="text-sm text-muted-foreground">{t("cover")}</legend>
+        <MediaInput userId={userId} onUploaded={setCoverUrl} />
+      </fieldset>
       {err && <p className="text-destructive text-sm">{err}</p>}
       <Button type="submit" disabled={busy} data-testid="edit-save">
         {t("save")}

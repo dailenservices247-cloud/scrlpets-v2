@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { ReferralPanel } from "@/components/referrals/ReferralPanel";
+import { ReferralShare } from "@/components/referral/ReferralShare";
 import { getMyReferralCode, getMyReferralStats } from "@/lib/referrals/queries";
 import { getSessionUser } from "@/lib/auth/session";
 
@@ -23,6 +24,7 @@ export default async function ReferralsPage() {
     getMyReferralCode(),
     getMyReferralStats(),
   ]);
+  const link = code ? `${BASE_URL}/signup?ref=${encodeURIComponent(code)}` : null;
 
   return (
     <AppPage>
@@ -32,11 +34,9 @@ export default async function ReferralsPage() {
           {t("back")}
         </Link>
       </header>
-      <div className="px-3 pb-6">
-        <ReferralPanel
-          link={code ? `${BASE_URL}/signup?ref=${encodeURIComponent(code)}` : null}
-          stats={stats}
-        />
+      <div className="flex flex-col gap-4 px-3 pb-6">
+        <ReferralPanel link={link} stats={stats} />
+        <ReferralShare link={link} />
       </div>
     </AppPage>
   );

@@ -48,12 +48,16 @@
       "link_expired": "El enlace no es válido o venció. Solicita uno nuevo.",
       "rate_limited": "Hubo demasiados intentos. Espera un momento e inténtalo de nuevo.",
       "unknown": "No pudimos completar la solicitud. Inténtalo de nuevo.",
-      "already_registered": "Ya existe una cuenta con este correo. Inicia sesión o restablece tu contraseña."
+      "already_registered": "Ya existe una cuenta con este correo. Inicia sesión o restablece tu contraseña.",
+      "locked_out": "Demasiados intentos fallidos de inicio de sesión. Esta cuenta queda bloqueada unos 15 minutos: espera e inténtalo de nuevo, o restablece tu contraseña.",
+      "weak_password": "Esa contraseña es demasiado débil. Usa al menos 8 caracteres, incluyendo una letra y un número.",
+      "age_unconfirmed": "Confirma que tienes al menos 18 años para crear una cuenta."
     },
     "notices": {
       "password_updated": "Tu contraseña se actualizó. Inicia sesión con la nueva contraseña."
     },
-    "ageConfirmation": "Confirmo que tengo al menos 18 años."
+    "ageConfirmation": "Confirmo que tengo al menos 18 años.",
+    "passwordRule": "Al menos 8 caracteres, incluyendo una letra y un número."
   },
   "consent": {
     "label": "Preferencia de analítica",
@@ -121,7 +125,12 @@
     "adoptionLabel": "Publicar para adopción o realojamiento",
     "adoptionHelp": "Mismas verificaciones que una venta. Deja el precio vacío si no hay cuota.",
     "groupLabel": "Compartir en un grupo",
-    "groupNone": "Sin grupo — publicar en tu feed"
+    "groupNone": "Sin grupo — publicar en tu feed",
+    "uploadError": {
+      "type": "Ese tipo de archivo no es compatible. Usa una foto JPEG, PNG o WEBP, o un video MP4, WEBM o MOV.",
+      "size": "Ese archivo es demasiado grande. Las fotos admiten hasta 5MB y los videos hasta 50MB.",
+      "process": "No pudimos preparar esa foto para subirla. Prueba con otra."
+    }
   },
   "content": {
     "edit": "Editar",
@@ -234,7 +243,8 @@
     "followingTitle": "Siguiendo",
     "followListSubtitle": "{count, plural, =0 {Aún sin cuentas} =1 {# cuenta} other {# cuentas}} · {name}",
     "followersEmpty": "Aún no hay seguidores.",
-    "followingEmpty": "Todavía no sigue a ninguna cuenta."
+    "followingEmpty": "Todavía no sigue a ninguna cuenta.",
+    "cover": "Foto de portada"
   },
   "detail": {
     "backToFeed": "Volver al feed",
@@ -563,7 +573,64 @@
       "owner": "Para dueños",
       "breeder": "Para criadores",
       "buyer": "Para compradores"
-    }
+    },
+    "ticketsHeading": "Tickets de soporte",
+    "ticketsEmpty": "No hay tickets abiertos.",
+    "readMessage": "Leer mensaje",
+    "hideMessage": "Ocultar mensaje",
+    "resolveTicket": "Marcar como resuelto",
+    "ticketStatus": {
+      "open": "Abierto",
+      "in_progress": "En curso",
+      "resolved": "Resuelto"
+    },
+    "ticketCategory": {
+      "account": "Cuenta",
+      "listing": "Anuncio",
+      "transaction": "Transacción",
+      "bug": "Error",
+      "feature": "Sugerencia",
+      "feedback": "Comentarios",
+      "other": "Otro"
+    },
+    "redemptionsHeading": "Canjes de recompensas",
+    "redemptionsEmpty": "No hay canjes pendientes.",
+    "redemptionPoints": "{points} puntos",
+    "markFulfilled": "Marcar como enviado",
+    "rejectAndRefund": "Rechazar y reembolsar",
+    "redemptionStatus": {
+      "requested": "Solicitado",
+      "approved": "Aprobado",
+      "rejected": "Rechazado",
+      "fulfilled": "Enviado"
+    },
+    "suspensionsHeading": "Cuentas suspendidas",
+    "suspendHelp": "Suspender una cuenta exige un motivo declarado. Queda registrado en la cuenta y en el registro de moderación de abajo.",
+    "suspendUsername": "Nombre de usuario",
+    "suspendReason": "Motivo de la suspensión (obligatorio)",
+    "suspendedEmpty": "No hay cuentas suspendidas.",
+    "suspendedBy": "por {actor}",
+    "suspendedNoReason": "Sin motivo registrado.",
+    "suspendError": {
+      "reason_required": "Escribe un motivo de al menos 4 caracteres.",
+      "admin_required": "Solo un administrador de la plataforma puede suspender una cuenta.",
+      "auth_required": "Vuelve a iniciar sesión e inténtalo de nuevo.",
+      "not_found": "No existe ninguna cuenta con ese nombre de usuario.",
+      "self": "No puedes suspender tu propia cuenta.",
+      "already_suspended": "Esa cuenta ya está suspendida.",
+      "failed": "No se pudo suspender esa cuenta. Inténtalo de nuevo."
+    },
+    "auditHeading": "Registro de moderación",
+    "auditEmpty": "Aún no hay decisiones de moderación registradas.",
+    "auditAction": {
+      "dismissed": "Denuncia descartada",
+      "content_hidden": "Contenido ocultado",
+      "account_suspended": "Cuenta suspendida",
+      "account_unsuspended": "Cuenta reactivada"
+    },
+    "auditActor": "por {actor}",
+    "auditActorUnknown": "un administrador eliminado",
+    "auditNoNotes": "Sin motivo registrado."
   },
   "guides": {
     "title": "Guías",
@@ -574,7 +641,19 @@
       "owner": "Para dueños",
       "breeder": "Para criadores",
       "buyer": "Para compradores"
-    }
+    },
+    "searchPlaceholder": "Buscar guías",
+    "searchSubmit": "Buscar",
+    "filterCategory": "Categoría",
+    "anyCategory": "Cualquier categoría",
+    "filterSpecies": "Especie",
+    "anySpecies": "Cualquier especie",
+    "onlySaved": "Solo guardadas",
+    "noMatches": "Ninguna guía coincide.",
+    "bookmark": "Guardar",
+    "bookmarked": "Guardada",
+    "bookmarkThis": "Guardar «{title}» en tu lista de lectura",
+    "removeBookmarkOf": "Quitar «{title}» de tu lista de lectura"
   },
   "records": {
     "title": "Registros",
@@ -918,7 +997,14 @@
     "empty": "Nadie ha usado tu enlace todavía.",
     "howTitle": "Cuándo recibes puntos",
     "howBody": "Los puntos llegan cuando alguien que invitaste realmente hace algo: publica un anuncio o completa una entrega confirmada. Enviar el enlace por sí solo no gana nada.",
-    "howNotice": "Se paga una vez por persona, y solo por personas nuevas en Scrlpets."
+    "howNotice": "Se paga una vez por persona, y solo por personas nuevas en Scrlpets.",
+    "shareTitle": "Comparte tu invitación",
+    "shareHonesty": "Tu enlace no le da nada extra a la otra persona: la app es igual con o sin él. Solo registra que tú la invitaste, y solo funciona con personas nuevas en Scrlpets.",
+    "shareText": "Únete a mí en Scrlpets, para quienes cuidan, crían y reubican animales de cualquier tipo. Mi enlace no te da nada extra; la app es igual de todas formas. Solo registra que yo te invité, y si luego publicas un anuncio o completas una entrega, Scrlpets me acredita una vez. Solo cuentas nuevas. {link}",
+    "qrAlt": "Código QR de tu enlace de invitación",
+    "qrUnavailable": "No se pudo generar el código QR para este enlace.",
+    "copyMessage": "Copiar mensaje",
+    "shareButton": "Compartir"
   },
   "groups": {
     "eyebrow": "Razas y especies",
@@ -1482,6 +1568,180 @@
       "media_required": "Añade al menos una foto o un video.",
       "too_much_media": "Un destacado admite hasta 10 fotos o videos.",
       "generic": "No pudimos guardar este destacado. Inténtalo de nuevo."
+    }
+  },
+  "onboarding": {
+    "eyebrow": "Bienvenida",
+    "title": "¿Qué animales te traen aquí?",
+    "body": "Elige los que quieras, o ninguno. Esto solo ajusta lo que te sugerimos; puedes seguir, publicar y buscar cualquier animal de todos modos.",
+    "legend": "Especies que te interesan",
+    "hint": "No seleccionamos nada por ti, y puedes cambiarlo cuando quieras.",
+    "save": "Continuar",
+    "skip": "Omitir por ahora",
+    "working": "Procesando…",
+    "error": "No pudimos guardarlo. Inténtalo de nuevo.",
+    "installLink": "También puedes <install>añadir Scrlpets a tu pantalla de inicio</install>."
+  },
+  "install": {
+    "eyebrow": "Instalar",
+    "title": "Añade Scrlpets a tu dispositivo",
+    "body": "Instalar coloca Scrlpets en tu pantalla de inicio y lo abre en su propia ventana. Es el mismo sitio, sin la barra del navegador en medio.",
+    "getsTitle": "Lo que te da instalar",
+    "getIcon": "Un icono en tu pantalla de inicio o en el dock.",
+    "getWindow": "Una ventana completa, sin la barra de direcciones del navegador.",
+    "getSameAccount": "La misma cuenta y los mismos datos: no se copia nada a tu dispositivo.",
+    "notGetsTitle": "Lo que no hace",
+    "notOffline": "No funciona sin conexión. Scrlpets necesita conexión cada vez que lo abres.",
+    "notPush": "No añade notificaciones push. Las notificaciones siguen dentro de la app.",
+    "notFaster": "No hace que nada cargue más rápido. Las páginas se descargan igual que en el navegador.",
+    "stepsTitle": "Cómo instalarlo",
+    "stepIos": "iPhone o iPad (Safari): toca Compartir y luego Añadir a pantalla de inicio.",
+    "stepAndroid": "Android (Chrome): abre el menú del navegador y luego Instalar aplicación.",
+    "stepDesktop": "Escritorio (Chrome o Edge): usa el icono de instalación en la barra de direcciones, o el menú del navegador.",
+    "browserNote": "El botón de arriba solo aparece cuando tu navegador lo ofrece. Safari nunca lo hace, así que usa los pasos.",
+    "installCta": "Instalar Scrlpets",
+    "alreadyInstalled": "Scrlpets ya está instalado en este dispositivo."
+  },
+  "support": {
+    "eyebrow": "Ayuda",
+    "title": "Soporte",
+    "back": "Volver",
+    "intro": "Cuéntanos qué pasó. No hace falta tener cuenta para escribirnos — no poder entrar a la tuya es justamente un buen motivo para estar aquí.",
+    "nextTitle": "Qué pasa después",
+    "next1": "Tu mensaje se guarda con un número de referencia y lo lee una persona.",
+    "next2": "No prometemos un tiempo de respuesta. Un plazo que no podemos cumplir sería peor que ningún plazo.",
+    "next3": "Si necesitamos contactarte, usamos la dirección de correo de este ticket.",
+    "next4NoEmail": "Los correos de confirmación automáticos todavía no están activados, así que no llegará nada a tu bandeja. Anota tu número de referencia.",
+    "nameLabel": "Tu nombre",
+    "emailLabel": "Correo electrónico",
+    "emailLockedHint": "Los tickets enviados con la sesión iniciada usan siempre la dirección de tu cuenta.",
+    "categoryLabel": "¿Sobre qué es?",
+    "subjectLabel": "Asunto",
+    "messageLabel": "¿Qué pasó?",
+    "submit": "Enviar a soporte",
+    "working": "Enviando…",
+    "category": {
+      "account": "Mi cuenta",
+      "listing": "Una publicación",
+      "transaction": "Una venta, adopción o entrega",
+      "bug": "Algo no funciona",
+      "feature": "Una idea",
+      "feedback": "Comentarios",
+      "other": "Otra cosa"
+    },
+    "sentTitle": "Recibimos tu mensaje.",
+    "sentReference": "Tu referencia:",
+    "sentEmailYes": "Se envió una confirmación a {email}.",
+    "sentEmailNo": "No se envió ningún correo de confirmación — eso todavía no está activado. Guarda tu número de referencia.",
+    "fileAnother": "Enviar otro mensaje",
+    "elsewhere": "Quizá encuentres la respuesta antes aquí:",
+    "faqLink": "Preguntas frecuentes",
+    "guidelinesLink": "Normas de la comunidad",
+    "guidesLink": "Guías",
+    "error": {
+      "name": "Escribe un nombre de entre 2 y 100 caracteres.",
+      "email": "Escribe una dirección de correo a la que podamos responder.",
+      "category": "Elige sobre qué es.",
+      "subject": "El asunto debe tener entre 5 y 200 caracteres.",
+      "message": "Cuéntanos un poco más — al menos 10 caracteres.",
+      "submit_failed": "No se pudo enviar. Inténtalo de nuevo."
+    },
+    "faq": {
+      "lastUpdated": "Verificado con la app el 30 de julio de 2026",
+      "title": "Preguntas y respuestas directas",
+      "intro": "Todo lo que sigue describe lo que Scrlpets hace hoy, no lo que hará. Cuando algo todavía no existe, esta página lo dice.",
+      "footer": "¿No está aquí tu respuesta?",
+      "footerLink": "Escríbenos",
+      "q": {
+        "what": {
+          "q": "¿Qué es Scrlpets?",
+          "a": "Un lugar para seguir animales y a las personas que los crían y cuidan, y para ver animales ofrecidos en venta o en adopción. Está hecho para todas las especies que se tienen como mascota — perros, gatos, conejos, aves, reptiles, peces y más — y la app usa el vocabulario propio de cada familia en lugar de imponer el de un solo animal."
+        },
+        "account": {
+          "q": "¿Necesito una cuenta?",
+          "a": "No para mirar. Los perfiles, animales, publicaciones, anuncios y guías públicos se pueden leer sin iniciar sesión. Necesitas cuenta para publicar, para enviar un mensaje o para preguntarle a un vendedor sobre un anuncio."
+        },
+        "buy": {
+          "q": "¿Puedo comprar un animal en Scrlpets ahora mismo?",
+          "a": "No. Scrlpets no procesa pagos, y todos los caminos de dinero están desactivados en la base de datos, no solo ocultos en la interfaz. Puedes preguntarle a un vendedor sobre un anuncio y la conversación conserva los datos de ese anuncio — pero lo que acuerden después ocurre entre ustedes dos, fuera de Scrlpets."
+        },
+        "identity": {
+          "q": "¿Se verifica la identidad de las personas en Scrlpets?",
+          "a": "Todavía no. La verificación de identidad está construida para funcionar con Stripe Identity y no está activada. Cuando lo esté, Stripe conserva los documentos y Scrlpets guarda solamente si la verificación se aprobó. Hasta entonces, considera cada cuenta como no verificada."
+        },
+        "badge": {
+          "q": "¿Qué significa una credencial revisada?",
+          "a": "Una persona puede presentar una licencia de criadero, un registro mercantil, un registro de rescate o refugio, una licencia del USDA o la membresía de un club de raza, indicando el número y la autoridad que la emite. No se suben documentos. Una persona lo coteja con registros públicos y lo aprueba o lo rechaza. Eso significa que una credencial se comprobó — no significa que Scrlpets haya visitado a nadie, inspeccionado unas instalaciones ni conocido a ningún animal."
+        },
+        "health": {
+          "q": "¿Los animales pasan un control de salud?",
+          "a": "No. Scrlpets no examina, analiza ni revisa la salud de ningún animal, y no tiene veterinarios en plantilla. Los registros y recordatorios de salud de la app los introduce quien cuida al animal. Son los registros de esa persona, no una verificación de Scrlpets."
+        },
+        "rules": {
+          "q": "Alguien se está comportando mal. ¿Qué puedo hacer?",
+          "a": "Reporta la publicación, el comentario, el anuncio o el perfil. Los reportes van a una cola que revisa una persona, que puede descartar el reporte, ocultar el contenido o suspender la cuenta. También puedes bloquear a alguien: el bloqueo lo oculta de tu feed y de tus mensajes y corta los seguimientos en ambos sentidos. Su página de perfil sigue visible por ahora — ocultar en todas partes el contenido de una persona bloqueada todavía no está hecho."
+        },
+        "data": {
+          "q": "¿Puedo exportar mis datos o borrar mi cuenta?",
+          "a": "Puedes descargar todo lo que has publicado como un archivo JSON desde los ajustes de la cuenta. El borrado es una solicitud, no un botón: se revisa antes de completarse."
+        },
+        "reply": {
+          "q": "¿Cuánto tarda soporte en responder?",
+          "a": "Todavía no hay una respuesta honesta a eso, así que no prometemos nada. Los tickets entran en una cola que una persona va moviendo entre abierto, en curso y resuelto. Si no has tenido noticias, no hay problema en volver a escribir con la misma referencia."
+        },
+        "email": {
+          "q": "¿Quién puede ver mi correo electrónico?",
+          "a": "El público no. Las direcciones de correo no se muestran en los perfiles y quedan fuera del sitemap. Un ticket de soporte guarda la dirección que indicaste, y solo tú y los administradores de la plataforma pueden leer ese ticket."
+        }
+      }
+    },
+    "guidelines": {
+      "lastUpdated": "Verificado con la app el 30 de julio de 2026",
+      "title": "Normas de la comunidad",
+      "intro": "Un solo conjunto de normas, para todas las especies y para cualquier tipo de cuidador. Cada una corresponde a algo que la app o una persona revisora puede hacer de verdad — aquí no hay normas que nadie pueda aplicar.",
+      "footer": "¿Algo no queda claro, o algo que el botón de reportar no cubre?",
+      "termsLink": "Términos",
+      "enforcementTitle": "Cómo se aplican",
+      "enforcementBody": "La aplicación de las normas empieza con un reporte. Una persona lo revisa y puede descartarlo, ocultar el contenido reportado o suspender la cuenta, y cada acción queda registrada junto a ese reporte.",
+      "enforcementLimits": "En la práctica eso significa que no se analiza nada de forma automática y que nadie está vigilando un feed en vivo. Las cosas se revisan porque alguien las reportó. Si ves algo mal, repórtalo — ese es el mecanismo.",
+      "rule": {
+        "species": {
+          "title": "Todas las especies tienen el mismo trato",
+          "body": "Los perros y los gatos no reciben aquí un producto mejor que los conejos, las aves, los reptiles, los peces o cualquier otro animal que la gente cuide, y tampoco uno peor. Nada en Scrlpets trata a un animal como menos animal por su especie o su raza."
+        },
+        "honest": {
+          "title": "Describe al animal con honestidad",
+          "body": "Especie, edad, lo que se sepa de su salud y su historia, y qué recibe realmente quien compra o adopta. Tergiversar a un animal es motivo para ocultar el anuncio y suspender la cuenta."
+        },
+        "tooYoung": {
+          "title": "No publiques un animal demasiado joven para irse",
+          "body": "Cuando la fecha de nacimiento de un perro o un gato está registrada y sitúa al animal por debajo de las ocho semanas, o cuando la fecha de destete todavía está en el futuro, la app rechaza el anuncio directamente. Una fecha sin registrar se trata como desconocida, no como prueba de nada — pero ofrecer un animal demasiado joven o sin destetar incumple esta norma aunque la app no pueda verlo."
+        },
+        "welfare": {
+          "title": "Ni crueldad ni ventas ilegales",
+          "body": "No promuevas la crueldad ni el abandono, y no uses Scrlpets para eludir los requisitos de cría, venta o transporte que se apliquen donde estés. El contenido y las cuentas se pueden retirar por esto."
+        },
+        "people": {
+          "title": "Trata bien a las personas",
+          "body": "Nada de acoso, de intimidación, de linchamientos ni de hacerse pasar por otra persona u organización. Discrepar sobre cómo debe cuidarse a un animal está bien; ir contra la persona no."
+        },
+        "spam": {
+          "title": "Ni spam ni estafas",
+          "body": "Nada de anuncios fraudulentos, ni intentos de estafa, ni inundar la app con el mismo contenido. Si algo parece una estafa, repórtalo — ese motivo está en el menú de reportes."
+        },
+        "ownContent": {
+          "title": "Publica lo que es tuyo",
+          "body": "Fotos y vídeos de animales que realmente cuidas o criaste, o contenido que tienes derecho a publicar. Sigues siendo dueño de lo que publicas; al publicarlo le das permiso a Scrlpets para alojarlo y mostrarlo para que la app funcione."
+        },
+        "adults": {
+          "title": "Las cuentas son para personas adultas",
+          "body": "Debes tener al menos 18 años para tener una cuenta de Scrlpets, para publicar o para participar en el mercado. Ver contenido público no requiere cuenta."
+        },
+        "money": {
+          "title": "El dinero se mueve fuera de Scrlpets — ten cuidado",
+          "body": "Scrlpets no procesa pagos, no retiene fondos y no los reembolsa. Si le envías dinero a alguien que conociste aquí, eso queda entre ustedes dos y Scrlpets no puede revertirlo. Mantener la conversación en los mensajes de Scrlpets al menos deja constancia de lo acordado."
+        }
+      }
     }
   }
 }

@@ -1,20 +1,26 @@
 export type AuthErrorKey =
+  | "age_unconfirmed"
   | "already_registered"
   | "confirmation_failed"
   | "email_not_confirmed"
   | "invalid_credentials"
   | "link_expired"
+  | "locked_out"
   | "rate_limited"
-  | "unknown";
+  | "unknown"
+  | "weak_password";
 
 const AUTH_ERROR_KEYS = new Set<AuthErrorKey>([
+  "age_unconfirmed",
   "already_registered",
   "confirmation_failed",
   "email_not_confirmed",
   "invalid_credentials",
   "link_expired",
+  "locked_out",
   "rate_limited",
   "unknown",
+  "weak_password",
 ]);
 
 export function authErrorKey(message: string): AuthErrorKey {
@@ -31,6 +37,11 @@ export function authErrorKey(message: string): AuthErrorKey {
     normalized.includes("invalid credentials")
   ) {
     return "invalid_credentials";
+  }
+  // Supabase's own password policy can refuse before ours does (its minimum is
+  // configured per project): "Password should be at least N characters".
+  if (normalized.includes("password") && normalized.includes("should be")) {
+    return "weak_password";
   }
   if (
     normalized.includes("expired") ||

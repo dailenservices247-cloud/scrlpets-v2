@@ -9,13 +9,15 @@ export type Profile = {
   avatarUrl: string | null;
   bio: string | null;
   createdAt: string;
+  /** Optional because the follow-list read deliberately does not fetch it. */
+  coverUrl?: string | null;
 };
 
 export async function getProfileByUsername(username: string): Promise<Profile | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("id,username,display_name,avatar_url,bio,created_at")
+    .select("id,username,display_name,avatar_url,cover_url,bio,created_at")
     .eq("username", username)
     .maybeSingle();
   if (!data) return null;
@@ -24,6 +26,7 @@ export async function getProfileByUsername(username: string): Promise<Profile | 
     username: data.username,
     displayName: data.display_name,
     avatarUrl: data.avatar_url,
+    coverUrl: data.cover_url,
     bio: data.bio,
     createdAt: data.created_at,
   };
@@ -33,7 +36,7 @@ export async function getProfileById(id: string): Promise<Profile | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("id,username,display_name,avatar_url,bio,created_at")
+    .select("id,username,display_name,avatar_url,cover_url,bio,created_at")
     .eq("id", id)
     .maybeSingle();
   if (!data) return null;
@@ -42,6 +45,7 @@ export async function getProfileById(id: string): Promise<Profile | null> {
     username: data.username,
     displayName: data.display_name,
     avatarUrl: data.avatar_url,
+    coverUrl: data.cover_url,
     bio: data.bio,
     createdAt: data.created_at,
   };

@@ -52,7 +52,13 @@ export function MediaInput({
           disabled={busy}
         />
       </label>
-      {err && <p className="text-destructive text-sm">{err}</p>}
+      {err && (
+        <p className="text-destructive text-sm" role="alert">
+          {/* Known codes get a sentence; anything else is a storage message we
+              cannot translate, so it is shown as-is rather than swallowed. */}
+          {["type", "size", "process"].includes(err) ? t(`uploadError.${err}`) : err}
+        </p>
+      )}
       {warn === "compat" && (
         <p className="text-sm text-muted-foreground" role="note" data-testid="video-compat-warning">
           {t("videoCompatWarning")}
