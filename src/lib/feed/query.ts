@@ -63,6 +63,40 @@ function hideFixtures(): boolean {
   return process.env.NODE_ENV === "production";
 }
 
+/**
+ * Commercial density caps: at most one listing and one promo per DENSITY_WINDOW
+ * items. Legacy had this rule and it was right — without it the feed is purely
+ * reverse-chronological, so a burst of listings starves every other content
+ * type. That is not hypothetical: 209 accumulated listings once filled all 200
+ * feed slots and pushed every post, reel and video off the surface entirely.
+ *
+ * Overflow is DROPPED rather than reordered — a listing that has to jump 40
+ * slots to be shown is no longer "recent", and silently re-sorting by
+ * commercial type is how a marketplace feed becomes an ad feed.
+ */
+export const DENSITY_WINDOW = 8;
+
+export function applyDensityCaps(items: FeedItem[]): FeedItem[] {
+  const out: FeedItem[] = [];
+  let sinceListing = DENSITY_WINDOW;
+  let sincePromo = DENSITY_WINDOW;
+  for (const item of items) {
+    const commercial =
+      item.type === "listing" ? "listing" : item.type === "promo" ? "promo" : null;
+    if (commercial === "listing") {
+      if (sinceListing < DENSITY_WINDOW) continue;
+      sinceListing = 0;
+    } else if (commercial === "promo") {
+      if (sincePromo < DENSITY_WINDOW) continue;
+      sincePromo = 0;
+    }
+    out.push(item);
+    if (commercial !== "listing") sinceListing++;
+    if (commercial !== "promo") sincePromo++;
+  }
+  return out;
+}
+
 export async function getFeed(
   tab: FeedTab,
   viewerId?: string | null,
@@ -103,7 +137,7 @@ export async function getFeed(
   if (error) throw error;
   const items = (data as Row[]).map(rowToFeedItem);
   if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
-  return items;
+  return applyDensityCaps(items);
 }
 
 /** All content published AS a brand (posts + listings carrying brand_id). Public per G1-A. */

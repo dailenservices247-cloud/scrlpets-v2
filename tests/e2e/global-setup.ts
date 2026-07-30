@@ -26,6 +26,20 @@ async function cleanOwnMarkers(email: string, password: string) {
   for (const row of leftovers ?? []) {
     await db.rpc("soft_delete_managed_post", { target_post_id: row.id });
   }
+
+  // Listings accumulate exactly like marker posts and were never cleaned: 209
+  // of them once filled every slot of the feed and starved posts/reels/videos
+  // off the surface entirely. The feed now caps commercial density, but the
+  // litter of dead fixtures still belongs in the bin.
+  const { data: staleListings } = await db
+    .from("listings")
+    .select("id")
+    .eq("seller_id", data.user.id)
+    .like("title", "%E2E%")
+    .is("deleted_at", null);
+  for (const row of staleListings ?? []) {
+    await db.rpc("soft_delete_managed_listing", { target_listing_id: row.id });
+  }
 }
 
 export default async function globalSetup() {

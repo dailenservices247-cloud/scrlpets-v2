@@ -17,12 +17,17 @@ FAIL=0
 step() {
   local label="$1"; shift
   local start=$SECONDS
-  if "$@" >/tmp/ship-verify-step.log 2>&1; then
+  # Per-step log file: a shared path meant the next step clobbered the failing
+  # step's output, so a FAIL report arrived with its evidence already gone.
+  local slug; slug=$(echo "$label" | tr -cd '[:alnum:]')
+  local log="/tmp/ship-verify-${slug}.log"
+  if "$@" >"$log" 2>&1; then
     RESULTS+=("PASS  ${label}  ($((SECONDS-start))s)")
   else
     RESULTS+=("FAIL  ${label}  ($((SECONDS-start))s) — tail below")
     echo "--- ${label} failure tail ---"
-    tail -25 /tmp/ship-verify-step.log
+    echo "(full log: $log)"
+    tail -25 "$log"
     FAIL=1
   fi
 }
