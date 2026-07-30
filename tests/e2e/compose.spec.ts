@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SELLER_EMAIL } from "./fixtures";
+import { SELLER_EMAIL, signInCached } from "./fixtures";
 
 test("signed-out /compose redirects to login", async ({ page }) => {
   await page.goto("/compose");
@@ -40,7 +40,12 @@ test.describe("signed in", () => {
     await expect(page.getByTestId("planned-mode-panel")).toBeVisible();
   });
 
-  test("create listing with price → appears in feed", async ({ page }) => {
+  // Deliberately does NOT assert feed placement: applyDensityCaps suppresses
+  // commercial items to at most one per 8-item window, so whether a brand new
+  // listing lands in the first screen of the feed is not something the product
+  // guarantees — and under parallel workers another listing routinely takes
+  // the slot. Assert the listing was really created, on its own page.
+  test("create listing with price → listing exists with that price", async ({ page }) => {
     const marker = `E2E listing ${Date.now()}`;
     await page.goto("/compose");
     await page.getByRole("button", { name: /Listing/ }).click();
@@ -48,7 +53,17 @@ test.describe("signed in", () => {
     await page.getByTestId("listing-price").fill("123.45");
     await page.getByTestId("listing-submit").click();
     await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
-    await expect(page.getByText(marker)).toBeVisible();
+
+    const { db: lookupDb } = await signInCached(SELLER_EMAIL);
+    const { data: created } = await lookupDb
+      .from("listings")
+      .select("id,price_cents")
+      .eq("title", marker)
+      .single();
+    expect(created!.price_cents).toBe(12345);
+    await page.goto(`/listing/${created!.id}`);
+    await expect(page.getByText(marker).first()).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByText("$123.45").first()).toBeVisible({ timeout: 20_000 });
   });
 
   test("listing rejects junk price", async ({ page }) => {
