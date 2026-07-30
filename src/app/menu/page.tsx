@@ -1,46 +1,81 @@
 import Link from "next/link";
-import { BadgeCheck, Bell, Bone, BookOpen, Bookmark, CalendarDays, ClipboardList, Building2, ChevronRight, CreditCard, Heart, HeartPulse, MessageCircle, PawPrint, Search, Settings, Gift, TreeDeciduous, UserPlus, Users, Wrench, ShieldAlert, ShieldCheck, Store } from "lucide-react";
+import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+  Bell,
+  Bone,
+  BookOpen,
+  Bookmark,
+  Building2,
+  ChevronRight,
+  ClipboardList,
+  Gift,
+  HeartPulse,
+  LayoutDashboard,
+  LifeBuoy,
+  Search,
+  Settings,
+  ShieldAlert,
+} from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
 import { isPlatformAdmin } from "@/lib/verification/queries";
+import { isOperator } from "@/lib/nav/operator";
 
-const actions = [
-  { href: "/", label: "Feed", icon: PawPrint },
-  { href: "/search", label: "Search", icon: Search },
-  { href: "/notifications", label: "Notifications", icon: Bell },
-  { href: "/shop", label: "Shop", icon: Store },
-  { href: "/adopt", label: "Adoption", icon: Heart },
-  { href: "/services", label: "Services", icon: Wrench },
-  { href: "/rewards", label: "Rewards", icon: Gift },
-  { href: "/groups", label: "Groups", icon: Users },
-  { href: "/brand-os", label: "Brand OS", icon: Building2 },
-  { href: "/tree", label: "Tree", icon: TreeDeciduous },
-  { href: "/litters", label: "Litters", icon: Bone },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/health", label: "Health", icon: HeartPulse },
-  { href: "/messages", label: "Chat", icon: MessageCircle },
-  { href: "/saved", label: "Saved", icon: Bookmark },
-  { href: "/guides", label: "Guides", icon: BookOpen },
-  { href: "/applications", label: "Applications", icon: ClipboardList },
-  { href: "/settings/profile", label: "Profile", icon: Settings },
-  { href: "/settings/account", label: "Account", icon: ShieldCheck },
-  { href: "/settings/verification", label: "Verification", icon: BadgeCheck },
-  { href: "/settings/subscription", label: "Plans", icon: CreditCard },
-  { href: "/settings/referrals", label: "Invite", icon: UserPlus },
-];
+// R5: grouped sections, not a flat 23-row tile grid. Rows, not tiles — tile
+// grids hide labels at small sizes. Nothing here duplicates a bottom-nav
+// destination (Feed / Discover / Post / Chat / Menu stay off this page).
+function MenuRow({
+  href,
+  icon: Icon,
+  label,
+  testId,
+}: {
+  href: string;
+  icon: LucideIcon;
+  label: string;
+  testId?: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex min-h-11 items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-muted/60"
+      data-testid={testId}
+    >
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-background/65 text-brand-link">
+        <Icon className="size-4" aria-hidden />
+      </span>
+      <span className="flex-1 text-[15px] font-medium">{label}</span>
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+    </Link>
+  );
+}
+
+function MenuGroup({
+  heading,
+  children,
+  testId,
+}: {
+  heading?: string;
+  children: ReactNode;
+  testId?: string;
+}) {
+  return (
+    <section className="mt-5 px-4" data-testid={testId}>
+      {heading && <p className="eyebrow mb-2">{heading}</p>}
+      <div className="premium-panel rounded-2xl p-2">{children}</div>
+    </section>
+  );
+}
 
 export default async function MenuPage() {
   const user = await getSessionUser();
-  const [profile, viewerIsAdmin] = await Promise.all([
+  const [profile, viewerIsAdmin, viewerIsOperator] = await Promise.all([
     user ? getProfileById(user.id) : Promise.resolve(null),
     user ? isPlatformAdmin() : Promise.resolve(false),
+    user ? isOperator(user.id) : Promise.resolve(false),
   ]);
-  // /admin is unlinked for everyone else, but an admin having to remember the
-  // URL is not "hidden", it is unusable.
-  const items = viewerIsAdmin
-    ? [...actions, { href: "/admin", label: "Admin", icon: ShieldAlert }]
-    : actions;
   const displayName = profile?.displayName ?? profile?.username ?? user?.email ?? "Guest";
 
   return (
@@ -93,22 +128,36 @@ export default async function MenuPage() {
         </div>
       </section>
 
-      <section className="mt-5 px-4">
-        <p className="eyebrow mb-3">Quick actions</p>
-        <div className="grid grid-cols-2 gap-3">
-          {items.map((action) => {
-            const Icon = action.icon;
-            return (
-              <Link key={action.href} href={action.href} className="premium-panel rounded-2xl p-4 transition hover:border-primary/40">
-                <span className="mb-5 grid size-10 place-items-center rounded-full bg-background/65 text-brand-link">
-                  <Icon className="size-5" aria-hidden />
-                </span>
-                <span className="text-base font-semibold">{action.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+      {/* R5: only what's NOT reachable from the bottom nav. */}
+      <MenuGroup heading="Discover">
+        <MenuRow href="/search" icon={Search} label="Search" />
+        <MenuRow href="/guides" icon={BookOpen} label="Guides" />
+      </MenuGroup>
+
+      <MenuGroup heading="Yours">
+        <MenuRow href="/saved" icon={Bookmark} label="Saved" />
+        <MenuRow href="/rewards" icon={Gift} label="Rewards" />
+        <MenuRow href="/health" icon={HeartPulse} label="Health" />
+        <MenuRow href="/applications" icon={ClipboardList} label="Applications" />
+      </MenuGroup>
+
+      {viewerIsOperator && (
+        <MenuGroup heading="Your program" testId="menu-group-your-program">
+          {/* /hub is built by another lane; linked ahead of that landing. */}
+          <MenuRow href="/hub" icon={LayoutDashboard} label="Operator Hub" />
+          <MenuRow href="/brand-os" icon={Building2} label="Brand OS" />
+        </MenuGroup>
+      )}
+
+      <MenuGroup heading="Help">
+        {/* /support lands in Phase E; 404 until then is expected. */}
+        <MenuRow href="/support" icon={LifeBuoy} label="Support" />
+      </MenuGroup>
+
+      <MenuGroup>
+        <MenuRow href="/settings" icon={Settings} label="Settings" testId="menu-settings-row" />
+        {viewerIsAdmin && <MenuRow href="/admin" icon={ShieldAlert} label="Admin" />}
+      </MenuGroup>
 
       {!user && (
         <section className="mt-5 px-4">

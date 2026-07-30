@@ -47,6 +47,7 @@ export default async function ProfilePage({
   searchParams: Promise<{ tab?: string }>;
 }) {
   const t = await getTranslations("profile");
+  const tHub = await getTranslations("hub");
   const { username } = await params;
   const { tab } = await searchParams;
   const profile = await getProfileByUsername(username);
@@ -113,7 +114,7 @@ export default async function ProfilePage({
 
       {active === "pets" && (
         <>
-        <div className="px-3 pt-3">
+        <div className="flex flex-wrap gap-2 px-3 pt-3">
           <Link
             href={`/u/${profile.username}/tree`}
             data-testid="profile-tree-link"
@@ -121,6 +122,17 @@ export default async function ProfilePage({
           >
             {t("viewTree")}
           </Link>
+          {/* R3 (dedup): owner-only management link, distinct from the public
+              showcase "view family tree" link above — don't duplicate that one. */}
+          {user?.id === profile.id && (
+            <Link
+              href="/tree"
+              data-testid="profile-manage-tree-link"
+              className="inline-flex min-h-11 items-center rounded-xl border border-input px-4 text-sm font-medium text-brand-link"
+            >
+              {tHub("manageInTree")}
+            </Link>
+          )}
         </div>
         <div className="grid grid-cols-2 gap-3 p-3" data-testid="pets-list">
           {creatures.map((c) => (

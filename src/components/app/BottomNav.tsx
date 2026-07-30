@@ -2,19 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Menu, MessageCircle, Plus, ShoppingBag } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Compass, Home, Menu, MessageCircle, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// R4: Shop's old slot is now Discover — a browse hub covering shop, adopt,
+// services, and groups (see /discover). labelKey stays stable across locales
+// so data-testid derivation below never changes with translation.
 const items = [
-  { href: "/", label: "Feed", icon: Home, match: (path: string) => path === "/" },
-  { href: "/shop", label: "Shop", icon: ShoppingBag, match: (path: string) => path.startsWith("/shop") },
-  { href: "/compose", label: "Post", icon: Plus, primary: true, match: (path: string) => path === "/compose" },
-  { href: "/messages", label: "Chat", icon: MessageCircle, match: (path: string) => path.startsWith("/messages") },
-  { href: "/menu", label: "Menu", icon: Menu, match: (path: string) => path === "/menu" },
+  { href: "/", labelKey: "feed", icon: Home, match: (path: string) => path === "/" },
+  { href: "/discover", labelKey: "discover", icon: Compass, match: (path: string) => path.startsWith("/discover") },
+  { href: "/compose", labelKey: "post", icon: Plus, primary: true, match: (path: string) => path === "/compose" },
+  { href: "/messages", labelKey: "chat", icon: MessageCircle, match: (path: string) => path.startsWith("/messages") },
+  { href: "/menu", labelKey: "menu", icon: Menu, match: (path: string) => path === "/menu" },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
 
   return (
     <nav
@@ -35,7 +40,7 @@ export function BottomNav() {
                 active && "text-brand-link",
                 item.primary && "-mt-5 text-foreground",
               )}
-              data-testid={item.href === "/messages" ? "messages-link" : `nav-${item.label.toLowerCase()}`}
+              data-testid={item.href === "/messages" ? "messages-link" : `nav-${item.labelKey}`}
             >
               <span
                 className={cn(
@@ -48,7 +53,7 @@ export function BottomNav() {
               >
                 <Icon className={item.primary ? "size-6" : "size-5"} aria-hidden />
               </span>
-              <span>{item.label}</span>
+              <span>{t(item.labelKey)}</span>
             </Link>
           );
         })}

@@ -51,12 +51,3 @@ export async function getMySubjects(userId: string, brandIds: string[]) {
     })),
   };
 }
-
-/** Brand OS: a brand's litters + services. */
-export async function getBrandSubjects(brandId: string) {
-  const [litters, services] = await Promise.all([
-    getMine("litters", "00000000-0000-0000-0000-000000000000", [brandId]),
-    getMine("services", "00000000-0000-0000-0000-000000000000", [brandId]),
-  ]);
-  return { litters, services };
-}

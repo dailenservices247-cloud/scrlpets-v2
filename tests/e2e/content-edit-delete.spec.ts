@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
-import { MEMBER_EMAIL, SELLER_EMAIL } from "./fixtures";
+import { MEMBER_EMAIL, SELLER_EMAIL, signInCached } from "./fixtures";
 
 const RBAC_MEMBER_EMAIL = MEMBER_EMAIL;
 
@@ -114,12 +114,20 @@ test.describe("content edit/delete", () => {
     await page.getByTestId("listing-submit").click();
     await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
 
-    const card = page.getByTestId("tile-listing").filter({ hasText: original });
-    await expect(card.getByTestId("owner-menu")).toBeVisible({ timeout: 15_000 });
-    await card.getByTestId("owner-menu").click();
-    await page.getByTestId("edit-content").click();
-    await expect(page).toHaveURL(/\/listing\/[^/]+\/edit$/, { timeout: 20_000 });
-    const listingId = page.url().split("/").at(-2)!;
+    // The feed caps commercial density (1 listing per 8 items), so a listing
+    // created while other specs are also posting is legitimately not guaranteed
+    // a slot — asserting on the feed here would be testing feed placement, not
+    // this spec's subject (edit + soft-remove with locked attribution). The
+    // owner-menu-on-a-feed-tile path stays covered by the post case above,
+    // which is not density-capped.
+    const { db: lookupDb } = await signInCached(SELLER_EMAIL);
+    const { data: created } = await lookupDb
+      .from("listings")
+      .select("id")
+      .eq("title", original)
+      .single();
+    const listingId = created!.id;
+    await page.goto(`/listing/${listingId}/edit`);
 
     await expect(page.getByTestId("locked-attribution")).toHaveAttribute(
       "disabled",

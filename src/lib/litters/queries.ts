@@ -88,6 +88,7 @@ export async function listOwnBreedingCreatures(ownerId: string): Promise<Breedin
     .from("creatures")
     .select("id,name")
     .eq("owner_id", ownerId)
+    .is("archived_at", null)
     .eq("creature_role", "breeding")
     .order("name")
     .limit(200);

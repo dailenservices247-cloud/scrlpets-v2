@@ -157,3 +157,34 @@ export async function clearMemorial(creatureId: string, slug: string): Promise<C
   revalidatePath(`/c/${slug}`);
   return { ok: true };
 }
+
+/** R8: archive/unarchive toggle. The RPC also sets page_visible=false when
+ * archiving; unarchiving does NOT restore it — that stays the owner's
+ * separate, deliberate choice via the About sheet's visibility checkbox. */
+export async function setCreatureArchived(
+  creatureId: string,
+  slug: string,
+  archived: boolean,
+): Promise<CreatureActionResult> {
+  const { supabase } = await requireUser();
+  const { error } = await supabase.rpc("archive_creature", {
+    target_creature: creatureId,
+    archived,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/c/${slug}`);
+  return { ok: true };
+}
+
+/** The narrow "typed this into existence by mistake" escape hatch. Refuses
+ * with `creature_referenced` the moment any lineage/litter/listing/alumni/
+ * breeding/genetic-test/tagged-post row points at this creature — archiving
+ * is the answer for anything with real history. */
+export async function deleteCreaturePermanently(creatureId: string): Promise<CreatureActionResult> {
+  const { supabase } = await requireUser();
+  const { error } = await supabase.rpc("delete_creature_if_unreferenced", {
+    target_creature: creatureId,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}

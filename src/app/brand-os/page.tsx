@@ -2,7 +2,6 @@ import Link from "next/link";
 import { BadgeDollarSign, Building2, MessageCircle, PawPrint, PenSquare, UsersRound } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { BrandIdentityPanel } from "@/components/brand/BrandIdentityPanel";
-import { SubjectEntitiesPanel } from "@/components/brand/SubjectEntitiesPanel";
 import { BrandMembersPanel } from "@/components/brand/BrandMembersPanel";
 import { BrandPostingSetting } from "@/components/brand/BrandPostingSetting";
 import { getSessionUser } from "@/lib/auth/session";
@@ -11,7 +10,6 @@ import {
   getBrandContentCounts,
   getBrandMembers,
 } from "@/lib/brands/queries";
-import { getBrandSubjects } from "@/lib/subjects/queries";
 import {
   getBreederStats,
   getReadiness,
@@ -27,6 +25,9 @@ import { BrandKitPanel } from "@/components/brand/BrandKitPanel";
 import { getBrandKit, getBrandGallery } from "@/lib/brand-kit/queries";
 import { listMyServices } from "@/lib/services/queries";
 import { BRAND_TYPE_OPTIONS, canManageBrandContent } from "@/lib/brands/types";
+import { getBrandCapabilities } from "@/lib/hub/queries";
+import { hasCapability } from "@/lib/hub/capabilities";
+import { CapabilityEditor } from "@/components/hub/CapabilityEditor";
 
 const quickActions = [
   { label: "Post update", icon: PenSquare, href: "/compose" },
@@ -108,17 +109,23 @@ export default async function BrandOSPage({
 
   const brand =
     brands.find((candidate) => candidate.id === requestedBrandId) ?? brands[0];
-  const [counts, members, subjects, kit, gallery] = await Promise.all([
+  const [counts, members, kit, gallery, capabilities] = await Promise.all([
     getBrandContentCounts(brand.id),
     getBrandMembers(brand.id),
-    getBrandSubjects(brand.id),
     getBrandKit(brand.id),
     getBrandGallery(brand.id),
+    getBrandCapabilities(brand.id),
   ]);
   const overview = [
     { label: "Brand posts", value: counts.posts },
     { label: "Brand listings", value: counts.listings },
   ];
+  // R2: Brand OS modules are capability-gated, not just type-gated.
+  const canBreeding = hasCapability(capabilities, "breeding");
+  const canSellOrAdopt =
+    hasCapability(capabilities, "selling_animals") || hasCapability(capabilities, "adoption");
+  const canServices = hasCapability(capabilities, "services");
+  const isManager = canManageBrandContent(brand.role);
 
   return (
     <AppPage>
@@ -205,17 +212,23 @@ export default async function BrandOSPage({
         <BreederStatsPanel stats={stats} />
       </section>
 
-      <section className="px-3 py-3">
-        <RosterPanel animals={roster} />
-      </section>
+      {canBreeding && (
+        <section className="px-3 py-3">
+          <RosterPanel animals={roster} />
+        </section>
+      )}
 
-      <section className="px-3 py-3">
-        <SellerListingsPanel listings={sellerListings} />
-      </section>
+      {canSellOrAdopt && (
+        <section className="px-3 py-3">
+          <SellerListingsPanel listings={sellerListings} />
+        </section>
+      )}
 
-      <section className="px-3 py-3">
-        <ServicesManagerPanel services={myServices} brands={attachableBrands} />
-      </section>
+      {canServices && (
+        <section className="px-3 py-3">
+          <ServicesManagerPanel services={myServices} brands={attachableBrands} />
+        </section>
+      )}
 
       <section className="px-3 py-3">
         <BrandIdentityPanel
@@ -238,14 +251,11 @@ export default async function BrandOSPage({
         />
       </section>
 
-      <section className="px-3 py-3">
-        <SubjectEntitiesPanel
-          brandId={brand.id}
-          viewerRole={brand.role}
-          litters={subjects.litters}
-          services={subjects.services}
-        />
-      </section>
+      {isManager && (
+        <section className="px-3 py-3">
+          <CapabilityEditor brandId={brand.id} capabilities={capabilities} />
+        </section>
+      )}
 
       <section className="px-3 py-3">
         <BrandPostingSetting

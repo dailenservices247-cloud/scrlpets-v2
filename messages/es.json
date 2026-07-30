@@ -537,7 +537,14 @@
     },
     "confirmHandover": "Confirmar que la entrega ocurrió",
     "handoverAwaitingOther": "Confirmaste. Esperando a la otra persona.",
-    "handoverComplete": "Entrega confirmada por ambas partes."
+    "handoverComplete": "Entrega confirmada por ambas partes.",
+    "withdrawSectionTitle": "Solicitudes que puedes retirar",
+    "withdrawConfirmTitle": "¿Retirar esta solicitud?",
+    "withdrawConfirmBody": "El vendedor dejará de verla como abierta. Puedes volver a solicitar más adelante si cambias de opinión.",
+    "withdrawing": "Retirando…",
+    "withdrawError": "Algo salió mal. Inténtalo de nuevo.",
+    "handoverStarted": "La entrega ya comenzó, así que esta solicitud ahora forma parte del registro de la transacción y no se puede retirar.",
+    "cancel": "Cancelar"
   },
   "breederOs": {
     "readinessEyebrow": "Preparación",
@@ -949,6 +956,29 @@
       "offspringTitle": "Crías",
       "sire": "Padre",
       "dam": "Madre"
+    },
+    "archive": {
+      "cta": "Archivar",
+      "confirmTitle": "¿Archivar este perfil?",
+      "confirmBody": "Esto lo quita de tu plantel y de todos los selectores, y oculta la página pública. Las camadas, el linaje y los registros permanecen intactos, y puedes deshacerlo en cualquier momento.",
+      "confirm": "Archivar",
+      "archiving": "Archivando…",
+      "cancel": "Cancelar",
+      "error": "No se pudo guardar. Inténtalo de nuevo.",
+      "badgeTitle": "Archivado",
+      "badgeBody": "Oculto de tu plantel, los selectores y la página pública. El historial permanece intacto — puedes desarchivarlo cuando quieras.",
+      "unarchiveCta": "Desarchivar",
+      "unarchiveConfirmTitle": "¿Desarchivar este perfil?",
+      "unarchiveConfirmBody": "Vuelve a tu plantel y a los selectores. La página pública permanece oculta hasta que reactives la visibilidad.",
+      "unarchiveConfirm": "Desarchivar",
+      "unarchiving": "Desarchivando…",
+      "deleteCta": "Eliminar permanentemente",
+      "deleteConfirmTitle": "¿Eliminar este perfil permanentemente?",
+      "deleteConfirmBody": "Esta acción no se puede deshacer. Solo se pueden eliminar así los animales sin linaje, camadas, anuncios, alumni, registros de cría, pruebas de salud ni publicaciones etiquetadas.",
+      "deleteConfirm": "Eliminar permanentemente",
+      "deleting": "Eliminando…",
+      "deleteReferencedError": "Este animal forma parte de tus registros — el linaje, las camadas o los anuncios lo referencian — así que se puede archivar pero no eliminar.",
+      "deleteError": "No se pudo eliminar. Inténtalo de nuevo."
     }
   },
   "brandKit": {
@@ -1118,5 +1148,65 @@
     "buyersTitle": "Este árbol es solo para compradores",
     "buyersBody": "El propietario comparte este árbol con compradores vinculados a su manada. Pídeles que se conecten contigo primero.",
     "visitorTitle": "{groupName} de {name}"
+  },
+  "hub": {
+    "eyebrow": "Centro del operador",
+    "title": "Tu Centro",
+    "subtitle": "Tus animales, camadas, calendario y marcas — todo en un solo lugar.",
+    "signInTitle": "Inicia sesión para abrir tu Centro",
+    "signInBody": "Tu Centro reúne tus animales, camadas, calendario y marcas. Inicia sesión para ver el tuyo.",
+    "signInCta": "Iniciar sesión",
+    "statAnimals": "Animales",
+    "statLitters": "Camadas",
+    "statEvents": "Próximos eventos",
+    "cardTreeLabel": "Árbol del Ecosistema",
+    "cardTreeBody": "Gestiona tus animales y su linaje",
+    "cardLittersLabel": "Camadas",
+    "cardLittersBody": "Registra y da seguimiento a tus camadas",
+    "cardCalendarLabel": "Calendario",
+    "cardCalendarBody": "Celos, apareamientos y fechas previstas",
+    "brandsEyebrow": "Tus marcas",
+    "manageInTree": "Gestionar en tu árbol",
+    "capabilityEyebrow": "Configuración de marca",
+    "capabilityTitle": "Capacidades",
+    "capabilityBody": "Activa los módulos que esta marca necesita.",
+    "capability": {
+      "breeding": "Cría",
+      "selling_animals": "Venta de animales",
+      "products": "Productos",
+      "services": "Servicios",
+      "adoption": "Adopción",
+      "content": "Contenido"
+    },
+    "capabilitySave": "Guardar cambios",
+    "capabilitySaving": "Guardando…",
+    "capabilityError": "No se pudo guardar. Inténtalo de nuevo."
+  },
+  "nav": {
+    "feed": "Inicio",
+    "discover": "Descubrir",
+    "post": "Crear",
+    "chat": "Chat",
+    "menu": "Menú",
+    "discoverHub": {
+      "eyebrow": "Descubrir",
+      "title": "Descubrir",
+      "shop": {
+        "label": "Tienda",
+        "description": "Productos de tiendas y vendedores independientes."
+      },
+      "adopt": {
+        "label": "Adopción",
+        "description": "Animales que buscan hogar."
+      },
+      "services": {
+        "label": "Servicios",
+        "description": "Aseo, adiestramiento, alojamiento y más."
+      },
+      "groups": {
+        "label": "Grupos",
+        "description": "Comunidades por raza y especie."
+      }
+    }
   }
 }

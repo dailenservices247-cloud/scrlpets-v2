@@ -242,6 +242,7 @@ export async function getMyCreatures(): Promise<{ id: string; name: string }[]> 
     .from("creatures")
     .select("id,name")
     .eq("owner_id", user.id)
+    .is("archived_at", null)
     .order("created_at");
   return data ?? [];
 }

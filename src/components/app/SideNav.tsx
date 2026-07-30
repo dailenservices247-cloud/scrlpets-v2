@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Home, Menu, MessageCircle, Plus, Search, ShoppingBag } from "lucide-react";
+import { Bell, Compass, Home, Menu, MessageCircle, Plus, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // F7 / punch list A21: on desktop the web app uses a left sidebar nav (like
@@ -11,7 +11,9 @@ const items = [
   { href: "/", label: "Feed", icon: Home, match: (p: string) => p === "/" },
   { href: "/search", label: "Search", icon: Search, match: (p: string) => p.startsWith("/search") },
   { href: "/notifications", label: "Notifications", icon: Bell, match: (p: string) => p.startsWith("/notifications") },
-  { href: "/shop", label: "Shop", icon: ShoppingBag, match: (p: string) => p.startsWith("/shop") },
+  // Mirrors the bottom nav's Discover slot (R4) — desktop and mobile must not
+  // disagree about what the second destination is.
+  { href: "/discover", label: "Discover", icon: Compass, match: (p: string) => p.startsWith("/discover") },
   { href: "/messages", label: "Messages", icon: MessageCircle, match: (p: string) => p.startsWith("/messages") },
   { href: "/menu", label: "Menu", icon: Menu, match: (p: string) => p === "/menu" },
 ];

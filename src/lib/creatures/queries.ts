@@ -20,6 +20,7 @@ export type CreatureDetail = {
   deceasedAt: string | null;
   memorialMessage: string | null;
   litterId: string | null;
+  archivedAt: string | null;
 };
 
 type CreatureDetailRow = {
@@ -36,10 +37,11 @@ type CreatureDetailRow = {
   deceased_at: string | null;
   memorial_message: string | null;
   litter_id: string | null;
+  archived_at: string | null;
 };
 
 const DETAIL_COLUMNS =
-  "id,species,breed,gender,color,markings,birth_date,registration_number,creature_role,page_visible,deceased_at,memorial_message,litter_id";
+  "id,species,breed,gender,color,markings,birth_date,registration_number,creature_role,page_visible,deceased_at,memorial_message,litter_id,archived_at";
 
 function toCreatureDetail(r: CreatureDetailRow): CreatureDetail {
   return {
@@ -56,6 +58,7 @@ function toCreatureDetail(r: CreatureDetailRow): CreatureDetail {
     deceasedAt: r.deceased_at,
     memorialMessage: r.memorial_message,
     litterId: r.litter_id,
+    archivedAt: r.archived_at,
   };
 }
 

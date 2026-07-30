@@ -124,7 +124,13 @@ function assembleTree(rows: RawCreatureRow[], edges: RawLineageEdge[]): TreeData
 
 async function fetchTree(ownerId: string, onlyVisible: boolean): Promise<TreeData> {
   const supabase = await createClient();
-  let query = supabase.from("creatures").select(CREATURE_COLUMNS).eq("owner_id", ownerId);
+  let query = supabase
+    .from("creatures")
+    .select(CREATURE_COLUMNS)
+    .eq("owner_id", ownerId)
+    // Archived animals leave every surface including the owner console; their
+    // lineage edges survive so descendants keep their generation math.
+    .is("archived_at", null);
   if (onlyVisible) query = query.eq("page_visible", true);
   const { data: rows } = await query.order("created_at");
   const creatures = (rows ?? []) as RawCreatureRow[];

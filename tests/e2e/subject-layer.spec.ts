@@ -40,17 +40,18 @@ test("litter creation, subject-tagged post, and DB refusal of fake subjects", as
   await expect(page).toHaveURL(/\/compose\?brand=/, { timeout: 20_000 });
   const brandId = new URL(page.url()).searchParams.get("brand")!;
 
-  await page.goto(`/brand-os?brand=${brandId}`);
-  await expect(page.getByTestId("subject-entities-panel")).toBeVisible();
-  await page.getByTestId("new-litter-name").fill(litterName);
-  await page.getByTestId("add-litter").click();
-  await expect(page.getByTestId("litter-chip").filter({ hasText: litterName })).toBeVisible();
-
-  const { data: litter } = await db
+  // B.5/R3: litters are created at /litters now — Brand OS's name-only stub
+  // creator was deleted so each entity has exactly one creation path. This
+  // spec's subject is the SUBJECT LAYER, so it seeds the litter directly and
+  // keeps its real assertions (tagging + the DB's refusal of fake subjects);
+  // the litter wizard itself is covered by litters.spec.ts.
+  const { data: litter, error: litterError } = await db
     .from("litters")
+    .insert({ owner_id: userId, brand_id: brandId, name: litterName })
     .select("id")
-    .eq("name", litterName)
     .single();
+  expect(litterError).toBeNull();
+
 
   // Compose a post ABOUT that litter through the subject picker.
   await page.goto("/compose");

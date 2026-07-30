@@ -17,9 +17,8 @@ import type { MyService } from "@/lib/services/queries";
 
 // R16 operator-scoped module: the services YOU own, personal or brand-attached.
 // Edit rights follow ownership (RLS "owner updates services"), so everything
-// listed here is editable by the viewer. The name-only creator in
-// SubjectEntitiesPanel still exists for composer-subject stubs; this panel is
-// the full marketplace record.
+// listed here is editable by the viewer. This is the ONLY service creation
+// path — B.5/R3 deleted the name-only stub creator that used to shadow it.
 type ServiceFormValues = {
   name: string;
   category: string;

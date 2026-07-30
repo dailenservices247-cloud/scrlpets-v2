@@ -49,6 +49,7 @@ export async function getRoster(ownerId: string): Promise<RosterAnimal[]> {
     .from("creatures")
     .select("id,name,species,slug,avatar_url")
     .eq("owner_id", ownerId)
+    .is("archived_at", null)
     .order("created_at", { ascending: false })
     .limit(100);
 

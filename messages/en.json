@@ -537,7 +537,14 @@
     },
     "confirmHandover": "Confirm the handover happened",
     "handoverAwaitingOther": "You confirmed. Waiting on the other person.",
-    "handoverComplete": "Handover confirmed by both people."
+    "handoverComplete": "Handover confirmed by both people.",
+    "withdrawSectionTitle": "Applications you can withdraw",
+    "withdrawConfirmTitle": "Withdraw this application?",
+    "withdrawConfirmBody": "The seller will no longer see it as open. You can apply again later if you change your mind.",
+    "withdrawing": "Withdrawing…",
+    "withdrawError": "Something went wrong. Try again.",
+    "handoverStarted": "The handover has already begun, so this application is now part of the transaction record and can't be withdrawn.",
+    "cancel": "Cancel"
   },
   "breederOs": {
     "readinessEyebrow": "Readiness",
@@ -949,6 +956,29 @@
       "offspringTitle": "Offspring",
       "sire": "Sire",
       "dam": "Dam"
+    },
+    "archive": {
+      "cta": "Archive",
+      "confirmTitle": "Archive this profile?",
+      "confirmBody": "This removes it from your roster and every picker, and hides the public page. Litters, lineage, and records stay intact, and you can undo this anytime.",
+      "confirm": "Archive",
+      "archiving": "Archiving…",
+      "cancel": "Cancel",
+      "error": "Couldn't save. Try again.",
+      "badgeTitle": "Archived",
+      "badgeBody": "Hidden from your roster, pickers, and public page. History stays intact — unarchive anytime.",
+      "unarchiveCta": "Unarchive",
+      "unarchiveConfirmTitle": "Unarchive this profile?",
+      "unarchiveConfirmBody": "It returns to your roster and pickers. The public page stays hidden until you turn visibility back on.",
+      "unarchiveConfirm": "Unarchive",
+      "unarchiving": "Unarchiving…",
+      "deleteCta": "Delete permanently",
+      "deleteConfirmTitle": "Delete this profile permanently?",
+      "deleteConfirmBody": "This cannot be undone. Only animals with no lineage, litters, listings, alumni, breeding records, health tests, or tagged posts can be deleted this way.",
+      "deleteConfirm": "Delete permanently",
+      "deleting": "Deleting…",
+      "deleteReferencedError": "This animal is part of your records — lineage, litters, or listings reference it — so it can be archived but not deleted.",
+      "deleteError": "Couldn't delete. Try again."
     }
   },
   "brandKit": {
@@ -1118,5 +1148,65 @@
     "buyersTitle": "This tree is for buyers only",
     "buyersBody": "The owner shares this tree with pack-linked buyers. Ask them to connect with you first.",
     "visitorTitle": "{name}'s {groupName}"
+  },
+  "hub": {
+    "eyebrow": "Operator Hub",
+    "title": "Your Hub",
+    "subtitle": "Your animals, litters, calendar, and brands — all in one place.",
+    "signInTitle": "Sign in to open your Hub",
+    "signInBody": "Your Hub brings together your animals, litters, calendar, and brands. Sign in to see yours.",
+    "signInCta": "Sign in",
+    "statAnimals": "Animals",
+    "statLitters": "Litters",
+    "statEvents": "Upcoming events",
+    "cardTreeLabel": "Ecosystem Tree",
+    "cardTreeBody": "Manage your animals and lineage",
+    "cardLittersLabel": "Litters",
+    "cardLittersBody": "Record and track your litters",
+    "cardCalendarLabel": "Calendar",
+    "cardCalendarBody": "Heats, matings, and due dates",
+    "brandsEyebrow": "Your brands",
+    "manageInTree": "Manage in your tree",
+    "capabilityEyebrow": "Brand settings",
+    "capabilityTitle": "Capabilities",
+    "capabilityBody": "Turn on the modules this brand needs.",
+    "capability": {
+      "breeding": "Breeding",
+      "selling_animals": "Selling animals",
+      "products": "Products",
+      "services": "Services",
+      "adoption": "Adoption",
+      "content": "Content"
+    },
+    "capabilitySave": "Save changes",
+    "capabilitySaving": "Saving…",
+    "capabilityError": "Could not save. Try again."
+  },
+  "nav": {
+    "feed": "Feed",
+    "discover": "Discover",
+    "post": "Post",
+    "chat": "Chat",
+    "menu": "Menu",
+    "discoverHub": {
+      "eyebrow": "Discover",
+      "title": "Discover",
+      "shop": {
+        "label": "Shop",
+        "description": "Products from shops and independent sellers."
+      },
+      "adopt": {
+        "label": "Adoption",
+        "description": "Animals looking for a home."
+      },
+      "services": {
+        "label": "Services",
+        "description": "Grooming, training, boarding, and more."
+      },
+      "groups": {
+        "label": "Groups",
+        "description": "Breed and species communities."
+      }
+    }
   }
 }

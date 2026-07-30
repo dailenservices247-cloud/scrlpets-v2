@@ -8,7 +8,9 @@ import { setApplicationStatus } from "@/lib/applications/actions";
 import { confirmHandover } from "@/lib/reviews/actions";
 import type { BuyerApplication } from "@/lib/applications/queries";
 
-// D13: both sides of the same table. The seller decides, the buyer withdraws.
+// D13: both sides of the same table. The SELLER decides here; the buyer's
+// withdraw lives once, on /applications, where it carries a confirm dialog and
+// the honest handover-already-started message (R3: one home per action).
 export function ApplicationList({
   applications,
   viewerId,
@@ -27,7 +29,7 @@ export function ApplicationList({
     if (result.ok) router.refresh();
   }
 
-  async function decide(id: string, status: "withdrawn" | "accepted" | "declined") {
+  async function decide(id: string, status: "accepted" | "declined") {
     setBusy(id);
     const result = await setApplicationStatus(id, status);
     setBusy(null);
@@ -111,17 +113,7 @@ export function ApplicationList({
                       {t("decline")}
                     </button>
                   </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => decide(a.id, "withdrawn")}
-                    disabled={busy === a.id}
-                    data-testid={`application-withdraw-${a.id}`}
-                    className="min-h-11 flex-1 rounded-xl border border-input px-4 text-sm font-medium disabled:opacity-50"
-                  >
-                    {t("withdraw")}
-                  </button>
-                )}
+                ) : null}
               </div>
             )}
           </li>

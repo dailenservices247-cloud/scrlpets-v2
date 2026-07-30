@@ -172,6 +172,26 @@ test("provider creates, edits and retires a service from Brand OS", async ({ pag
   await page.getByTestId("auth-submit").click();
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 20_000 });
 
+  // B.5/R2: Brand OS modules are capability-gated now. A kennel brand does not
+  // offer services by default, so the operator turns that capability on — this
+  // asserts the real product flow rather than assuming every module is present.
+  const { db: capDb, userId: capUser } = await signInCached(SELLER_EMAIL);
+  const { data: firstBrand } = await capDb
+    .from("brands")
+    .select("id,capabilities")
+    .eq("owner_id", capUser)
+    .order("created_at")
+    .limit(1)
+    .single();
+  const restoreCaps: string[] = firstBrand!.capabilities ?? [];
+  if (!restoreCaps.includes("services")) {
+    const enable = await capDb
+      .from("brands")
+      .update({ capabilities: [...restoreCaps, "services"] }, { count: "exact" })
+      .eq("id", firstBrand!.id);
+    expect(enable.count).toBe(1);
+  }
+
   // Create with full marketplace fields.
   await page.goto("/brand-os");
   await expect(page.getByTestId("services-manager")).toBeVisible();
