@@ -104,7 +104,9 @@ export async function createPost(formData: FormData): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function createListing(formData: FormData): Promise<ActionResult> {
+export async function createListing(
+  formData: FormData,
+): Promise<ActionResult & { id?: string }> {
   const { supabase, user } = await requireUser();
   const title = String(formData.get("title") ?? "");
   const rawPrice = String(formData.get("price") ?? "").trim();
@@ -125,20 +127,27 @@ export async function createListing(formData: FormData): Promise<ActionResult> {
   if (!v.ok) return { ok: false, error: v.error };
   const attribution = await resolveAttribution(supabase, user.id, formData);
   if (!attribution) return { ok: false, error: "brand_denied" };
-  const { error } = await supabase.from("listings").insert({
-    seller_id: user.id,
-    title: title.trim(),
-    price_cents: priceCents!,
-    media_url: mediaUrl,
-    creature_id: creatureId,
-    description,
-    category,
-    listing_kind: listingKind,
-    ...attribution,
-  });
+  // Returns the new row's id (like createCreature already does) so the caller
+  // can attach gallery photos to THIS listing rather than re-finding it by
+  // title, which misfires when a seller publishes two identical titles at once.
+  const { data, error } = await supabase
+    .from("listings")
+    .insert({
+      seller_id: user.id,
+      title: title.trim(),
+      price_cents: priceCents!,
+      media_url: mediaUrl,
+      creature_id: creatureId,
+      description,
+      category,
+      listing_kind: listingKind,
+      ...attribution,
+    })
+    .select("id")
+    .single();
   if (error) return { ok: false, error: error.message };
   revalidatePath("/");
-  return { ok: true };
+  return { ok: true, id: data.id as string };
 }
 
 export async function editPost(postId: string, formData: FormData): Promise<ActionResult> {

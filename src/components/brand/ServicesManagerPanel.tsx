@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Scissors } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MediaInput } from "@/components/compose/MediaInput";
 import { formatPrice } from "@/lib/shop/format";
 import { SERVICE_CATEGORIES } from "@/lib/services/categories";
 import {
@@ -26,6 +27,7 @@ type ServiceFormValues = {
   area: string;
   description: string;
   contactNote: string;
+  mediaUrl: string;
   brandId: string;
 };
 
@@ -36,6 +38,7 @@ const EMPTY_FORM: ServiceFormValues = {
   area: "",
   description: "",
   contactNote: "",
+  mediaUrl: "",
   brandId: "",
 };
 
@@ -47,6 +50,7 @@ function toForm(service: MyService): ServiceFormValues {
     area: service.area ?? "",
     description: service.description ?? "",
     contactNote: service.contactNote ?? "",
+    mediaUrl: service.mediaUrl ?? "",
     brandId: service.brand?.id ?? "",
   };
 }
@@ -57,12 +61,14 @@ function ServiceForm({
   onChange,
   brands,
   showBrandPicker,
+  userId,
 }: {
   idPrefix: string;
   values: ServiceFormValues;
   onChange: (next: ServiceFormValues) => void;
   brands: { id: string; name: string }[];
   showBrandPicker: boolean;
+  userId: string;
 }) {
   const t = useTranslations("services");
   const set = (key: keyof ServiceFormValues) => (value: string) =>
@@ -141,6 +147,34 @@ function ServiceForm({
           className={field}
         />
       </label>
+      <div className="flex flex-col gap-1.5 text-sm font-medium">
+        {t("manage.photo")}
+        {values.mediaUrl && (
+          <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={values.mediaUrl}
+              alt=""
+              className="h-16 w-16 rounded-lg object-cover"
+              data-testid={`${idPrefix}-photo-current`}
+            />
+            <button
+              type="button"
+              onClick={() => set("mediaUrl")("")}
+              className="text-sm font-normal text-muted-foreground underline"
+              data-testid={`${idPrefix}-photo-remove`}
+            >
+              {t("manage.photoRemove")}
+            </button>
+          </div>
+        )}
+        <MediaInput
+          userId={userId}
+          onUploaded={(url, kind) => set("mediaUrl")(kind === "video" ? "" : (url ?? ""))}
+        />
+        {/* ponytail: MediaInput is the shared picker and also takes video; a
+            service card shows a still, so a video upload lands as no photo. */}
+      </div>
       {showBrandPicker && brands.length > 0 && (
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           {t("manage.brand")}
@@ -171,6 +205,7 @@ function serviceFormData(values: ServiceFormValues): FormData {
   fd.set("area", values.area);
   fd.set("description", values.description);
   fd.set("contactNote", values.contactNote);
+  fd.set("mediaUrl", values.mediaUrl);
   fd.set("brandId", values.brandId);
   return fd;
 }
@@ -178,9 +213,11 @@ function serviceFormData(values: ServiceFormValues): FormData {
 export function ServicesManagerPanel({
   services,
   brands,
+  userId,
 }: {
   services: MyService[];
   brands: { id: string; name: string }[];
+  userId: string;
 }) {
   const t = useTranslations("services");
   const router = useRouter();
@@ -269,6 +306,7 @@ export function ServicesManagerPanel({
                     onChange={setEditValues}
                     brands={brands}
                     showBrandPicker={false}
+                    userId={userId}
                   />
                   <div className="mt-3 flex gap-2">
                     <Button
@@ -326,6 +364,7 @@ export function ServicesManagerPanel({
             onChange={setCreateValues}
             brands={brands}
             showBrandPicker
+            userId={userId}
           />
           <div className="mt-3 flex gap-2">
             <Button

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { BadgeCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
+import { ServiceContactButton } from "@/components/services/ServiceContactButton";
+import { getSessionUser } from "@/lib/auth/session";
 import { formatPrice } from "@/lib/shop/format";
 import { listServiceCategories, listServices } from "@/lib/services/queries";
 
@@ -22,10 +24,12 @@ export default async function ServicesPage({
 }) {
   const { category } = await searchParams;
   const t = await getTranslations("services");
-  const [services, categories] = await Promise.all([
+  const [services, categories, viewer] = await Promise.all([
     listServices(category),
     listServiceCategories(),
+    getSessionUser(),
   ]);
+  const returnPath = `/services${category ? `?category=${encodeURIComponent(category)}` : ""}`;
 
   return (
     <AppPage>
@@ -66,6 +70,15 @@ export default async function ServicesPage({
           <ul className="flex flex-col gap-3" data-testid="services-list">
             {services.map((s) => (
               <li key={s.id} className="rounded-2xl border bg-card p-4" data-testid="service-card">
+                {s.mediaUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={s.mediaUrl}
+                    alt=""
+                    className="mb-3 h-40 w-full rounded-xl object-cover"
+                    data-testid={`service-photo-${s.id}`}
+                  />
+                )}
                 <div className="flex flex-wrap items-center gap-2">
                   {s.category && <span className="eyebrow">{t(`category.${s.category}`)}</span>}
                   {s.ownerVerified ? (
@@ -105,6 +118,14 @@ export default async function ServicesPage({
                       @{s.ownerUsername}
                     </Link>
                   )}
+                </div>
+                <div className="mt-3">
+                  <ServiceContactButton
+                    serviceId={s.id}
+                    ownerId={s.ownerId}
+                    viewerId={viewer?.id}
+                    returnPath={returnPath}
+                  />
                 </div>
               </li>
             ))}

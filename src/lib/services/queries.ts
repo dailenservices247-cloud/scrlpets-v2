@@ -9,6 +9,7 @@ export type ProviderService = {
   currency: string;
   area: string | null;
   contactNote: string | null;
+  mediaUrl: string | null;
   ownerId: string;
   ownerUsername: string | null;
   brand: { name: string; slug: string } | null;
@@ -24,13 +25,14 @@ type Row = {
   currency: string;
   area: string | null;
   contact_note: string | null;
+  media_url: string | null;
   owner_id: string;
   profiles: { username: string } | null;
   brands: { name: string; slug: string } | null;
 };
 
 const SELECT =
-  "id,name,description,category,price_cents,currency,area,contact_note,owner_id," +
+  "id,name,description,category,price_cents,currency,area,contact_note,media_url,owner_id," +
   "profiles!services_owner_id_fkey(username),brands(name,slug)";
 
 /**
@@ -71,6 +73,7 @@ export async function listServices(category?: string): Promise<ProviderService[]
     currency: r.currency,
     area: r.area,
     contactNote: r.contact_note,
+    mediaUrl: r.media_url,
     ownerId: r.owner_id,
     ownerUsername: r.profiles?.username ?? null,
     brand: r.brands ?? null,
@@ -86,6 +89,7 @@ export type MyService = {
   priceCents: number | null;
   area: string | null;
   contactNote: string | null;
+  mediaUrl: string | null;
   active: boolean;
   brand: { id: string; name: string } | null;
 };
@@ -99,7 +103,9 @@ export async function listMyServices(userId: string): Promise<MyService[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("services")
-    .select("id,name,description,category,price_cents,area,contact_note,active,brands(id,name)")
+    .select(
+      "id,name,description,category,price_cents,area,contact_note,media_url,active,brands(id,name)",
+    )
     .eq("owner_id", userId)
     .order("created_at", { ascending: false });
   return (
@@ -111,6 +117,7 @@ export async function listMyServices(userId: string): Promise<MyService[]> {
       price_cents: number | null;
       area: string | null;
       contact_note: string | null;
+      media_url: string | null;
       active: boolean;
       brands: { id: string; name: string } | null;
     }[]
@@ -122,6 +129,7 @@ export async function listMyServices(userId: string): Promise<MyService[]> {
     priceCents: r.price_cents,
     area: r.area,
     contactNote: r.contact_note,
+    mediaUrl: r.media_url,
     active: r.active,
     brand: r.brands ?? null,
   }));

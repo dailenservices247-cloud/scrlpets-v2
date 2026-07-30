@@ -245,7 +245,29 @@
     "productSummaryBody": "Esta superficie está preparada para productos de cuidado, recomendaciones del vendedor y rutas de tienda sin implicar pago todavía.",
     "nextAction": "Siguiente acción",
     "visitSeller": "Mira qué más tienen disponible",
-    "moreFromSeller": "Más de este vendedor"
+    "moreFromSeller": "Más de este vendedor",
+    "galleryTitle": "Fotos",
+    "viewPhoto": "Ver foto",
+    "photoCounter": "{current} / {total}",
+    "previousPhoto": "Foto anterior",
+    "nextPhoto": "Foto siguiente",
+    "closeGallery": "Cerrar",
+    "petDetailsTitle": "Datos de la mascota",
+    "bornLabel": "Nació",
+    "weanedLabel": "Destete",
+    "ageWeeks": "{count, plural, =1 {# semana de edad} other {# semanas de edad}}",
+    "ageMonths": "{count, plural, =1 {# mes de edad} other {# meses de edad}}",
+    "ageYears": "{count, plural, =1 {# año de edad} other {# años de edad}}",
+    "verificationTitle": "Verificación",
+    "animalAttestedLabel": "Elegibilidad del animal confirmada por el dueño",
+    "animalNotAttestedLabel": "Aún no confirmada por el dueño",
+    "notInspectedNotice": "Scrlpets no ha inspeccionado a este animal. La confirmación y las afirmaciones de salud son declaraciones del propio dueño, no una garantía de la plataforma.",
+    "galleryManageLabel": "Fotos de la galería",
+    "addGalleryPhoto": "Agregar foto a la galería",
+    "galleryCaptionPlaceholder": "Descripción (opcional)",
+    "galleryPhotoTypeError": "Solo fotos (JPEG, PNG o WEBP).",
+    "galleryLimitReached": "La galería está llena (máximo 10 fotos).",
+    "galleryAddError": "No se pudo agregar la foto. Inténtalo de nuevo."
   },
   "messages": {
     "title": "Mensajes",
@@ -342,7 +364,42 @@
     "people": "Personas",
     "brands": "Marcas",
     "animals": "Animales",
-    "listings": "Anuncios"
+    "listings": "Anuncios",
+    "filters": {
+      "species": "Especie",
+      "kind": "Tipo de anuncio",
+      "kindAny": "Cualquier tipo",
+      "kindSale": "En venta",
+      "kindAdoption": "En adopción",
+      "minPrice": "Precio mín.",
+      "maxPrice": "Precio máx."
+    },
+    "noFilterResults": "Ningún anuncio coincide con tus filtros.",
+    "saved": {
+      "eyebrow": "Búsquedas guardadas",
+      "explanation": "Activa las alertas y Scrlpets te avisará cuando se publique un anuncio nuevo que coincida con esta búsqueda.",
+      "countHint": "{count}/{cap} guardadas",
+      "action": "Guardar esta búsqueda",
+      "nameLabel": "Ponle un nombre a esta búsqueda",
+      "namePlaceholder": "p. ej. Cachorros golden retriever",
+      "notifyLabel": "Avisarme sobre coincidencias nuevas",
+      "submit": "Guardar",
+      "saving": "Guardando…",
+      "cancel": "Cancelar",
+      "signInPrompt": "Inicia sesión para guardar esta búsqueda",
+      "empty": "Aún no tienes búsquedas guardadas.",
+      "delete": "Eliminar",
+      "alertsOn": "Alertas activadas",
+      "alertsOff": "Alertas desactivadas",
+      "capReached": "Guardaste 20 de 20 búsquedas. Elimina una para guardar otra.",
+      "anyListing": "Cualquier anuncio nuevo",
+      "errors": {
+        "cap_reached": "Llegaste al límite de 20 búsquedas guardadas. Elimina una primero.",
+        "auth_required": "Inicia sesión para guardar búsquedas.",
+        "name": "Ponle un nombre a esta búsqueda (hasta 80 caracteres).",
+        "failed": "No se pudo guardar. Inténtalo de nuevo."
+      }
+    }
   },
   "account": {
     "title": "Cuenta",
@@ -544,7 +601,37 @@
     "withdrawing": "Retirando…",
     "withdrawError": "Algo salió mal. Inténtalo de nuevo.",
     "handoverStarted": "La entrega ya comenzó, así que esta solicitud ahora forma parte del registro de la transacción y no se puede retirar.",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "adoptionApplyTitle": "Solicitar la adopción",
+    "adoptionApplyHelp": "Cuéntale al dueño sobre tu hogar para que pueda decidir con buena información.",
+    "adoptionWhyLabel": "¿Por qué quieres adoptar?",
+    "livingSituationLabel": "Situación de vivienda",
+    "livingSituation": {
+      "house": "Casa",
+      "apartment": "Apartamento",
+      "condo": "Condominio",
+      "farm": "Granja",
+      "other": "Otra"
+    },
+    "hasYardLabel": "Tengo patio",
+    "otherPetsLabel": "Otras mascotas en tu hogar, si tienes",
+    "experienceLevelLabel": "Experiencia con este tipo de animal",
+    "experienceLevel": {
+      "first_time": "Primera vez",
+      "some_experience": "Algo de experiencia",
+      "experienced": "Con experiencia"
+    },
+    "adoptionMessageRequired": "Cuéntale al dueño por qué quieres adoptar.",
+    "adoptionApplyError": "Algo salió mal. Inténtalo de nuevo.",
+    "adoptionSubmitting": "Enviando…",
+    "adoptionScreeningTitle": "Solicitudes de adopción pendientes de tu revisión",
+    "adoptionScreeningLivingSituation": "Situación de vivienda",
+    "adoptionScreeningYard": "Patio",
+    "adoptionScreeningYardYes": "Sí",
+    "adoptionScreeningYardNo": "No",
+    "adoptionScreeningExperience": "Experiencia",
+    "adoptionScreeningOtherPets": "Otras mascotas",
+    "adoptionScreeningOtherPetsNone": "No mencionó ninguna"
   },
   "breederOs": {
     "readinessEyebrow": "Preparación",
@@ -595,7 +682,54 @@
     "gateNotice": "El realojamiento cumple las mismas verificaciones que una venta: quien publica debe tener identidad verificada y haber certificado que ese animal es suyo y está listo.",
     "empty": "Ahora mismo no hay animales en adopción.",
     "noFee": "Sin cuota de adopción",
-    "feeAmount": "Cuota de adopción {amount}"
+    "feeAmount": "Cuota de adopción {amount}",
+    "healthCareTitle": "Salud y cuidados",
+    "goodWithTitle": "Convive bien con",
+    "reasonTitle": "Motivo del realojamiento",
+    "specialNeedsTitle": "Necesidades especiales",
+    "chip": {
+      "spayedNeutered": {
+        "true": "Esterilizado/a",
+        "false": "No esterilizado/a",
+        "unknown": "Esterilización: se desconoce"
+      },
+      "vaccinated": {
+        "true": "Vacunado/a",
+        "false": "No vacunado/a",
+        "unknown": "Vacunación: se desconoce"
+      },
+      "microchipped": {
+        "true": "Con microchip",
+        "false": "Sin microchip",
+        "unknown": "Microchip: se desconoce"
+      },
+      "goodWithKids": {
+        "true": "Convive bien con niños",
+        "false": "No convive bien con niños",
+        "unknown": "Con niños: se desconoce"
+      },
+      "goodWithDogs": {
+        "true": "Convive bien con otros perros",
+        "false": "No convive bien con otros perros",
+        "unknown": "Con otros perros: se desconoce"
+      },
+      "goodWithCats": {
+        "true": "Convive bien con gatos",
+        "false": "No convive bien con gatos",
+        "unknown": "Con gatos: se desconoce"
+      }
+    },
+    "edit": {
+      "cta": "Editar salud y cuidados",
+      "title": "Editar salud y cuidados",
+      "unknownOption": "Se desconoce",
+      "yesOption": "Sí",
+      "noOption": "No",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "cancel": "Cancelar",
+      "error": "Algo salió mal. Inténtalo de nuevo."
+    }
   },
   "reviews": {
     "heading": "Reseñas",
@@ -659,7 +793,21 @@
       "reactivate": "Reactivar",
       "activeChip": "Activo",
       "retired": "Retirado",
-      "error": "No se pudo guardar. Revisa los campos e inténtalo de nuevo."
+      "error": "No se pudo guardar. Revisa los campos e inténtalo de nuevo.",
+      "photo": "Foto",
+      "photoRemove": "Quitar"
+    },
+    "contact": {
+      "action": "Contactar",
+      "starting": "Abriendo conversación…",
+      "signIn": "Inicia sesión para contactar a este proveedor",
+      "ownerState": "Este es tu servicio — las consultas aparecerán en Mensajes.",
+      "errors": {
+        "service_unavailable": "Este servicio ya no está disponible.",
+        "self_inquiry": "No puedes contactarte a ti mismo por tu propio servicio.",
+        "auth_required": "Inicia sesión para contactar a este proveedor.",
+        "inquiry_failed": "No se pudo iniciar la conversación. Inténtalo de nuevo."
+      }
     }
   },
   "rewards": {

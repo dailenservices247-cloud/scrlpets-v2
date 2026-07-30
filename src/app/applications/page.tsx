@@ -7,6 +7,11 @@ import { getReviewableHandovers } from "@/lib/reviews/queries";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { WithdrawAction } from "./WithdrawAction";
 import { getSessionUser } from "@/lib/auth/session";
+import { getAdoptionScreeningFields } from "@/lib/adoption/queries";
+import {
+  AdoptionScreeningSection,
+  type AdoptionScreeningRow,
+} from "@/components/adoption/AdoptionScreeningSection";
 
 // D13: one inbox, both roles. RLS already scopes rows to the two parties.
 export default async function ApplicationsPage() {
@@ -29,6 +34,24 @@ export default async function ApplicationsPage() {
       !a.buyerConfirmedAt &&
       !a.sellerConfirmedAt,
   );
+
+  // V2-03: structured screening answers for adoption applications still
+  // awaiting this seller's accept/decline decision below. living_situation
+  // is only ever set by the adoption screening form, so its presence is the
+  // signal that an application carries these columns at all.
+  const pendingForSeller = applications.filter(
+    (a) => a.sellerId === user.id && a.status === "submitted",
+  );
+  const screeningFields = await getAdoptionScreeningFields(pendingForSeller.map((a) => a.id));
+  const adoptionScreeningRows: AdoptionScreeningRow[] = pendingForSeller
+    .filter((a) => screeningFields[a.id])
+    .map((a) => ({
+      ...screeningFields[a.id],
+      id: a.id,
+      listingTitle: a.listingTitle,
+      buyerUsername: a.buyerUsername,
+      message: a.message,
+    }));
 
   return (
     <AppPage>
@@ -62,6 +85,7 @@ export default async function ApplicationsPage() {
           </div>
         </section>
       )}
+      <AdoptionScreeningSection rows={adoptionScreeningRows} />
       <div className="px-3 pb-6">
         <ApplicationList applications={applications} viewerId={user.id} />
       </div>

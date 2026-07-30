@@ -101,7 +101,7 @@ export default async function BrandOSPage({
           <SellerListingsPanel listings={sellerListings} />
         </section>
         <section className="px-3 py-3">
-          <ServicesManagerPanel services={myServices} brands={[]} />
+          <ServicesManagerPanel services={myServices} brands={[]} userId={user.id} />
         </section>
       </AppPage>
     );
@@ -226,7 +226,7 @@ export default async function BrandOSPage({
 
       {canServices && (
         <section className="px-3 py-3">
-          <ServicesManagerPanel services={myServices} brands={attachableBrands} />
+          <ServicesManagerPanel services={myServices} brands={attachableBrands} userId={user.id} />
         </section>
       )}
 

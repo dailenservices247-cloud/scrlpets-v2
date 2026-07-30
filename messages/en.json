@@ -245,7 +245,29 @@
     "productSummaryBody": "This surface is prepared for care products, seller recommendations, and shop paths without implying checkout yet.",
     "nextAction": "Next action",
     "visitSeller": "See what else they have going on",
-    "moreFromSeller": "More from this seller"
+    "moreFromSeller": "More from this seller",
+    "galleryTitle": "Photos",
+    "viewPhoto": "View photo",
+    "photoCounter": "{current} / {total}",
+    "previousPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "closeGallery": "Close",
+    "petDetailsTitle": "Pet details",
+    "bornLabel": "Born",
+    "weanedLabel": "Weaned",
+    "ageWeeks": "{count, plural, =1 {# week old} other {# weeks old}}",
+    "ageMonths": "{count, plural, =1 {# month old} other {# months old}}",
+    "ageYears": "{count, plural, =1 {# year old} other {# years old}}",
+    "verificationTitle": "Verification",
+    "animalAttestedLabel": "Animal eligibility attested by owner",
+    "animalNotAttestedLabel": "Not yet attested by the owner",
+    "notInspectedNotice": "Scrlpets has not inspected this animal. Attestation and health claims are the owner's own statements, not a platform guarantee.",
+    "galleryManageLabel": "Gallery photos",
+    "addGalleryPhoto": "Add gallery photo",
+    "galleryCaptionPlaceholder": "Caption (optional)",
+    "galleryPhotoTypeError": "Photos only (JPEG, PNG, or WEBP).",
+    "galleryLimitReached": "Gallery is full (10 photos max).",
+    "galleryAddError": "Couldn't add that photo. Try again."
   },
   "messages": {
     "title": "Messages",
@@ -342,7 +364,42 @@
     "people": "People",
     "brands": "Brands",
     "animals": "Animals",
-    "listings": "Listings"
+    "listings": "Listings",
+    "filters": {
+      "species": "Species",
+      "kind": "Listing type",
+      "kindAny": "Any type",
+      "kindSale": "For sale",
+      "kindAdoption": "For adoption",
+      "minPrice": "Min price",
+      "maxPrice": "Max price"
+    },
+    "noFilterResults": "No listings match your filters.",
+    "saved": {
+      "eyebrow": "Saved searches",
+      "explanation": "Turn on alerts and Scrlpets will notify you when a new listing matches this search.",
+      "countHint": "{count}/{cap} saved",
+      "action": "Save this search",
+      "nameLabel": "Name this search",
+      "namePlaceholder": "e.g. Golden retriever puppies",
+      "notifyLabel": "Notify me about new matches",
+      "submit": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "signInPrompt": "Sign in to save this search",
+      "empty": "No saved searches yet.",
+      "delete": "Delete",
+      "alertsOn": "Alerts on",
+      "alertsOff": "Alerts off",
+      "capReached": "You've saved 20 of 20 searches. Delete one to save another.",
+      "anyListing": "Any new listing",
+      "errors": {
+        "cap_reached": "You've reached the 20 saved search limit. Delete one first.",
+        "auth_required": "Sign in to save searches.",
+        "name": "Give this search a name (up to 80 characters).",
+        "failed": "Could not save. Please try again."
+      }
+    }
   },
   "account": {
     "title": "Account",
@@ -544,7 +601,37 @@
     "withdrawing": "Withdrawing…",
     "withdrawError": "Something went wrong. Try again.",
     "handoverStarted": "The handover has already begun, so this application is now part of the transaction record and can't be withdrawn.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "adoptionApplyTitle": "Apply to adopt",
+    "adoptionApplyHelp": "Tell the owner about your home so they can make an informed decision.",
+    "adoptionWhyLabel": "Why do you want to adopt?",
+    "livingSituationLabel": "Living situation",
+    "livingSituation": {
+      "house": "House",
+      "apartment": "Apartment",
+      "condo": "Condo",
+      "farm": "Farm",
+      "other": "Other"
+    },
+    "hasYardLabel": "I have a yard",
+    "otherPetsLabel": "Other pets in your home, if any",
+    "experienceLevelLabel": "Experience with this kind of animal",
+    "experienceLevel": {
+      "first_time": "First time",
+      "some_experience": "Some experience",
+      "experienced": "Experienced"
+    },
+    "adoptionMessageRequired": "Tell the owner why you want to adopt.",
+    "adoptionApplyError": "Something went wrong. Try again.",
+    "adoptionSubmitting": "Sending…",
+    "adoptionScreeningTitle": "Adoption applications awaiting your review",
+    "adoptionScreeningLivingSituation": "Living situation",
+    "adoptionScreeningYard": "Yard",
+    "adoptionScreeningYardYes": "Yes",
+    "adoptionScreeningYardNo": "No",
+    "adoptionScreeningExperience": "Experience",
+    "adoptionScreeningOtherPets": "Other pets",
+    "adoptionScreeningOtherPetsNone": "None mentioned"
   },
   "breederOs": {
     "readinessEyebrow": "Readiness",
@@ -595,7 +682,54 @@
     "gateNotice": "Rehoming is held to the same checks as a sale: the person listing must be identity-verified and must have attested that this specific animal is theirs and ready to place.",
     "empty": "No animals are listed for adoption right now.",
     "noFee": "No adoption fee",
-    "feeAmount": "Adoption fee {amount}"
+    "feeAmount": "Adoption fee {amount}",
+    "healthCareTitle": "Health & care",
+    "goodWithTitle": "Good with",
+    "reasonTitle": "Reason for rehoming",
+    "specialNeedsTitle": "Special needs",
+    "chip": {
+      "spayedNeutered": {
+        "true": "Spayed/neutered",
+        "false": "Not spayed/neutered",
+        "unknown": "Spayed/neutered status unknown"
+      },
+      "vaccinated": {
+        "true": "Vaccinated",
+        "false": "Not vaccinated",
+        "unknown": "Vaccination status unknown"
+      },
+      "microchipped": {
+        "true": "Microchipped",
+        "false": "Not microchipped",
+        "unknown": "Microchip status unknown"
+      },
+      "goodWithKids": {
+        "true": "Good with kids",
+        "false": "Not good with kids",
+        "unknown": "Good with kids: unknown"
+      },
+      "goodWithDogs": {
+        "true": "Good with other dogs",
+        "false": "Not good with other dogs",
+        "unknown": "Good with other dogs: unknown"
+      },
+      "goodWithCats": {
+        "true": "Good with cats",
+        "false": "Not good with cats",
+        "unknown": "Good with cats: unknown"
+      }
+    },
+    "edit": {
+      "cta": "Edit health & care details",
+      "title": "Edit health & care",
+      "unknownOption": "Unknown",
+      "yesOption": "Yes",
+      "noOption": "No",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "error": "Something went wrong. Try again."
+    }
   },
   "reviews": {
     "heading": "Reviews",
@@ -659,7 +793,21 @@
       "reactivate": "Reactivate",
       "activeChip": "Live",
       "retired": "Retired",
-      "error": "Could not save. Check the fields and try again."
+      "error": "Could not save. Check the fields and try again.",
+      "photo": "Photo",
+      "photoRemove": "Remove"
+    },
+    "contact": {
+      "action": "Contact",
+      "starting": "Opening conversation…",
+      "signIn": "Sign in to contact this provider",
+      "ownerState": "This is your service — inquiries will appear in Messages.",
+      "errors": {
+        "service_unavailable": "This service is no longer available.",
+        "self_inquiry": "You cannot contact yourself about your own service.",
+        "auth_required": "Sign in to contact this provider.",
+        "inquiry_failed": "The conversation could not be started. Please try again."
+      }
     }
   },
   "rewards": {

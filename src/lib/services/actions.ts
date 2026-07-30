@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { parsePriceCents } from "@/lib/compose/validation";
+import { sendMessage, startConversation } from "@/lib/messaging/actions";
+import { formatPrice } from "@/lib/shop/format";
 import { SERVICE_CATEGORIES } from "./categories";
 
 export type ServiceActionResult = { ok: true } | { ok: false; error: string };
@@ -14,6 +16,7 @@ type ServiceFields = {
   price_cents: number | null;
   area: string | null;
   contact_note: string | null;
+  media_url: string | null;
 };
 
 /**
@@ -45,6 +48,7 @@ function parseServiceFields(formData: FormData): ServiceFields | { error: string
     price_cents: priceCents,
     area: bounded("area", 120),
     contact_note: bounded("contactNote", 300),
+    media_url: bounded("mediaUrl", 500),
   };
 }
 
@@ -118,4 +122,53 @@ export async function setServiceActive(
   if (count !== 1) return { ok: false, error: "not_found" };
   revalidateServiceSurfaces();
   return { ok: true };
+}
+
+export type ServiceInquiryResult =
+  | { ok: true; conversationId: string }
+  | { ok: false; error: string };
+
+/**
+ * V3-01: mirrors marketplace's start_listing_inquiry shape (create-or-reuse
+ * conversation, self-inquiry refused) but stays app-code only — no new table
+ * or RPC. The "evidence" listing_inquiries gives for free isn't available
+ * here, so the opening message body carries the service reference instead.
+ */
+export async function startServiceInquiry(serviceId: string): Promise<ServiceInquiryResult> {
+  const ctx = await requireUser();
+  if (!ctx) return { ok: false, error: "auth_required" };
+  const { supabase, user } = ctx;
+
+  const { data: service, error: serviceError } = await supabase
+    .from("services")
+    .select("id,name,category,price_cents,currency,owner_id")
+    .eq("id", serviceId)
+    .eq("active", true)
+    .maybeSingle();
+  if (serviceError) return { ok: false, error: serviceError.message };
+  if (!service) return { ok: false, error: "service_unavailable" };
+  if (service.owner_id === user.id) return { ok: false, error: "self_inquiry" };
+
+  const conversation = await startConversation(service.owner_id);
+  if ("error" in conversation) return { ok: false, error: conversation.error };
+
+  const category = service.category
+    ? service.category.charAt(0).toUpperCase() + service.category.slice(1)
+    : null;
+  const price =
+    service.price_cents && service.price_cents > 0
+      ? ` — ${formatPrice(service.price_cents, service.currency)}`
+      : "";
+  const body = `Hi, I'm interested in your service "${service.name}"${
+    category ? ` (${category})` : ""
+  }${price}.`;
+
+  // ponytail: always (re)sends the opening line on every click. The spec only
+  // requires conversation-level idempotency (no duplicate conversation), and
+  // there's no service_inquiries snapshot table to dedupe against without a
+  // migration, so a second click resends rather than silently no-op-ing.
+  const sent = await sendMessage(conversation.id, body);
+  if (!sent.ok) return { ok: false, error: sent.error };
+
+  return { ok: true, conversationId: conversation.id };
 }

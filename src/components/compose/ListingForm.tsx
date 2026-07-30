@@ -7,6 +7,8 @@ import { applyAttribution } from "./attribution";
 import type { ComposeAttribution } from "./ComposerTabs";
 import { MediaInput } from "./MediaInput";
 import { CreaturePicker } from "./CreaturePicker";
+import { GalleryPhotosEditor } from "@/components/listing/GalleryPhotosEditor";
+import { addListingPhotos } from "@/lib/listings/actions";
 import { Button } from "@/components/ui/button";
 import { capture } from "@/lib/analytics";
 
@@ -49,6 +51,9 @@ export function ListingForm(props: ListingFormProps) {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [isAdoption, setIsAdoption] = useState(false);
+  const [pendingGalleryPhotos, setPendingGalleryPhotos] = useState<
+    { url: string; caption: string }[]
+  >([]);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -61,6 +66,7 @@ export function ListingForm(props: ListingFormProps) {
     fd.set("price", price);
     fd.set("mediaUrl", mediaUrl ?? "");
     let res;
+    let createdId: string | undefined;
     if (edit) {
       res = await editListing(edit.id, fd);
     } else {
@@ -69,7 +75,9 @@ export function ListingForm(props: ListingFormProps) {
       fd.set("category", category);
       if (creatureId && isAdoption) fd.set("listingKind", "adoption");
       applyAttribution(fd, attribution!);
-      res = await createListing(fd);
+      const created = await createListing(fd);
+      createdId = created.ok ? created.id : undefined;
+      res = created;
     }
     setBusy(false);
     if (!res.ok) {
@@ -80,6 +88,9 @@ export function ListingForm(props: ListingFormProps) {
       capture("content_edited", { content_type: "listing", has_media: !!mediaUrl });
       router.push(edit.returnPath);
     } else {
+      if (pendingGalleryPhotos.length > 0 && createdId) {
+        await addListingPhotos(createdId, pendingGalleryPhotos);
+      }
       capture("listing_created", { has_media: !!mediaUrl, has_creature: !!creatureId });
       router.push("/");
     }
@@ -139,6 +150,11 @@ export function ListingForm(props: ListingFormProps) {
         </div>
       )}
       <MediaInput userId={userId} onUploaded={setMediaUrl} />
+      <GalleryPhotosEditor
+        userId={userId}
+        listingId={edit?.id ?? null}
+        onPendingPhotosChange={setPendingGalleryPhotos}
+      />
       {!isEditing && (
         <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
       )}

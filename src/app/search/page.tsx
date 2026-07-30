@@ -1,26 +1,60 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
-import { search } from "@/lib/search/queries";
+import { SavedSearchPanel } from "@/components/search/SavedSearchPanel";
+import { getSessionUser } from "@/lib/auth/session";
+import { parsePriceCents } from "@/lib/compose/validation";
+import {
+  hasActiveFilters,
+  listListedSpecies,
+  listSavedSearches,
+  search,
+} from "@/lib/search/queries";
+
+type ListingKind = "sale" | "adoption";
+
+function parseKind(raw?: string): ListingKind | undefined {
+  return raw === "sale" || raw === "adoption" ? raw : undefined;
+}
 
 // R11: public search across people, brands, animals, listings (guest-allowed
-// per G1-A: discovery is open).
+// per G1-A: discovery is open). V7-04 adds server-side listing filters that
+// live in the URL; V2-04 adds the saved-search panel below the form.
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; species?: string; kind?: string; minPrice?: string; maxPrice?: string }>;
 }) {
   const t = await getTranslations("search");
-  const { q } = await searchParams;
+  const { q, species, kind, minPrice, maxPrice } = await searchParams;
   const query = q ?? "";
-  const results = await search(query);
+  const listingKind = parseKind(kind);
+  const minPriceCents = minPrice ? (parsePriceCents(minPrice) ?? undefined) : undefined;
+  const maxPriceCents = maxPrice ? (parsePriceCents(maxPrice) ?? undefined) : undefined;
+  const filters = { species: species?.trim() || undefined, listingKind, minPriceCents, maxPriceCents };
+  const filtersActive = hasActiveFilters(filters);
+
+  const [results, viewer, speciesOptions] = await Promise.all([
+    search(query, filters),
+    getSessionUser(),
+    listListedSpecies(),
+  ]);
+  const savedSearches = viewer ? await listSavedSearches(viewer.id) : [];
   const total =
     results.people.length + results.brands.length + results.animals.length + results.listings.length;
+
+  const returnParams = new URLSearchParams();
+  if (query) returnParams.set("q", query);
+  if (filters.species) returnParams.set("species", filters.species);
+  if (listingKind) returnParams.set("kind", listingKind);
+  if (minPrice) returnParams.set("minPrice", minPrice);
+  if (maxPrice) returnParams.set("maxPrice", maxPrice);
+  const returnPath = `/search${returnParams.toString() ? `?${returnParams.toString()}` : ""}`;
 
   return (
     <AppPage>
       <div className="px-3 pt-4">
-        <form action="/search" className="flex gap-2">
+        <form action="/search" className="flex flex-wrap gap-2">
           <input
             type="search"
             name="q"
@@ -28,7 +62,53 @@ export default async function SearchPage({
             placeholder={t("placeholder")}
             aria-label={t("placeholder")}
             data-testid="search-input"
-            className="min-h-11 flex-1 rounded-xl border border-input bg-transparent px-3 text-sm"
+            className="min-h-11 flex-1 basis-full rounded-xl border border-input bg-transparent px-3 text-sm"
+          />
+          <input
+            type="text"
+            name="species"
+            defaultValue={species ?? ""}
+            placeholder={t("filters.species")}
+            aria-label={t("filters.species")}
+            list="species-options"
+            data-testid="search-filter-species"
+            className="min-h-11 min-w-0 flex-1 rounded-xl border border-input bg-transparent px-3 text-sm"
+          />
+          <datalist id="species-options">
+            {speciesOptions.map((s) => (
+              <option key={s} value={s} />
+            ))}
+          </datalist>
+          <select
+            name="kind"
+            defaultValue={listingKind ?? ""}
+            aria-label={t("filters.kind")}
+            data-testid="search-filter-kind"
+            className="min-h-11 rounded-xl border border-input bg-background px-3 text-sm"
+          >
+            <option value="">{t("filters.kindAny")}</option>
+            <option value="sale">{t("filters.kindSale")}</option>
+            <option value="adoption">{t("filters.kindAdoption")}</option>
+          </select>
+          <input
+            type="text"
+            inputMode="decimal"
+            name="minPrice"
+            defaultValue={minPrice ?? ""}
+            placeholder={t("filters.minPrice")}
+            aria-label={t("filters.minPrice")}
+            data-testid="search-filter-min-price"
+            className="min-h-11 w-24 rounded-xl border border-input bg-transparent px-3 text-sm"
+          />
+          <input
+            type="text"
+            inputMode="decimal"
+            name="maxPrice"
+            defaultValue={maxPrice ?? ""}
+            placeholder={t("filters.maxPrice")}
+            aria-label={t("filters.maxPrice")}
+            data-testid="search-filter-max-price"
+            className="min-h-11 w-24 rounded-xl border border-input bg-transparent px-3 text-sm"
           />
           <button
             type="submit"
@@ -40,9 +120,22 @@ export default async function SearchPage({
         </form>
       </div>
 
-      {query.trim().length >= 2 && total === 0 && (
+      <SavedSearchPanel
+        viewerSignedIn={Boolean(viewer)}
+        returnPath={returnPath}
+        currentQuery={query}
+        currentFilters={{
+          species: filters.species ?? null,
+          listingKind: listingKind ?? null,
+          minPriceCents: minPriceCents ?? null,
+          maxPriceCents: maxPriceCents ?? null,
+        }}
+        savedSearches={savedSearches}
+      />
+
+      {total === 0 && (query.trim().length >= 2 || filtersActive) && (
         <p className="px-3 py-8 text-center text-sm text-muted-foreground" data-testid="search-empty">
-          {t("noResults", { query })}
+          {query.trim().length >= 2 ? t("noResults", { query }) : t("noFilterResults")}
         </p>
       )}
 
