@@ -45,10 +45,34 @@ export async function exportMyData(): Promise<
     supabase.from("posts").select("*").eq("author_id", user.id),
     supabase.from("listings").select("*").eq("seller_id", user.id),
     supabase.from("comments").select("*").eq("author_id", user.id),
-    supabase.from("creatures").select("*").eq("owner_id", user.id),
+    // Explicit columns, not "*": anchor_value is revoked from client roles, and
+    // `select *` on a table you lack a column privilege for ERRORS rather than
+    // narrowing. The anchor is the owner's own data and belongs in their export,
+    // so it comes back through the definer below.
+    supabase
+      .from("creatures")
+      .select(
+        "id,owner_id,name,species,slug,avatar_url,created_at,creature_role,page_visible," +
+          "deceased_at,memorial_message,registration_number,birth_date,weaned_date,breed," +
+          "gender,color,markings,health_notes,generation,is_founder,litter_id,archived_at,anchor_type",
+      )
+      .eq("owner_id", user.id),
     supabase.from("brand_memberships").select("*, brands(*)").eq("profile_id", user.id),
     supabase.from("saved_posts").select("*").eq("user_id", user.id),
   ]);
+
+  // The anchor value is the owner's own data — a chip number they need for a vet
+  // or a registry — so an export without it is incomplete. It is fetched per
+  // animal through the definer because the column itself is not client-readable.
+  const anchoredRows = (creatures.data ?? []) as unknown as { id: string }[];
+  const anchors = await Promise.all(
+    anchoredRows.map((c) =>
+      supabase
+        .rpc("my_creature_anchor", { target_creature: c.id })
+        .then(({ data }) => [c.id, (data as string | null) ?? null] as const),
+    ),
+  );
+  const anchorById = new Map(anchors);
 
   return {
     ok: true,
@@ -60,7 +84,10 @@ export async function exportMyData(): Promise<
         posts: posts.data ?? [],
         listings: listings.data ?? [],
         comments: comments.data ?? [],
-        animals: creatures.data ?? [],
+        animals: ((creatures.data ?? []) as unknown as Record<string, unknown>[]).map((c) => ({
+          ...c,
+          anchor_value: anchorById.get(c.id as string) ?? null,
+        })),
         brand_memberships: brands.data ?? [],
         saved_posts: saved.data ?? [],
       },
