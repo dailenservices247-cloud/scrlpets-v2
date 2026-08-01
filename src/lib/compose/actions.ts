@@ -195,9 +195,26 @@ export async function deletePost(postId: string): Promise<ActionResult> {
 export async function editListing(listingId: string, formData: FormData): Promise<ActionResult> {
   const { supabase } = await requireUser();
   const title = String(formData.get("title") ?? "");
-  const priceCents = parsePriceCents(String(formData.get("price") ?? ""));
+  const rawPrice = String(formData.get("price") ?? "").trim();
   const mediaUrl = (formData.get("mediaUrl") as string) || null;
-  const v = validateListing({ title, priceCents });
+
+  // A free rehoming is a legitimate price, and parsePriceCents deliberately
+  // refuses "0" — so the listing's own kind decides, exactly as createListing
+  // does. Without this an adoption listed at no fee could never be edited at
+  // all: every save came back "price", so a typo or a wrong photo was permanent
+  // unless the owner converted it into a paid sale.
+  const { data: existing } = await supabase
+    .from("listings")
+    .select("listing_kind")
+    .eq("id", listingId)
+    .maybeSingle();
+  const isAdoption = (existing as { listing_kind?: string } | null)?.listing_kind === "adoption";
+  const priceCents =
+    isAdoption && (rawPrice === "" || /^0(\.0{1,2})?$/.test(rawPrice))
+      ? 0
+      : parsePriceCents(rawPrice);
+
+  const v = validateListing({ title, priceCents }, { allowFree: isAdoption });
   if (!v.ok) return { ok: false, error: v.error };
 
   const { count, error } = await supabase

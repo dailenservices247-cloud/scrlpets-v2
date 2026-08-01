@@ -19,6 +19,13 @@ export async function publishGuide(
     guide_body: guide.body,
     guide_audience: guide.audience,
     publish: true,
+    // Both are required, not optional. upsert_guide's ON CONFLICT assigns
+    // category and species unconditionally, so omitting them here does not
+    // "leave them alone" — it overwrites the guide's existing tags with NULL
+    // on every publish, and silently empties the /guides filters and the group
+    // guides tab that read them.
+    guide_category: guide.category,
+    guide_species: guide.species,
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/admin");

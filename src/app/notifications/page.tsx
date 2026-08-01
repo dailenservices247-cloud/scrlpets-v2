@@ -6,7 +6,6 @@ import { getNotifications, notificationHref } from "@/lib/notifications/queries"
 import { groupNotifications, isActionable } from "@/lib/notifications/grouping";
 import { MarkAllRead } from "@/components/notifications/MarkAllRead";
 import { ClearAll } from "@/components/notifications/ClearAll";
-import { NotificationAnnouncer } from "@/components/notifications/NotificationAnnouncer";
 import { PackRequestActions } from "@/components/pack/PackRequestActions";
 import { relativeTime } from "@/lib/feed/relative-time";
 
@@ -20,7 +19,6 @@ export default async function NotificationsPage() {
 
   return (
     <AppPage>
-      <NotificationAnnouncer initialUnread={unread} />
       <header className="flex items-center justify-between px-3 pb-2 pt-4">
         <h1 className="text-xl font-semibold">{t("title")}</h1>
         <div className="flex items-center gap-1">

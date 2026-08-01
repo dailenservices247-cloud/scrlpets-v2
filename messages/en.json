@@ -130,7 +130,8 @@
       "type": "That file type isn't supported. Use a JPEG, PNG or WEBP photo, or an MP4, WEBM or MOV video.",
       "size": "That file is too large. Photos can be up to 5MB and videos up to 50MB.",
       "process": "We couldn't prepare that photo for upload. Try a different one."
-    }
+    },
+    "errorSellerUnverified": "Listing an animal needs a verified seller account. Identity checks are not switched on yet, so this is not something you can complete right now — nothing is wrong with what you entered."
   },
   "content": {
     "edit": "Edit",
@@ -1376,7 +1377,8 @@
         "auth_required": "Sign in to continue.",
         "generic": "Could not save. Try again."
       }
-    }
+    },
+    "youngGenderLabel": "Sex"
   },
   "tree": {
     "eyebrow": "Ecosystem Tree",

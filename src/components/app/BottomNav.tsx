@@ -35,6 +35,10 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              // SideNav has carried this since it shipped; the mobile nav — the
+              // primary form factor — was missed, leaving colour as the only
+              // signal of where you are.
+              aria-current={active ? "page" : undefined}
               className={cn(
                 "group flex min-h-14 flex-col items-center justify-end gap-1 rounded-lg px-1 text-[11px] font-medium text-muted-foreground transition",
                 active && "text-brand-link",

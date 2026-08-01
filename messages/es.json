@@ -130,7 +130,8 @@
       "type": "Ese tipo de archivo no es compatible. Usa una foto JPEG, PNG o WEBP, o un video MP4, WEBM o MOV.",
       "size": "Ese archivo es demasiado grande. Las fotos admiten hasta 5MB y los videos hasta 50MB.",
       "process": "No pudimos preparar esa foto para subirla. Prueba con otra."
-    }
+    },
+    "errorSellerUnverified": "Publicar un animal requiere una cuenta de vendedor verificada. La verificación de identidad todavía no está activada, así que esto no es algo que puedas completar ahora — no hay ningún problema con lo que escribiste."
   },
   "content": {
     "edit": "Editar",
@@ -1376,7 +1377,8 @@
         "auth_required": "Inicia sesión para continuar.",
         "generic": "No se pudo guardar. Inténtalo de nuevo."
       }
-    }
+    },
+    "youngGenderLabel": "Sexo"
   },
   "tree": {
     "eyebrow": "Árbol del Ecosistema",

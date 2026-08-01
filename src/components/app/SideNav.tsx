@@ -27,7 +27,7 @@ export function SideNav() {
     >
       <Link href="/" className="mb-4 flex items-center gap-2 px-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/scrlpets-icon-square.png" alt="Scrlpets" className="size-9 rounded-xl" />
+        <img src="/brand/scrlpets-icon-192.png" alt="Scrlpets" className="size-9 rounded-xl" />
         <span className="text-lg font-semibold">Scrlpets</span>
       </Link>
       {items.map((item) => {

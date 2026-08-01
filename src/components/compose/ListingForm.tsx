@@ -12,6 +12,22 @@ import { addListingPhotos } from "@/lib/listings/actions";
 import { Button } from "@/components/ui/button";
 import { capture } from "@/lib/analytics";
 
+/**
+ * The animal-listing gate refuses at the row level, so it surfaces as a Postgres
+ * policy error rather than a named code. Matching on that is unlovely, but the
+ * alternative shipped for months: telling a verified-blocked seller their form
+ * was incomplete. Narrow the match if createListing ever returns a real code.
+ */
+function isSellerGateError(error: string): boolean {
+  const e = error.toLowerCase();
+  return (
+    e.includes("row-level security") ||
+    e.includes("violates row-level") ||
+    e.includes("42501") ||
+    e.includes("new row violates")
+  );
+}
+
 type ListingFormProps =
   | {
       userId: string;
@@ -81,7 +97,18 @@ export function ListingForm(props: ListingFormProps) {
     }
     setBusy(false);
     if (!res.ok) {
-      setErr(res.error === "price" ? t("errorPrice") : t("errorRequired"));
+      // Do NOT collapse every failure into "required fields are missing".
+      // Attaching an animal is gated on the seller being identity-verified, and
+      // that refusal arrives as an RLS error — reported as a form problem, it
+      // sent sellers back to re-check fields that were never the issue, forever.
+      // The gate is real; the honest thing is to name it.
+      setErr(
+        res.error === "price"
+          ? t("errorPrice")
+          : isSellerGateError(res.error)
+            ? t("errorSellerUnverified")
+            : t("errorRequired"),
+      );
       return;
     }
     if (edit) {

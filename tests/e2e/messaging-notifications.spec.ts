@@ -388,9 +388,14 @@ test.describe("notification centre", () => {
     ).toHaveCount(1);
 
     // The announcer is a real live region, present before anything arrives.
+    // It deliberately carries NO role="status": it now lives in the app shell,
+    // so that role would put a permanent empty status region on every page and
+    // make a bare getByRole("status") ambiguous against the real transient ones
+    // (it already broke brand-rbac.spec.ts that way). aria-live does the work.
     const announcer = page.getByTestId("notification-announcer");
     await expect(announcer).toHaveAttribute("aria-live", "polite");
-    await expect(announcer).toHaveAttribute("role", "status");
+    await expect(announcer).toHaveAttribute("aria-atomic", "true");
+    await expect(announcer).not.toHaveAttribute("role", "status");
     await expectNoSeriousA11y(page);
 
     await page.getByTestId("mark-all-read").click();

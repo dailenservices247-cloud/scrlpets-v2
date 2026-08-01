@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
 import { SideNav } from "./SideNav";
+import { NotificationAnnouncer } from "@/components/notifications/NotificationAnnouncer";
 
 // F7: responsive web shell. Desktop (lg+) = left SideNav + a centered readable
 // content column; mobile = full-width column + fixed BottomNav (unchanged).
@@ -23,6 +24,11 @@ export function AppPage({
       >
         {children}
       </main>
+      {/* Lives in the shell, not on /notifications. Announcing new mail only on
+          the page where you can already see it is the one place it is useless.
+          It seeds its own baseline from the first poll, so no server read is
+          added to every page render. */}
+      {showBottomNav && <NotificationAnnouncer />}
       {showBottomNav && <BottomNav />}
     </div>
   );

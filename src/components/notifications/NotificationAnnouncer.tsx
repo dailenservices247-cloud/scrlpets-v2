@@ -19,10 +19,18 @@ const POLL_MS = 30_000;
  * visibilitychange event. Swap for a Realtime subscription the moment
  * notifications joins the publication.
  */
-export function NotificationAnnouncer({ initialUnread }: { initialUnread: number }) {
+export function NotificationAnnouncer({ initialUnread }: { initialUnread?: number }) {
   const t = useTranslations("notifications");
   const [message, setMessage] = useState("");
-  const lastCount = useRef(initialUnread);
+  // Undefined means "not seeded yet" — the first poll establishes the baseline
+  // instead of announcing it. Without that, mounting app-wide would announce a
+  // backlog of already-seen notifications on every page load.
+  const lastCount = useRef<number | undefined>(initialUnread);
+  // A live region only speaks when its text CHANGES. Two single arrivals in a
+  // row produce the same string, React bails on the identical value, the DOM
+  // never changes, and the second one is silent. The nonce forces a change
+  // without altering what is read out.
+  const nonce = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,8 +39,12 @@ export function NotificationAnnouncer({ initialUnread }: { initialUnread: number
       if (document.visibilityState !== "visible") return;
       const count = await unreadNotificationCount();
       if (cancelled) return;
-      if (count > lastCount.current) {
-        setMessage(t("announceNew", { count: count - lastCount.current }));
+      const previous = lastCount.current;
+      if (previous !== undefined && count > previous) {
+        nonce.current += 1;
+        setMessage(
+          `${t("announceNew", { count: count - previous })}${"​".repeat(nonce.current % 2)}`,
+        );
       }
       lastCount.current = count;
     }
@@ -49,7 +61,12 @@ export function NotificationAnnouncer({ initialUnread }: { initialUnread: number
   return (
     <p
       className="sr-only"
-      role="status"
+      // Deliberately NOT role="status". Now that this lives in the app shell it
+      // is present on every page, and role="status" would make each page report
+      // a permanent, usually-empty status region — competing with the real
+      // transient ones (13 elsewhere in the app) and making a bare
+      // getByRole("status") ambiguous. aria-live is what performs the
+      // announcement; the role only duplicates it.
       aria-live="polite"
       aria-atomic="true"
       data-testid="notification-announcer"

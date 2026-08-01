@@ -346,6 +346,7 @@ export function LitterWizard({
                     <select
                       value={newYoungGender}
                       onChange={(e) => setNewYoungGender(e.target.value)}
+                      aria-label={t("youngGenderLabel")}
                       data-testid="young-add-gender"
                       className="min-h-11 shrink-0 rounded-xl border border-input bg-transparent px-2 text-sm"
                     >

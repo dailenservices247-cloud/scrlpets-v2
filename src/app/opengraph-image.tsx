@@ -5,7 +5,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 // Absolute URL required inside ImageResponse. Square crop avoids distortion. Update at DNS cutover.
-const MARK = "https://scrlpets-v2.vercel.app/brand/scrlpets-icon-square.png";
+const MARK = "https://scrlpets-v2.vercel.app/brand/scrlpets-icon-512.png";
 
 export default function OgImage() {
   return new ImageResponse(
