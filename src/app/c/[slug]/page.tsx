@@ -11,6 +11,8 @@ import { AboutInfoCard } from "@/components/creature/AboutInfoCard";
 import { HealthTestsSection } from "@/components/creature/HealthTestsSection";
 import { HighlightsSection } from "@/components/highlights/HighlightsSection";
 import { LineageSection } from "@/components/creature/LineageSection";
+import { AssuranceBadge } from "@/components/anchor/AssuranceBadge";
+import { AnchorSection } from "@/components/anchor/AnchorSection";
 import { getCreatureBySlug, getCreatureFeed } from "@/lib/profiles/queries";
 import { getAnimalRecord } from "@/lib/records/queries";
 import { getSessionUser } from "@/lib/auth/session";
@@ -22,6 +24,8 @@ import {
   getCreatureParents,
   getCreatureOffspring,
   getLitterName,
+  getCreatureAssurance,
+  getMyCreatureAnchor,
 } from "@/lib/creatures/queries";
 
 export const dynamic = "force-dynamic";
@@ -44,7 +48,7 @@ export default async function CreaturePage({
   const { slug } = await params;
   const creature = await getCreatureBySlug(slug);
   if (!creature) notFound();
-  const [items, user, record, detail, tests, parents, offspring] = await Promise.all([
+  const [items, user, record, detail, tests, parents, offspring, assurance] = await Promise.all([
     getCreatureFeed(creature.id),
     getSessionUser(),
     getAnimalRecord(creature.id),
@@ -52,9 +56,16 @@ export default async function CreaturePage({
     getGeneticTests(creature.id),
     getCreatureParents(creature.id),
     getCreatureOffspring(creature.id),
+    getCreatureAssurance(creature.id),
   ]);
   const listing = items.find((item) => item.type === "listing");
   const isOwner = user?.id === creature.ownerId;
+  // The definer already refuses everyone but the keeper; the guard just avoids
+  // a round trip whose answer is always null.
+  // ponytail: sequential rather than folded into the Promise.all above, because
+  // it depends on `user` from inside it. One extra RPC on an owner-only render;
+  // fold it in if this page ever gets latency-sensitive.
+  const anchorValue = isOwner ? await getMyCreatureAnchor(creature.id) : null;
   const isDeceased = !!detail?.deceasedAt;
   const litter = detail?.litterId ? await getLitterName(detail.litterId) : null;
   const t = await getTranslations("creature");
@@ -82,6 +93,28 @@ export default async function CreaturePage({
           isOwner={isOwner}
           isDeceased={isDeceased}
         />
+      )}
+
+      {/* The identity anchor. The LEVEL is public — it is the honest answer to
+          "is this the animal in the photos?" — while the value stays with the
+          keeper and everyone else gets a yes/no scan check instead. */}
+      {detail && (
+        <section className="mx-auto max-w-2xl px-4 pt-4" data-testid="creature-assurance">
+          <div className="premium-panel rounded-2xl border p-4">
+            <h2 className="eyebrow">{t("assurance.title")}</h2>
+            <div className="mt-2">
+              <AssuranceBadge level={assurance} anchorType={detail.anchorType} />
+            </div>
+            <AnchorSection
+              creatureId={creature.id}
+              slug={creature.slug}
+              anchorType={detail.anchorType}
+              anchorValue={anchorValue}
+              isOwner={isOwner}
+              canVerify={!!user && !isOwner}
+            />
+          </div>
+        </section>
       )}
 
       {/* Visitor actions: a signed-in someone-else gets the two things they

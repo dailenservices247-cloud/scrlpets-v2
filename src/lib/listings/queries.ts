@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { AnchorType, AssuranceLevel } from "@/lib/creatures/types";
 
 export type ListingPhoto = {
   id: string;
@@ -42,6 +43,11 @@ export type ListingAnimalDetails = {
   registrationNumber: string | null;
   birthDate: string | null;
   weanedDate: string | null;
+  /** The identity anchor's public half: the derived assurance level and the
+   * marker TYPE. `anchor_value` is revoked from every client role and is not
+   * reachable from here at all — that is the point of it. */
+  assurance: AssuranceLevel;
+  anchorType: AnchorType | null;
 };
 
 type ListingAnimalDetailsRow = {
@@ -52,6 +58,7 @@ type ListingAnimalDetailsRow = {
   registration_number: string | null;
   birth_date: string | null;
   weaned_date: string | null;
+  anchor_type: AnchorType | null;
 };
 
 /** V2-01: the structured pet-details panel's data, keyed off the listing's
@@ -60,11 +67,16 @@ export async function getListingAnimalDetails(
   creatureId: string,
 ): Promise<ListingAnimalDetails | null> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("creatures")
-    .select("breed,gender,color,markings,registration_number,birth_date,weaned_date")
-    .eq("id", creatureId)
-    .maybeSingle();
+  // Assurance is derived by the DB rather than recomputed here, so the listing
+  // and the animal's own page can never disagree about the same animal.
+  const [{ data }, { data: assurance }] = await Promise.all([
+    supabase
+      .from("creatures")
+      .select("breed,gender,color,markings,registration_number,birth_date,weaned_date,anchor_type")
+      .eq("id", creatureId)
+      .maybeSingle(),
+    supabase.rpc("creature_assurance", { target_creature: creatureId }),
+  ]);
   if (!data) return null;
   const r = data as ListingAnimalDetailsRow;
   return {
@@ -75,6 +87,10 @@ export async function getListingAnimalDetails(
     registrationNumber: r.registration_number,
     birthDate: r.birth_date,
     weanedDate: r.weaned_date,
+    // Falls back to the WEAKEST level: a failed read must never be able to
+    // upgrade what a listing claims about an animal.
+    assurance: (assurance as AssuranceLevel | null) ?? "declared",
+    anchorType: r.anchor_type,
   };
 }
 

@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type {
+  AnchorType,
+  AssuranceLevel,
   CreatureRole,
   Gender,
   GeneticTestType,
@@ -21,6 +23,10 @@ export type CreatureDetail = {
   memorialMessage: string | null;
   litterId: string | null;
   archivedAt: string | null;
+  /** The anchor's TYPE only. The value is revoked from every client role —
+   * getMyCreatureAnchor is the owner's read path, verifyCreatureAnchor the
+   * scanner's. */
+  anchorType: AnchorType | null;
 };
 
 type CreatureDetailRow = {
@@ -38,10 +44,11 @@ type CreatureDetailRow = {
   memorial_message: string | null;
   litter_id: string | null;
   archived_at: string | null;
+  anchor_type: AnchorType | null;
 };
 
 const DETAIL_COLUMNS =
-  "id,species,breed,gender,color,markings,birth_date,registration_number,creature_role,page_visible,deceased_at,memorial_message,litter_id,archived_at";
+  "id,species,breed,gender,color,markings,birth_date,registration_number,creature_role,page_visible,deceased_at,memorial_message,litter_id,archived_at,anchor_type";
 
 function toCreatureDetail(r: CreatureDetailRow): CreatureDetail {
   return {
@@ -59,6 +66,7 @@ function toCreatureDetail(r: CreatureDetailRow): CreatureDetail {
     memorialMessage: r.memorial_message,
     litterId: r.litter_id,
     archivedAt: r.archived_at,
+    anchorType: r.anchor_type,
   };
 }
 
@@ -74,6 +82,25 @@ export async function getCreatureDetail(creatureId: string): Promise<CreatureDet
     .maybeSingle();
   if (!data) return null;
   return toCreatureDetail(data as CreatureDetailRow);
+}
+
+/** The anchor VALUE, and only for the animal's own keeper — they need it for a
+ * vet or a registry. The column is revoked from anon/authenticated, so this
+ * definer is the only read path that exists; it returns null for everybody
+ * else, without distinguishing "not yours" from "not set". */
+export async function getMyCreatureAnchor(creatureId: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("my_creature_anchor", { target_creature: creatureId });
+  return (data as string | null) ?? null;
+}
+
+/** The public trust signal (anchored / documented / declared). Derived by the
+ * DB on every read. A failed call falls back to "declared", the weakest level:
+ * a read error must never be able to UPGRADE what a listing claims. */
+export async function getCreatureAssurance(creatureId: string): Promise<AssuranceLevel> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("creature_assurance", { target_creature: creatureId });
+  return (data as AssuranceLevel | null) ?? "declared";
 }
 
 export type GeneticTest = {

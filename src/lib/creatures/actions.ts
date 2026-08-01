@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { isCreatureRole, isGender, isGeneticTestType, isGeneticTestResult } from "./types";
+import { isAnchorType, isCreatureRole, isGender, isGeneticTestType, isGeneticTestResult } from "./types";
 
 export type CreatureActionResult = { ok: true } | { ok: false; error: string };
 
@@ -49,6 +49,71 @@ export async function updateCreatureDetails(
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/c/${slug}`);
   return { ok: true };
+}
+
+/**
+ * Register (or correct, or remove) the animal's identity anchor. Owner-only via
+ * the same RLS policy the About sheet writes through.
+ *
+ * An empty value CLEARS the pair rather than erroring: the DB refuses a type
+ * without a value, and clearing is the only way to release an anchor recorded
+ * against the wrong animal — the value is globally unique, so until it's freed
+ * the animal that really carries it can never register. Overwriting with a
+ * placeholder would leave a fake anchor reading as "anchored".
+ */
+export async function setCreatureAnchor(
+  creatureId: string,
+  slug: string,
+  formData: FormData,
+): Promise<CreatureActionResult> {
+  const { supabase } = await requireUser();
+  const anchorType = String(formData.get("anchorType") ?? "");
+  const anchorValue = str(formData, "anchorValue");
+  if (anchorValue && !isAnchorType(anchorType)) return { ok: false, error: "invalid_type" };
+
+  const { error } = await supabase
+    .from("creatures")
+    .update(
+      anchorValue
+        ? { anchor_type: anchorType, anchor_value: anchorValue }
+        : { anchor_type: null, anchor_value: null },
+    )
+    .eq("id", creatureId);
+  if (error) {
+    // 23505: the partial unique index. Two animals sharing a number means the
+    // anchor identifies neither, so this is a refusal, not a merge — and it is
+    // an ordinary user event (a mistyped digit, or an animal already recorded).
+    // The message never says WHICH animal holds it: that would turn a failed
+    // write into a lookup of somebody else's private value.
+    if (error.code === "23505") return { ok: false, error: "duplicate_anchor" };
+    // 23514: a half-registered pair. The form cannot produce one, so this only
+    // fires on a hand-rolled POST.
+    if (error.code === "23514") return { ok: false, error: "invalid_anchor" };
+    return { ok: false, error: error.message };
+  }
+  revalidatePath(`/c/${slug}`);
+  return { ok: true };
+}
+
+/**
+ * The handover check: yes/no on a scanned value, never the value itself. The
+ * RPC answers false identically for a wrong value, an animal with no anchor,
+ * and an unknown creature — so the UI must render ONE no-match state and never
+ * explain which of the three it was.
+ */
+export async function verifyCreatureAnchor(
+  creatureId: string,
+  scannedValue: string,
+): Promise<{ ok: true; match: boolean } | { ok: false; error: string }> {
+  const { supabase } = await requireUser();
+  const value = scannedValue.trim();
+  if (!value) return { ok: false, error: "required" };
+  const { data, error } = await supabase.rpc("verify_creature_anchor", {
+    target_creature: creatureId,
+    scanned_value: value,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, match: data === true };
 }
 
 /** Genetic tests are self-reported by the CREATURE'S OWNER (recorded_by is

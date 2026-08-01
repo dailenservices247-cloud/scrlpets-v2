@@ -1294,8 +1294,8 @@
       },
       "body": {
         "anchored": "Hay un marcador único registrado para este animal, y ningún otro animal de aquí puede registrar el mismo. Lo registró el dueño — Scrlpets no ha escaneado al animal — así que escanea en la entrega y comprueba el número contra este registro.",
-        "documented": "No hay ningún marcador registrado. Este animal tiene una camada registrada y una fecha de nacimiento aquí, lo cual es procedencia, no prueba: dice de dónde afirma el dueño que viene el animal, y nada sobre qué animal te entregan.",
-        "declared": "No hay nada registrado más allá de lo que escribió el dueño — ni marcador, ni camada registrada con fecha de nacimiento. Aquí no hay nada con lo que contrastar a este animal."
+        "documented": "No hay ningún marcador registrado. El origen de este animal está registrado aquí con una fecha de nacimiento, lo cual es procedencia, no prueba: dice de dónde afirma el dueño que viene el animal, y nada sobre qué animal te entregan.",
+        "declared": "No hay nada registrado más allá de lo que escribió el dueño — ni marcador, ni origen registrado con fecha de nacimiento. Aquí no hay nada con lo que contrastar a este animal."
       },
       "marker": "Tipo de marcador: {type}"
     },

@@ -1294,8 +1294,8 @@
       },
       "body": {
         "anchored": "A unique marker is on record for this animal, and no other animal here can register the same one. The owner recorded it — Scrlpets has not scanned the animal — so scan at handover and check the number against this record.",
-        "documented": "No marker is on record. This animal has a registered litter and a birth date here, which is provenance, not proof: it says where the owner says the animal came from, and nothing about which animal you are handed.",
-        "declared": "Nothing is on record beyond what the owner typed — no marker, and no registered litter with a birth date. There is nothing here to check this animal against."
+        "documented": "No marker is on record. This animal's origin is registered here with a birth date, which is provenance, not proof: it says where the owner says the animal came from, and nothing about which animal you are handed.",
+        "declared": "Nothing is on record beyond what the owner typed — no marker, and no registered origin with a birth date. There is nothing here to check this animal against."
       },
       "marker": "Marker type: {type}"
     },
