@@ -1284,6 +1284,48 @@
       "messageOwnerHint": "Envíale un mensaje a @{username}.",
       "listingBanner": "{name} tiene un anuncio activo ahora mismo.",
       "listingCta": "Ver el anuncio"
+    },
+    "assurance": {
+      "title": "Nivel de identificación",
+      "level": {
+        "anchored": "Marcador registrado",
+        "documented": "Origen documentado",
+        "declared": "Solo la palabra del dueño"
+      },
+      "body": {
+        "anchored": "Hay un marcador único registrado para este animal, y ningún otro animal de aquí puede registrar el mismo. Lo registró el dueño — Scrlpets no ha escaneado al animal — así que escanea en la entrega y comprueba el número contra este registro.",
+        "documented": "No hay ningún marcador registrado. Este animal tiene una camada registrada y una fecha de nacimiento aquí, lo cual es procedencia, no prueba: dice de dónde afirma el dueño que viene el animal, y nada sobre qué animal te entregan.",
+        "declared": "No hay nada registrado más allá de lo que escribió el dueño — ni marcador, ni camada registrada con fecha de nacimiento. Aquí no hay nada con lo que contrastar a este animal."
+      },
+      "marker": "Tipo de marcador: {type}"
+    },
+    "anchor": {
+      "type": {
+        "microchip": "Microchip",
+        "leg_band": "Anilla",
+        "tattoo": "Tatuaje",
+        "tag": "Etiqueta"
+      },
+      "ownerValueLabel": "Número del marcador — solo tú puedes verlo:",
+      "ownerEmpty": "Todavía no hay ningún marcador registrado para este animal.",
+      "registerCta": "Registrar marcador",
+      "editCta": "Editar marcador",
+      "editTitle": "Marcador de identidad",
+      "editBody": "El número de un microchip, una anilla, un tatuaje o una etiqueta — lo que este animal lleve realmente. Se guarda de forma privada: un comprador o un transportista puede comprobar contra él un número escaneado, pero nadie puede leerlo, y nunca aparece en tus anuncios. Borra el número para quitar el marcador.",
+      "typeLabel": "Tipo de marcador",
+      "valueLabel": "Número",
+      "valueHint": "Tal y como aparece en el lector o en la anilla. Déjalo vacío para quitar el marcador.",
+      "duplicateError": "Ese número ya está registrado para un animal de aquí. Un marcador solo puede pertenecer a un animal, así que comprueba si hay una errata — y si este animal lo lleva de verdad, quien lo registró en otro sitio tiene que quitarlo primero.",
+      "error": "No se pudo guardar. Inténtalo de nuevo.",
+      "save": "Guardar marcador",
+      "saving": "Guardando…",
+      "cancel": "Cancelar",
+      "verifyLabel": "Comprobar un número escaneado",
+      "verifyCta": "Comprobar",
+      "verifying": "Comprobando…",
+      "verifyMatch": "Coincide — es el número registrado para este animal.",
+      "verifyNoMatch": "No coincide. O ese no es el número de este animal, o este animal no tiene ningún marcador registrado — esta comprobación no puede decirte cuál de las dos.",
+      "verifyHint": "Escanea al animal que tienes delante y escribe lo que lea el lector. Scrlpets responde sí o no; nunca te muestra el número guardado."
     }
   },
   "brandKit": {
@@ -1841,5 +1883,20 @@
       "title": "Aplicación",
       "install": "Instalar Scrlpets"
     }
+  },
+  "waitlist": {
+    "eyebrow": "Acceso anticipado",
+    "title": "Scrlpets está por llegar",
+    "body": "Un mercado donde el cuidado de los animales importa tanto como su disponibilidad. Deja tu correo y recibirás un solo aviso cuando abramos.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "speciesLegend": "¿Qué animales te interesan? (opcional)",
+    "submit": "Unirme a la lista",
+    "submitting": "Enviando…",
+    "successTitle": "Ya estás en la lista.",
+    "successBody": "Un solo correo cuando Scrlpets abra. Eso es todo.",
+    "privacy": "Tu correo se usa solo para el aviso de lanzamiento. Sin spam, nunca compartido, se elimina si lo pides.",
+    "errorEmail": "Ese correo no parece válido — revísalo e inténtalo de nuevo.",
+    "errorServer": "Algo falló de nuestro lado. Inténtalo de nuevo en un minuto."
   }
 }
