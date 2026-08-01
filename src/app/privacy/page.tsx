@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AppPage } from "@/components/app/AppPage";
 
 const sections = [
   {
@@ -29,28 +30,30 @@ const sections = [
 
 export default function PrivacyPage() {
   return (
-    <main className="p-6">
-      <Link href="/" className="text-sm text-brand-link underline">
-        Back to Scrlpets
-      </Link>
-      <p className="eyebrow mt-8">Effective July 4, 2026</p>
-      <h1 className="mt-2 text-3xl font-semibold">Privacy Notice</h1>
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        This notice describes the current Scrlpets v2 product. It will be updated as verification, payments, and additional services are introduced.
-      </p>
-      <div className="mt-8 space-y-6">
-        {sections.map((section) => (
-          <section key={section.title}>
-            <h2 className="text-lg font-semibold">{section.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{section.body}</p>
-          </section>
-        ))}
-      </div>
-      <p className="mt-8 text-sm">
-        <Link href="/terms" className="text-brand-link underline">
-          Read the Terms
+    <AppPage>
+      <div className="p-6">
+        <Link href="/" className="text-sm text-brand-link underline">
+          Back to Scrlpets
         </Link>
-      </p>
-    </main>
+        <p className="eyebrow mt-8">Effective July 4, 2026</p>
+        <h1 className="mt-2 text-3xl font-semibold">Privacy Notice</h1>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          This notice describes the current Scrlpets v2 product. It will be updated as verification, payments, and additional services are introduced.
+        </p>
+        <div className="mt-8 space-y-6">
+          {sections.map((section) => (
+            <section key={section.title}>
+              <h2 className="text-lg font-semibold">{section.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{section.body}</p>
+            </section>
+          ))}
+        </div>
+        <p className="mt-8 text-sm">
+          <Link href="/terms" className="text-brand-link underline">
+            Read the Terms
+          </Link>
+        </p>
+      </div>
+    </AppPage>
   );
 }

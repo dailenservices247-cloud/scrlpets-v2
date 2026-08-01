@@ -1493,8 +1493,21 @@
       "groups": {
         "label": "Grupos",
         "description": "Comunidades por raza y especie."
+      },
+      "market": {
+        "label": "Mercado",
+        "description": "Animales, artículos y servicios."
+      },
+      "guides": {
+        "label": "Guías",
+        "description": "Lecturas prácticas para dueños y criadores."
+      },
+      "offer": {
+        "label": "Vende u ofrece un servicio",
+        "description": "Publica un animal, vende artículos, ofrece un servicio o registra una camada."
       }
-    }
+    },
+    "market": "Mercado"
   },
   "pack": {
     "eyebrow": "Tu gente",
@@ -1744,6 +1757,70 @@
           "body": "Scrlpets no procesa pagos, no retiene fondos y no los reembolsa. Si le envías dinero a alguien que conociste aquí, eso queda entre ustedes dos y Scrlpets no puede revertirlo. Mantener la conversación en los mensajes de Scrlpets al menos deja constancia de lo acordado."
         }
       }
+    }
+  },
+  "market": {
+    "eyebrow": "Mercado",
+    "title": "Animales, artículos y servicios",
+    "offerEntry": "Vende u ofrece un servicio",
+    "tabsLabel": "Secciones del mercado",
+    "tab": {
+      "animals": "Animales",
+      "supplies": "Artículos",
+      "services": "Servicios"
+    },
+    "intentSale": "En venta",
+    "intentAdoption": "En adopción",
+    "feeAmount": "Cuota de adopción {amount}",
+    "noFee": "Sin cuota de adopción",
+    "animalsEmpty": "Ningún animal coincide con estos filtros ahora mismo.",
+    "filters": {
+      "species": "Especie",
+      "intent": "Tipo de anuncio",
+      "intentAny": "Cualquier tipo",
+      "intentSale": "En venta",
+      "intentAdoption": "En adopción",
+      "minPrice": "Precio mín.",
+      "maxPrice": "Precio máx.",
+      "submit": "Filtrar"
+    },
+    "offer": {
+      "eyebrow": "Ofrece algo",
+      "title": "Vende u ofrece un servicio",
+      "body": "Cuatro formas de publicar en el mercado. No necesitas una marca para empezar.",
+      "animal": {
+        "label": "Publica un animal",
+        "description": "Realoja o vende un animal que sea tuyo."
+      },
+      "supplies": {
+        "label": "Vende artículos",
+        "description": "Comida, accesorios y todo lo demás."
+      },
+      "service": {
+        "label": "Ofrece un servicio",
+        "description": "Aseo, adiestramiento, alojamiento, transporte o veterinaria."
+      },
+      "litter": {
+        "label": "Registra una camada",
+        "description": "Registro de una camada que sea tuya."
+      }
+    }
+  },
+  "footer": {
+    "legal": {
+      "title": "Legal",
+      "terms": "Términos",
+      "privacy": "Aviso de privacidad"
+    },
+    "help": {
+      "title": "Ayuda",
+      "support": "Soporte",
+      "faq": "Preguntas frecuentes",
+      "guidelines": "Normas de la comunidad"
+    },
+    "app": {
+      "title": "Aplicación",
+      "install": "Instalar Scrlpets"
     }
   }
 }

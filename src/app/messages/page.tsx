@@ -6,6 +6,7 @@ import {
   getMessageRequests,
   getMyReceiptSetting,
 } from "@/lib/messaging/queries";
+import { AppPage } from "@/components/app/AppPage";
 import { Card } from "@/components/ui/card";
 import { MessageRequestActions } from "@/components/messaging/MessageRequestActions";
 import { ReadReceiptToggle } from "@/components/messaging/ReadReceiptToggle";
@@ -20,7 +21,7 @@ export default async function MessagesPage() {
   ]);
 
   return (
-    <main className="mx-auto w-full max-w-2xl lg:border-x lg:border-border/60">
+    <AppPage>
       <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 p-3 backdrop-blur">
         <h1 className="text-lg font-bold">{t("title")}</h1>
         <Link href="/" className="text-sm text-brand-link underline" aria-label="Back to feed">
@@ -93,6 +94,6 @@ export default async function MessagesPage() {
         </h2>
         <ReadReceiptToggle enabled={receiptsOn} />
       </section>
-    </main>
+    </AppPage>
   );
 }

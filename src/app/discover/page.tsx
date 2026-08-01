@@ -1,15 +1,19 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ChevronRight, Heart, Store, Users, Wrench } from "lucide-react";
+import { BookOpen, ChevronRight, Store, Tag, Users } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 
-// R4: Shop's old bottom-nav slot is now this browse hub — four calm cards,
-// not a dense grid, covering the marketplace's browse destinations.
+// Discover survives as a route but is no longer a bottom-nav slot — shop,
+// adopt and services merged into /market, and Groups and Guides are community
+// surfaces rather than marketplace ones. The offer entry is UNCONDITIONAL:
+// /brand-os was the only Service-creation surface and the menu hid it behind
+// an operator check, so a groomer with no animals and no brand could never
+// find it.
 const destinations = [
-  { href: "/shop", key: "shop", icon: Store },
-  { href: "/adopt", key: "adopt", icon: Heart },
-  { href: "/services", key: "services", icon: Wrench },
+  { href: "/market", key: "market", icon: Store },
   { href: "/groups", key: "groups", icon: Users },
+  { href: "/guides", key: "guides", icon: BookOpen },
+  { href: "/market/offer", key: "offer", icon: Tag },
 ] as const;
 
 export default async function DiscoverPage() {

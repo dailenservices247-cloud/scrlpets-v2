@@ -6,6 +6,7 @@ export const PUBLIC_DISCOVERY_PREFIXES = [
   "/groups",
   "/guides",
   "/listing/",
+  "/market",
   "/post/",
   "/services",
   "/shop",

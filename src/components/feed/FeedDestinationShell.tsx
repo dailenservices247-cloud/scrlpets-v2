@@ -72,7 +72,9 @@ export async function FeedDestinationShell({
   const moreListings = isListing ? await getMoreListingsFrom(item) : [];
 
   return (
-    <main className="min-h-dvh pb-10" data-testid={`destination-${item.type}`}>
+    // A <div>, not a <main>: every route that renders this now sits inside the
+    // AppPage shell, which owns the page's one <main>.
+    <div className="pb-10" data-testid={`destination-${item.type}`}>
       <div className="sticky top-0 z-10 border-b bg-background/85 px-4 py-3 backdrop-blur">
         <Link href="/" className="text-sm text-brand-link underline">
           {t("backToFeed")}
@@ -223,6 +225,6 @@ export async function FeedDestinationShell({
         )}
         {children}
       </section>
-    </main>
+    </div>
   );
 }

@@ -1493,8 +1493,21 @@
       "groups": {
         "label": "Groups",
         "description": "Breed and species communities."
+      },
+      "market": {
+        "label": "Market",
+        "description": "Animals, supplies and services."
+      },
+      "guides": {
+        "label": "Guides",
+        "description": "How-to reading for owners and breeders."
+      },
+      "offer": {
+        "label": "Sell or offer a service",
+        "description": "List an animal, sell supplies, offer a service or register a litter."
       }
-    }
+    },
+    "market": "Market"
   },
   "pack": {
     "eyebrow": "Your people",
@@ -1744,6 +1757,70 @@
           "body": "Scrlpets does not process payments, hold funds, or refund them. If you send money to someone you met here, that is between the two of you and Scrlpets cannot reverse it. Keeping the conversation in Scrlpets messages at least leaves a record of what was agreed."
         }
       }
+    }
+  },
+  "market": {
+    "eyebrow": "Market",
+    "title": "Animals, supplies and services",
+    "offerEntry": "Sell or offer a service",
+    "tabsLabel": "Market sections",
+    "tab": {
+      "animals": "Animals",
+      "supplies": "Supplies",
+      "services": "Services"
+    },
+    "intentSale": "For sale",
+    "intentAdoption": "For adoption",
+    "feeAmount": "Adoption fee {amount}",
+    "noFee": "No adoption fee",
+    "animalsEmpty": "No animals match these filters right now.",
+    "filters": {
+      "species": "Species",
+      "intent": "Listing type",
+      "intentAny": "Any type",
+      "intentSale": "For sale",
+      "intentAdoption": "For adoption",
+      "minPrice": "Min price",
+      "maxPrice": "Max price",
+      "submit": "Filter"
+    },
+    "offer": {
+      "eyebrow": "Offer something",
+      "title": "Sell or offer a service",
+      "body": "Four ways to put something in the market. You do not need a brand to start.",
+      "animal": {
+        "label": "List an animal",
+        "description": "Rehome or sell an animal you own."
+      },
+      "supplies": {
+        "label": "Sell supplies",
+        "description": "Food, gear, and everything else."
+      },
+      "service": {
+        "label": "Offer a service",
+        "description": "Grooming, training, boarding, transport or veterinary."
+      },
+      "litter": {
+        "label": "Register a litter",
+        "description": "Record keeping for a litter you own."
+      }
+    }
+  },
+  "footer": {
+    "legal": {
+      "title": "Legal",
+      "terms": "Terms",
+      "privacy": "Privacy Notice"
+    },
+    "help": {
+      "title": "Help",
+      "support": "Support",
+      "faq": "FAQ",
+      "guidelines": "Community guidelines"
+    },
+    "app": {
+      "title": "App",
+      "install": "Install Scrlpets"
     }
   }
 }

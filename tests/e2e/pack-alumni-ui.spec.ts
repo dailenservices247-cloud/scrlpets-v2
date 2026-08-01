@@ -288,8 +288,10 @@ test("a signed-in non-owner gets message-owner and a live-listing banner on an a
     "href",
     `/listing/${listingId}`,
   );
-  // The animal page renders its own <main>, not the AppPage shell.
-  await expect(page.locator("main").first()).not.toContainText(DOG_SHAPED_WORDS);
+  // The animal page is inside the AppPage shell now, so scope to the page's own
+  // content the same way the other three assertions in this file do — a bare
+  // main/first() locator would silently start meaning the shell instead.
+  await expect(page.getByTestId("app-shell")).not.toContainText(DOG_SHAPED_WORDS);
 
   // Message owner rides the existing conversation-start path — no new logic,
   // so the proof is that it lands on a real conversation.

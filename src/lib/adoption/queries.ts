@@ -24,26 +24,22 @@ type Row = {
   profiles: { username: string } | null;
 };
 
-/**
- * R17: rehoming is the same listing entity under the same verification gate.
- * A weaker gate for "free to a good home" would be a bypass, and that phrase
- * is exactly where animal scams operate.
- */
-export async function listAdoptions(): Promise<AdoptionListing[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("listings")
-    .select(
-      "id,title,description,price_cents,currency,availability,media_url," +
-        "creatures(name,species,slug,avatar_url)," +
-        "profiles!listings_seller_id_fkey(username)",
-    )
-    .eq("listing_kind", "adoption")
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(60);
+/** An animal listing carries its intent, because /market shows both at once. */
+export type AnimalListing = AdoptionListing & { listingKind: "sale" | "adoption" };
 
-  return ((data ?? []) as unknown as Row[]).map((r) => ({
+export type AnimalFilters = {
+  intent?: "sale" | "adoption";
+  species?: string;
+  minPriceCents?: number;
+  maxPriceCents?: number;
+};
+
+const ANIMAL_COLS =
+  "id,title,description,price_cents,currency,availability,media_url,listing_kind," +
+  "profiles!listings_seller_id_fkey(username)";
+
+function toAnimal(r: Row & { listing_kind: "sale" | "adoption" }): AnimalListing {
+  return {
     id: r.id,
     title: r.title,
     description: r.description,
@@ -51,6 +47,7 @@ export async function listAdoptions(): Promise<AdoptionListing[]> {
     currency: r.currency,
     availability: r.availability,
     mediaUrl: r.media_url,
+    listingKind: r.listing_kind,
     creature: r.creatures
       ? {
           name: r.creatures.name,
@@ -60,7 +57,47 @@ export async function listAdoptions(): Promise<AdoptionListing[]> {
         }
       : null,
     sellerUsername: r.profiles?.username ?? null,
-  }));
+  };
+}
+
+/**
+ * The /market Animals tab: every listing with an animal attached, sale AND
+ * adoption. R17 holds — rehoming is the same entity under the same gate, and a
+ * weaker path for "free to a good home" would be a bypass, which is exactly
+ * where animal scams operate. What changed is only that the two intents share
+ * one browse surface: `/shop` filtered `sale AND creature_id IS NULL` and
+ * `/adopt` filtered `adoption`, so a sale listing WITH an animal — the default
+ * output of "list my animal" — matched neither and was browsable nowhere.
+ */
+export async function listAnimalListings(
+  filters: AnimalFilters = {},
+): Promise<AnimalListing[]> {
+  const supabase = await createClient();
+  // Same shape as the search filters: the species embed only becomes an INNER
+  // join when species is actually being filtered on. A permanent inner join
+  // would silently drop an animal listing whose creature row the viewer cannot
+  // read, which is a visibility rule, not a browse rule.
+  const creatureEmbed = filters.species
+    ? "creatures!inner(name,species,slug,avatar_url)"
+    : "creatures(name,species,slug,avatar_url)";
+  let query = supabase
+    .from("listings")
+    .select(`${ANIMAL_COLS},${creatureEmbed}`)
+    .not("creature_id", "is", null)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(60);
+  if (filters.intent) query = query.eq("listing_kind", filters.intent);
+  // Exact and case-insensitive, matching /search and the saved-search notify
+  // trigger — a fuzzy filter here would preview results the alerts never send.
+  if (filters.species) query = query.ilike("creatures.species", filters.species);
+  if (filters.minPriceCents != null) query = query.gte("price_cents", filters.minPriceCents);
+  if (filters.maxPriceCents != null) query = query.lte("price_cents", filters.maxPriceCents);
+
+  const { data } = await query;
+  return ((data ?? []) as unknown as (Row & { listing_kind: "sale" | "adoption" })[]).map(
+    toAnimal,
+  );
 }
 
 /** V2-03 structured fields. `null` is a real value here — unknown, never no. */

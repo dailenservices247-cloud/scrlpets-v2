@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
+import { AppPage } from "@/components/app/AppPage";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
 
 export default async function ProfileSettingsPage() {
@@ -15,18 +16,20 @@ export default async function ProfileSettingsPage() {
     .single();
 
   return (
-    <main className="p-4">
-      <header className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold">{t("edit")}</h1>
-        <Link href={`/u/${data!.username}`} className="text-sm text-brand-link underline" aria-label="Back to profile">
-          ←
-        </Link>
-      </header>
-      <ProfileEditForm
-        userId={user.id}
-        username={data!.username}
-        initial={{ displayName: data!.display_name, bio: data!.bio }}
-      />
-    </main>
+    <AppPage>
+      <div className="p-4">
+        <header className="mb-4 flex items-center justify-between">
+          <h1 className="text-lg font-bold">{t("edit")}</h1>
+          <Link href={`/u/${data!.username}`} className="text-sm text-brand-link underline" aria-label="Back to profile">
+            ←
+          </Link>
+        </header>
+        <ProfileEditForm
+          userId={user.id}
+          username={data!.username}
+          initial={{ displayName: data!.display_name, bio: data!.bio }}
+        />
+      </div>
+    </AppPage>
   );
 }

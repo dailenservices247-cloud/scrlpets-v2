@@ -36,7 +36,12 @@ async function fillTicket(page: Page, subject: string) {
 
 test("the menu's Support link resolves to a working form", async ({ page }) => {
   await page.goto("/menu");
-  await page.locator('a[href="/support"]').click();
+  // Scoped to app-shell on purpose. Support is now linked from the footer too —
+  // that is the point of the footer, and it is what makes /support reachable
+  // from every route rather than only from the menu. A bare a[href="/support"]
+  // therefore matches twice and fails strict mode. This test is about the MENU
+  // row, per its own name, so it says so.
+  await page.getByTestId("app-shell").locator('a[href="/support"]').click();
   await expect(page).toHaveURL(/\/support$/);
   await expect(page.getByTestId("support-form")).toBeVisible();
   await expect(page.getByTestId("support-expectations")).toBeVisible();

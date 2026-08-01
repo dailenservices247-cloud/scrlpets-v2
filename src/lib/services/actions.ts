@@ -63,7 +63,9 @@ async function requireUser() {
 
 function revalidateServiceSurfaces() {
   revalidatePath("/brand-os");
-  revalidatePath("/services");
+  // /services is a redirect now; the public providers surface is the market's
+  // Services tab, so revalidating the old path would refresh nothing.
+  revalidatePath("/market");
 }
 
 /** Full marketplace record. RLS enforces owner + brand-manager on the insert. */

@@ -15,7 +15,9 @@ export async function createOrder(listingId: string): Promise<OrderResult> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_order", { target_listing: listingId });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/orders");
+  // /orders has never existed as a route. The order lifecycle is shown on
+  // /applications, so that is what has to be refreshed.
+  revalidatePath("/applications");
   return { ok: true, orderId: data as string };
 }
 
@@ -31,6 +33,6 @@ export async function advanceOrder(
     note: note ?? null,
   });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/orders");
+  revalidatePath("/applications");
   return { ok: true };
 }

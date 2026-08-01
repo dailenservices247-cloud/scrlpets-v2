@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AppPage } from "@/components/app/AppPage";
 
 const sections = [
   {
@@ -33,29 +34,31 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <main className="p-6">
-      <Link href="/" className="text-sm text-brand-link underline">
-        Back to Scrlpets
-      </Link>
-      <p className="eyebrow mt-8">Effective July 4, 2026</p>
-      <h1 className="mt-2 text-3xl font-semibold">Terms</h1>
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        These terms describe the current Scrlpets v2 service and will be expanded before transactions or verification launch.
-      </p>
-      <div className="mt-8 space-y-6">
-        {sections.map((section) => (
-          <section key={section.title}>
-            <h2 className="text-lg font-semibold">{section.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{section.body}</p>
-          </section>
-        ))}
-      </div>
-      <p className="mt-8 text-sm">
-        Questions: legal@synapsedynamics.io ·{" "}
-        <Link href="/privacy" className="text-brand-link underline">
-          Privacy Notice
+    <AppPage>
+      <div className="p-6">
+        <Link href="/" className="text-sm text-brand-link underline">
+          Back to Scrlpets
         </Link>
-      </p>
-    </main>
+        <p className="eyebrow mt-8">Effective July 4, 2026</p>
+        <h1 className="mt-2 text-3xl font-semibold">Terms</h1>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          These terms describe the current Scrlpets v2 service and will be expanded before transactions or verification launch.
+        </p>
+        <div className="mt-8 space-y-6">
+          {sections.map((section) => (
+            <section key={section.title}>
+              <h2 className="text-lg font-semibold">{section.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">{section.body}</p>
+            </section>
+          ))}
+        </div>
+        <p className="mt-8 text-sm">
+          Questions: legal@synapsedynamics.io ·{" "}
+          <Link href="/privacy" className="text-brand-link underline">
+            Privacy Notice
+          </Link>
+        </p>
+      </div>
+    </AppPage>
   );
 }

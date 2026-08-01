@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Compass, Home, Menu, MessageCircle, Plus } from "lucide-react";
+import { Home, Menu, MessageCircle, Plus, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// R4: Shop's old slot is now Discover — a browse hub covering shop, adopt,
-// services, and groups (see /discover). labelKey stays stable across locales
-// so data-testid derivation below never changes with translation.
+// Slot 2 is /market — the merged marketplace. It was /discover, a browse hub
+// that cost a tap before the thing people came for; Discover survives as a
+// route but stops being a nav slot. labelKey stays stable across locales so
+// the data-testid derivation below never changes with translation.
 const items = [
   { href: "/", labelKey: "feed", icon: Home, match: (path: string) => path === "/" },
-  { href: "/discover", labelKey: "discover", icon: Compass, match: (path: string) => path.startsWith("/discover") },
+  { href: "/market", labelKey: "market", icon: Store, match: (path: string) => path.startsWith("/market") },
   { href: "/compose", labelKey: "post", icon: Plus, primary: true, match: (path: string) => path === "/compose" },
   { href: "/messages", labelKey: "chat", icon: MessageCircle, match: (path: string) => path.startsWith("/messages") },
   { href: "/menu", labelKey: "menu", icon: Menu, match: (path: string) => path === "/menu" },

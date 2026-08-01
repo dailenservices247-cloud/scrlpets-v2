@@ -58,6 +58,8 @@ export async function submitReview(
     };
   }
   revalidatePath("/applications");
-  revalidatePath(`/u/${subjectId}`);
+  // The profile route keys on username, not id — `/u/<uuid>` matched nothing.
+  // ponytail: pattern-wide, rather than a username lookup per review.
+  revalidatePath("/u/[username]", "page");
   return { ok: true };
 }

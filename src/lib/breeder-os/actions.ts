@@ -23,6 +23,6 @@ export async function setListingAvailability(
   if ((count ?? 0) === 0) return { ok: false, error: "not_permitted" };
   revalidatePath("/brand-os");
   revalidatePath(`/listing/${listingId}`);
-  revalidatePath("/shop");
+  revalidatePath("/market");
   return { ok: true };
 }

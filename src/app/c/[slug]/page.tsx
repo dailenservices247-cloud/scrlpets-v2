@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { AppPage } from "@/components/app/AppPage";
 import { FeedList } from "@/components/feed/FeedList";
 import { MessageButton } from "@/components/messaging/MessageButton";
 import { CreatureHero } from "@/components/profile/CreatureHero";
@@ -59,7 +60,7 @@ export default async function CreaturePage({
   const t = await getTranslations("creature");
 
   return (
-    <main>
+    <AppPage>
       <CreatureHero creature={creature} listing={listing} />
 
       {detail && (
@@ -154,6 +155,6 @@ export default async function CreaturePage({
         isOwner={isOwner}
       />
       <FeedList items={items} viewerId={user?.id} />
-    </main>
+    </AppPage>
   );
 }

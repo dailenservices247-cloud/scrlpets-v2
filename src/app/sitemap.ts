@@ -5,7 +5,6 @@ const BASE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://scrlpets-v2.verce
 
 function contentPath(item: { id: string; kind: string; subtype: string | null }) {
   if (item.kind === "listing") return `/listing/${item.id}`;
-  if (item.kind === "promo") return `/shop/product/${item.id}`;
   if (item.subtype === "reel") return `/watch/reel/${item.id}`;
   if (item.subtype === "long_video") return `/watch/${item.id}`;
   return `/post/${item.id}`;
@@ -40,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     { url: BASE_URL, changeFrequency: "hourly", priority: 1 },
-    { url: `${BASE_URL}/shop`, changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE_URL}/market`, changeFrequency: "daily", priority: 0.8 },
     { url: `${BASE_URL}/privacy`, changeFrequency: "monthly", priority: 0.2 },
     { url: `${BASE_URL}/terms`, changeFrequency: "monthly", priority: 0.2 },
     ...(creatures ?? []).map((c) => ({
@@ -53,11 +52,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.7,
     })),
-    ...(content ?? []).map((item) => ({
-      url: `${BASE_URL}${contentPath(item)}`,
-      changeFrequency: "daily" as const,
-      priority: item.kind === "listing" ? 0.8 : 0.6,
-    })),
+    // Promos are excluded: `promos` has no insert policy for any role and the
+    // composer's Promotion mode is live:false, so nobody can create one. A dead
+    // content type has no business being advertised to a crawler.
+    ...(content ?? [])
+      .filter((item) => item.kind !== "promo")
+      .map((item) => ({
+        url: `${BASE_URL}${contentPath(item)}`,
+        changeFrequency: "daily" as const,
+        priority: item.kind === "listing" ? 0.8 : 0.6,
+      })),
     ...(litters ?? []).map((l) => ({
       url: `${BASE_URL}/litters/${l.id}`,
       changeFrequency: "weekly" as const,

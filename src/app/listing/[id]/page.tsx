@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
+import { AppPage } from "@/components/app/AppPage";
 import { FeedDestinationShell } from "@/components/feed/FeedDestinationShell";
 import { ListingInquiryPanel } from "@/components/marketplace/ListingInquiryPanel";
 import { ApplyPanel } from "@/components/marketplace/ApplyPanel";
 import { ProductDetails } from "@/components/marketplace/ProductDetails";
 import { PhotoGallery } from "@/components/listing/PhotoGallery";
 import { PetDetailsPanel } from "@/components/listing/PetDetailsPanel";
-import { VerificationPanel } from "@/components/listing/VerificationPanel";
+import { ListingVerificationPanel } from "@/components/listing/ListingVerificationPanel";
 import { AdoptionHealthPanel } from "@/components/adoption/AdoptionHealthPanel";
 import { AdoptionApplicationForm } from "@/components/adoption/AdoptionApplicationForm";
 import { getAdoptionDetail } from "@/lib/adoption/queries";
@@ -70,52 +71,54 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
   const viewerIsSeller = user?.id === marketplace.sellerId;
 
   return (
-    <FeedDestinationShell item={item} viewerId={user?.id}>
-      {/* FeedDestinationShell already renders the cover, so the gallery only
-          appears when it has extra photos to add — otherwise the same image
-          rendered twice, stacked. */}
-      {photos.length > 0 && <PhotoGallery photos={photos} fallbackUrl={null} />}
-      <ProductDetails listing={marketplace} />
-      {animalDetails && <PetDetailsPanel creature={animalDetails} />}
-      {adoption && (
-        <AdoptionHealthPanel
-          listingId={adoption.id}
-          isOwner={viewerIsSeller}
-          details={adoption}
+    <AppPage>
+      <FeedDestinationShell item={item} viewerId={user?.id}>
+        {/* FeedDestinationShell already renders the cover, so the gallery only
+            appears when it has extra photos to add — otherwise the same image
+            rendered twice, stacked. */}
+        {photos.length > 0 && <PhotoGallery photos={photos} fallbackUrl={null} />}
+        <ProductDetails listing={marketplace} />
+        {animalDetails && <PetDetailsPanel creature={animalDetails} />}
+        {adoption && (
+          <AdoptionHealthPanel
+            listingId={adoption.id}
+            isOwner={viewerIsSeller}
+            details={adoption}
+          />
+        )}
+        <ListingVerificationPanel
+          sellerVerified={sellerVerified}
+          hasAnimal={Boolean(creatureId)}
+          animalAttested={animalAttested}
         />
-      )}
-      <VerificationPanel
-        sellerVerified={sellerVerified}
-        hasAnimal={Boolean(creatureId)}
-        animalAttested={animalAttested}
-      />
-      <ListingInquiryPanel
-        listingId={marketplace.id}
-        sellerId={marketplace.sellerId}
-        priceCents={marketplace.priceCents}
-        viewerId={user?.id}
-        viewerIsOperator={viewerIsOperator}
-      />
-      {adoption ? (
-        // The screening form IS the adoption application — showing ApplyPanel
-        // as well would give one listing two competing ways to apply.
-        <AdoptionApplicationForm
-          sellerId={marketplace.sellerId}
+        <ListingInquiryPanel
           listingId={marketplace.id}
-          viewerId={user?.id}
-          viewerIsSeller={viewerIsSeller}
-          hasOpenApplication={Boolean(openApplication)}
-        />
-      ) : (
-        <ApplyPanel
           sellerId={marketplace.sellerId}
-          listingId={marketplace.id}
+          priceCents={marketplace.priceCents}
           viewerId={user?.id}
-          viewerIsSeller={viewerIsSeller}
-          hasOpenApplication={Boolean(openApplication)}
-          paymentsEnabled={paymentsEnabled}
+          viewerIsOperator={viewerIsOperator}
         />
-      )}
-    </FeedDestinationShell>
+        {adoption ? (
+          // The screening form IS the adoption application — showing ApplyPanel
+          // as well would give one listing two competing ways to apply.
+          <AdoptionApplicationForm
+            sellerId={marketplace.sellerId}
+            listingId={marketplace.id}
+            viewerId={user?.id}
+            viewerIsSeller={viewerIsSeller}
+            hasOpenApplication={Boolean(openApplication)}
+          />
+        ) : (
+          <ApplyPanel
+            sellerId={marketplace.sellerId}
+            listingId={marketplace.id}
+            viewerId={user?.id}
+            viewerIsSeller={viewerIsSeller}
+            hasOpenApplication={Boolean(openApplication)}
+            paymentsEnabled={paymentsEnabled}
+          />
+        )}
+      </FeedDestinationShell>
+    </AppPage>
   );
 }

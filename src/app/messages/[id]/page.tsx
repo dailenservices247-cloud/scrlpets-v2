@@ -11,6 +11,7 @@ import {
 import { getListingInquiryContexts } from "@/lib/marketplace/queries";
 import type { MessageContext } from "@/lib/messaging/context";
 import { MessageThread } from "@/components/messaging/MessageThread";
+import { AppPage } from "@/components/app/AppPage";
 
 export default async function ThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -49,7 +50,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   const otherName = other?.display_name ?? `@${other?.username ?? "unknown"}`;
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col lg:border-x lg:border-border/60">
+    <AppPage>
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background/80 p-3 backdrop-blur">
         <Link href="/messages" className="text-sm text-brand-link underline" aria-label="Back to messages">
           ←
@@ -67,6 +68,6 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
           otherLastReadAt={receipts.otherLastReadAt}
         />
       </div>
-    </main>
+    </AppPage>
   );
 }

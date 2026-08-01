@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { AppPage } from "@/components/app/AppPage";
 import { FeedDestinationShell } from "@/components/feed/FeedDestinationShell";
 import { getFeedItemById } from "@/lib/feed/query";
 import { getSessionUser } from "@/lib/auth/session";
@@ -21,5 +22,9 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const [item, user] = await Promise.all([getFeedItemById(id), getSessionUser()]);
   if (!item || item.type !== "post") notFound();
-  return <FeedDestinationShell item={item} viewerId={user?.id} />;
+  return (
+    <AppPage>
+      <FeedDestinationShell item={item} viewerId={user?.id} />
+    </AppPage>
+  );
 }

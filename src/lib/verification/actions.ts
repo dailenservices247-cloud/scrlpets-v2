@@ -93,7 +93,10 @@ export async function attestAnimalEligibility(
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/settings/verification");
-  revalidatePath(`/c/${creatureId}`);
+  // The animal route keys on slug, not id, so `/c/<uuid>` matched no cache
+  // entry at all. ponytail: invalidate the whole pattern rather than adding a
+  // slug lookup to an action that attests one animal at a time.
+  revalidatePath("/c/[slug]", "page");
   return { ok: true };
 }
 

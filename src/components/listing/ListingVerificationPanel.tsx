@@ -10,7 +10,7 @@ import { BadgeCheck, ShieldAlert } from "lucide-react";
  * an absence, and the animal section always carries the plain not-inspected
  * sentence rather than implying Scrlpets vetted the animal.
  */
-export async function VerificationPanel({
+export async function ListingVerificationPanel({
   sellerVerified,
   hasAnimal,
   animalAttested,

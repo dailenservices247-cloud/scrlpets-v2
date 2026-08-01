@@ -11,23 +11,32 @@ async function signIn(page: Page, email: string) {
 }
 
 test.describe("bottom nav", () => {
-  test("signed-out sees bottom nav with Discover in Shop's old slot", async ({ page }) => {
+  test("signed-out sees bottom nav with Market in slot 2", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("bottom-nav")).toBeVisible();
-    const discover = page.getByTestId("nav-discover");
-    await expect(discover).toBeVisible();
-    await expect(discover).toHaveAttribute("href", "/discover");
+    const market = page.getByTestId("nav-market");
+    await expect(market).toBeVisible();
+    await expect(market).toHaveAttribute("href", "/market");
+    // The two surfaces that have held this slot before it. Discover survives as
+    // a route; what it must not be again is a nav slot costing a tap before the
+    // thing people came for.
     await expect(page.getByTestId("nav-shop")).toHaveCount(0);
+    await expect(page.getByTestId("nav-discover")).toHaveCount(0);
   });
 });
 
 test.describe("discover hub", () => {
-  test("/discover renders 4 destination cards", async ({ page }) => {
+  test("/discover renders its 4 destination cards", async ({ page }) => {
     await page.goto("/discover");
-    await expect(page.getByTestId("discover-card-shop")).toHaveAttribute("href", "/shop");
-    await expect(page.getByTestId("discover-card-adopt")).toHaveAttribute("href", "/adopt");
-    await expect(page.getByTestId("discover-card-services")).toHaveAttribute("href", "/services");
+    await expect(page.getByTestId("discover-card-market")).toHaveAttribute("href", "/market");
     await expect(page.getByTestId("discover-card-groups")).toHaveAttribute("href", "/groups");
+    await expect(page.getByTestId("discover-card-guides")).toHaveAttribute("href", "/guides");
+    // Unconditional: the only Service-creation path used to be gated behind an
+    // operator check, so a groomer with no animals and no brand never saw it.
+    await expect(page.getByTestId("discover-card-offer")).toHaveAttribute(
+      "href",
+      "/market/offer",
+    );
   });
 });
 

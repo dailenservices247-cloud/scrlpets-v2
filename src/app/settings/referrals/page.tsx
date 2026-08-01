@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
-import { ReferralPanel } from "@/components/referrals/ReferralPanel";
+import { ReferralPanel } from "@/components/referral/ReferralPanel";
 import { ReferralShare } from "@/components/referral/ReferralShare";
 import { getMyReferralCode, getMyReferralStats } from "@/lib/referrals/queries";
 import { getSessionUser } from "@/lib/auth/session";

@@ -251,7 +251,7 @@ export function ServicesManagerPanel({
           <p className="eyebrow">{t("manage.eyebrow")}</p>
           <h2 className="text-lg font-semibold">{t("manage.title")}</h2>
         </div>
-        <Link href="/services" className="shrink-0 text-sm text-brand-link underline">
+        <Link href="/market?tab=services" className="shrink-0 text-sm text-brand-link underline">
           {t("manage.browseLink")}
         </Link>
       </div>
