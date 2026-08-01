@@ -1,11 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * E: the admin pack's read side. Every table below is admin-gated by RLS
- * (redemptions, support_tickets and moderation_actions all carry an
- * `is_platform_admin()` select policy), so a non-admin who reaches these
- * functions gets empty arrays rather than data. The page still 404s first —
- * that is the courtesy, this is the control.
+ * E: the admin pack's read side. The page 404s for a non-admin — that is the
+ * courtesy; RLS is the control. Note what RLS does NOT do here: only
+ * moderation_actions is admin-read-only. redemptions and support_tickets also
+ * carry own-read policies, so a non-admin reaching those functions gets their
+ * OWN rows back, not an empty array. That is fine for what those queries now
+ * select, and it is exactly why the staff-written columns are no longer among
+ * them — see admin_redemption_notes() and admin_ticket_notes() below.
  */
 
 export type SuspendedAccount = {
@@ -97,10 +99,15 @@ export async function getSuspendedAccounts(): Promise<SuspendedAccount[]> {
  */
 export async function getRedemptionQueue(): Promise<RedemptionReviewRow[]> {
   const supabase = await createClient();
+  // admin_notes is deliberately NOT in this select, for the same reason it is
+  // absent from the ticket select below: the redemption's own owner can read
+  // their row, so the column is revoked from both client roles and the notes
+  // come back through admin_redemption_notes(), which checks is_platform_admin()
+  // itself.
   const [redemptions, catalog] = await Promise.all([
     supabase
       .from("redemptions")
-      .select("id,profile_id,reward_key,points_spent,status,admin_notes,created_at")
+      .select("id,profile_id,reward_key,points_spent,status,created_at")
       .in("status", ["requested", "approved"])
       .order("created_at", { ascending: true })
       .limit(100),
@@ -112,21 +119,27 @@ export async function getRedemptionQueue(): Promise<RedemptionReviewRow[]> {
     reward_key: string;
     points_spent: number;
     status: RedemptionReviewRow["status"];
-    admin_notes: string | null;
     created_at: string;
   }[];
   const titles = new Map(
     ((catalog.data ?? []) as { key: string; title: string }[]).map((r) => [r.key, r.title]),
   );
   const names = await usernamesByIds(rows.map((r) => r.profile_id));
-  return rows.map((r) => ({
+  const notes = await Promise.all(
+    rows.map((r) =>
+      supabase
+        .rpc("admin_redemption_notes", { target_redemption: r.id })
+        .then(({ data: note }) => (note as string | null) ?? null),
+    ),
+  );
+  return rows.map((r, i) => ({
     id: r.id,
     username: names.get(r.profile_id) ?? null,
     rewardKey: r.reward_key,
     rewardTitle: titles.get(r.reward_key) ?? null,
     pointsSpent: r.points_spent,
     status: r.status,
-    adminNotes: r.admin_notes,
+    adminNotes: notes[i],
     createdAt: r.created_at,
   }));
 }

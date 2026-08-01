@@ -9,7 +9,6 @@ export type SellerProgram = {
   issuingAuthority: string;
   publicUrl: string | null;
   status: "pending" | "approved" | "rejected";
-  reviewNotes: string | null;
   createdAt: string;
 };
 
@@ -27,9 +26,18 @@ type ProgramRow = {
   issuing_authority: string;
   public_url: string | null;
   status: "pending" | "approved" | "rejected";
-  review_notes: string | null;
   created_at: string;
 };
+
+/**
+ * The columns a client role may read. Spelled out rather than `*` because
+ * seller_programs also holds review_notes and reviewed_by, which are staff
+ * text about the applicant: SELECT on those is revoked from both client roles,
+ * and `*` would expand to include them and raise 42501. The decision record
+ * lives in verification_events, which is admin-read-only.
+ */
+const PROGRAM_COLUMNS =
+  "id,program_type,credential_number,issuing_authority,public_url,status,created_at";
 
 function toProgram(r: ProgramRow): SellerProgram {
   return {
@@ -39,7 +47,6 @@ function toProgram(r: ProgramRow): SellerProgram {
     issuingAuthority: r.issuing_authority,
     publicUrl: r.public_url,
     status: r.status,
-    reviewNotes: r.review_notes,
     createdAt: r.created_at,
   };
 }
@@ -49,7 +56,10 @@ export async function getMyTrustState(): Promise<TrustState> {
   const supabase = await createClient();
   const [identity, programs, buyer] = await Promise.all([
     supabase.from("identity_verifications").select("status").maybeSingle(),
-    supabase.from("seller_programs").select("*").order("created_at", { ascending: false }),
+    supabase
+      .from("seller_programs")
+      .select(PROGRAM_COLUMNS)
+      .order("created_at", { ascending: false }),
     supabase.from("buyer_readiness").select("attested_at").maybeSingle(),
   ]);
   const status = ((identity.data as { status: IdentityStatus } | null)?.status ??
@@ -83,7 +93,7 @@ export async function getPendingPrograms(): Promise<
   const supabase = await createClient();
   const { data } = await supabase
     .from("seller_programs")
-    .select("*")
+    .select(`${PROGRAM_COLUMNS},profile_id`)
     .eq("status", "pending")
     .order("created_at", { ascending: true });
   return ((data ?? []) as (ProgramRow & { profile_id: string })[]).map((r) => ({
