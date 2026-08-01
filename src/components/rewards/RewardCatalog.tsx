@@ -7,37 +7,44 @@ import { redeemReward } from "@/lib/rewards/actions";
 import type { Reward } from "@/lib/rewards/queries";
 
 /**
- * Redemptions buy distribution, never money. There is no cash option and no
- * 'cash' kind exists in the schema — adding one is a legal decision, not a
- * code change. Boosts are labelled as promoted wherever they appear.
+ * Redemptions buy goods and fee credit, never money and never reach. There is
+ * no cash option and no 'cash' kind exists in the schema — adding one is a
+ * legal decision, not a code change.
+ *
+ * Spending is charged to the BALANCE and never to standing. Legacy paid rewards
+ * out of the same number its ladder was computed from, so redeeming demoted
+ * you; the two numbers are now separate all the way down to the SQL.
+ *
+ * While payments are off, the fee credit renders no button. A discount on a fee
+ * that does not exist would burn real points for nothing, and a control that
+ * always fails is a worse lie than saying plainly that it is not switched on —
+ * the same call /settings/subscription makes for plans.
  */
 export function RewardCatalog({
   rewards,
   balance,
-  boostablePosts,
+  paymentsEnabled,
 }: {
   rewards: Reward[];
   balance: number;
-  boostablePosts: { id: string; label: string }[];
+  paymentsEnabled: boolean;
 }) {
   const t = useTranslations("rewards");
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [postFor, setPostFor] = useState<Record<string, string>>({});
 
   async function redeem(reward: Reward) {
     setBusy(reward.key);
     setError(null);
-    const target = reward.kind === "visibility" ? postFor[reward.key] : undefined;
-    const result = await redeemReward(reward.key, target);
+    const result = await redeemReward(reward.key);
     setBusy(null);
     if (!result.ok) {
       setError(
         result.error.includes("insufficient_points")
           ? t("notEnoughPoints")
-          : result.error.includes("target_post_required")
-            ? t("choosePost")
+          : result.error.includes("payments_disabled")
+            ? t("feeCreditNotLive")
             : result.error.includes("reward_not_available")
               ? t("notAvailable")
               : result.error,
@@ -51,6 +58,9 @@ export function RewardCatalog({
     <div className="flex flex-col gap-3" data-testid="reward-catalog">
       {rewards.map((r) => {
         const affordable = balance >= r.costPoints;
+        // Everything here is enabled — getCatalog() filters withdrawn rewards
+        // out rather than advertising them. The only remaining gate is money.
+        const live = r.kind !== "fee_credit" || paymentsEnabled;
         return (
           <div key={r.key} className="premium-panel rounded-2xl p-4" data-testid={`reward-${r.key}`}>
             <div className="flex items-baseline justify-between gap-3">
@@ -61,32 +71,9 @@ export function RewardCatalog({
               <p className="mt-1 text-xs text-muted-foreground">{r.description}</p>
             )}
 
-            {!r.enabled && (
-              <p className="mt-2 text-xs text-muted-foreground" data-testid={`reward-disabled-${r.key}`}>
-                {t("pendingLegalReview")}
-              </p>
-            )}
+            <p className="mt-2 text-xs text-muted-foreground">{t("spendsBalanceOnly")}</p>
 
-            {r.enabled && r.kind === "visibility" && (
-              <label className="mt-3 block text-xs">
-                <span className="text-muted-foreground">{t("choosePostLabel")}</span>
-                <select
-                  value={postFor[r.key] ?? ""}
-                  onChange={(e) => setPostFor((p) => ({ ...p, [r.key]: e.target.value }))}
-                  data-testid={`reward-post-${r.key}`}
-                  className="mt-1 min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm"
-                >
-                  <option value="">{t("selectPost")}</option>
-                  {boostablePosts.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            )}
-
-            {r.enabled && (
+            {live ? (
               <button
                 type="button"
                 onClick={() => redeem(r)}
@@ -96,6 +83,10 @@ export function RewardCatalog({
               >
                 {affordable ? t("redeem") : t("needMore", { n: r.costPoints - balance })}
               </button>
+            ) : (
+              <p className="mt-2 text-xs text-muted-foreground" data-testid={`reward-not-live-${r.key}`}>
+                {t("feeCreditNotLive")}
+              </p>
             )}
           </div>
         );

@@ -131,7 +131,8 @@
       "size": "That file is too large. Photos can be up to 5MB and videos up to 50MB.",
       "process": "We couldn't prepare that photo for upload. Try a different one."
     },
-    "errorSellerUnverified": "Listing an animal needs a verified seller account. Identity checks are not switched on yet, so this is not something you can complete right now — nothing is wrong with what you entered."
+    "errorSellerUnverified": "Listing an animal needs a verified seller account. Identity checks are not switched on yet, so this is not something you can complete right now — nothing is wrong with what you entered.",
+    "groupPublicNotice": "Group posts are public. Everyone sees them in the main feed too, labelled with the group."
   },
   "content": {
     "edit": "Edit",
@@ -160,7 +161,8 @@
     "unpinFromProfile": "Unpin from profile",
     "pinnedToProfile": "Pinned to profile",
     "turnCommentsOff": "Turn off comments",
-    "turnCommentsOn": "Turn on comments"
+    "turnCommentsOn": "Turn on comments",
+    "inGroup": "Posted in {group}"
   },
   "brandAccess": {
     "label": "Operators",
@@ -529,6 +531,13 @@
     "error": {
       "generic": "That did not work. Try again.",
       "notConfigured": "Identity checks are not switched on yet."
+    },
+    "rejectionReason": {
+      "not_found": "We could not find that number in the issuing authority's records.",
+      "expired": "That credential has expired.",
+      "name_mismatch": "The name on that credential does not match your account.",
+      "authority_unrecognised": "We do not recognise that issuing authority.",
+      "other": "Contact support and we will talk it through."
     }
   },
   "admin": {
@@ -537,7 +546,7 @@
     "queueEmpty": "Nothing waiting.",
     "approve": "Approve",
     "reject": "Reject",
-    "notesPlaceholder": "Review notes (optional)",
+    "notesPlaceholder": "Internal review notes — the applicant never sees these",
     "programType": {
       "kennel": "Kennel license",
       "business": "Business registration",
@@ -631,7 +640,8 @@
     },
     "auditActor": "by {actor}",
     "auditActorUnknown": "a removed admin",
-    "auditNoNotes": "No reason recorded."
+    "auditNoNotes": "No reason recorded.",
+    "rejectionReasonLabel": "Reason the applicant sees"
   },
   "guides": {
     "title": "Guides",
@@ -945,11 +955,7 @@
     "redeem": "Redeem",
     "needMore": "{n} more points needed",
     "notEnoughPoints": "You don't have enough points yet.",
-    "choosePost": "Choose which post to promote.",
-    "choosePostLabel": "Which post?",
-    "selectPost": "Select a post",
     "notAvailable": "That reward isn't available yet.",
-    "pendingLegalReview": "Not available yet — pending legal review.",
     "badge": {
       "listings": "{count} listings published",
       "handovers": "{count} completed handovers",
@@ -961,7 +967,19 @@
       "approved": "Approved",
       "rejected": "Rejected — points refunded",
       "fulfilled": "Applied"
-    }
+    },
+    "standingHeading": "Your standing",
+    "standingTier": "Tier {tier} of {of}",
+    "standingNeverFalls": "Standing is earned and never goes down. Spending points costs you none of it.",
+    "standingFromHandovers": "Completed handovers: {count}",
+    "standingFromReviews": "Reviews people wrote about you: {count}",
+    "standingFromTenure": "Months on Scrlpets: {count} (counts up to 12)",
+    "standingNotPoints": "Standing is not points. It counts what you finished with other people, so posting cannot raise it and redeeming cannot lower it.",
+    "feeLadder": "Platform fee at this tier: {rate}%.",
+    "feesNotLive": "Fees are not switched on yet, so nothing is being charged at this rate. When payments go live your standing sets it, and nothing you spend can move it.",
+    "balanceIsSeparate": "Points are separate from standing. Spending them here never changes your tier.",
+    "spendsBalanceOnly": "Costs points only. Your standing is not affected.",
+    "feeCreditNotLive": "Not redeemable yet — payments are not switched on, so there is no fee to discount."
   },
   "subscriptions": {
     "title": "Plans",
@@ -1025,7 +1043,8 @@
     "sectionsLabel": "Group sections",
     "tabPosts": "Posts",
     "tabGuides": "Guides",
-    "guidesEmpty": "No guides have been written for this group yet."
+    "guidesEmpty": "No guides have been written for this group yet.",
+    "postPublicNotice": "Posts here are public. Everyone sees them in the main feed too, labelled with this group."
   },
   "calendar": {
     "eyebrow": "Planning",

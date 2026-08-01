@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { FeedItem } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
@@ -38,6 +39,20 @@ export function FeedCardShell({
       <header className="flex items-start justify-between gap-3">
         <AttributionStack item={item} className="flex-1" />
         <div className="flex items-center gap-1.5">
+          {/* Groups are public, so a group post is in everyone's feed — this
+              chip is the only thing that says where it came from. Every tile
+              renders through this shell, so labelling it here covers the home
+              feed, the profile feed and the creature feed at once. */}
+          {item.group && (
+            <Link
+              href={`/groups/${item.group.slug}`}
+              aria-label={t("inGroup", { group: item.group.name })}
+              data-testid="group-chip"
+              className="max-w-40 truncate rounded-full border border-secondary/40 bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary-foreground hover:bg-secondary/20"
+            >
+              {item.group.name}
+            </Link>
+          )}
           {/* Says WHERE it is pinned, because the same post shows up on
               surfaces the pin has no bearing on. */}
           {item.pinnedAt && (

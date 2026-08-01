@@ -122,6 +122,18 @@ export function VerificationPanel({
                   <span className="block truncate text-xs text-muted-foreground">
                     {p.issuingAuthority} · {p.credentialNumber}
                   </span>
+                  {/* The whole applicant-facing half of a rejection. A code
+                      from a fixed set — never the reviewer's note, which the
+                      client role cannot read at all. */}
+                  {p.status === "rejected" && p.rejectionReason && (
+                    <span
+                      className="mt-1 block text-xs text-muted-foreground"
+                      data-testid="program-rejection-reason"
+                      data-reason={p.rejectionReason}
+                    >
+                      {t(`rejectionReason.${p.rejectionReason}`)}
+                    </span>
+                  )}
                 </span>
                 <span className="shrink-0 text-xs font-medium">{t(`programStatus.${p.status}`)}</span>
               </li>

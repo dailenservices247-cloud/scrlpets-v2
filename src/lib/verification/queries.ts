@@ -2,6 +2,22 @@ import { createClient } from "@/lib/supabase/server";
 
 export type IdentityStatus = "none" | "pending" | "verified" | "failed" | "canceled";
 
+/**
+ * The fixed set an applicant may be told; NEVER the staff note.
+ *
+ * A TYPE and not a runtime array on purpose: this module imports the server
+ * Supabase client, so anything a client component imports from here has to be
+ * erasable. The list itself lives next to the picker that renders it, exactly
+ * as PROGRAM_TYPES does in VerificationPanel, and the CHECK constraint in
+ * 20260801130100 is what actually holds the set closed.
+ */
+export type RejectionReason =
+  | "not_found"
+  | "expired"
+  | "name_mismatch"
+  | "authority_unrecognised"
+  | "other";
+
 export type SellerProgram = {
   id: string;
   programType: string;
@@ -9,6 +25,8 @@ export type SellerProgram = {
   issuingAuthority: string;
   publicUrl: string | null;
   status: "pending" | "approved" | "rejected";
+  /** Applicant-facing code on a rejection; null otherwise. */
+  rejectionReason: RejectionReason | null;
   createdAt: string;
 };
 
@@ -26,6 +44,7 @@ type ProgramRow = {
   issuing_authority: string;
   public_url: string | null;
   status: "pending" | "approved" | "rejected";
+  rejection_reason: RejectionReason | null;
   created_at: string;
 };
 
@@ -35,9 +54,13 @@ type ProgramRow = {
  * text about the applicant: SELECT on those is revoked from both client roles,
  * and `*` would expand to include them and raise 42501. The decision record
  * lives in verification_events, which is admin-read-only.
+ *
+ * `rejection_reason` is the applicant-facing half of that split — a code from a
+ * fixed set, granted to authenticated by 20260801130100, and the reason the
+ * staff note never has to be shown to explain a rejection.
  */
 const PROGRAM_COLUMNS =
-  "id,program_type,credential_number,issuing_authority,public_url,status,created_at";
+  "id,program_type,credential_number,issuing_authority,public_url,status,rejection_reason,created_at";
 
 function toProgram(r: ProgramRow): SellerProgram {
   return {
@@ -47,6 +70,7 @@ function toProgram(r: ProgramRow): SellerProgram {
     issuingAuthority: r.issuing_authority,
     publicUrl: r.public_url,
     status: r.status,
+    rejectionReason: r.rejection_reason,
     createdAt: r.created_at,
   };
 }

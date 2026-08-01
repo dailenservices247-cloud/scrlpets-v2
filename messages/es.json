@@ -131,7 +131,8 @@
       "size": "Ese archivo es demasiado grande. Las fotos admiten hasta 5MB y los videos hasta 50MB.",
       "process": "No pudimos preparar esa foto para subirla. Prueba con otra."
     },
-    "errorSellerUnverified": "Publicar un animal requiere una cuenta de vendedor verificada. La verificación de identidad todavía no está activada, así que esto no es algo que puedas completar ahora — no hay ningún problema con lo que escribiste."
+    "errorSellerUnverified": "Publicar un animal requiere una cuenta de vendedor verificada. La verificación de identidad todavía no está activada, así que esto no es algo que puedas completar ahora — no hay ningún problema con lo que escribiste.",
+    "groupPublicNotice": "Las publicaciones de grupo son públicas. Todos las ven también en el feed principal, con la etiqueta del grupo."
   },
   "content": {
     "edit": "Editar",
@@ -160,7 +161,8 @@
     "unpinFromProfile": "Dejar de fijar en el perfil",
     "pinnedToProfile": "Fijada en el perfil",
     "turnCommentsOff": "Desactivar comentarios",
-    "turnCommentsOn": "Activar comentarios"
+    "turnCommentsOn": "Activar comentarios",
+    "inGroup": "Publicado en {group}"
   },
   "brandAccess": {
     "label": "Operadores",
@@ -529,6 +531,13 @@
     "error": {
       "generic": "No funcionó. Inténtalo de nuevo.",
       "notConfigured": "Las verificaciones de identidad aún no están activas."
+    },
+    "rejectionReason": {
+      "not_found": "No encontramos ese número en los registros de la autoridad emisora.",
+      "expired": "Esa credencial ha caducado.",
+      "name_mismatch": "El nombre de esa credencial no coincide con tu cuenta.",
+      "authority_unrecognised": "No reconocemos a esa autoridad emisora.",
+      "other": "Contacta con soporte y lo revisamos contigo."
     }
   },
   "admin": {
@@ -537,7 +546,7 @@
     "queueEmpty": "Nada pendiente.",
     "approve": "Aprobar",
     "reject": "Rechazar",
-    "notesPlaceholder": "Notas de revisión (opcional)",
+    "notesPlaceholder": "Notas internas de revisión — el solicitante nunca las ve",
     "programType": {
       "kennel": "Licencia de criadero",
       "business": "Registro de negocio",
@@ -631,7 +640,8 @@
     },
     "auditActor": "por {actor}",
     "auditActorUnknown": "un administrador eliminado",
-    "auditNoNotes": "Sin motivo registrado."
+    "auditNoNotes": "Sin motivo registrado.",
+    "rejectionReasonLabel": "Motivo que ve el solicitante"
   },
   "guides": {
     "title": "Guías",
@@ -945,11 +955,7 @@
     "redeem": "Canjear",
     "needMore": "Faltan {n} puntos",
     "notEnoughPoints": "Aún no tienes suficientes puntos.",
-    "choosePost": "Elige qué publicación promocionar.",
-    "choosePostLabel": "¿Qué publicación?",
-    "selectPost": "Selecciona una publicación",
     "notAvailable": "Esa recompensa aún no está disponible.",
-    "pendingLegalReview": "Aún no disponible: pendiente de revisión legal.",
     "badge": {
       "listings": "{count} anuncios publicados",
       "handovers": "{count} entregas completadas",
@@ -961,7 +967,19 @@
       "approved": "Aprobado",
       "rejected": "Rechazado: puntos devueltos",
       "fulfilled": "Aplicado"
-    }
+    },
+    "standingHeading": "Tu posición",
+    "standingTier": "Nivel {tier} de {of}",
+    "standingNeverFalls": "La posición se gana y nunca baja. Gastar puntos no te cuesta nada de ella.",
+    "standingFromHandovers": "Entregas completadas: {count}",
+    "standingFromReviews": "Reseñas que otras personas escribieron sobre ti: {count}",
+    "standingFromTenure": "Meses en Scrlpets: {count} (cuenta hasta 12)",
+    "standingNotPoints": "La posición no son puntos. Cuenta lo que completaste con otras personas, así que publicar no la sube y canjear no la baja.",
+    "feeLadder": "Comisión de la plataforma en este nivel: {rate}%.",
+    "feesNotLive": "Las comisiones aún no están activadas, así que no se está cobrando nada a esta tasa. Cuando los pagos entren en funcionamiento, tu posición la determinará, y nada de lo que gastes podrá moverla.",
+    "balanceIsSeparate": "Los puntos son independientes de la posición. Gastarlos aquí nunca cambia tu nivel.",
+    "spendsBalanceOnly": "Solo cuesta puntos. Tu posición no se ve afectada.",
+    "feeCreditNotLive": "Aún no se puede canjear: los pagos no están activados, así que no hay comisión que descontar."
   },
   "subscriptions": {
     "title": "Planes",
@@ -1025,7 +1043,8 @@
     "sectionsLabel": "Secciones del grupo",
     "tabPosts": "Publicaciones",
     "tabGuides": "Guías",
-    "guidesEmpty": "Aún no se han escrito guías para este grupo."
+    "guidesEmpty": "Aún no se han escrito guías para este grupo.",
+    "postPublicNotice": "Las publicaciones aquí son públicas. Todos las ven también en el feed principal, con la etiqueta de este grupo."
   },
   "calendar": {
     "eyebrow": "Planificación",

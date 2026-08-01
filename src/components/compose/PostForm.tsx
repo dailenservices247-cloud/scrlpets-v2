@@ -159,6 +159,13 @@ export function PostForm(props: PostFormProps) {
               </option>
             ))}
           </select>
+          {/* Groups are public and posting into one redirects to the group
+              timeline, so without this the author never finds out their post
+              also went to every feed on the site. Said BEFORE the choice, not
+              after the post. */}
+          <span className="text-xs font-normal text-muted-foreground" data-testid="group-public-notice">
+            {t("groupPublicNotice")}
+          </span>
         </label>
       )}
       {err && <p className="text-destructive text-sm">{err}</p>}

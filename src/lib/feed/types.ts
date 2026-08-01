@@ -7,6 +7,14 @@ export type FeedItem = {
   /** Set when the content was published as a brand; the author is the human operator behind it. */
   brand: { id: string; name: string; slug: string; avatarUrl: string | null } | null;
   creature: { id: string; name: string; slug: string; avatarUrl: string | null } | null;
+  /**
+   * Set when the post was made into a breed group. Groups are PUBLIC, so the
+   * post is in everyone's feed — this is what lets the tile say so instead of
+   * presenting it as an ordinary post. Optional for the same reason as
+   * `pinnedAt`: surfaces that build items by hand (the group's own timeline,
+   * where the chip would be redundant) simply leave it off.
+   */
+  group?: { id: string; slug: string; name: string } | null;
   title: string | null;
   mediaUrl: string | null;
   createdAt: string;

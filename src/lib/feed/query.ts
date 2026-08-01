@@ -10,6 +10,9 @@ export type Row = {
   title: string | null; media_url: string | null; created_at: string; updated_at: string;
   posting_as_type: string | null; brand_id: string | null; brand_name: string | null; brand_avatar: string | null;
   brand_slug: string | null;
+  // Optional so the existing hand-written Row literals in the unit tests keep
+  // compiling; the view supplies all three on every branch.
+  group_id?: string | null; group_slug?: string | null; group_name?: string | null;
 };
 
 export function rowToFeedItem(r: Row): FeedItem {
@@ -25,6 +28,12 @@ export function rowToFeedItem(r: Row): FeedItem {
     creature: r.creature_id
       ? { id: r.creature_id, name: r.creature_name!, slug: r.creature_slug!, avatarUrl: r.creature_avatar }
       : null,
+    // slug gates the chip, not group_id: the chip is a link and there is
+    // nowhere to send someone without it.
+    group:
+      r.group_id && r.group_slug
+        ? { id: r.group_id, slug: r.group_slug, name: r.group_name ?? r.group_slug }
+        : null,
     title: r.title,
     mediaUrl: r.media_url,
     createdAt: r.created_at,

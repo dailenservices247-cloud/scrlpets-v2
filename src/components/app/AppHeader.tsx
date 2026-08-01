@@ -18,12 +18,17 @@ export function AppHeader({
         <Link href="/" aria-label="Scrlpets home" className="rounded-md focus:outline-none focus:ring-2 focus:ring-ring">
           <Wordmark size={23} />
         </Link>
+        {/* Search and notifications are hidden on desktop: SideNav carries both
+            already, and once this header moved into the shell they appeared
+            twice on every large screen. The header itself stays — the feed's
+            composer prompt renders in it via `children`, and hiding the whole
+            header would take that with it. */}
         <div className="flex items-center gap-2">
           {/* R11: this icon looked like search but linked to /shop — now that
               real search exists it goes where it says. */}
           <Link
             href="/search"
-            className="grid size-9 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground"
+            className="grid size-9 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground lg:hidden"
             aria-label="Search"
             data-testid="header-search"
           >
@@ -32,7 +37,7 @@ export function AppHeader({
           {signedIn && (
             <Link
               href="/notifications"
-              className="relative grid size-9 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground"
+              className="relative grid size-9 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground lg:hidden"
               aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
               data-testid="header-notifications"
             >

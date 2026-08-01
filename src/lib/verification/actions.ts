@@ -100,17 +100,27 @@ export async function attestAnimalEligibility(
   return { ok: true };
 }
 
-/** Admin decision on a program submission (D4 role; enforced in the DB). */
+/**
+ * Admin decision on a program submission (D4 role; enforced in the DB).
+ *
+ * Two separate fields on purpose. `notes` is the internal record and the
+ * applicant can never read it; `reasonCode` is the one thing they are told, and
+ * it is a code rather than free text so the reviewer's note stays a note. The
+ * definer refuses a rejection without a code, so this cannot silently go back
+ * to "rejected, no reason".
+ */
 export async function reviewSellerProgram(
   programId: string,
   decision: "approved" | "rejected",
   notes?: string,
+  reasonCode?: string,
 ): Promise<VerificationResult> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("review_seller_program", {
     target_program: programId,
     decision,
     notes: notes ?? null,
+    reason_code: reasonCode ?? null,
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/admin");

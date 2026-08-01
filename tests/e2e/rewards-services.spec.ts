@@ -62,11 +62,17 @@ test("no reward converts to cash and disabled rewards cannot be redeemed", async
   const kinds = new Set((catalog ?? []).map((c: { kind: string }) => c.kind));
   expect([...kinds].sort(), "no cash kind exists").toEqual(["fee_credit", "goods", "visibility"]);
 
-  // The fee credit ships disabled pending legal review.
+  // Fee credit is now ENABLED in the catalog and gated on the payments_enabled
+  // platform flag instead — it is the primary points sink once money moves, so
+  // the gate moved from "off in the catalog" to "off until there is a fee to
+  // discount". A catalog row that is permanently disabled and a reward that is
+  // waiting on a flag are different states, and the error says which.
   const feeCredit = (catalog ?? []).find((c: { key: string }) => c.key === "fee_credit_10");
-  expect(feeCredit!.enabled, "fee credit is off until A3").toBe(false);
+  expect(feeCredit!.enabled, "fee credit is live in the catalog").toBe(true);
   const attempt = await db.rpc("redeem_reward", { reward: "fee_credit_10", target_post: null });
-  expect(attempt.error?.message).toContain("reward_not_available");
+  expect(attempt.error?.message, "refused because payments are off, not because it is delisted").toContain(
+    "payments_disabled",
+  );
 
   // The catalog is not client-writable — you cannot enable a reward yourself.
   const enable = await db
@@ -115,8 +121,13 @@ test("redeeming refuses an overdraft and refuses someone else's post", async () 
     target_post: post.data!.id,
   });
   expect(hijack.error).not.toBeNull();
+  // reward_not_available is now the expected refusal: boost_post was withdrawn
+  // from the catalog (it charged points and did nothing — nothing reads
+  // post_boosts), and availability is checked before ownership ever is. The
+  // ownership guard itself is unchanged; this call no longer reaches it.
   expect(
-    hijack.error!.message.includes("not_your_post") ||
+    hijack.error!.message.includes("reward_not_available") ||
+      hijack.error!.message.includes("not_your_post") ||
       hijack.error!.message.includes("insufficient_points"),
   ).toBe(true);
 

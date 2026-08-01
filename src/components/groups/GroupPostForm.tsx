@@ -53,6 +53,11 @@ export function GroupPostForm({
         data-testid="group-post-body"
       />
       <MediaInput userId={userId} onUploaded={(url) => setMediaUrl(url)} />
+      {/* The other half of the same disclosure as the main composer: a group
+          post is an ordinary public post that also carries a group label. */}
+      <p className="text-xs text-muted-foreground" data-testid="group-public-notice">
+        {t("postPublicNotice")}
+      </p>
       {err && <p className="text-sm text-destructive">{err}</p>}
       <Button type="submit" disabled={busy} className="self-start" data-testid="group-post-submit">
         {t("submitPost")}

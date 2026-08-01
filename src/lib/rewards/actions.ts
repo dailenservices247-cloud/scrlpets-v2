@@ -9,15 +9,19 @@ export type RewardResult = { ok: true } | { ok: false; error: string };
  * The only way to spend points. Balance check, catalog check and the debit all
  * happen inside one database transaction, so a balance cannot go negative and
  * a redemption cannot exist unpaid.
+ *
+ * Spends BALANCE only. The debit is a negative ledger row and standing counts
+ * no negative rows, so this cannot cost anyone a rung.
+ *
+ * No target argument any more: it only ever served the two visibility rewards,
+ * which were withdrawn. `target_post` is still sent as null because the RPC
+ * signature is unchanged — existing redemptions reference it.
  */
-export async function redeemReward(
-  rewardKey: string,
-  targetPostId?: string,
-): Promise<RewardResult> {
+export async function redeemReward(rewardKey: string): Promise<RewardResult> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("redeem_reward", {
     reward: rewardKey,
-    target_post: targetPostId ?? null,
+    target_post: null,
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/rewards");

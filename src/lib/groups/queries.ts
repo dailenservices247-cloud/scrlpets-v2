@@ -182,6 +182,9 @@ export async function listGroupPosts(
           avatarUrl: r.creatures.avatar_url,
         }
       : null,
+    // Deliberately null: every post on this page is in this group, so the chip
+    // would say what the page already says.
+    group: null,
     title: r.body,
     mediaUrl: r.media_url,
     createdAt: r.created_at,
