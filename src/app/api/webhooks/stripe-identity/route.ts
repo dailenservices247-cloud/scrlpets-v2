@@ -47,8 +47,30 @@ export async function POST(request: Request) {
 
   const event = JSON.parse(payload) as {
     type: string;
+    livemode?: boolean;
     data: { object: { id: string; metadata?: { profile_id?: string } } };
   };
+
+  /**
+   * A valid signature proves the event came from Stripe. It does NOT prove the
+   * event came from the LIVE Stripe — test-mode endpoints sign test-mode events
+   * with their own perfectly valid secret.
+   *
+   * That distinction is load-bearing here: Stripe Identity in test mode accepts
+   * synthetic documents, so a test-mode `verified` event reaching production
+   * would hand out a verified-seller badge for a fake ID — and verified seller
+   * is the gate that unlocks animal listings. Production was in fact configured
+   * with a test key on 2026-07-28 and this guard did not exist, so the gate was
+   * passable with fabricated documents until 2026-08-04. Nobody reached it (one
+   * profile, zero verified sellers), but nothing structural was stopping them.
+   *
+   * Production therefore accepts live events only. Preview and local keep test
+   * mode, which is the whole point of having them.
+   */
+  if (process.env.VERCEL_ENV === "production" && event.livemode !== true) {
+    return NextResponse.json({ error: "test_mode_event_in_production" }, { status: 400 });
+  }
+
   const session = event.data.object;
   const profileId = session.metadata?.profile_id;
   if (!profileId) return NextResponse.json({ received: true });
