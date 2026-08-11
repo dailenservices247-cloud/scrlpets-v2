@@ -54,6 +54,27 @@ export function RewardCatalog({
     router.refresh();
   }
 
+  /**
+   * An empty shelf is the honest state now, not a bug. The one thing points buy
+   * is a discount applied to a specific order's platform fee at checkout, which
+   * cannot be a catalogue row: a flat credit has no order in scope, and so no
+   * fee to be capped at half of. Saying that here matters — an empty container
+   * is literally how this page broke when the last reward was switched off.
+   */
+  if (rewards.length === 0) {
+    return (
+      <div className="premium-panel rounded-2xl p-4" data-testid="reward-catalog-empty">
+        <p className="text-sm font-medium">{t("catalogEmptyHeading")}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("catalogEmptyBody")}</p>
+        {!paymentsEnabled && (
+          <p className="mt-2 text-xs text-muted-foreground" data-testid="reward-catalog-not-live">
+            {t("catalogEmptyNotLive")}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3" data-testid="reward-catalog">
       {rewards.map((r) => {

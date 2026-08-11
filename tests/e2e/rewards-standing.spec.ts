@@ -154,18 +154,21 @@ test("the withdrawn visibility rewards are off the shelf, not merely hidden", as
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 20_000 });
 
   await page.goto("/rewards");
-  await expect(page.getByTestId("reward-catalog")).toBeVisible({ timeout: 20_000 });
+  // The shelf renders either its rewards or its explanation — never nothing.
+  // Today every reward is withdrawn, so it is the explanation.
+  await expect(page.getByTestId("reward-catalog-empty")).toBeVisible({ timeout: 20_000 });
   // Not listed at all. A withdrawn reward shown greyed out still advertises it.
   await expect(page.getByTestId("reward-boost_post")).toHaveCount(0);
   await expect(page.getByTestId("reward-feature_listing")).toHaveCount(0);
 });
 
-test("the fee credit says plainly that it is not switched on yet", async ({ page }) => {
+test("the shelf is empty on purpose, and the page says what points are for", async ({
+  page,
+}) => {
   test.setTimeout(120_000);
   const { db } = await signInCached(SELLER_EMAIL);
 
-  // Precondition, asserted rather than assumed — commerce.spec.ts pins the same
-  // flag and proves no client can flip it.
+  // Precondition, asserted rather than assumed.
   const flag = await db
     .from("platform_flags")
     .select("enabled")
@@ -173,18 +176,11 @@ test("the fee credit says plainly that it is not switched on yet", async ({ page
     .single();
   expect(flag.data!.enabled, "payments must still be disabled").toBe(false);
 
-  // The catalogue row is ENABLED. The refusal comes from the payments flag, so
-  // switching payments on switches the reward on with no second decision —
-  // `reward_not_available` here would mean it went back to being hardcoded off.
-  const row = await db
-    .from("reward_catalog")
-    .select("enabled")
-    .eq("key", "fee_credit_10")
-    .single();
-  expect(row.data!.enabled, "the fee credit tracks the payments flag, not a hardcode").toBe(true);
-
-  const attempt = await db.rpc("redeem_reward", { reward: "fee_credit_10", target_post: null });
-  expect(attempt.error?.message).toContain("payments_disabled");
+  // Nothing is enabled any more: the visibility rewards are withdrawn, the swag
+  // pack is retired, and the flat fee credit is superseded by the order-scoped
+  // one. An empty catalogue is the honest state, not an oversight.
+  const { data: enabled } = await db.from("reward_catalog").select("key").eq("enabled", true);
+  expect(enabled ?? [], "no reward is bought off a shelf any more").toHaveLength(0);
 
   await page.goto("/login");
   await page.getByLabel("Email address").fill(SELLER_EMAIL);
@@ -193,9 +189,10 @@ test("the fee credit says plainly that it is not switched on yet", async ({ page
   await expect(page).toHaveURL("http://localhost:3000/", { timeout: 20_000 });
 
   await page.goto("/rewards");
-  await expect(page.getByTestId("reward-fee_credit_10")).toBeVisible({ timeout: 20_000 });
-  // Notice shown, and NO button: a control that always fails is a worse lie
-  // than saying it is not switched on.
-  await expect(page.getByTestId("reward-not-live-fee_credit_10")).toBeVisible();
-  await expect(page.getByTestId("reward-redeem-fee_credit_10")).toHaveCount(0);
+  // The page must EXPLAIN, not render an empty container — which is exactly how
+  // it broke when the last reward was switched off.
+  await expect(page.getByTestId("reward-catalog-empty")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByTestId("reward-catalog-empty")).toContainText(/half the fee/i);
+  await expect(page.getByTestId("reward-catalog-not-live")).toBeVisible();
 });
+

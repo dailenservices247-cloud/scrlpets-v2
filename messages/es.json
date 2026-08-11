@@ -1032,7 +1032,10 @@
     "feesNotLive": "Las comisiones aún no están activadas, así que no se está cobrando nada a esta tasa. Cuando los pagos entren en funcionamiento, tu posición la determinará, y nada de lo que gastes podrá moverla.",
     "balanceIsSeparate": "Los puntos son independientes de la posición. Gastarlos aquí nunca cambia tu nivel.",
     "spendsBalanceOnly": "Solo cuesta puntos. Tu posición no se ve afectada.",
-    "feeCreditNotLive": "Aún no se puede canjear: los pagos no están activados, así que no hay comisión que descontar."
+    "feeCreditNotLive": "Aún no se puede canjear: los pagos no están activados, así que no hay comisión que descontar.",
+    "catalogEmptyHeading": "Los puntos se descuentan de tu comisión",
+    "catalogEmptyBody": "Aquí no hay nada que comprar. Los puntos se aplican directamente a la comisión de una venta: 100 puntos son 1 $ de descuento, hasta la mitad de la comisión de ese pedido. Ganas 10 puntos por cada 1 $ de comisión que pagas, en cualquiera de los dos lados de una venta.",
+    "catalogEmptyNotLive": "Esto se aplica cuando los pagos estén activados."
   },
   "subscriptions": {
     "title": "Planes",

@@ -1,0 +1,23 @@
+-- Two fee-credit paths cannot both be live once payments turn on.
+--
+-- `fee_credit_10` is a FLAT 750-points-for-$10 credit with no relationship to
+-- the fee it discounts, which is exactly why it cannot carry the 50% cap: there
+-- is no order in scope to be half of. A member with points could have walked a
+-- platform fee to zero, one $10 credit at a time.
+--
+-- `redeem_fee_credit(order, points)` replaces it: order-scoped, 1 point = 1
+-- cent, and total credit capped at half that order's original fee — enforced by
+-- a CHECK constraint as well as the function, so the platform keeps at least
+-- half of every fee no matter how many points exist.
+--
+-- Disabled rather than deleted: redemptions.reward_key is a foreign key into
+-- this table, and deleting the row would erase the receipts of anyone who
+-- already spent points against it. Same reasoning the withdrawn visibility
+-- rewards were given.
+--
+-- The catalogue is now empty of enabled rewards, which is the honest state: the
+-- one thing points buy is a discount applied at checkout, not something taken
+-- off a shelf. /rewards says that instead of rendering nothing — an empty
+-- container was how the page broke the last time a reward was switched off.
+
+update public.reward_catalog set enabled = false where key = 'fee_credit_10';

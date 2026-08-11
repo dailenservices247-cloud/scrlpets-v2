@@ -62,17 +62,21 @@ test("no reward converts to cash and disabled rewards cannot be redeemed", async
   const kinds = new Set((catalog ?? []).map((c: { kind: string }) => c.kind));
   expect([...kinds].sort(), "no cash kind exists").toEqual(["fee_credit", "goods", "visibility"]);
 
-  // Fee credit is now ENABLED in the catalog and gated on the payments_enabled
-  // platform flag instead — it is the primary points sink once money moves, so
-  // the gate moved from "off in the catalog" to "off until there is a fee to
-  // discount". A catalog row that is permanently disabled and a reward that is
-  // waiting on a flag are different states, and the error says which.
+  // fee_credit_10 is RETIRED. It was a flat 750-points-for-$10 credit with no
+  // order in scope, which is exactly why it could not carry the 50% cap — a
+  // member could have walked a platform fee to zero, $10 at a time.
+  // redeem_fee_credit(order, points) replaces it: order-scoped, 1 point = 1
+  // cent, capped at half that order's original fee.
   const feeCredit = (catalog ?? []).find((c: { key: string }) => c.key === "fee_credit_10");
-  expect(feeCredit!.enabled, "fee credit is live in the catalog").toBe(true);
+  expect(feeCredit!.enabled, "the flat fee credit is withdrawn").toBe(false);
   const attempt = await db.rpc("redeem_reward", { reward: "fee_credit_10", target_post: null });
-  expect(attempt.error?.message, "refused because payments are off, not because it is delisted").toContain(
-    "payments_disabled",
+  expect(attempt.error?.message, "withdrawn, and refused at the database").toContain(
+    "reward_not_available",
   );
+
+  // Disabled, never deleted: redemptions.reward_key points here, and dropping
+  // the row would erase the receipts of anyone who already spent points on it.
+  expect(feeCredit, "the row survives so past redemptions keep their receipt").toBeTruthy();
 
   // The catalog is not client-writable — you cannot enable a reward yourself.
   const enable = await db

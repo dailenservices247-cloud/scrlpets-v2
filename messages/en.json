@@ -1032,7 +1032,10 @@
     "feesNotLive": "Fees are not switched on yet, so nothing is being charged at this rate. When payments go live your standing sets it, and nothing you spend can move it.",
     "balanceIsSeparate": "Points are separate from standing. Spending them here never changes your tier.",
     "spendsBalanceOnly": "Costs points only. Your standing is not affected.",
-    "feeCreditNotLive": "Not redeemable yet — payments are not switched on, so there is no fee to discount."
+    "feeCreditNotLive": "Not redeemable yet — payments are not switched on, so there is no fee to discount.",
+    "catalogEmptyHeading": "Points come off your platform fee",
+    "catalogEmptyBody": "There is nothing to buy here. Points apply directly to the platform fee on a sale — 100 points is $1 off, up to half the fee on that order. You earn 10 points for every $1 of fee you pay, on either side of a sale.",
+    "catalogEmptyNotLive": "This applies once payments are switched on."
   },
   "subscriptions": {
     "title": "Plans",
