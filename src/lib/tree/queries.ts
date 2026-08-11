@@ -136,11 +136,32 @@ async function fetchTree(ownerId: string, onlyVisible: boolean): Promise<TreeDat
   const creatures = (rows ?? []) as RawCreatureRow[];
   if (creatures.length === 0) return { creatures: [], generations: [] };
 
-  const ids = creatures.map((c) => c.id);
-  const { data: edges } = await supabase
-    .from("creature_lineage")
-    .select("creature_id,parent_id,parent_type")
-    .in("creature_id", ids);
+  /**
+   * One function call, not `.in("creature_id", <every id the owner has>)`.
+   *
+   * The `.in()` form built a request URL out of the whole herd — about 15KB at
+   * 400 animals, growing forever. When that request failed the result was
+   * destructured as `{ data }` with the error dropped, so `edges` became null,
+   * `?? []` read as "this owner has no lineage at all", and EVERY animal
+   * collapsed to generation 1. A breeder with a few hundred animals saw their
+   * family tree flattened into a single row, confidently, with nothing anywhere
+   * reporting a problem. Found when the E2E fixture owner crossed 400 creatures.
+   *
+   * An embedded PostgREST filter would fix the URL but not safely:
+   * creature_lineage has TWO foreign keys into creatures (creature_id and
+   * parent_id), so the embed is ambiguous and needs a constraint name — which
+   * admin/queries.ts already avoids on purpose, because a renamed constraint
+   * breaks it silently.
+   *
+   * The error is no longer swallowed either. Lineage that cannot be read is a
+   * broken tree, and a broken tree must not render as a confidently wrong flat
+   * one.
+   */
+  const { data: edges, error: edgeError } = await supabase.rpc("owner_lineage_edges", {
+    target_owner: ownerId,
+  });
+
+  if (edgeError) throw new Error(`tree lineage unavailable: ${edgeError.message}`);
 
   return assembleTree(creatures, (edges ?? []) as RawLineageEdge[]);
 }
