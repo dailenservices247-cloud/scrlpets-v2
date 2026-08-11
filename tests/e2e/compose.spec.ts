@@ -157,6 +157,79 @@ test.describe("signed in", () => {
     );
   });
 
+  /**
+   * The other half of ruling 3: the words the seller previewed are the words the
+   * buyer actually reads on the listing.
+   *
+   * Asserted against the database renderer rather than a hardcoded string, so
+   * this fails if the panel ever starts composing its own prose — which is the
+   * drift that would make holding a seller to their terms unfair.
+   */
+  test("the listing shows the seller's guarantee, worded by the shared renderer", async ({
+    page,
+  }) => {
+    const { db, userId } = await signInCached(SELLER_EMAIL);
+    const stamp = Date.now();
+
+    const creature = await db
+      .from("creatures")
+      .insert({ owner_id: userId, name: `E2E gpanel ${stamp}`, slug: `e2e-gpanel-${stamp}` })
+      .select("id")
+      .single();
+    expect(creature.error).toBeNull();
+    const creatureId = creature.data!.id;
+    await db.rpc("attest_animal_eligibility", { target_creature: creatureId });
+
+    const listing = await db
+      .from("listings")
+      .insert({
+        seller_id: userId,
+        title: `E2E gpanel listing ${stamp}`,
+        price_cents: 150000,
+        creature_id: creatureId,
+      })
+      .select("id")
+      .single();
+    expect(listing.error).toBeNull();
+    const listingId = listing.data!.id;
+
+    // No guarantee published yet: the listing must SAY so, not stay silent.
+    await page.goto(`/listing/${listingId}`);
+    await expect(page.getByTestId("listing-guarantee-headline")).toHaveText(
+      "No health guarantee",
+      { timeout: 20_000 },
+    );
+
+    await db.from("listing_guarantees").insert({
+      listing_id: listingId,
+      kind: "template",
+      template_key: "health_14d_vet",
+    });
+
+    // What the renderer says, verbatim — not a string this test invented.
+    const { data: rendered } = await db.rpc("guarantee_text_for", {
+      g_kind: "template",
+      g_template_key: "health_14d_vet",
+    });
+    const expected = (rendered as { headline: string; remedy_sentence: string | null }[])[0];
+
+    await page.goto(`/listing/${listingId}`);
+    await expect(page.getByTestId("listing-guarantee-headline")).toHaveText(expected.headline, {
+      timeout: 20_000,
+    });
+    await expect(page.getByTestId("listing-guarantee-remedy")).toHaveText(
+      expected.remedy_sentence!,
+    );
+    // The platform does not vouch for the claim, and says so.
+    await expect(page.getByTestId("listing-guarantee-panel")).toContainText(
+      /does not examine animals/i,
+    );
+
+    await db.from("listings").delete().eq("id", listingId);
+    await db.from("animal_eligibility").delete().eq("creature_id", creatureId);
+    await db.from("creatures").delete().eq("id", creatureId);
+  });
+
   test("listing rejects junk price", async ({ page }) => {
     await page.goto("/compose");
     await page.getByRole("button", { name: /Listing/ }).click();

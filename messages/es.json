@@ -317,7 +317,10 @@
     "galleryCaptionPlaceholder": "Descripción (opcional)",
     "galleryPhotoTypeError": "Solo fotos (JPEG, PNG o WEBP).",
     "galleryLimitReached": "La galería está llena (máximo 10 fotos).",
-    "galleryAddError": "No se pudo agregar la foto. Inténtalo de nuevo."
+    "galleryAddError": "No se pudo agregar la foto. Inténtalo de nuevo.",
+    "guaranteeTitle": "Garantía de salud",
+    "guaranteeDurationDays": "Cubre {days} días",
+    "guaranteeDisclaimer": "Scrlpets no examina animales. Si hay una disputa, comparamos el informe escrito de un veterinario colegiado con los términos publicados arriba."
   },
   "messages": {
     "title": "Mensajes",

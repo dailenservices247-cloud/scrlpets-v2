@@ -317,7 +317,10 @@
     "galleryCaptionPlaceholder": "Caption (optional)",
     "galleryPhotoTypeError": "Photos only (JPEG, PNG, or WEBP).",
     "galleryLimitReached": "Gallery is full (10 photos max).",
-    "galleryAddError": "Couldn't add that photo. Try again."
+    "galleryAddError": "Couldn't add that photo. Try again.",
+    "guaranteeTitle": "Health guarantee",
+    "guaranteeDurationDays": "Covers {days} days",
+    "guaranteeDisclaimer": "Scrlpets does not examine animals. If there is a dispute, we compare a licensed vet's written finding against the seller's published terms above."
   },
   "messages": {
     "title": "Messages",

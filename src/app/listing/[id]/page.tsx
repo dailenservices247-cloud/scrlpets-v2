@@ -7,6 +7,7 @@ import { ProductDetails } from "@/components/marketplace/ProductDetails";
 import { PhotoGallery } from "@/components/listing/PhotoGallery";
 import { PetDetailsPanel } from "@/components/listing/PetDetailsPanel";
 import { ListingVerificationPanel } from "@/components/listing/ListingVerificationPanel";
+import { ListingGuaranteePanel } from "@/components/listing/ListingGuaranteePanel";
 import { AdoptionHealthPanel } from "@/components/adoption/AdoptionHealthPanel";
 import { AdoptionApplicationForm } from "@/components/adoption/AdoptionApplicationForm";
 import { getAdoptionDetail } from "@/lib/adoption/queries";
@@ -91,6 +92,9 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
           hasAnimal={Boolean(creatureId)}
           animalAttested={animalAttested}
         />
+        {/* Animals only: a guarantee on a product listing is noise, and the
+            §4 remedies it names only exist for a live animal. */}
+        {creatureId && <ListingGuaranteePanel listingId={marketplace.id} />}
         <ListingInquiryPanel
           listingId={marketplace.id}
           sellerId={marketplace.sellerId}
