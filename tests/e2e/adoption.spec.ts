@@ -71,26 +71,54 @@ test("a product cannot be listed as an adoption", async () => {
   expect(attempt.error).not.toBeNull();
 });
 
-/** D12 — the fee model is percentage/seller-paid, and the rate is still zero. */
-test("fee model is seller-paid percentage with an unset rate", async () => {
+/**
+ * The fee model, per the 2026-08-10 money-architecture ruling: a cut from the
+ * buyer AND a cut from the seller, the seller's set by their subscription.
+ *
+ * This replaces the D12 assertion that the rate was a single global
+ * `platform_flags.fee_bps` pinned at 0. That flag is deliberately GONE — two
+ * disagreeing fee sources is how legacy ended up charging different rates on
+ * different code paths, so `subscription_tiers` is the only one left.
+ *
+ * The half of the old test that still matters is kept verbatim in intent: a
+ * seller must not be able to rewrite their own fee rate.
+ */
+test("fee rates come from subscription tiers and are not self-writable", async () => {
   const db = databaseClient();
-  const { data } = await db
-    .from("platform_flags")
-    .select("key,value_int")
-    .eq("key", "fee_bps")
-    .single();
-  expect(data!.value_int, "rate stays 0 until Dailen names it").toBe(0);
 
-  // The rate is not client-writable, same as the payments switch.
+  const { data: tiers } = await db
+    .from("subscription_tiers")
+    .select("key,fee_bps")
+    .in("key", ["free", "pro"]);
+  const rate = (k: string) => tiers!.find((t) => t.key === k)!.fee_bps;
+  expect(rate("free"), "free tier is 5%").toBe(500);
+  expect(rate("pro"), "pro tier is 2.5%").toBe(250);
+
+  // One source of truth: the old global rate must not have come back.
+  const { data: staleFlag } = await db
+    .from("platform_flags")
+    .select("key")
+    .eq("key", "fee_bps")
+    .maybeSingle();
+  expect(staleFlag, "the global fee_bps flag is retired").toBeNull();
+
+  // A seller cannot discount themselves.
   await db.auth.signInWithPassword({
     email: SELLER_EMAIL,
     password: process.env.E2E_PASSWORD!,
   });
   const tamper = await db
-    .from("platform_flags")
-    .update({ value_int: 5000 }, { count: "exact" })
-    .eq("key", "fee_bps");
+    .from("subscription_tiers")
+    .update({ fee_bps: 0 }, { count: "exact" })
+    .eq("key", "free");
   expect(tamper.count ?? 0).toBe(0);
+
+  const { data: after } = await db
+    .from("subscription_tiers")
+    .select("fee_bps")
+    .eq("key", "free")
+    .single();
+  expect(after!.fee_bps, "rate survived the tamper attempt").toBe(500);
 });
 
 /** The adoption surface is public and states the gate honestly. */
