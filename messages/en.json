@@ -132,7 +132,16 @@
       "process": "We couldn't prepare that photo for upload. Try a different one."
     },
     "errorSellerUnverified": "Listing an animal needs a verified seller account. Identity checks are not switched on yet, so this is not something you can complete right now — nothing is wrong with what you entered.",
-    "groupPublicNotice": "Group posts are public. Everyone sees them in the main feed too, labelled with the group."
+    "groupPublicNotice": "Group posts are public. Everyone sees them in the main feed too, labelled with the group.",
+    "depositLabel": "Deposit",
+    "depositHelp": "Percent of the price held to reserve this animal. Up to 25%. A buyer who walks away without a stated reason forfeits it to you.",
+    "inspectionLabel": "Inspection window",
+    "inspectionHelp": "Hours the buyer has after handover before funds release to you. At least 24, up to 14 days. You can give more time, never less.",
+    "errorDepositTooLarge": "A deposit can be at most 25% of the price.",
+    "errorDepositInvalid": "Enter the deposit as a percentage, or leave it blank for none.",
+    "errorInspectionTooShort": "The inspection window has to be at least 24 hours.",
+    "errorInspectionTooLong": "The inspection window can be at most 14 days (336 hours).",
+    "errorInspectionInvalid": "Enter the inspection window in whole hours."
   },
   "content": {
     "edit": "Edit",

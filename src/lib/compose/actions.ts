@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import { validatePost, validateListing, parsePriceCents } from "./validation";
+import { validatePost, validateListing, parsePriceCents, parseSaleTerms } from "./validation";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -125,6 +125,11 @@ export async function createListing(
       : parsePriceCents(rawPrice);
   const v = validateListing({ title, priceCents }, { allowFree: listingKind === "adoption" });
   if (!v.ok) return { ok: false, error: v.error };
+  const terms = parseSaleTerms(
+    String(formData.get("depositPercent") ?? ""),
+    String(formData.get("inspectionHours") ?? ""),
+  );
+  if (!terms.ok) return { ok: false, error: terms.error };
   const attribution = await resolveAttribution(supabase, user.id, formData);
   if (!attribution) return { ok: false, error: "brand_denied" };
   // Returns the new row's id (like createCreature already does) so the caller
@@ -141,6 +146,8 @@ export async function createListing(
       description,
       category,
       listing_kind: listingKind,
+      deposit_bps: terms.terms.depositBps,
+      inspection_hours: terms.terms.inspectionHours,
       ...attribution,
     })
     .select("id")

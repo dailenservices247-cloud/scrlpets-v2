@@ -132,7 +132,16 @@
       "process": "No pudimos preparar esa foto para subirla. Prueba con otra."
     },
     "errorSellerUnverified": "Publicar un animal requiere una cuenta de vendedor verificada. La verificación de identidad todavía no está activada, así que esto no es algo que puedas completar ahora — no hay ningún problema con lo que escribiste.",
-    "groupPublicNotice": "Las publicaciones de grupo son públicas. Todos las ven también en el feed principal, con la etiqueta del grupo."
+    "groupPublicNotice": "Las publicaciones de grupo son públicas. Todos las ven también en el feed principal, con la etiqueta del grupo.",
+    "depositLabel": "Depósito",
+    "depositHelp": "Porcentaje del precio retenido para reservar este animal. Hasta el 25%. Si la persona compradora se retira sin motivo declarado, lo pierde a tu favor.",
+    "inspectionLabel": "Ventana de inspección",
+    "inspectionHelp": "Horas que tiene la persona compradora tras la entrega antes de que se liberen los fondos. Mínimo 24, máximo 14 días. Puedes dar más tiempo, nunca menos.",
+    "errorDepositTooLarge": "El depósito puede ser como máximo el 25% del precio.",
+    "errorDepositInvalid": "Introduce el depósito como porcentaje, o déjalo en blanco.",
+    "errorInspectionTooShort": "La ventana de inspección debe ser de al menos 24 horas.",
+    "errorInspectionTooLong": "La ventana de inspección puede ser como máximo 14 días (336 horas).",
+    "errorInspectionInvalid": "Introduce la ventana de inspección en horas enteras."
   },
   "content": {
     "edit": "Editar",

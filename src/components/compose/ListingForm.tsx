@@ -67,6 +67,8 @@ export function ListingForm(props: ListingFormProps) {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [isAdoption, setIsAdoption] = useState(false);
+  const [depositPercent, setDepositPercent] = useState("");
+  const [inspectionHours, setInspectionHours] = useState("");
   const [pendingGalleryPhotos, setPendingGalleryPhotos] = useState<
     { url: string; caption: string }[]
   >([]);
@@ -90,6 +92,8 @@ export function ListingForm(props: ListingFormProps) {
       fd.set("description", description);
       fd.set("category", category);
       if (creatureId && isAdoption) fd.set("listingKind", "adoption");
+      fd.set("depositPercent", depositPercent);
+      fd.set("inspectionHours", inspectionHours);
       applyAttribution(fd, attribution!);
       const created = await createListing(fd);
       createdId = created.ok ? created.id : undefined;
@@ -102,12 +106,25 @@ export function ListingForm(props: ListingFormProps) {
       // that refusal arrives as an RLS error — reported as a form problem, it
       // sent sellers back to re-check fields that were never the issue, forever.
       // The gate is real; the honest thing is to name it.
+      // Each sale-term refusal names itself. Collapsing them into
+      // "required fields are missing" is the same mistake the seller gate
+      // taught: a seller who typed 40% would be told to re-check fields that
+      // were never the problem.
+      const termErrors: Record<string, string> = {
+        deposit_too_large: t("errorDepositTooLarge"),
+        deposit_invalid: t("errorDepositInvalid"),
+        inspection_too_short: t("errorInspectionTooShort"),
+        inspection_too_long: t("errorInspectionTooLong"),
+        inspection_invalid: t("errorInspectionInvalid"),
+      };
       setErr(
         res.error === "price"
           ? t("errorPrice")
-          : isSellerGateError(res.error)
-            ? t("errorSellerUnverified")
-            : t("errorRequired"),
+          : termErrors[res.error ?? ""]
+            ? termErrors[res.error!]
+            : isSellerGateError(res.error)
+              ? t("errorSellerUnverified")
+              : t("errorRequired"),
       );
       return;
     }
@@ -199,6 +216,46 @@ export function ListingForm(props: ListingFormProps) {
             <span className="mt-0.5 block text-xs text-muted-foreground">{t("adoptionHelp")}</span>
           </span>
         </label>
+      )}
+      {!isEditing && creatureId && !isAdoption && (
+        <div className="grid gap-3 rounded-xl border border-input p-3 sm:grid-cols-2" data-testid="sale-terms">
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="font-medium">{t("depositLabel")}</span>
+            <input
+              type="number"
+              min={0}
+              max={25}
+              step="0.5"
+              inputMode="decimal"
+              className="rounded border border-input bg-transparent p-2"
+              value={depositPercent}
+              onChange={(e) => setDepositPercent(e.target.value)}
+              data-testid="listing-deposit"
+              aria-describedby="deposit-help"
+            />
+            <span id="deposit-help" className="text-xs text-muted-foreground">
+              {t("depositHelp")}
+            </span>
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="font-medium">{t("inspectionLabel")}</span>
+            <input
+              type="number"
+              min={24}
+              max={336}
+              step={1}
+              inputMode="numeric"
+              className="rounded border border-input bg-transparent p-2"
+              value={inspectionHours}
+              onChange={(e) => setInspectionHours(e.target.value)}
+              data-testid="listing-inspection-hours"
+              aria-describedby="inspection-help"
+            />
+            <span id="inspection-help" className="text-xs text-muted-foreground">
+              {t("inspectionHelp")}
+            </span>
+          </label>
+        </div>
       )}
       {err && <p className="text-destructive text-sm">{err}</p>}
       <Button type="submit" disabled={busy || disabled} data-testid="listing-submit">

@@ -24,3 +24,43 @@ export function validateListing(
   if (!opts?.allowFree && input.priceCents <= 0) return { ok: false, error: "price" };
   return { ok: true };
 }
+
+export type SaleTerms = { depositBps: number; inspectionHours: number };
+
+/**
+ * The two terms a seller sets on a sale, parsed from the compose form.
+ *
+ * Sellers think in percent and hours; the database stores basis points and
+ * hours. Storing the deposit as a PERCENTAGE rather than an amount is what keeps
+ * the 25% ceiling true when a price changes later — a stored amount quietly
+ * becomes 60% of the price the moment somebody discounts the animal.
+ *
+ * The ceilings are duplicated from the DB check constraints on purpose. The
+ * constraint is the guarantee; this is so a seller gets a sentence they can act
+ * on instead of a Postgres violation.
+ */
+export function parseSaleTerms(
+  rawDepositPercent: string,
+  rawInspectionHours: string,
+): { ok: true; terms: SaleTerms } | { ok: false; error: string } {
+  const depositPercent = rawDepositPercent.trim() === "" ? 0 : Number(rawDepositPercent);
+  if (!Number.isFinite(depositPercent) || depositPercent < 0) {
+    return { ok: false, error: "deposit_invalid" };
+  }
+  // 25%: enough commitment to mean something, small enough that the escrow still
+  // has something left to return if the sale fails.
+  if (depositPercent > 25) return { ok: false, error: "deposit_too_large" };
+
+  const inspectionHours =
+    rawInspectionHours.trim() === "" ? 24 : Math.round(Number(rawInspectionHours));
+  if (!Number.isFinite(inspectionHours)) return { ok: false, error: "inspection_invalid" };
+  // A seller may extend the window, never waive it, and never park funds for
+  // months to look generous.
+  if (inspectionHours < 24) return { ok: false, error: "inspection_too_short" };
+  if (inspectionHours > 336) return { ok: false, error: "inspection_too_long" };
+
+  return {
+    ok: true,
+    terms: { depositBps: Math.round(depositPercent * 100), inspectionHours },
+  };
+}

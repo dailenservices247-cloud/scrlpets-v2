@@ -66,6 +66,47 @@ test.describe("signed in", () => {
     await expect(page.getByText("$123.45").first()).toBeVisible({ timeout: 20_000 });
   });
 
+  /**
+   * The two terms that decide whether the escrow can do its job. They render
+   * only for an ANIMAL sale, because neither means anything on a product — so
+   * the listing specs above, which never attach an animal, cannot see them.
+   *
+   * Scope note: this asserts the CONTROLS, not a completed animal sale.
+   * Publishing an animal listing additionally requires an attested animal (see
+   * trust-core.spec.ts, which sets that up deliberately), and duplicating that
+   * setup here would test the attestation gate a third time rather than these
+   * fields. Persistence and the ceilings are covered by
+   * supabase/probes/deposit_and_window.probe.sql and tests/unit/sale-terms.test.ts.
+   */
+  test("animal sale exposes deposit and inspection-window controls, bounded", async ({ page }) => {
+    await page.goto("/compose");
+    await page.getByRole("button", { name: /Listing/ }).click();
+    await page.getByTestId("listing-title").fill(`E2E terms ${Date.now()}`);
+    await page.getByTestId("listing-price").fill("2000.00");
+
+    // No animal attached: neither term is on screen at all.
+    await expect(page.getByTestId("sale-terms")).toHaveCount(0);
+
+    await page.getByTestId("creature-picker").selectOption({ index: 1 });
+    await expect(page.getByTestId("sale-terms")).toBeVisible();
+
+    // The ceilings are enforced by the browser before a round trip, and again by
+    // a CHECK constraint in the database. These attributes are the first of the
+    // two — a seller typing 40 is stopped where they are standing.
+    const deposit = page.getByTestId("listing-deposit");
+    await expect(deposit).toHaveAttribute("max", "25");
+    await expect(deposit).toHaveAttribute("min", "0");
+
+    const window_ = page.getByTestId("listing-inspection-hours");
+    await expect(window_).toHaveAttribute("min", "24");
+    await expect(window_).toHaveAttribute("max", "336");
+
+    // Both are optional: a seller who sets nothing gets no deposit and the 24h
+    // floor, which is what create_order writes.
+    await expect(deposit).toHaveValue("");
+    await expect(window_).toHaveValue("");
+  });
+
   test("listing rejects junk price", async ({ page }) => {
     await page.goto("/compose");
     await page.getByRole("button", { name: /Listing/ }).click();
