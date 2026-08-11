@@ -40,6 +40,7 @@ export async function advanceOrder(
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/applications");
+  revalidatePath("/admin");
   return { ok: true };
 }
 
@@ -59,6 +60,7 @@ export async function markDispatched(orderId: string, note?: string): Promise<Or
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/applications");
+  revalidatePath("/admin");
   return { ok: true };
 }
 
@@ -81,6 +83,7 @@ export async function confirmHandover(
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/applications");
+  revalidatePath("/admin");
   return { ok: true };
 }
 
@@ -90,6 +93,7 @@ export async function acceptDelivery(orderId: string): Promise<OrderResult> {
   const { error } = await supabase.rpc("accept_delivery", { target_order: orderId });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/applications");
+  revalidatePath("/admin");
   return { ok: true };
 }
 
@@ -99,6 +103,7 @@ export async function disputeOrder(orderId: string, reason: string): Promise<Ord
   const { error } = await supabase.rpc("dispute_order", { target_order: orderId, reason });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/applications");
+  revalidatePath("/admin");
   return { ok: true };
 }
 
@@ -112,7 +117,13 @@ export type SettlementBranch =
   | "no_show_buyer"
   | "no_show_seller"
   | "wrong_animal"
-  | "guarantee_upheld"
+  // §4 remedies, named as real guarantees name them. `guarantee_upheld` is gone
+  // deliberately: it refunded everything unconditionally, which is the one
+  // remedy no real contract offers and the shape that let a buyer keep both the
+  // animal and the money.
+  | "guarantee_vet_costs"
+  | "guarantee_replacement"
+  | "guarantee_refund_on_return"
   | "guarantee_not_covered"
   | "guarantee_ambiguous"
   | "seller_refund";
@@ -121,14 +132,18 @@ export async function settleOrder(
   orderId: string,
   branch: SettlementBranch,
   note?: string,
+  /** Vet costs to reimburse, in cents. Only read for `guarantee_vet_costs`. */
+  remedyCents?: number,
 ): Promise<OrderResult> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("settle_order", {
     target_order: orderId,
     branch,
     note: note ?? null,
+    remedy: remedyCents ?? null,
   });
   if (error) return { ok: false, error: error.message };
   revalidatePath("/applications");
+  revalidatePath("/admin");
   return { ok: true };
 }

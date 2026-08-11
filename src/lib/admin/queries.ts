@@ -230,3 +230,83 @@ export async function getModerationLog(): Promise<ModerationLogRow[]> {
     createdAt: r.created_at,
   }));
 }
+
+export type DisputeRow = {
+  orderId: string;
+  buyerUsername: string | null;
+  sellerUsername: string | null;
+  titleSnapshot: string | null;
+  fulfilment: "in_person" | "transported" | "shipped";
+  amountCents: number;
+  depositCents: number;
+  transportCents: number;
+  pickedUpAt: string | null;
+  handoverAt: string | null;
+  deliveredAt: string | null;
+  animalReturnedAt: string | null;
+  carrier: string | null;
+  trackingNumber: string | null;
+  anchorVerified: boolean;
+  guaranteeBranch: string | null;
+  guaranteeHeadline: string | null;
+  disputeReason: string | null;
+  createdAt: string;
+};
+
+/**
+ * Orders waiting on the adjudicator, with their evidence.
+ *
+ * Read through a definer rather than the table: `orders` RLS is buyer-or-seller
+ * only, so an admin can DECIDE an order (settle_order checks is_platform_admin)
+ * but could not READ one. A verdict button with no case file behind it.
+ *
+ * The same fields are the chargeback representment package — timestamped
+ * handover, anchor scan, tracking, delivery, and the seller's own published
+ * remedy — which is why they come out of one query rather than being assembled
+ * per surface.
+ */
+export async function getDisputeQueue(): Promise<DisputeRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("admin_dispute_queue");
+  return ((data ?? []) as {
+    order_id: string;
+    buyer_username: string | null;
+    seller_username: string | null;
+    title_snapshot: string | null;
+    fulfilment: DisputeRow["fulfilment"];
+    amount_cents: number;
+    deposit_cents: number;
+    transport_cents: number;
+    picked_up_at: string | null;
+    handover_at: string | null;
+    delivered_at: string | null;
+    animal_returned_at: string | null;
+    carrier: string | null;
+    tracking_number: string | null;
+    anchor_verified: boolean;
+    guarantee_branch: string | null;
+    guarantee_headline: string | null;
+    dispute_reason: string | null;
+    created_at: string;
+  }[]).map((r) => ({
+    orderId: r.order_id,
+    buyerUsername: r.buyer_username,
+    sellerUsername: r.seller_username,
+    titleSnapshot: r.title_snapshot,
+    fulfilment: r.fulfilment,
+    amountCents: r.amount_cents,
+    depositCents: r.deposit_cents,
+    transportCents: r.transport_cents,
+    pickedUpAt: r.picked_up_at,
+    handoverAt: r.handover_at,
+    deliveredAt: r.delivered_at,
+    animalReturnedAt: r.animal_returned_at,
+    carrier: r.carrier,
+    trackingNumber: r.tracking_number,
+    anchorVerified: r.anchor_verified,
+    guaranteeBranch: r.guarantee_branch,
+    guaranteeHeadline: r.guarantee_headline,
+    disputeReason: r.dispute_reason,
+    createdAt: r.created_at,
+  }));
+}

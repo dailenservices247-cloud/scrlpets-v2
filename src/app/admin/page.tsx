@@ -8,9 +8,11 @@ import {
   getModerationLog,
   getOpenTickets,
   getRedemptionQueue,
+  getDisputeQueue,
   getSuspendedAccounts,
 } from "@/lib/admin/queries";
 import { ProgramReviewQueue } from "@/components/admin/ProgramReviewQueue";
+import { DisputeQueue } from "@/components/admin/DisputeQueue";
 import { ReportQueue } from "@/components/admin/ReportQueue";
 import { GuideApprovalQueue } from "@/components/admin/GuideApprovalQueue";
 import { SuspensionPanel } from "@/components/admin/SuspensionPanel";
@@ -23,12 +25,14 @@ import { ModerationLog } from "@/components/admin/ModerationLog";
 export default async function AdminPage() {
   const t = await getTranslations("admin");
   if (!(await isPlatformAdmin())) notFound();
-  const [programs, reports, drafts, tickets, redemptions, suspended, log] = await Promise.all([
+  const [programs, reports, drafts, tickets, redemptions, disputes, suspended, log] =
+    await Promise.all([
     getPendingPrograms(),
     getOpenReports(),
     getDraftGuides(),
     getOpenTickets(),
     getRedemptionQueue(),
+    getDisputeQueue(),
     getSuspendedAccounts(),
     getModerationLog(),
   ]);
@@ -40,7 +44,11 @@ export default async function AdminPage() {
         <p className="mt-1 text-xs text-muted-foreground">{t("subtitle")}</p>
       </header>
       <div className="px-3 pb-6">
-        <h2 className="pb-2 text-sm font-semibold">{t("reportsHeading")}</h2>
+        {/* First on the page on purpose: a dispute is the only queue where
+            money is held and two people are waiting on one person to decide. */}
+        <h2 className="pb-2 text-sm font-semibold">{t("disputesHeading")}</h2>
+        <DisputeQueue disputes={disputes} />
+        <h2 className="pb-2 pt-6 text-sm font-semibold">{t("reportsHeading")}</h2>
         <ReportQueue reports={reports} />
         <h2 className="pb-2 pt-6 text-sm font-semibold">{t("ticketsHeading")}</h2>
         <SupportTicketQueue tickets={tickets} />

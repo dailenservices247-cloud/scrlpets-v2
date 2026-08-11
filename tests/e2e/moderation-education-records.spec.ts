@@ -166,6 +166,9 @@ test("admin surface renders reports, programs and guide drafts", async ({ page }
   });
   // Each queue renders either its list or its empty state — never nothing.
   for (const [list, empty] of [
+    // Disputes are first on the page: money is held and two people are waiting
+    // on one person. A queue that renders NOTHING would hide that entirely.
+    ["dispute-queue", "dispute-queue-empty"],
     ["report-queue", "report-queue-empty"],
     ["admin-queue", "admin-queue-empty"],
     ["guide-queue", "guide-queue-empty"],
