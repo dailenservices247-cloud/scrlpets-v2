@@ -7,10 +7,10 @@ create temp table probe_out (msg text) on commit drop;
 
 do $probe$
 declare
-  seller   uuid := '00000000-0000-0000-0000-000000000001';
-  buyer    uuid := '00000000-0000-0000-0000-000000000011';
+  seller   uuid := '00000000-0000-0000-0000-000000000011';
+  buyer    uuid := '00000000-0000-0000-0000-000000000001';
   hauler   uuid;
-  creature uuid := '00000000-0000-0000-0000-0000000000c3';
+  creature uuid := '68cd1574-966d-43f7-a212-0d5fa0ec1f9c';
   lst      uuid;
   ord      uuid;
   code     text;
@@ -22,6 +22,11 @@ begin
 
   perform set_config('role', 'postgres', true);
   update public.platform_flags set enabled = true where key = 'payments_enabled';
+  -- Guard: every anchor assertion below is SKIPPED by design when the animal has
+  -- no anchor registered, so an unanchored fixture would make them all vacuous.
+  if not exists (select 1 from public.creatures where id = creature and anchor_value is not null) then
+    raise exception 'PROBE INVALID: fixture creature has no anchor — anchor assertions would be vacuous';
+  end if;
   insert into public.listings (seller_id, title, price_cents, creature_id, availability)
   values (seller, 'PROBE fulfilment', 50000, creature, 'available') returning id into lst;
 
