@@ -56,7 +56,7 @@ describe("stripe-identity webhook livemode guard", () => {
 
   it("refuses a correctly-signed TEST-mode event in production, and writes nothing", async () => {
     process.env.VERCEL_ENV = "production";
-    const { POST } = await import("@/app/api/webhooks/stripe-identity/route");
+    const { POST } = await import("@/app/api/webhooks/stripe/route");
 
     const res = await POST(signed(event(false)));
 
@@ -68,7 +68,7 @@ describe("stripe-identity webhook livemode guard", () => {
 
   it("accepts a live event in production", async () => {
     process.env.VERCEL_ENV = "production";
-    const { POST } = await import("@/app/api/webhooks/stripe-identity/route");
+    const { POST } = await import("@/app/api/webhooks/stripe/route");
 
     const res = await POST(signed(event(true)));
 
@@ -80,7 +80,7 @@ describe("stripe-identity webhook livemode guard", () => {
 
   it("still accepts test-mode events outside production, or preview and local are useless", async () => {
     process.env.VERCEL_ENV = "preview";
-    const { POST } = await import("@/app/api/webhooks/stripe-identity/route");
+    const { POST } = await import("@/app/api/webhooks/stripe/route");
 
     const res = await POST(signed(event(false)));
 
