@@ -94,7 +94,11 @@ export function PostForm(props: PostFormProps) {
       // A group post lives on the group timeline — land where it landed.
       router.push(chosenGroup ? `/groups/${chosenGroup.slug}` : "/");
     }
-    router.refresh();
+    // Same race as ListingForm: a refresh in the same tick as a push cancels the
+    // navigation, leaving the form up with the save already written. It has not
+    // bitten here yet because these targets render fast, which is exactly why it
+    // is worth removing before one of them does not.
+
   }
 
   return (

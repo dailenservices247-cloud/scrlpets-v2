@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  listGuaranteeTemplates,
-  previewGuarantee,
-  type GuaranteeTemplate,
+  getGuaranteePreviewCatalog,
+  type GuaranteePreviewCatalog,
   type GuaranteeText,
 } from "@/lib/guarantees/queries";
 
@@ -44,47 +43,40 @@ export function GuaranteePicker({
   onChange: (next: GuaranteeChoice) => void;
 }) {
   const t = useTranslations("compose");
-  const [preview, setPreview] = useState<GuaranteeText | null>(null);
-  // Loaded here rather than threaded through the composer's prop chain: it is
-  // one list, needed by one control, and three hops of props to deliver it is
-  // three places to keep in step.
-  const [templates, setTemplates] = useState<GuaranteeTemplate[]>([]);
+  // ONE fetch, on mount. A server action per change queued behind the
+  // navigation that follows Save — the save applied and the page did not move.
+  const [catalog, setCatalog] = useState<GuaranteePreviewCatalog | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    listGuaranteeTemplates().then((rows) => {
-      if (!cancelled) setTemplates(rows);
+    getGuaranteePreviewCatalog().then((c) => {
+      if (!cancelled) setCatalog(c);
     });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // Custom terms with nothing typed yet would render an empty promise. Derived
-  // rather than pushed into state from inside the effect, which cascades renders.
-  const hasSomethingToShow = !(value.kind === "custom" && value.customTerms.trim() === "");
+  const templates = catalog ? Object.entries(catalog.byTemplate) : [];
 
-  useEffect(() => {
-    if (!hasSomethingToShow) return;
-    let cancelled = false;
-    const timer = setTimeout(async () => {
-      const next = await previewGuarantee({
-        kind: value.kind,
-        templateKey: value.kind === "template" ? value.templateKey : null,
-        customTerms: value.kind === "custom" ? value.customTerms : null,
-        customRemedy: value.kind === "custom" ? value.customRemedy : null,
-        customDurationDays:
-          value.kind === "custom" && value.customDurationDays !== ""
-            ? Number(value.customDurationDays)
-            : null,
-      });
-      if (!cancelled) setPreview(next);
-    }, 250);
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [value, hasSomethingToShow]);
+  // Derived, not fetched. The words are still the database's; only the choice of
+  // which pre-rendered text to show happens here.
+  let preview: GuaranteeText | null = null;
+  if (catalog) {
+    if (value.kind === "none") preview = catalog.none;
+    else if (value.kind === "template" && value.templateKey)
+      preview = catalog.byTemplate[value.templateKey] ?? null;
+    else if (value.kind === "custom" && value.customTerms.trim() !== "")
+      preview = {
+        kind: "custom",
+        headline: catalog.customHeadline,
+        body: value.customTerms,
+        remedy: value.customRemedy,
+        remedySentence: catalog.remedySentences[value.customRemedy],
+        durationDays: value.customDurationDays === "" ? null : Number(value.customDurationDays),
+        conditions: [],
+      };
+  }
 
   const set = (patch: Partial<GuaranteeChoice>) => onChange({ ...value, ...patch });
 
@@ -111,7 +103,7 @@ export function GuaranteePicker({
             type="radio"
             name="guaranteeKind"
             checked={value.kind === "template"}
-            onChange={() => set({ kind: "template", templateKey: templates[0]?.key ?? null })}
+            onChange={() => set({ kind: "template", templateKey: templates[0]?.[0] ?? null })}
             data-testid="guarantee-kind-template"
             className="mt-1"
           />
@@ -126,9 +118,9 @@ export function GuaranteePicker({
             data-testid="guarantee-template-select"
             aria-label={t("guaranteeTemplate")}
           >
-            {templates.map((tpl) => (
-              <option key={tpl.key} value={tpl.key}>
-                {tpl.name}
+            {templates.map(([key, text]) => (
+              <option key={key} value={key}>
+                {text.headline}
               </option>
             ))}
           </select>
@@ -192,7 +184,7 @@ export function GuaranteePicker({
         )}
       </div>
 
-      {hasSomethingToShow && preview && (
+      {preview && (
         <div className="mt-3 rounded-lg border border-border/70 bg-muted/20 p-3" data-testid="guarantee-preview">
           <p className="eyebrow mb-1 text-xs uppercase tracking-wide text-muted-foreground">
             {t("guaranteePreviewLabel")}

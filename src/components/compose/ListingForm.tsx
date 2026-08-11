@@ -45,6 +45,10 @@ type ListingFormProps =
         price: string;
         mediaUrl: string | null;
         returnPath: string;
+        hasAnimal: boolean;
+        depositPercent: string;
+        inspectionHours: string;
+        guarantee: GuaranteeChoice;
       };
       creatures?: never;
       attribution?: never;
@@ -68,9 +72,9 @@ export function ListingForm(props: ListingFormProps) {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [isAdoption, setIsAdoption] = useState(false);
-  const [depositPercent, setDepositPercent] = useState("");
-  const [inspectionHours, setInspectionHours] = useState("");
-  const [guarantee, setGuarantee] = useState<GuaranteeChoice>(EMPTY_GUARANTEE);
+  const [depositPercent, setDepositPercent] = useState(edit?.depositPercent ?? "");
+  const [inspectionHours, setInspectionHours] = useState(edit?.inspectionHours ?? "");
+  const [guarantee, setGuarantee] = useState<GuaranteeChoice>(edit?.guarantee ?? EMPTY_GUARANTEE);
   const [pendingGalleryPhotos, setPendingGalleryPhotos] = useState<
     { url: string; caption: string }[]
   >([]);
@@ -88,6 +92,17 @@ export function ListingForm(props: ListingFormProps) {
     let res;
     let createdId: string | undefined;
     if (edit) {
+      if (edit.hasAnimal) {
+        fd.set("depositPercent", depositPercent);
+        fd.set("inspectionHours", inspectionHours);
+        fd.set("guaranteeKind", guarantee.kind);
+        if (guarantee.kind === "template") fd.set("guaranteeTemplate", guarantee.templateKey ?? "");
+        if (guarantee.kind === "custom") {
+          fd.set("guaranteeCustomTerms", guarantee.customTerms);
+          fd.set("guaranteeCustomRemedy", guarantee.customRemedy);
+          fd.set("guaranteeCustomDuration", guarantee.customDurationDays);
+        }
+      }
       res = await editListing(edit.id, fd);
     } else {
       if (creatureId) fd.set("creatureId", creatureId);
@@ -148,7 +163,12 @@ export function ListingForm(props: ListingFormProps) {
       capture("listing_created", { has_media: !!mediaUrl, has_creature: !!creatureId });
       router.push("/");
     }
-    router.refresh();
+    // No router.refresh() here. Both branches NAVIGATE, and a refresh issued in
+    // the same tick cancels the pending push — the form simply sat on /edit with
+    // the save already written, no error and no movement. It was a live race the
+    // whole time and only started losing when the listing page grew a guarantee
+    // panel and got slower to render. push() already fetches the target fresh,
+    // and the server action's revalidatePath handles the cache.
   }
 
   return (
@@ -227,7 +247,7 @@ export function ListingForm(props: ListingFormProps) {
           </span>
         </label>
       )}
-      {!isEditing && creatureId && !isAdoption && (
+      {((!isEditing && creatureId && !isAdoption) || (isEditing && edit?.hasAnimal)) && (
         <div className="grid gap-3 rounded-xl border border-input p-3 sm:grid-cols-2" data-testid="sale-terms">
           <label className="flex flex-col gap-1 text-sm">
             <span className="font-medium">{t("depositLabel")}</span>
@@ -267,7 +287,7 @@ export function ListingForm(props: ListingFormProps) {
           </label>
         </div>
       )}
-      {!isEditing && creatureId && !isAdoption && (
+      {((!isEditing && creatureId && !isAdoption) || (isEditing && edit?.hasAnimal)) && (
         <GuaranteePicker value={guarantee} onChange={setGuarantee} />
       )}
       {err && <p className="text-destructive text-sm">{err}</p>}

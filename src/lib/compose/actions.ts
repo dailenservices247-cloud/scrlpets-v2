@@ -248,17 +248,75 @@ export async function editListing(listingId: string, formData: FormData): Promis
   const v = validateListing({ title, priceCents }, { allowFree: isAdoption });
   if (!v.ok) return { ok: false, error: v.error };
 
+  // Sale terms are only submitted for an animal listing; a product listing sends
+  // nothing and must keep whatever it had rather than being reset to defaults.
+  const editsTerms = formData.has("depositPercent");
+  const terms = editsTerms
+    ? parseSaleTerms(
+        String(formData.get("depositPercent") ?? ""),
+        String(formData.get("inspectionHours") ?? ""),
+      )
+    : null;
+  if (terms && !terms.ok) return { ok: false, error: terms.error };
+
+  const editsGuarantee = formData.has("guaranteeKind");
+  const guarantee = editsGuarantee
+    ? parseGuarantee(
+        String(formData.get("guaranteeKind") ?? ""),
+        String(formData.get("guaranteeTemplate") ?? ""),
+        String(formData.get("guaranteeCustomTerms") ?? ""),
+        String(formData.get("guaranteeCustomRemedy") ?? ""),
+        String(formData.get("guaranteeCustomDuration") ?? ""),
+      )
+    : null;
+  if (guarantee && !guarantee.ok) return { ok: false, error: guarantee.error };
+
   const { count, error } = await supabase
     .from("listings")
     .update({
       title: title.trim(),
       price_cents: priceCents!,
       media_url: mediaUrl,
+      ...(terms?.ok
+        ? {
+            deposit_bps: terms.terms.depositBps,
+            inspection_hours: terms.terms.inspectionHours,
+          }
+        : {}),
     }, { count: "exact" })
     .eq("id", listingId)
     .is("deleted_at", null);
   if (error) return { ok: false, error: error.message };
   if (count !== 1) return { ok: false, error: "not_found" };
+
+  /**
+   * Changing the guarantee changes it for FUTURE buyers only. Orders freeze
+   * their own terms at creation, so a sale already underway keeps the promise it
+   * was struck under — a seller cannot quietly weaken a guarantee somebody has
+   * already relied on.
+   *
+   * Deleting on "none" rather than storing a none-row: an absent row already
+   * renders the explicit no-guarantee text, and two representations of the same
+   * state is how they drift apart.
+   */
+  if (guarantee?.ok) {
+    const g = guarantee.guarantee;
+    if (g.kind === "none") {
+      await supabase.from("listing_guarantees").delete().eq("listing_id", listingId);
+    } else {
+      await supabase.from("listing_guarantees").upsert(
+        {
+          listing_id: listingId,
+          kind: g.kind,
+          template_key: g.kind === "template" ? g.templateKey : null,
+          custom_terms: g.kind === "custom" ? g.customTerms : null,
+          custom_remedy: g.kind === "custom" ? g.customRemedy : null,
+          custom_duration_days: g.kind === "custom" ? g.customDurationDays : null,
+        },
+        { onConflict: "listing_id" },
+      );
+    }
+  }
 
   revalidatePath("/");
   revalidatePath(`/listing/${listingId}`);

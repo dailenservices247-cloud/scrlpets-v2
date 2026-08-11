@@ -118,6 +118,10 @@ export async function ContentEditShell({
                 price: content.price,
                 mediaUrl: content.mediaUrl,
                 returnPath,
+                hasAnimal: content.hasAnimal,
+                depositPercent: content.depositPercent,
+                inspectionHours: content.inspectionHours,
+                guarantee: content.guarantee,
               }}
             />
           )}

@@ -230,6 +230,74 @@ test.describe("signed in", () => {
     await db.from("creatures").delete().eq("id", creatureId);
   });
 
+  /**
+   * The terms were create-only: a seller published a deposit, a window and a
+   * guarantee and could never change any of them again. Editing is safe because
+   * orders freeze their own copy at creation, so a live sale keeps the deal it
+   * was struck under.
+   */
+  test("published sale terms and guarantee can be edited afterwards", async ({ page }) => {
+    const { db, userId } = await signInCached(SELLER_EMAIL);
+    const stamp = Date.now();
+
+    const creature = await db
+      .from("creatures")
+      .insert({ owner_id: userId, name: `E2E edit terms ${stamp}`, slug: `e2e-editterms-${stamp}` })
+      .select("id")
+      .single();
+    const creatureId = creature.data!.id;
+    await db.rpc("attest_animal_eligibility", { target_creature: creatureId });
+
+    const listing = await db
+      .from("listings")
+      .insert({
+        seller_id: userId,
+        title: `E2E edit terms listing ${stamp}`,
+        price_cents: 100000,
+        creature_id: creatureId,
+        deposit_bps: 1000,
+        inspection_hours: 48,
+      })
+      .select("id")
+      .single();
+    const listingId = listing.data!.id;
+    await db
+      .from("listing_guarantees")
+      .insert({ listing_id: listingId, kind: "template", template_key: "health_14d_vet" });
+
+    await page.goto(`/listing/${listingId}/edit`);
+    // Opens on what was actually published — not blank, which would invite a
+    // seller to "keep" terms by leaving fields empty and silently reset them.
+    await expect(page.getByTestId("listing-deposit")).toHaveValue("10", { timeout: 20_000 });
+    await expect(page.getByTestId("listing-inspection-hours")).toHaveValue("48");
+    await expect(page.getByTestId("guarantee-kind-template")).toBeChecked();
+
+    await page.getByTestId("listing-deposit").fill("15");
+    await page.getByTestId("listing-inspection-hours").fill("96");
+    await page.getByTestId("guarantee-template-select").selectOption("congenital_1y_replace");
+    await page.getByTestId("listing-submit").click();
+    await expect(page).toHaveURL(new RegExp(`/listing/${listingId}$`), { timeout: 20_000 });
+
+    const { data: after } = await db
+      .from("listings")
+      .select("deposit_bps,inspection_hours")
+      .eq("id", listingId)
+      .single();
+    expect(after!.deposit_bps).toBe(1500);
+    expect(after!.inspection_hours).toBe(96);
+
+    const { data: g } = await db
+      .from("listing_guarantees")
+      .select("template_key")
+      .eq("listing_id", listingId)
+      .single();
+    expect(g!.template_key).toBe("congenital_1y_replace");
+
+    await db.from("listings").delete().eq("id", listingId);
+    await db.from("animal_eligibility").delete().eq("creature_id", creatureId);
+    await db.from("creatures").delete().eq("id", creatureId);
+  });
+
   test("listing rejects junk price", async ({ page }) => {
     await page.goto("/compose");
     await page.getByRole("button", { name: /Listing/ }).click();

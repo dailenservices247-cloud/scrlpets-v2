@@ -25,6 +25,17 @@ export type EditableListing = {
   price: string;
   mediaUrl: string | null;
   attribution: LockedAttribution;
+  /** Null for a product listing — neither term means anything without an animal. */
+  hasAnimal: boolean;
+  depositPercent: string;
+  inspectionHours: string;
+  guarantee: {
+    kind: "none" | "template" | "custom";
+    templateKey: string | null;
+    customTerms: string;
+    customRemedy: "vet_costs" | "replacement" | "refund_on_return";
+    customDurationDays: string;
+  };
 };
 
 type AttributionRow = {
@@ -105,7 +116,7 @@ export async function getEditableListing(
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id,seller_id,title,price_cents,media_url,creature_id,posting_as_type,brand_id,about_type,about_id,deleted_at",
+      "id,seller_id,title,price_cents,media_url,creature_id,posting_as_type,brand_id,about_type,about_id,deleted_at,deposit_bps,inspection_hours",
     )
     .eq("id", listingId)
     .is("deleted_at", null)
@@ -118,6 +129,22 @@ export async function getEditableListing(
       : null;
   if (data.seller_id !== viewerId && !canManageBrandContent(role)) return null;
 
+  // Loaded so the edit form opens on what the seller actually published. A form
+  // that opens blank invites a seller to "keep" terms by leaving fields empty,
+  // and empty means no deposit and the 24h floor — silently rewriting the deal.
+  const { data: g } = await supabase
+    .from("listing_guarantees")
+    .select("kind,template_key,custom_terms,custom_remedy,custom_duration_days")
+    .eq("listing_id", listingId)
+    .maybeSingle();
+  const guaranteeRow = g as {
+    kind: "none" | "template" | "custom";
+    template_key: string | null;
+    custom_terms: string | null;
+    custom_remedy: "vet_costs" | "replacement" | "refund_on_return" | null;
+    custom_duration_days: number | null;
+  } | null;
+
   return {
     kind: "listing",
     id: data.id,
@@ -125,5 +152,17 @@ export async function getEditableListing(
     price: (data.price_cents / 100).toFixed(2),
     mediaUrl: data.media_url,
     attribution: await resolveAttribution(data, data.creature_id),
+    hasAnimal: Boolean(data.creature_id),
+    depositPercent: data.deposit_bps ? String(data.deposit_bps / 100) : "",
+    inspectionHours: data.inspection_hours ? String(data.inspection_hours) : "",
+    guarantee: {
+      kind: guaranteeRow?.kind ?? "none",
+      templateKey: guaranteeRow?.template_key ?? null,
+      customTerms: guaranteeRow?.custom_terms ?? "",
+      customRemedy: guaranteeRow?.custom_remedy ?? "vet_costs",
+      customDurationDays: guaranteeRow?.custom_duration_days
+        ? String(guaranteeRow.custom_duration_days)
+        : "",
+    },
   };
 }
