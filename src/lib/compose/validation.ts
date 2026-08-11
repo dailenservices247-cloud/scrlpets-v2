@@ -64,3 +64,62 @@ export function parseSaleTerms(
     terms: { depositBps: Math.round(depositPercent * 100), inspectionHours },
   };
 }
+
+export type GuaranteeInput =
+  | { kind: "none" }
+  | { kind: "template"; templateKey: string }
+  | {
+      kind: "custom";
+      customTerms: string;
+      customRemedy: "vet_costs" | "replacement" | "refund_on_return";
+      customDurationDays: number;
+    };
+
+const REMEDIES = ["vet_costs", "replacement", "refund_on_return"] as const;
+
+/**
+ * Mirrors the one-governing-document CHECK on listing_guarantees.
+ *
+ * The constraint is the guarantee; this exists so an incomplete promise comes
+ * back as a sentence a seller can act on rather than a Postgres violation. It
+ * refuses the same shapes the database refuses — a template with no template, a
+ * custom promise with no remedy — because those are precisely the ambiguity that
+ * contra proferentem would later resolve against the seller.
+ */
+export function parseGuarantee(
+  kind: string,
+  templateKey: string,
+  customTerms: string,
+  customRemedy: string,
+  customDurationDays: string,
+): { ok: true; guarantee: GuaranteeInput } | { ok: false; error: string } {
+  if (kind === "" || kind === "none") return { ok: true, guarantee: { kind: "none" } };
+
+  if (kind === "template") {
+    if (!templateKey.trim()) return { ok: false, error: "guarantee_incomplete" };
+    return { ok: true, guarantee: { kind: "template", templateKey: templateKey.trim() } };
+  }
+
+  if (kind === "custom") {
+    const terms = customTerms.trim();
+    const days = Math.round(Number(customDurationDays));
+    if (!terms) return { ok: false, error: "guarantee_incomplete" };
+    if (!(REMEDIES as readonly string[]).includes(customRemedy)) {
+      return { ok: false, error: "guarantee_incomplete" };
+    }
+    // Coverage with no duration is coverage that never ends or never starts,
+    // depending on who is reading it. That IS the ambiguity.
+    if (!Number.isFinite(days) || days < 1) return { ok: false, error: "guarantee_incomplete" };
+    return {
+      ok: true,
+      guarantee: {
+        kind: "custom",
+        customTerms: terms,
+        customRemedy: customRemedy as GuaranteeInput extends { customRemedy: infer R } ? R : never,
+        customDurationDays: days,
+      },
+    };
+  }
+
+  return { ok: false, error: "guarantee_incomplete" };
+}

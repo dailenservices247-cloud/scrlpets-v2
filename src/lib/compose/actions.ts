@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import { validatePost, validateListing, parsePriceCents, parseSaleTerms } from "./validation";
+import { validatePost, validateListing, parsePriceCents, parseSaleTerms, parseGuarantee } from "./validation";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -130,6 +130,14 @@ export async function createListing(
     String(formData.get("inspectionHours") ?? ""),
   );
   if (!terms.ok) return { ok: false, error: terms.error };
+  const guarantee = parseGuarantee(
+    String(formData.get("guaranteeKind") ?? ""),
+    String(formData.get("guaranteeTemplate") ?? ""),
+    String(formData.get("guaranteeCustomTerms") ?? ""),
+    String(formData.get("guaranteeCustomRemedy") ?? ""),
+    String(formData.get("guaranteeCustomDuration") ?? ""),
+  );
+  if (!guarantee.ok) return { ok: false, error: guarantee.error };
   const attribution = await resolveAttribution(supabase, user.id, formData);
   if (!attribution) return { ok: false, error: "brand_denied" };
   // Returns the new row's id (like createCreature already does) so the caller
@@ -153,6 +161,22 @@ export async function createListing(
     .select("id")
     .single();
   if (error) return { ok: false, error: error.message };
+
+  // Written after the listing exists, because the row is keyed by listing_id.
+  // Only for animal listings: a guarantee on a bag of feed is meaningless, and
+  // an absent row already renders as an explicit "No health guarantee".
+  if (creatureId && guarantee.guarantee.kind !== "none") {
+    const g = guarantee.guarantee;
+    await supabase.from("listing_guarantees").insert({
+      listing_id: data.id as string,
+      kind: g.kind,
+      template_key: g.kind === "template" ? g.templateKey : null,
+      custom_terms: g.kind === "custom" ? g.customTerms : null,
+      custom_remedy: g.kind === "custom" ? g.customRemedy : null,
+      custom_duration_days: g.kind === "custom" ? g.customDurationDays : null,
+    });
+  }
+
   revalidatePath("/");
   return { ok: true, id: data.id as string };
 }

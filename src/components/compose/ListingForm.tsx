@@ -7,6 +7,7 @@ import { applyAttribution } from "./attribution";
 import type { ComposeAttribution } from "./ComposerTabs";
 import { MediaInput } from "./MediaInput";
 import { CreaturePicker } from "./CreaturePicker";
+import { GuaranteePicker, EMPTY_GUARANTEE, type GuaranteeChoice } from "./GuaranteePicker";
 import { GalleryPhotosEditor } from "@/components/listing/GalleryPhotosEditor";
 import { addListingPhotos } from "@/lib/listings/actions";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,7 @@ export function ListingForm(props: ListingFormProps) {
   const [isAdoption, setIsAdoption] = useState(false);
   const [depositPercent, setDepositPercent] = useState("");
   const [inspectionHours, setInspectionHours] = useState("");
+  const [guarantee, setGuarantee] = useState<GuaranteeChoice>(EMPTY_GUARANTEE);
   const [pendingGalleryPhotos, setPendingGalleryPhotos] = useState<
     { url: string; caption: string }[]
   >([]);
@@ -94,6 +96,13 @@ export function ListingForm(props: ListingFormProps) {
       if (creatureId && isAdoption) fd.set("listingKind", "adoption");
       fd.set("depositPercent", depositPercent);
       fd.set("inspectionHours", inspectionHours);
+      fd.set("guaranteeKind", guarantee.kind);
+      if (guarantee.kind === "template") fd.set("guaranteeTemplate", guarantee.templateKey ?? "");
+      if (guarantee.kind === "custom") {
+        fd.set("guaranteeCustomTerms", guarantee.customTerms);
+        fd.set("guaranteeCustomRemedy", guarantee.customRemedy);
+        fd.set("guaranteeCustomDuration", guarantee.customDurationDays);
+      }
       applyAttribution(fd, attribution!);
       const created = await createListing(fd);
       createdId = created.ok ? created.id : undefined;
@@ -114,6 +123,7 @@ export function ListingForm(props: ListingFormProps) {
         deposit_too_large: t("errorDepositTooLarge"),
         deposit_invalid: t("errorDepositInvalid"),
         inspection_too_short: t("errorInspectionTooShort"),
+        guarantee_incomplete: t("errorGuaranteeIncomplete"),
         inspection_too_long: t("errorInspectionTooLong"),
         inspection_invalid: t("errorInspectionInvalid"),
       };
@@ -256,6 +266,9 @@ export function ListingForm(props: ListingFormProps) {
             </span>
           </label>
         </div>
+      )}
+      {!isEditing && creatureId && !isAdoption && (
+        <GuaranteePicker value={guarantee} onChange={setGuarantee} />
       )}
       {err && <p className="text-destructive text-sm">{err}</p>}
       <Button type="submit" disabled={busy || disabled} data-testid="listing-submit">

@@ -141,7 +141,22 @@
     "errorDepositInvalid": "Introduce el depósito como porcentaje, o déjalo en blanco.",
     "errorInspectionTooShort": "La ventana de inspección debe ser de al menos 24 horas.",
     "errorInspectionTooLong": "La ventana de inspección puede ser como máximo 14 días (336 horas).",
-    "errorInspectionInvalid": "Introduce la ventana de inspección en horas enteras."
+    "errorInspectionInvalid": "Introduce la ventana de inspección en horas enteras.",
+    "guaranteeLegend": "Garantía de salud",
+    "guaranteeHelp": "Elige qué prometes sobre la salud de este animal. Las personas compradoras lo ven en el anuncio, y decide qué ocurre si algo sale mal.",
+    "guaranteeNone": "Sin garantía de salud",
+    "guaranteeTemplate": "Usar una garantía estándar",
+    "guaranteeCustom": "Escribir mis propios términos",
+    "guaranteeCustomWarning": "Si tu redacción resulta poco clara, se interpreta a favor de quien compra. Las garantías estándar evitan eso.",
+    "guaranteeCustomPlaceholder": "Qué cubres y durante cuánto tiempo",
+    "guaranteeRemedyLabel": "Qué ocurre si aplica",
+    "guaranteeDurationLabel": "Días cubiertos",
+    "guaranteeDurationDays": "Cubre {days} días",
+    "guaranteePreviewLabel": "Lo que ve quien compra",
+    "remedyVetCosts": "Reembolso los costes veterinarios; el animal se queda con quien compra",
+    "remedyReplacement": "Ofrezco un animal de reemplazo",
+    "remedyRefundOnReturn": "Reembolso cuando me devuelvan el animal",
+    "errorGuaranteeIncomplete": "Completa tu garantía: los términos propios necesitan redacción, un remedio y un número de días."
   },
   "content": {
     "edit": "Editar",

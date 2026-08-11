@@ -10,6 +10,7 @@ declare
   other    uuid := '00000000-0000-0000-0000-000000000001';
   lst      uuid;
   got      text;
+  gotb     text;
   n        integer;
   results  text := '';
 begin
@@ -90,14 +91,29 @@ begin
   results := results || E'4c a vet-costs guarantee says the buyer KEEPS the animal\n';
 
   ------------------------------------- 5. preview and listing are one source
-  -- Both surfaces call listing_guarantee_text. Asserted by there being exactly
-  -- one function that produces buyer-facing guarantee prose.
-  select count(*) into n from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
-   where ns.nspname = 'public' and p.proname like '%guarantee%text%';
-  if n <> 1 then
-    raise exception 'PROBE FAILED: % functions render guarantee text — preview and listing can drift', n;
+  -- The real property, asserted directly rather than by counting functions: the
+  -- words a seller previews before publishing and the words a buyer reads on the
+  -- listing are byte-for-byte the same. Ruling 3's fairness depends on it — a
+  -- seller is held to terms they were shown, so the showing must be exact.
+  update public.listing_guarantees set template_key = 'congenital_1y_refund' where listing_id = lst;
+  select l.headline || '|' || l.body || '|' || coalesce(l.remedy_sentence, '')
+    into got from public.listing_guarantee_text(lst) l;
+  select pv.headline || '|' || pv.body || '|' || coalesce(pv.remedy_sentence, '')
+    into gotb from public.guarantee_text_for('template', 'congenital_1y_refund') pv;
+  if got is distinct from gotb then
+    raise exception 'PROBE FAILED: preview and listing differ.%  listing=[%]  preview=[%]', chr(10), got, gotb;
   end if;
-  results := results || E'5a exactly ONE function renders the text: the preview cannot lie\n';
+  results := results || E'5a the seller''s preview is byte-for-byte the listing text\n';
+
+  -- including the no-guarantee case, which is the one a seller never explicitly
+  -- writes and therefore the one most likely to drift
+  select l.headline || '|' || l.body into got
+    from public.listing_guarantee_text('00000000-0000-0000-0000-0000000000ff'::uuid) l;
+  select pv.headline || '|' || pv.body into gotb from public.guarantee_text_for('none') pv;
+  if got is distinct from gotb then
+    raise exception 'PROBE FAILED: the no-guarantee text differs between preview and listing';
+  end if;
+  results := results || E'5b the "no guarantee" wording matches too\n';
 
   ------------------------------------- 6. only the seller writes their promise
   perform set_config('request.jwt.claims',

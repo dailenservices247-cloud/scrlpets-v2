@@ -107,6 +107,56 @@ test.describe("signed in", () => {
     await expect(window_).toHaveValue("");
   });
 
+  /**
+   * Ruling 3's dependency: a seller must be able to pick a standard guarantee
+   * instead of free-typing, and must see exactly what a buyer will read. The
+   * preview is rendered by the same database function the listing page uses, so
+   * this asserts the words themselves, not that "a preview appeared".
+   */
+  test("guarantee: forced choice, standard templates, and a buyer's-eye preview", async ({
+    page,
+  }) => {
+    await page.goto("/compose");
+    await page.getByRole("button", { name: /Listing/ }).click();
+    await page.getByTestId("listing-title").fill(`E2E guarantee ${Date.now()}`);
+    await page.getByTestId("listing-price").fill("1500.00");
+
+    // Not offered on a product listing — a guarantee on a bag of feed is noise.
+    await expect(page.getByTestId("guarantee-picker")).toHaveCount(0);
+    await page.getByTestId("creature-picker").selectOption({ index: 1 });
+    await expect(page.getByTestId("guarantee-picker")).toBeVisible();
+
+    // Default is the explicit "none", and it SAYS so rather than showing nothing.
+    await expect(page.getByTestId("guarantee-kind-none")).toBeChecked();
+    await expect(page.getByTestId("guarantee-preview-headline")).toHaveText("No health guarantee", {
+      timeout: 10_000,
+    });
+
+    // A standard guarantee names its remedy in the buyer's words.
+    await page.getByTestId("guarantee-kind-template").check();
+    await page
+      .getByTestId("guarantee-template-select")
+      .selectOption("congenital_1y_refund");
+    await expect(page.getByTestId("guarantee-preview-remedy")).toContainText(
+      /returned to the seller/i,
+      { timeout: 10_000 },
+    );
+
+    // A vet-costs guarantee tells the buyer they KEEP the animal — the
+    // distinction the whole §4 remedy split rests on.
+    await page.getByTestId("guarantee-template-select").selectOption("health_14d_vet");
+    await expect(page.getByTestId("guarantee-preview-remedy")).toContainText(/keep the animal/i, {
+      timeout: 10_000,
+    });
+
+    // Free-typing is allowed, and warned about before it is written — not after
+    // a dispute resolves against them.
+    await page.getByTestId("guarantee-kind-custom").check();
+    await expect(page.getByTestId("guarantee-custom-warning")).toContainText(
+      /buyer's favour|buyer’s favour/i,
+    );
+  });
+
   test("listing rejects junk price", async ({ page }) => {
     await page.goto("/compose");
     await page.getByRole("button", { name: /Listing/ }).click();

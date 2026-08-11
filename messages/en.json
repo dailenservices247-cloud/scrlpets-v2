@@ -141,7 +141,22 @@
     "errorDepositInvalid": "Enter the deposit as a percentage, or leave it blank for none.",
     "errorInspectionTooShort": "The inspection window has to be at least 24 hours.",
     "errorInspectionTooLong": "The inspection window can be at most 14 days (336 hours).",
-    "errorInspectionInvalid": "Enter the inspection window in whole hours."
+    "errorInspectionInvalid": "Enter the inspection window in whole hours.",
+    "guaranteeLegend": "Health guarantee",
+    "guaranteeHelp": "Pick what you promise about this animal's health. Buyers see this on the listing, and it decides what happens if something goes wrong.",
+    "guaranteeNone": "No health guarantee",
+    "guaranteeTemplate": "Use a standard guarantee",
+    "guaranteeCustom": "Write my own terms",
+    "guaranteeCustomWarning": "If your own wording turns out to be unclear, it is read in the buyer's favour. The standard guarantees above avoid that.",
+    "guaranteeCustomPlaceholder": "What you cover, and for how long",
+    "guaranteeRemedyLabel": "What happens if it applies",
+    "guaranteeDurationLabel": "Days covered",
+    "guaranteeDurationDays": "Covers {days} days",
+    "guaranteePreviewLabel": "What the buyer sees",
+    "remedyVetCosts": "I reimburse vet costs, buyer keeps the animal",
+    "remedyReplacement": "I offer a replacement animal",
+    "remedyRefundOnReturn": "I refund once the animal is returned to me",
+    "errorGuaranteeIncomplete": "Finish your guarantee: custom terms need wording, a remedy and a number of days."
   },
   "content": {
     "edit": "Edit",
