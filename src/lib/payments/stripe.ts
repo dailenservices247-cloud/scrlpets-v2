@@ -21,15 +21,28 @@ export function isStripeConfigured(): boolean {
   return Boolean(key());
 }
 
-async function post<T>(path: string, body: URLSearchParams): Promise<ConnectResult<T>> {
+async function post<T>(
+  path: string,
+  body: URLSearchParams,
+  /**
+   * Stripe replays the ORIGINAL response for a repeated key instead of acting
+   * twice. For anything that moves money this is not optional: a runner that
+   * crashes after Stripe succeeded but before the result was written will retry,
+   * and without a key that retry is a second real transfer that cannot be
+   * un-sent.
+   */
+  idempotencyKey?: string,
+): Promise<ConnectResult<T>> {
   const k = key();
   if (!k) return { ok: false, reason: "not_configured" };
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${k}`,
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+  if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
   const response = await fetch(`${API}${path}`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${k}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
+    headers,
     body,
   });
   const json = (await response.json()) as T & { error?: { code?: string; message?: string } };
@@ -128,4 +141,36 @@ export async function createPaymentIntent(input: {
   });
   if (input.sellerStripeAccountId) body.set("on_behalf_of", input.sellerStripeAccountId);
   return post<StripePaymentIntent>("/payment_intents", body);
+}
+
+export type StripeTransfer = { id: string; amount: number; destination: string };
+
+/**
+ * Move held money to a connected account.
+ *
+ * The counterpart to charging into the platform: the buyer paid us, the animal
+ * arrived and was verified, and only now does the seller get paid. `transfer_group`
+ * ties this back to the charge it came from so the two sides reconcile.
+ *
+ * The payout row's own id is the idempotency key — stable across retries and
+ * unique per obligation, which is exactly the property needed.
+ */
+export async function createTransfer(input: {
+  amountCents: number;
+  currency: string;
+  destinationAccountId: string;
+  orderId: string;
+  payoutId: string;
+  leg: string;
+}): Promise<ConnectResult<StripeTransfer>> {
+  const body = new URLSearchParams({
+    amount: String(input.amountCents),
+    currency: input.currency,
+    destination: input.destinationAccountId,
+    transfer_group: input.orderId,
+    "metadata[order_id]": input.orderId,
+    "metadata[payout_id]": input.payoutId,
+    "metadata[leg]": input.leg,
+  });
+  return post<StripeTransfer>("/transfers", body, `payout_${input.payoutId}`);
 }
