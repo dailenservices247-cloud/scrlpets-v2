@@ -11,9 +11,32 @@ export type OrderResult = { ok: true; orderId?: string } | { ok: false; error: s
  * a client-side flag check as the gate — the DB is the gate; a check here is
  * only for showing an honest message.
  */
-export async function createOrder(listingId: string): Promise<OrderResult> {
+/**
+ * Transport is booked as PART of the purchase, not alongside it — the only shape
+ * where "the transporter is always paid" is structurally true, because the
+ * platform holds the money when the obligation arises.
+ *
+ * The route is sent so the database can verify coverage itself. The checkout
+ * only offers transporters who cover both ends, but a booking that has to be
+ * cancelled later is worse than one refused now.
+ */
+export type TransportChoice = {
+  serviceId: string;
+  pickupRegion: string;
+  deliveryRegion: string;
+};
+
+export async function createOrder(
+  listingId: string,
+  transport?: TransportChoice,
+): Promise<OrderResult> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("create_order", { target_listing: listingId });
+  const { data, error } = await supabase.rpc("create_order", {
+    target_listing: listingId,
+    transport_service: transport?.serviceId ?? null,
+    pickup_region: transport?.pickupRegion ?? null,
+    delivery_region: transport?.deliveryRegion ?? null,
+  });
   if (error) return { ok: false, error: error.message };
   // /orders has never existed as a route. The order lifecycle is shown on
   // /applications, so that is what has to be refreshed.
