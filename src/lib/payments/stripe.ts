@@ -88,3 +88,44 @@ export async function fetchAccount(accountId: string): Promise<ConnectResult<Str
   if (!response.ok) return { ok: false, reason: json.error?.code ?? "provider_error" };
   return { ok: true, data: json };
 }
+
+export type StripePaymentIntent = { id: string; client_secret: string; status: string };
+
+/**
+ * Charge the buyer into the PLATFORM account, not the seller's.
+ *
+ * This is the "separate charges and transfers" half of the architecture, and the
+ * absence of `transfer_data` is the whole point: a destination charge would pay
+ * the seller the moment the buyer's card cleared, which is precisely the buyer
+ * protection this platform sells. The money sits until code + anchor prove the
+ * right animal reached the right person, and only then is it transferred.
+ *
+ * `transfer_group` is the order id, so every later transfer — seller,
+ * transporter, reversal — is linked to the charge it came from. Without it the
+ * Stripe balance is a pile of unattributable money at reconciliation time.
+ *
+ * `on_behalf_of` makes the SELLER the merchant of record for the sale. Legacy
+ * used it as a liability shield and the intent is worth keeping; it is omitted
+ * rather than faked when the seller has no usable connected account.
+ *
+ * The amount is passed in from `order_payment_amount()` and is never computed
+ * here — a client-side figure is a client-controlled figure.
+ */
+export async function createPaymentIntent(input: {
+  amountCents: number;
+  currency: string;
+  orderId: string;
+  paymentKind: "deposit" | "balance" | "full";
+  sellerStripeAccountId?: string | null;
+}): Promise<ConnectResult<StripePaymentIntent>> {
+  const body = new URLSearchParams({
+    amount: String(input.amountCents),
+    currency: input.currency,
+    "automatic_payment_methods[enabled]": "true",
+    transfer_group: input.orderId,
+    "metadata[order_id]": input.orderId,
+    "metadata[payment_kind]": input.paymentKind,
+  });
+  if (input.sellerStripeAccountId) body.set("on_behalf_of", input.sellerStripeAccountId);
+  return post<StripePaymentIntent>("/payment_intents", body);
+}

@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
-import { createAccountLink, createConnectAccount, isStripeConfigured } from "./stripe";
+import {
+  createAccountLink,
+  createConnectAccount,
+  createPaymentIntent,
+  isStripeConfigured,
+} from "./stripe";
 
 export type PayoutStatus = {
   configured: boolean;
@@ -89,4 +94,69 @@ export async function startPayoutOnboarding(returnPath = "/settings/payouts"): P
 
   revalidatePath(returnPath);
   return { ok: true, url: link.data.url };
+}
+
+export type PaymentStart =
+  | { ok: true; clientSecret: string; amountCents: number }
+  | { ok: false; error: string };
+
+/**
+ * Start a payment on an order.
+ *
+ * Every number here comes from the database. `order_payment_amount` decides what
+ * this payment is for and refuses if there is nothing left to pay; the client
+ * says only WHICH payment it is making. A checkout that computed its own total
+ * could be told to charge $1 for a $2,000 animal, and record_order_payment would
+ * book that underpayment as a perfectly valid capture.
+ *
+ * The order's own guards still apply first — payments_enabled, the seller's
+ * payout account, buyer verification — because create_order enforced them and
+ * this cannot be reached without an order.
+ */
+export async function startOrderPayment(
+  orderId: string,
+  kind: "deposit" | "balance" | "full",
+): Promise<PaymentStart> {
+  const user = await getSessionUser();
+  if (!user) return { ok: false, error: "auth_required" };
+  if (!isStripeConfigured()) return { ok: false, error: "not_configured" };
+
+  const supabase = await createClient();
+
+  // Refuses for a non-buyer, a closed order, or a fully paid one.
+  const { data: amount, error: amountError } = await supabase.rpc("order_payment_amount", {
+    target_order: orderId,
+    payment_kind: kind,
+  });
+  if (amountError) return { ok: false, error: amountError.message };
+  const amountCents = Number(amount);
+  if (!Number.isFinite(amountCents) || amountCents <= 0) {
+    return { ok: false, error: "nothing_left_to_pay" };
+  }
+
+  const { data: currencyRow } = await supabase
+    .from("orders")
+    .select("currency")
+    .eq("id", orderId)
+    .maybeSingle();
+  const currency = (currencyRow as { currency: string } | null)?.currency ?? "usd";
+
+  const { data: sellerAccount } = await supabase.rpc("order_seller_stripe_account", {
+    target_order: orderId,
+  });
+
+  const intent = await createPaymentIntent({
+    amountCents,
+    currency,
+    orderId,
+    paymentKind: kind,
+    sellerStripeAccountId: (sellerAccount as string | null) ?? null,
+  });
+  if (!intent.ok) return { ok: false, error: intent.reason };
+
+  // Deliberately NOT recorded here. The order moves to funds_held only when
+  // STRIPE says the money was captured, through the webhook — a client that
+  // could book its own payment is the hole the whole state machine exists to
+  // close.
+  return { ok: true, clientSecret: intent.data.client_secret, amountCents };
 }
