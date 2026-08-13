@@ -2042,5 +2042,38 @@
     "errorNotPickedUp": "The seller hasn't released this animal to you yet.",
     "errorPaymentsOff": "Deliveries can't be confirmed yet — payments are not switched on.",
     "errorGeneric": "That didn't confirm. Nothing has changed."
+  },
+  "orderThread": {
+    "untitled": "Order",
+    "whoTwo": "You and the seller can both see this.",
+    "whoThree": "You, the seller and the driver can all see this.",
+    "empty": "Nothing said yet. Anything about collection times, delays or the animal itself belongs here rather than in a private message — everyone involved can see it.",
+    "placeholder": "Message everyone on this order",
+    "send": "Send",
+    "sending": "Sending…",
+    "you": "you",
+    "someone": "Someone",
+    "role": {
+      "buyer": "buyer",
+      "seller": "seller",
+      "transporter": "driver",
+      "former_party": "no longer on this order"
+    },
+    "status": {
+      "draft": "Not paid yet",
+      "awaiting_payment": "Waiting on payment",
+      "deposit_held": "Deposit held",
+      "funds_held": "Paid, waiting to be collected",
+      "dispatched": "On its way",
+      "inspection": "Delivered — inspection window running",
+      "released": "Complete",
+      "refunded": "Refunded",
+      "cancelled": "Cancelled",
+      "disputed": "In dispute"
+    },
+    "permanentNote": "Messages here can't be edited or deleted. If this order is ever disputed, this thread is part of the record.",
+    "errorNotAParty": "You're not part of this order.",
+    "errorSuspended": "Your account is suspended, so you can't post.",
+    "errorGeneric": "That didn't send. Nothing was posted."
   }
 }

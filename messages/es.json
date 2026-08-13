@@ -2042,5 +2042,38 @@
     "errorNotPickedUp": "Quien vende aún no te ha entregado este animal.",
     "errorPaymentsOff": "Aún no se pueden confirmar entregas — los pagos no están activados.",
     "errorGeneric": "No se confirmó. No ha cambiado nada."
+  },
+  "orderThread": {
+    "untitled": "Pedido",
+    "whoTwo": "Tú y quien vende podéis ver esto.",
+    "whoThree": "Tú, quien vende y el transportista podéis ver esto.",
+    "empty": "Nada dicho todavía. Lo relativo a horarios de recogida, retrasos o el animal va aquí y no en un mensaje privado — todas las personas implicadas lo ven.",
+    "placeholder": "Escribe a todos los implicados en este pedido",
+    "send": "Enviar",
+    "sending": "Enviando…",
+    "you": "tú",
+    "someone": "Alguien",
+    "role": {
+      "buyer": "compra",
+      "seller": "vende",
+      "transporter": "transportista",
+      "former_party": "ya no está en este pedido"
+    },
+    "status": {
+      "draft": "Sin pagar",
+      "awaiting_payment": "Pendiente de pago",
+      "deposit_held": "Depósito retenido",
+      "funds_held": "Pagado, pendiente de recogida",
+      "dispatched": "En camino",
+      "inspection": "Entregado — ventana de inspección en marcha",
+      "released": "Completado",
+      "refunded": "Reembolsado",
+      "cancelled": "Cancelado",
+      "disputed": "En disputa"
+    },
+    "permanentNote": "Los mensajes no se pueden editar ni borrar. Si este pedido acaba en disputa, este hilo forma parte del registro.",
+    "errorNotAParty": "No formas parte de este pedido.",
+    "errorSuspended": "Tu cuenta está suspendida, así que no puedes publicar.",
+    "errorGeneric": "No se envió. No se ha publicado nada."
   }
 }
