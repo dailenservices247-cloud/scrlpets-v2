@@ -1954,5 +1954,28 @@
     "privacy": "Your email is used for the launch note and nothing else. No spam, never shared, deleted on request.",
     "errorEmail": "That email doesn't look right — check it and try again.",
     "errorServer": "Something failed on our side. Try again in a minute."
+  },
+  "payouts": {
+    "title": "Payouts",
+    "back": "Back",
+    "state": {
+      "none": "Payouts are not set up",
+      "started": "Setup started, not finished",
+      "review": "Stripe needs more from you",
+      "ready": "Ready to receive payments"
+    },
+    "stateHelp": {
+      "none": "You cannot sell an animal until money has somewhere to go. Setting this up takes a few minutes with Stripe.",
+      "started": "You began setting this up but did not finish. Your listings stay unavailable to buy until you do.",
+      "review": "Stripe is asking for more information before it can pay you. Until that is done, your animal listings cannot be bought.",
+      "ready": "Money from your sales will arrive in your connected account after the buyer's inspection window closes."
+    },
+    "startCta": "Set up payouts",
+    "continueCta": "Continue setup",
+    "opening": "Opening Stripe…",
+    "notConfigured": "Payments are not switched on yet, so there is nothing to connect.",
+    "stateUnavailable": "Payouts are not available yet",
+    "couldNotStart": "Stripe could not start setup just now. Try again in a moment.",
+    "stripeHolds": "Stripe handles this and holds your bank details. Scrlpets never sees your account number."
   }
 }

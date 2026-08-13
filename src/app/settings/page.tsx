@@ -1,23 +1,36 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { BadgeCheck, ChevronRight, CircleUser, CreditCard, ShieldCheck, UserPlus } from "lucide-react";
+import {
+  BadgeCheck,
+  Banknote,
+  ChevronRight,
+  CircleUser,
+  CreditCard,
+  ShieldCheck,
+  UserPlus,
+} from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 
 export default async function SettingsIndexPage() {
-  const [tProfile, tAccount, tVerification, tSubscriptions, tReferrals] = await Promise.all([
-    getTranslations("profile"),
-    getTranslations("account"),
-    getTranslations("verification"),
-    getTranslations("subscriptions"),
-    getTranslations("referrals"),
-  ]);
+  const [tProfile, tAccount, tVerification, tSubscriptions, tReferrals, tPayouts] =
+    await Promise.all([
+      getTranslations("profile"),
+      getTranslations("account"),
+      getTranslations("verification"),
+      getTranslations("subscriptions"),
+      getTranslations("referrals"),
+      getTranslations("payouts"),
+    ]);
 
-  // R5: the menu's five settings rows consolidate into this one index.
+  // R5: the menu's settings rows consolidate into this one index.
   const rows = [
     { href: "/settings/profile", icon: CircleUser, label: tProfile("profileLabel") },
     { href: "/settings/account", icon: ShieldCheck, label: tAccount("title") },
     { href: "/settings/verification", icon: BadgeCheck, label: tVerification("title") },
     { href: "/settings/subscription", icon: CreditCard, label: tSubscriptions("title") },
+    // Sits next to verification on purpose: both are gates on selling an animal,
+    // and a seller blocked by one is usually about to hit the other.
+    { href: "/settings/payouts", icon: Banknote, label: tPayouts("title") },
     { href: "/settings/referrals", icon: UserPlus, label: tReferrals("title") },
   ];
 

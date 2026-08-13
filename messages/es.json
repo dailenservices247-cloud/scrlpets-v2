@@ -1954,5 +1954,28 @@
     "privacy": "Tu correo se usa solo para el aviso de lanzamiento. Sin spam, nunca compartido, se elimina si lo pides.",
     "errorEmail": "Ese correo no parece válido — revísalo e inténtalo de nuevo.",
     "errorServer": "Algo falló de nuestro lado. Inténtalo de nuevo en un minuto."
+  },
+  "payouts": {
+    "title": "Pagos recibidos",
+    "back": "Volver",
+    "state": {
+      "none": "Los pagos no están configurados",
+      "started": "Configuración empezada, sin terminar",
+      "review": "Stripe necesita más datos",
+      "ready": "Listo para recibir pagos"
+    },
+    "stateHelp": {
+      "none": "No puedes vender un animal hasta que el dinero tenga dónde llegar. Configurarlo con Stripe lleva unos minutos.",
+      "started": "Empezaste la configuración y no la terminaste. Tus anuncios no se pueden comprar hasta que lo hagas.",
+      "review": "Stripe pide más información antes de poder pagarte. Hasta entonces, tus anuncios de animales no se pueden comprar.",
+      "ready": "El dinero de tus ventas llegará a tu cuenta conectada cuando se cierre la ventana de inspección."
+    },
+    "startCta": "Configurar pagos",
+    "continueCta": "Continuar configuración",
+    "opening": "Abriendo Stripe…",
+    "notConfigured": "Los pagos aún no están activados, así que no hay nada que conectar.",
+    "stateUnavailable": "Los pagos aún no están disponibles",
+    "couldNotStart": "Stripe no pudo iniciar la configuración ahora. Inténtalo en un momento.",
+    "stripeHolds": "Stripe se encarga de esto y guarda tus datos bancarios. Scrlpets nunca ve tu número de cuenta."
   }
 }
