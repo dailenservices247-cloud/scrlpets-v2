@@ -25,7 +25,7 @@ begin
 
   -- no subscription -> free rate, not zero
   n := public.seller_fee_bps_for(seller);
-  if n <> 600 then raise exception 'PROBE FAILED: unsubscribed seller bps = % (want the free tier rate)', n; end if;
+  if n <> 500 then raise exception 'PROBE FAILED: unsubscribed seller bps = % (want the ruled 5%% free rate)', n; end if;
   results := results || E'1b unsubscribed seller falls to the FREE rate, not to zero\n';
 
   ------------------------------------------------- 2. both fees frozen at creation
@@ -40,10 +40,10 @@ begin
   perform set_config('role', 'postgres', true);
   select buyer_fee_cents || '/' || seller_fee_cents || '/' || buyer_fee_bps || '/' || seller_fee_bps
     into got from public.orders where id = ord;
-  if got <> '3000/6000/300/600' then
-    raise exception 'PROBE FAILED: fees on a $1000 sale were % (want 3000/6000/300/600)', got;
+  if got <> '3000/5000/300/500' then
+    raise exception 'PROBE FAILED: fees on a $1000 sale were % (want 3000/5000/300/500)', got;
   end if;
-  results := results || E'2a $1000 sale: buyer fee $30, seller fee $60, both rates frozen\n';
+  results := results || E'2a $1000 sale: buyer fee $30, seller fee $50, both rates frozen\n';
 
   -- due now includes the buyer fee, or an order looks paid while the cut is outstanding
   select public.order_due_cents(ord) into n;
@@ -55,7 +55,7 @@ begin
   values (seller, 'pro', 'active')
   on conflict do nothing;
   select buyer_fee_cents || '/' || seller_fee_cents into got from public.orders where id = ord;
-  if got <> '3000/6000' then
+  if got <> '3000/5000' then
     raise exception 'PROBE FAILED: existing order changed to % after the seller upgraded', got;
   end if;
   results := results || E'2c seller upgrading AFTER creation does not rewrite the existing order\n';
@@ -67,10 +67,10 @@ begin
   ord := public.create_order(lst);
   perform set_config('role', 'postgres', true);
   select seller_fee_bps || '/' || seller_fee_cents into got from public.orders where id = ord;
-  if got <> '300/3000' then
-    raise exception 'PROBE FAILED: Pro order seller fee = % (want 300/3000)', got;
+  if got <> '250/2500' then
+    raise exception 'PROBE FAILED: Pro order seller fee = % (want 250/2500 — the ruled 2.5%%)', got;
   end if;
-  results := results || E'2d a NEW order picks up the Pro rate: 3%, $30 on $1000\n';
+  results := results || E'2d a NEW order picks up the Pro rate: 2.5%, $25 on $1000\n';
 
   ------------------------------------------------------------- 3. the cap
   insert into public.listings (seller_id, title, price_cents, availability)
@@ -122,9 +122,12 @@ begin
   results := results || E'4b §1 refusal: buyer fee refunded, seller fee charged on the kept deposit only\n';
 
   select public.order_buyer_refund_cents(ord) into n;
-  -- price 100000 + deposit 0 + transport 0 + buyer fee 3000 returned
-  if n <> 103000 then raise exception 'PROBE FAILED: buyer owed % (want 103000)', n; end if;
-  results := results || E'4c buyer refund total includes the returned buyer fee\n';
+  -- The buyer paid 103000 (price 100000 + their 3000 fee) and walked with no
+  -- stated cause, so the 20000 deposit forfeits to the seller: 83000 back.
+  -- This read 103000 before the split was fixed — the buyer got the deposit
+  -- back too, which is exactly what §1 says they lose.
+  if n <> 83000 then raise exception 'PROBE FAILED: buyer owed % (want 83000)', n; end if;
+  results := results || E'4c §1 refund returns the fee but NOT the forfeited deposit\n';
 
   -- §4 not covered: the sale stands, so the fees stand
   perform set_config('role', 'postgres', true);

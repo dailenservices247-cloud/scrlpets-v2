@@ -22,11 +22,17 @@ begin
   if (select enabled from public.reward_catalog where key='swag_pack') then
     raise exception 'PROBE FAILED: swag_pack still redeemable (real COGS, points-to-goods)';
   end if;
-  if not (select enabled from public.reward_catalog where key='boost_post')
-     or not (select enabled from public.reward_catalog where key='feature_listing') then
-    raise exception 'PROBE FAILED: the zero-cost rewards are still switched off';
+  -- boost_post and feature_listing stay WITHDRAWN. They were deliberately taken
+  -- off the shelf before this work started; re-enabling them here was an
+  -- unmandated change and was reverted.
+  if (select enabled from public.reward_catalog where key='boost_post')
+     or (select enabled from public.reward_catalog where key='feature_listing') then
+    raise exception 'PROBE FAILED: a deliberately withdrawn reward is back on the shelf';
   end if;
-  results := results || E'1a catalog flipped: free rewards ON, cost-of-goods reward OFF\n';
+  if (select enabled from public.reward_catalog where key='fee_credit_10') then
+    raise exception 'PROBE FAILED: the flat, uncappable fee credit is back';
+  end if;
+  results := results || E'1a nothing is bought off a shelf: swag retired, boosts withdrawn, flat credit superseded\n';
 
   ------------------------------------------------- 2. earning tracks fees kept
   insert into public.listings (seller_id, title, price_cents, availability)

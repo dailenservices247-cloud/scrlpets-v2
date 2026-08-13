@@ -27,8 +27,8 @@ begin
 
   -- price 100000, deposit 20000 (a PORTION of price), transport 8000
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents,
-                             deposit_cents, transport_cents, status)
-  values (buyer, seller, lst, 100000, 20000, 8000, 'awaiting_payment')
+                             deposit_cents, transport_cents, transporter_id, status)
+  values (buyer, seller, lst, 100000, 20000, 8000, hauler, 'awaiting_payment')
   returning id into ord;
 
   ------------------------------------------------- 1. due is derived correctly

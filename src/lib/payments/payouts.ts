@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { createTransfer } from "./stripe";
+import { createRefund, createTransfer } from "./stripe";
 
 /**
  * Executes the payouts a released order owes.
@@ -73,4 +73,81 @@ export async function runPendingPayouts(): Promise<PayoutRunResult> {
   }
 
   return { attempted: rows.length, paid, failed };
+}
+
+export type RefundRunResult = {
+  attempted: number;
+  refunded: number;
+  blocked: { refundId: string; reason: string }[];
+};
+
+/**
+ * Sends the money a settled order owes the buyer.
+ *
+ * Deliberately separate from `runPendingPayouts`. They move money in opposite
+ * directions, and one failing must never stop the other: a stuck refund should
+ * not hold up an unrelated seller's payout.
+ *
+ * `pending_refunds` already excludes orders with an unreversed transfer, so this
+ * cannot pay a buyer money that has already gone to a seller. The
+ * `needs_manual_split` case is surfaced rather than partially paid — a buyer
+ * short-paid by a rounding of the platform's own choosing is worse than one
+ * whose refund is visibly waiting on a human.
+ */
+export async function runPendingRefunds(): Promise<RefundRunResult> {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return { attempted: 0, refunded: 0, blocked: [] };
+
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey);
+  const { data, error } = await supabase.rpc("pending_refunds");
+  if (error) throw new Error(`pending_refunds unavailable: ${error.message}`);
+
+  const rows = (data ?? []) as {
+    refund_id: string;
+    order_id: string;
+    amount_cents: number;
+    payment_intent_id: string | null;
+    needs_manual_split: boolean;
+  }[];
+
+  const blocked: RefundRunResult["blocked"] = [];
+  let refunded = 0;
+
+  for (const row of rows) {
+    if (!row.payment_intent_id) {
+      blocked.push({ refundId: row.refund_id, reason: "no_captured_charge" });
+      continue;
+    }
+    if (row.needs_manual_split) {
+      // The refund is larger than any single captured payment, so it spans a
+      // deposit AND a balance. Splitting it automatically means guessing; a
+      // human decides.
+      blocked.push({ refundId: row.refund_id, reason: "needs_manual_split" });
+      continue;
+    }
+
+    const refund = await createRefund({
+      paymentIntentId: row.payment_intent_id,
+      amountCents: row.amount_cents,
+      refundId: row.refund_id,
+      orderId: row.order_id,
+    });
+    if (!refund.ok) {
+      // Left pending: an unsent refund is still owed, and the next run retries.
+      blocked.push({ refundId: row.refund_id, reason: refund.reason });
+      continue;
+    }
+
+    const { error: markError } = await supabase.rpc("mark_refund_paid", {
+      target_refund: row.refund_id,
+      refund_id: refund.data.id,
+    });
+    if (markError) {
+      blocked.push({ refundId: row.refund_id, reason: `sent_but_unrecorded:${markError.message}` });
+      continue;
+    }
+    refunded += 1;
+  }
+
+  return { attempted: rows.length, refunded, blocked };
 }

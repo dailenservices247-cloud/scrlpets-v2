@@ -15,8 +15,10 @@ declare
   code   text;
   got    text;
   n      integer;
+  hauler uuid;
   results text := '';
 begin
+  select id into hauler from public.profiles where id not in (seller, buyer) limit 1;
   -- flag ON for the duration of this (rolled back) transaction
   update public.platform_flags set enabled = true where key = 'payments_enabled';
 
@@ -25,8 +27,8 @@ begin
   returning id into lst;
 
   insert into public.orders (buyer_id, seller_id, listing_id, title_snapshot,
-                             amount_cents, deposit_cents, transport_cents)
-  values (buyer, seller, lst, 'PROBE cockatiel', 50000, 10000, 8000)
+                             amount_cents, deposit_cents, transport_cents, transporter_id)
+  values (buyer, seller, lst, 'PROBE cockatiel', 50000, 10000, 8000, hauler)
   returning id into ord;
 
   ---------------------------------------------------------------- 1. the hole
@@ -45,16 +47,19 @@ begin
     results := results || E'1b buyer CANNOT self-declare funds_held: invalid_transition\n';
   end;
 
+  -- mark_funds_held was superseded by record_order_payment, which books the
+  -- money AND the status together. Same rule, same enforcement: a buyer cannot
+  -- assert their own payment.
   begin
-    perform public.mark_funds_held(ord, 'pi_probe');
-    raise exception 'PROBE FAILED: authenticated executed mark_funds_held';
+    perform public.record_order_payment(ord, 'full', 58000, 'pi_probe');
+    raise exception 'PROBE FAILED: authenticated booked its own payment';
   exception when insufficient_privilege then
-    results := results || E'1c authenticated CANNOT execute mark_funds_held: permission denied\n';
+    results := results || E'1c authenticated CANNOT book its own payment: permission denied\n';
   end;
 
   ------------------------------------------------------- 2. capture, then code
   perform set_config('role', 'postgres', true);
-  perform public.mark_funds_held(ord, 'pi_probe_123');
+  perform public.record_order_payment(ord, 'full', public.order_due_cents(ord), 'pi_probe_123');
   select status into got from public.orders where id = ord;
   if got <> 'funds_held' then raise exception 'PROBE FAILED: status % after capture', got; end if;
   select handover_code into code from public.orders where id = ord;
@@ -132,8 +137,8 @@ begin
   -- §1 refusal without cause: price back, deposit forfeit, transport NOT refunded
   perform set_config('role', 'postgres', true);
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents,
-                             deposit_cents, transport_cents, status)
-  values (buyer, seller, lst, 50000, 10000, 8000, 'inspection') returning id into ord;
+                             deposit_cents, transport_cents, transporter_id, status)
+  values (buyer, seller, lst, 50000, 10000, 8000, hauler, 'inspection') returning id into ord;
   perform set_config('request.jwt.claims',
     json_build_object('sub', buyer, 'role', 'authenticated')::text, true);
   perform set_config('role', 'authenticated', true);
@@ -153,28 +158,36 @@ begin
   select refund_price_cents || '/' || refund_deposit_cents || '/' || refund_transport_cents
     into got from public.orders where id = ord;
   if got is null then raise exception 'PROBE FAILED: settlement columns are NULL (order unreadable or unsettled)'; end if;
-  if got <> '50000/0/0' then raise exception 'PROBE FAILED: §1 split was % (want 50000/0/0)', got; end if;
-  results := results || E'6b §1 refusal_no_cause -> price 50000, deposit 0, transport 0\n';
+  -- Two later rulings changed this. The deposit is a PORTION of the price, so
+  -- the columns partition it: 40000 non-deposit refunded, 10000 deposit
+  -- FORFEITED to the seller. And transport follows CUSTODY — this order was
+  -- never picked up, so the 8000 comes back in full: nobody drove.
+  if got <> '40000/0/8000' then raise exception 'PROBE FAILED: §1 split was % (want 40000/0/8000)', got; end if;
+  results := results || E'6b §1 refusal: 40000 back, deposit forfeited, transport returned (never collected)\n';
 
   -- §3 wrong animal: everything back
   perform set_config('role', 'postgres', true);
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents,
-                             deposit_cents, transport_cents, status)
-  values (buyer, seller, lst, 50000, 10000, 8000, 'dispatched') returning id into ord;
+                             deposit_cents, transport_cents, transporter_id, status)
+  values (buyer, seller, lst, 50000, 10000, 8000, hauler, 'dispatched') returning id into ord;
   perform set_config('role', 'authenticated', true);
   perform public.settle_order(ord, 'wrong_animal', 'probe');
   perform set_config('role', 'postgres', true);
   select refund_price_cents || '/' || refund_deposit_cents || '/' || refund_transport_cents
     into got from public.orders where id = ord;
   if got is null then raise exception 'PROBE FAILED: settlement columns are NULL (order unreadable or unsettled)'; end if;
-  if got <> '50000/10000/8000' then raise exception 'PROBE FAILED: §3 split was %', got; end if;
-  results := results || E'6c §3 wrong_animal -> full refund incl. deposit and transport\n';
+  if got <> '40000/10000/8000' then raise exception 'PROBE FAILED: §3 split was %', got; end if;
+  results := results || E'6c §3 wrong_animal -> the whole price back (40000 + 10000 deposit) plus transport\n';
 
   -- §4 not covered: nothing refunded, funds release to the seller
   perform set_config('role', 'postgres', true);
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents,
-                             deposit_cents, transport_cents, status)
-  values (buyer, seller, lst, 50000, 10000, 8000, 'disputed') returning id into ord;
+                             deposit_cents, transport_cents, transporter_id, status, picked_up_at)
+  -- picked_up_at set on purpose: a §4 health claim happens AFTER the animal has
+  -- been delivered, so the journey definitionally happened and the driver is
+  -- paid. Without it the transport is refunded as never-collected and the order
+  -- settles as `refunded`, which is right for THAT case and not this one.
+  values (buyer, seller, lst, 50000, 10000, 8000, hauler, 'disputed', now()) returning id into ord;
   perform set_config('role', 'authenticated', true);
   perform public.settle_order(ord, 'guarantee_not_covered', 'probe');
   perform set_config('role', 'postgres', true);

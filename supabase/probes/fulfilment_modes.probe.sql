@@ -48,8 +48,8 @@ begin
   -- ======================================================= 2. TRANSPORTED
   perform set_config('role', 'postgres', true);
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents, transport_cents,
-                             transporter_id, fulfilment, status)
-  values (buyer, seller, lst, 50000, 8000, hauler, 'transported', 'awaiting_payment')
+                             transporter_id, fulfilment, status, pickup_region, delivery_region)
+  values (buyer, seller, lst, 50000, 8000, hauler, 'transported', 'awaiting_payment', 'OH', 'MI')
   returning id into ord;
   perform public.record_order_payment(ord, 'full', 58000, 'pi_probe_transported');
   select handover_code into code from public.orders where id = ord;

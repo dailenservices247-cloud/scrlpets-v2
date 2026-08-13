@@ -174,3 +174,36 @@ export async function createTransfer(input: {
   });
   return post<StripeTransfer>("/transfers", body, `payout_${input.payoutId}`);
 }
+
+export type StripeRefund = { id: string; amount: number; status: string };
+
+/**
+ * Send the buyer's money back.
+ *
+ * Note what Stripe does NOT return: its own processing fee. Every refunded order
+ * costs the platform roughly 2.9% + 30c of the original charge regardless of who
+ * was at fault. That is a real cost of offering buyer protection, not an
+ * accounting error, and no code here can recover it.
+ *
+ * `reverse_transfer` is deliberately absent. Transfers on this platform happen
+ * only at release, and the refund queue refuses to run while any transfer is
+ * still unreversed — so a refund never races a payout. Asking Stripe to reverse
+ * one here would hide that ordering rather than enforce it.
+ */
+export async function createRefund(input: {
+  paymentIntentId: string;
+  amountCents: number;
+  refundId: string;
+  orderId: string;
+  reason?: string;
+}): Promise<ConnectResult<StripeRefund>> {
+  const body = new URLSearchParams({
+    payment_intent: input.paymentIntentId,
+    amount: String(input.amountCents),
+    "metadata[order_id]": input.orderId,
+    "metadata[refund_id]": input.refundId,
+  });
+  if (input.reason) body.set("metadata[branch]", input.reason);
+  // Same reasoning as transfers: a retry after a crash must not refund twice.
+  return post<StripeRefund>("/refunds", body, `refund_${input.refundId}`);
+}

@@ -27,8 +27,10 @@ begin
 
   -- ============================ 1. two-point custody, matched to who can do what
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents, transport_cents,
-                             transporter_id, fulfilment, status)
-  values (buyer, seller, lst, 200000, 8000, hauler, 'transported', 'awaiting_payment')
+                             transporter_id, fulfilment, status, pickup_region, delivery_region,
+                             pickup_address, delivery_address)
+  values (buyer, seller, lst, 200000, 8000, hauler, 'transported', 'awaiting_payment', 'OH', 'MI',
+          '1 Kennel Road, Columbus OH', '9 Buyer Lane, Detroit MI')
   returning id into ord;
   perform public.record_order_payment(ord, 'full', 208000, 'pi_probe_prot1');
   select handover_code into code from public.orders where id = ord;
@@ -96,8 +98,8 @@ begin
   -- ==================================================== 3. transport follows custody
   perform set_config('role', 'postgres', true);
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents, transport_cents,
-                             transporter_id, fulfilment, status)
-  values (buyer, seller, lst, 200000, 8000, hauler, 'transported', 'funds_held')
+                             transporter_id, fulfilment, status, pickup_region, delivery_region)
+  values (buyer, seller, lst, 200000, 8000, hauler, 'transported', 'funds_held', 'OH', 'MI')
   returning id into ord;
   perform set_config('request.jwt.claims',
     json_build_object('sub', admin, 'role', 'authenticated')::text, true);
@@ -112,8 +114,9 @@ begin
 
   -- once picked up, the driver is paid whatever happens at the door
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents, transport_cents,
-                             transporter_id, fulfilment, status, picked_up_at)
-  values (buyer, seller, lst, 200000, 8000, hauler, 'transported', 'inspection', now())
+                             transporter_id, fulfilment, status, picked_up_at,
+                             pickup_region, delivery_region)
+  values (buyer, seller, lst, 200000, 8000, hauler, 'transported', 'inspection', now(), 'OH', 'MI')
   returning id into ord;
   perform set_config('role', 'authenticated', true);
   perform public.settle_order(ord, 'refusal_no_cause', 'probe');
@@ -159,9 +162,13 @@ begin
     json_build_object('sub', admin, 'role', 'authenticated')::text, true);
   perform public.settle_order(ord, 'guarantee_refund_on_return', 'probe');
   perform set_config('role', 'postgres', true);
-  select status || ' ' || refund_price_cents into got from public.orders where id = ord;
-  if got <> 'refunded 200000' then raise exception 'PROBE FAILED: settled as %', got; end if;
-  results := results || E'4c once the seller confirms the animal is BACK, the refund runs\n';
+  select status || ' ' || refund_price_cents || '/' || refund_deposit_cents
+    into got from public.orders where id = ord;
+  -- The two columns PARTITION the price now: 180000 non-deposit + 20000 deposit
+  -- = the full 200000 back. Previously both were 200000+20000 and summing them
+  -- refunded money the buyer never paid.
+  if got <> 'refunded 180000/20000' then raise exception 'PROBE FAILED: settled as %', got; end if;
+  results := results || E'4c once the animal is BACK the full price returns, deposit counted once\n';
 
   -- ============================== 5. the other two §4 remedies leave the sale standing
   insert into public.orders (buyer_id, seller_id, listing_id, amount_cents,
