@@ -815,7 +815,8 @@
     "adoptionScreeningYardNo": "No",
     "adoptionScreeningExperience": "Experiencia",
     "adoptionScreeningOtherPets": "Otras mascotas",
-    "adoptionScreeningOtherPetsNone": "No mencionó ninguna"
+    "adoptionScreeningOtherPetsNone": "No mencionó ninguna",
+    "buyNow": "Comprar este animal"
   },
   "breederOs": {
     "readinessEyebrow": "Preparación",
@@ -1977,5 +1978,43 @@
     "stateUnavailable": "Los pagos aún no están disponibles",
     "couldNotStart": "Stripe no pudo iniciar la configuración ahora. Inténtalo en un momento.",
     "stripeHolds": "Stripe se encarga de esto y guarda tus datos bancarios. Scrlpets nunca ve tu número de cuenta."
+  },
+  "checkout": {
+    "title": "Pago",
+    "fulfilmentTitle": "¿Cómo recibirás este animal?",
+    "fulfilment": {
+      "in_person": "Lo recojo en persona",
+      "transported": "Reservar transportista",
+      "shipped": "Envíamelo"
+    },
+    "fulfilmentHelp": {
+      "in_person": "Te reúnes con quien vende. Recibirás un código para darle, y escanea el identificador del animal delante de ti.",
+      "transported": "Un transportista aprobado recoge y entrega. Escanea al animal en la recogida y toma tu código en tu puerta.",
+      "shipped": "Para animales que viajan por mensajería. Los fondos se liberan tras confirmarse la entrega y cerrarse la ventana de llegada con vida."
+    },
+    "transportTitle": "Ruta y transportista",
+    "transportHelp": "Códigos de estado de dos letras. Solo se muestran transportistas que cubren ambos extremos — quien cubre uno solo no puede terminar el viaje.",
+    "fromRegion": "Desde",
+    "toRegion": "Hasta",
+    "findTransport": "Buscar transportistas",
+    "searching": "Buscando…",
+    "noTransport": "Ningún transportista aprobado cubre esa ruta todavía. Puedes recoger en persona o preguntar a quien vende a quién usa.",
+    "sellerRecommends": "Sugerido por quien vende",
+    "summaryTitle": "Lo que vas a pagar",
+    "linePrice": "Animal",
+    "lineTransport": "Transporte",
+    "lineDeposit": "De lo cual, depósito (retenido para reservar)",
+    "feeNote": "Se añade una comisión de la plataforma. El importe exacto se fija al crear el pedido y no cambia después.",
+    "holdNote": "Tu dinero se retiene, no se envía a quien vende, hasta que el animal llegue y tengas {hours} horas para revisarlo.",
+    "placeOrder": "Realizar pedido",
+    "placing": "Procesando…",
+    "errorPaymentsOff": "Las compras aún no están activadas. Puedes contactar con quien vende desde el anuncio.",
+    "errorVerifyFirst": "Los animales de más de 500 $ requieren identidad verificada. Puedes hacerlo en Ajustes → Verificación.",
+    "errorSellerNotPayable": "Quien vende no ha terminado de configurar los pagos, así que aún no puede cobrar.",
+    "errorTransporterUnavailable": "Ese transportista no acepta reservas ahora. Elige otro.",
+    "errorRouteNotCovered": "Ese transportista no cubre ambos extremos de esta ruta.",
+    "errorUnavailable": "Este anuncio ya no está disponible.",
+    "errorOwnListing": "No puedes comprar tu propio anuncio.",
+    "errorGeneric": "No se pudo completar. No se ha cobrado nada."
   }
 }

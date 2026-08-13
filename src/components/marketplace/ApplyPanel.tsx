@@ -61,6 +61,19 @@ export function ApplyPanel({
         </p>
       )}
 
+      {/* The buy route only appears when it can actually be walked. Offering a
+          button that leads to "buying is not switched on" is a worse answer than
+          the sentence already above. */}
+      {paymentsEnabled && listingId && viewerId && !viewerIsSeller && (
+        <Link
+          href={`/checkout/${listingId}`}
+          className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"
+          data-testid="apply-buy"
+        >
+          {t("buyNow")}
+        </Link>
+      )}
+
       {!viewerId ? (
         <Link
           href="/login"
