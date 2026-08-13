@@ -2016,5 +2016,31 @@
     "errorUnavailable": "Este anuncio ya no está disponible.",
     "errorOwnListing": "No puedes comprar tu propio anuncio.",
     "errorGeneric": "No se pudo completar. No se ha cobrado nada."
+  },
+  "jobs": {
+    "title": "Trabajos de transporte",
+    "subtitle": "Animales que te han contratado para trasladar.",
+    "emptyTitle": "Aún no hay trabajos",
+    "emptyBody": "Cuando alguien te reserve al pagar, el trabajo aparecerá aquí. Verás la ruta enseguida, y las direcciones cuando haya pagado.",
+    "untitled": "Animal",
+    "parties": "Vende {seller} → compra {buyer}",
+    "pickup": "Recoger en",
+    "delivery": "Entregar en",
+    "addressMissing": "Aún sin indicar",
+    "addressesHidden": "Las direcciones aparecen cuando quien compra haya pagado. La ruta de arriba basta para planificar hasta entonces.",
+    "codePrompt": "Pide a quien compra su código de entrega",
+    "confirmDelivery": "Confirmar entrega",
+    "confirming": "Confirmando…",
+    "delivered": "Entregado. La ventana de inspección está en marcha.",
+    "payout": {
+      "none": "Se paga al recoger",
+      "pending": "Te lo deben",
+      "paid": "Pagado",
+      "reversed": "Revertido"
+    },
+    "errorWrongCode": "Ese código no coincide. Compruébalo con quien compra — no entregues el animal con un código que no confirma.",
+    "errorNotPickedUp": "Quien vende aún no te ha entregado este animal.",
+    "errorPaymentsOff": "Aún no se pueden confirmar entregas — los pagos no están activados.",
+    "errorGeneric": "No se confirmó. No ha cambiado nada."
   }
 }

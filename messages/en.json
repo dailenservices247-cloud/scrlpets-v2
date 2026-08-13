@@ -2016,5 +2016,31 @@
     "errorUnavailable": "This listing is no longer available.",
     "errorOwnListing": "You can't buy your own listing.",
     "errorGeneric": "That didn't go through. Nothing has been charged."
+  },
+  "jobs": {
+    "title": "Transport jobs",
+    "subtitle": "Animals you've been booked to move.",
+    "emptyTitle": "No jobs yet",
+    "emptyBody": "When a buyer books you at checkout, the job appears here. You'll see the route straight away, and the addresses once the buyer has paid.",
+    "untitled": "Animal",
+    "parties": "Seller {seller} → buyer {buyer}",
+    "pickup": "Collect from",
+    "delivery": "Deliver to",
+    "addressMissing": "Not provided yet",
+    "addressesHidden": "Addresses appear once the buyer has paid. The route above is enough to plan around until then.",
+    "codePrompt": "Ask the buyer for their handover code",
+    "confirmDelivery": "Confirm delivery",
+    "confirming": "Confirming…",
+    "delivered": "Delivered. The buyer's inspection window is running.",
+    "payout": {
+      "none": "Paid on collection",
+      "pending": "Owed to you",
+      "paid": "Paid out",
+      "reversed": "Reversed"
+    },
+    "errorWrongCode": "That code doesn't match. Check the digits with the buyer — don't hand the animal over on a code that won't confirm.",
+    "errorNotPickedUp": "The seller hasn't released this animal to you yet.",
+    "errorPaymentsOff": "Deliveries can't be confirmed yet — payments are not switched on.",
+    "errorGeneric": "That didn't confirm. Nothing has changed."
   }
 }
