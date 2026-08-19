@@ -89,10 +89,12 @@ export type RefundRunResult = {
  * not hold up an unrelated seller's payout.
  *
  * `pending_refunds` already excludes orders with an unreversed transfer, so this
- * cannot pay a buyer money that has already gone to a seller. The
- * `needs_manual_split` case is surfaced rather than partially paid — a buyer
- * short-paid by a rounding of the platform's own choosing is worse than one
- * whose refund is visibly waiting on a human.
+ * cannot pay a buyer money that has already gone to a seller.
+ *
+ * It returns one row per LEG — one per PaymentIntent the refund draws on. A
+ * deposit-then-balance order refunds twice, against two charges, and the debt
+ * closes only when both have gone out. There is no longer a `needs_manual_split`
+ * case to surface: the split is representable, so it is simply paid.
  */
 export async function runPendingRefunds(): Promise<RefundRunResult> {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -103,47 +105,59 @@ export async function runPendingRefunds(): Promise<RefundRunResult> {
   if (error) throw new Error(`pending_refunds unavailable: ${error.message}`);
 
   const rows = (data ?? []) as {
+    leg_id: string | null;
     refund_id: string;
     order_id: string;
     amount_cents: number;
     payment_intent_id: string | null;
-    needs_manual_split: boolean;
   }[];
 
   const blocked: RefundRunResult["blocked"] = [];
   let refunded = 0;
 
   for (const row of rows) {
-    if (!row.payment_intent_id) {
+    if (!row.leg_id || !row.payment_intent_id) {
+      // A debt with nothing captured behind it. It has no leg because there is
+      // no charge to refund against, and it surfaces here rather than vanishing
+      // from the queue — the buyer is owed money and a human has to find it.
       blocked.push({ refundId: row.refund_id, reason: "no_captured_charge" });
-      continue;
-    }
-    if (row.needs_manual_split) {
-      // The refund is larger than any single captured payment, so it spans a
-      // deposit AND a balance. Splitting it automatically means guessing; a
-      // human decides.
-      blocked.push({ refundId: row.refund_id, reason: "needs_manual_split" });
       continue;
     }
 
     const refund = await createRefund({
       paymentIntentId: row.payment_intent_id,
       amountCents: row.amount_cents,
-      refundId: row.refund_id,
+      // The LEG's id, not the refund's: two legs of one debt are two separate
+      // Stripe calls and must not share an idempotency key, or the second would
+      // replay the first's response and never send.
+      refundId: row.leg_id,
       orderId: row.order_id,
     });
     if (!refund.ok) {
       // Left pending: an unsent refund is still owed, and the next run retries.
-      blocked.push({ refundId: row.refund_id, reason: refund.reason });
+      blocked.push({ refundId: row.leg_id, reason: refund.reason });
       continue;
     }
 
-    const { error: markError } = await supabase.rpc("mark_refund_paid", {
-      target_refund: row.refund_id,
-      refund_id: refund.data.id,
+    // Stripe caps a refund at the intent's REMAINING refundable balance and
+    // reports what it actually sent. Marking the leg paid on `ok` alone would
+    // close the debt for whatever came back, which is a short-pay recorded as
+    // settled. Retrying is safe — the idempotency key replays the same response
+    // — so the leg stays visibly owed until a human looks at it.
+    if (refund.data.amount !== row.amount_cents) {
+      blocked.push({
+        refundId: row.leg_id,
+        reason: `partial_refund:${refund.data.amount}_of_${row.amount_cents}`,
+      });
+      continue;
+    }
+
+    const { error: markError } = await supabase.rpc("mark_refund_leg_paid", {
+      target_leg: row.leg_id,
+      stripe_id: refund.data.id,
     });
     if (markError) {
-      blocked.push({ refundId: row.refund_id, reason: `sent_but_unrecorded:${markError.message}` });
+      blocked.push({ refundId: row.leg_id, reason: `sent_but_unrecorded:${markError.message}` });
       continue;
     }
     refunded += 1;

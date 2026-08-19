@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ship-verify.sh — the standard pre-ship verification sweep for scrlpets-v2.
 # Usage:
-#   ./ship-verify.sh          # local gates: types, lint, unit, e2e, prod build
+#   ./ship-verify.sh          # local gates: types, lint, unit, sql probes, e2e, prod build
 #   ./ship-verify.sh --prod   # additionally smoke-check the live production deploy
 # Every ship runs this; paste the SUMMARY block into the session log.
 # Added 2026-07-05 per session-teardown audit C2 (deploy+verify was re-instructed
@@ -35,6 +35,12 @@ step() {
 step "typescript (tsc --noEmit)"   npx tsc --noEmit
 step "lint (eslint)"               npm run lint
 step "unit (vitest run)"           npx vitest run
+# The 21 SQL probes are the only tests of the money layer — RLS, role grants,
+# settlement splits, the payout and refund queues. They sat unexecuted while
+# this script reported ALL GATES PASS, which made a green sweep meaningless
+# about the half of the system that moves money. Ahead of e2e because it is
+# 20 seconds against several minutes.
+step "sql probes (money layer)"    ./run-probes.sh
 step "e2e (playwright)"            npx playwright test
 step "prod build (next build)"     npm run build
 
