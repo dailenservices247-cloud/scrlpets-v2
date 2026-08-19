@@ -12,16 +12,13 @@ import { getProfileById } from "@/lib/profiles/queries";
 export default async function ComposePage() {
   const t = await getTranslations("compose");
   const user = (await getSessionUser())!; // middleware guarantees auth on /compose
-  const [creatures, profile, brands, groups] = await Promise.all([
+  const [creatures, profile, brands, groups, subjects] = await Promise.all([
     getMyCreatures(),
     getProfileById(user.id),
     getMyBrands(user.id),
     listMyGroups(user.id),
+    getMySubjects(user.id),
   ]);
-  const subjects = await getMySubjects(
-    user.id,
-    brands.map((b) => b.id),
-  );
   const actorName = profile?.displayName ?? profile?.username ?? user.email ?? "You";
   return (
     <AppPage showBottomNav={false}>
