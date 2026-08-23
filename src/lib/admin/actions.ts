@@ -16,6 +16,7 @@ export type AdminError =
   | "not_found"
   | "self"
   | "already_suspended"
+  | "not_suspended"
   | "failed";
 
 export type AdminResult = { ok: true } | { ok: false; error: AdminError };
@@ -137,6 +138,42 @@ export async function updateTicket(
           ? "not_found"
           : "failed",
     };
+  }
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+/**
+ * Undo a suspension.
+ *
+ * Nothing called `reactivate_account`, so suspending was a ONE-WAY DOOR: the
+ * only exit was a hand-written statement against production. The definer
+ * requires a reason and writes it to `moderation_actions`, so an unsuspension
+ * is as accountable as the suspension it reverses — which is why the reason is
+ * checked here too, the same way `suspendAccount` checks it.
+ *
+ * The admin check is defence in depth, not the authority: the definer re-checks
+ * `is_platform_admin()` itself. Checking first only means a non-admin's call
+ * leaves no trace instead of a refused RPC in the logs.
+ */
+export async function reactivateAccount(
+  profileId: string,
+  reason: string,
+): Promise<AdminResult> {
+  const stated = cleanReason(reason);
+  if (!stated) return { ok: false, error: "reason_required" };
+  if (!(await isPlatformAdmin())) return { ok: false, error: "admin_required" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reactivate_account", {
+    target_profile: profileId,
+    reason: stated,
+  });
+  if (error) {
+    // The closed set, so nothing raw reaches a translation key or the page.
+    const known: AdminError[] = ["not_suspended", "admin_required", "auth_required", "reason_required"];
+    const hit = known.find((k) => error.message.includes(k));
+    return { ok: false, error: hit ?? "failed" };
   }
   revalidatePath("/admin");
   return { ok: true };
