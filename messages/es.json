@@ -508,7 +508,29 @@
     },
     "error": {
       "generic": "No funcionó. Inténtalo de nuevo."
-    }
+    },
+    "mfaTitle": "Verificación en dos pasos",
+    "mfaBody": "Un código de tu app de autenticación, además de tu contraseña.",
+    "mfaEnrolled": "La verificación en dos pasos está activada.",
+    "mfaStart": "Configurar dos pasos",
+    "mfaStarting": "Preparando…",
+    "mfaSecretLabel": "¿No puedes escanear? Introduce esta clave en tu app:",
+    "mfaCodeLabel": "Código de 6 dígitos de tu app",
+    "mfaVerify": "Activar dos pasos",
+    "mfaVerifying": "Verificando…",
+    "mfaDisable": "Desactivar dos pasos",
+    "mfaDisabling": "Desactivando…",
+    "mfaCodesTitle": "Códigos de recuperación",
+    "mfaCodesBody": "Guárdalos ahora. Cada uno sirve una vez, y esta es la única vez que se muestran. Sin ellos, perder el teléfono es perder la cuenta.",
+    "mfaCodesConfirm": "He guardado los códigos",
+    "mfaCodesRemaining": "Te quedan {count} códigos de recuperación",
+    "mfaCodesRegenerate": "Generar códigos nuevos",
+    "mfaCodesRegenerating": "Generando…",
+    "mfaCodesRegenerateWarning": "Esto invalida todos los códigos que tienes ahora.",
+    "mfaErrorInvalidCode": "Ese código no es correcto. Revísalo en tu app e inténtalo de nuevo.",
+    "mfaErrorNotConfigured": "La recuperación en dos pasos no está disponible en este entorno.",
+    "mfaErrorAuthRequired": "Vuelve a iniciar sesión para cambiar esto.",
+    "mfaErrorGeneric": "No ha funcionado. Inténtalo de nuevo."
   },
   "verification": {
     "title": "Verificación",

@@ -508,7 +508,29 @@
     },
     "error": {
       "generic": "That did not work. Try again."
-    }
+    },
+    "mfaTitle": "Two-factor authentication",
+    "mfaBody": "An authenticator app code, in addition to your password.",
+    "mfaEnrolled": "Two-factor authentication is on.",
+    "mfaStart": "Set up two-factor",
+    "mfaStarting": "Preparing…",
+    "mfaSecretLabel": "Can't scan? Enter this key in your app:",
+    "mfaCodeLabel": "6-digit code from your app",
+    "mfaVerify": "Turn on two-factor",
+    "mfaVerifying": "Verifying…",
+    "mfaDisable": "Turn off two-factor",
+    "mfaDisabling": "Turning off…",
+    "mfaCodesTitle": "Recovery codes",
+    "mfaCodesBody": "Save these now. Each works once, and this is the only time they are shown. Without them, losing your phone loses the account.",
+    "mfaCodesConfirm": "I have saved these codes",
+    "mfaCodesRemaining": "{count} recovery codes left",
+    "mfaCodesRegenerate": "Generate new codes",
+    "mfaCodesRegenerating": "Generating…",
+    "mfaCodesRegenerateWarning": "This invalidates every code you have now.",
+    "mfaErrorInvalidCode": "That code is not right. Check your app and try again.",
+    "mfaErrorNotConfigured": "Two-factor recovery is not available in this environment.",
+    "mfaErrorAuthRequired": "Sign in again to change this.",
+    "mfaErrorGeneric": "That did not work. Try again."
   },
   "verification": {
     "title": "Verification",
