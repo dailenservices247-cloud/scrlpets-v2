@@ -6,10 +6,12 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { authErrorKey, type AuthErrorKey } from "@/lib/auth/errors";
+import { TurnstileWidget } from "@/components/auth/TurnstileWidget";
 
 export function ForgotPasswordForm() {
   const t = useTranslations("auth");
   const supabase = createClient();
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -23,6 +25,7 @@ export function ForgotPasswordForm() {
     callback.searchParams.set("next", "/reset-password");
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: callback.toString(),
+      captchaToken: captchaToken ?? undefined,
     });
     setBusy(false);
     if (resetError) {
@@ -68,6 +71,7 @@ export function ForgotPasswordForm() {
               {t(`errors.${error}`)}
             </p>
           )}
+          <TurnstileWidget onToken={setCaptchaToken} />
           <Button className="min-h-11" type="submit" disabled={busy}>
             {busy ? t("working") : t("recovery.send")}
           </Button>

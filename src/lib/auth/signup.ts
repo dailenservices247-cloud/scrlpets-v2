@@ -42,6 +42,9 @@ export async function signUpWithPassword(formData: FormData): Promise<SignUpResu
   const ageConfirmed = formData.get("ageConfirmed") === "true";
   const referralCode = sanitizeReferralCode(formData.get("referralCode") as string | null);
   const nextPath = safeNextPath(formData.get("nextPath") as string | null);
+  // Empty string is not a token. Supabase ignores the field until CAPTCHA is
+  // enabled dashboard-side, so this is inert on every deployment until then.
+  const captchaToken = String(formData.get("captchaToken") ?? "").trim() || undefined;
 
   if (!email || !password) return { status: "error", error: "unknown" };
   if (passwordProblems(password).length > 0) {
@@ -63,6 +66,7 @@ export async function signUpWithPassword(formData: FormData): Promise<SignUpResu
     email,
     password,
     options: {
+      captchaToken,
       emailRedirectTo: callback.toString(),
       // The confirmation link may be opened on another device, where the ref
       // query param no longer exists. Metadata survives the hop; the callback

@@ -20,13 +20,20 @@ const contentSecurityPolicy = [
   "form-action 'self'",
   "frame-ancestors 'none'",
   "object-src 'none'",
-  "script-src 'self' 'unsafe-inline' https://us.i.posthog.com https://*.posthog.com",
+  // challenges.cloudflare.com is Turnstile. Listed here even while
+  // NEXT_PUBLIC_TURNSTILE_SITE_KEY is unset, deliberately: nothing loads from
+  // it without a key, and shipping the CSP change in a LATER deploy than the
+  // widget would mean the day the key is added is the day CSP blocks the script
+  // and every sign-in fails with no token.
+  "script-src 'self' 'unsafe-inline' https://us.i.posthog.com https://*.posthog.com https://challenges.cloudflare.com",
   "style-src 'self' 'unsafe-inline'",
   "worker-src 'self' blob:",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  `connect-src 'self' ${supabaseSources} https://*.sentry.io https://us.i.posthog.com https://*.posthog.com`,
-  "frame-src https://accounts.google.com",
+  `connect-src 'self' ${supabaseSources} https://*.sentry.io https://us.i.posthog.com https://*.posthog.com https://challenges.cloudflare.com`,
+  // Turnstile renders its challenge in an iframe, so script-src alone is not
+  // enough — a missing frame-src is a widget that mounts and never completes.
+  "frame-src https://accounts.google.com https://challenges.cloudflare.com",
   "upgrade-insecure-requests",
 ]
   .join("; ")

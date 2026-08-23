@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { authErrorKey, type AuthErrorKey, type AuthNoticeKey } from "@/lib/auth/errors";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password";
 import { signUpWithPassword } from "@/lib/auth/signup";
+import { TurnstileWidget } from "@/components/auth/TurnstileWidget";
+import { captchaEnabled } from "@/lib/auth/captcha";
 
 type Mode = "signin" | "signup";
 
@@ -28,6 +30,9 @@ export function LoginForm({
   const t = useTranslations("auth");
   const router = useRouter();
   const supabase = createClient();
+  // null until the widget produces one, and null forever when CAPTCHA is off.
+  // Supabase ignores the field entirely until it is enabled dashboard-side.
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,6 +65,8 @@ export function LoginForm({
       fd.set("ageConfirmed", String(ageConfirmed));
       fd.set("nextPath", nextPath);
       if (referralCode) fd.set("referralCode", referralCode);
+      // Signup verifies server-side, so the token has to make the trip.
+      if (captchaToken) fd.set("captchaToken", captchaToken);
       const result = await signUpWithPassword(fd);
       setBusy(false);
       if (result.status === "error") {
@@ -103,6 +110,7 @@ export function LoginForm({
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
+      options: { captchaToken: captchaToken ?? undefined },
     });
     setBusy(false);
     if (signInError) {
@@ -280,7 +288,15 @@ export function LoginForm({
           </label>
         )}
         {error && <AuthError error={error} />}
-        <Button className="min-h-11" type="submit" disabled={busy} data-testid="auth-submit">
+        <TurnstileWidget onToken={setCaptchaToken} />
+        <Button
+          className="min-h-11"
+          type="submit"
+          // Submitting before the challenge resolves fails as a credential
+          // error, which reads as "wrong password" to the person typing.
+          disabled={busy || (captchaEnabled() && captchaToken === null)}
+          data-testid="auth-submit"
+        >
           {busy ? t("working") : t(mode === "signin" ? "signIn" : "createAccount")}
         </Button>
       </form>
