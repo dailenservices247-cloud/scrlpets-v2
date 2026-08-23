@@ -1,0 +1,39 @@
+-- Pro becomes what its own pricing copy already says it is.
+--
+-- subscription_tiers.description is the ONLY promise a member ever sees —
+-- TierList renders price, fee rate and description, and never the entitlement
+-- list:
+--
+--   free  "Everything on Scrlpets, with the standard 5% fee on each completed sale."
+--   pro   "A 2.5% fee on each completed sale instead of 5%."
+--
+-- The copy sells a fee cut. tier_entitlements promised seven features nobody was
+-- shown, of which only two were ever enforceable: create_group and
+-- publish_guide route through admin-only RPCs, boost is withdrawn, and
+-- featured_placement does not exist.
+--
+-- GATING BRAND PAGES WAS THE ACTIVE HARM, not merely an inconsistency. A brand
+-- page is how a serious breeder becomes credible to a buyer. Charging for it
+-- means fewer credible sellers, which makes the marketplace thinner and less
+-- trustworthy to the demand side — taxing the exact thing that makes supply
+-- believable. Negative-sum for a marketplace in a way the fee cut is not.
+--
+-- Merch was the defensible half and still goes, for consistency with the copy:
+-- free cannot mean "everything" while merchandise is withheld.
+--
+-- What Pro remains, both already built and probed:
+--   * 5% -> 2.5% on the seller's own completed sales
+--   * a pause on the prepaid terms (6mo: 1 pause / 6 months, 12mo: 2 / 12),
+--     which is what makes prepaying safe for a seasonal business
+--
+-- has_entitlement() and tier_entitlements are NOT dropped. The mechanism is
+-- sound and worth keeping for a benefit that is genuinely additive — species
+-- price medians, a buyer funnel, derived work that costs something to produce.
+--
+-- ORDER: policies come off BEFORE any row is cleared. Clearing rows while these
+-- policies stood would mean that the day subscriptions_enabled flips,
+-- has_entitlement returns false for everyone and nobody can create a brand or
+-- list merchandise at all.
+
+drop policy if exists "brand pages are a paid feature" on public.brands;
+drop policy if exists "selling merchandise is a paid feature" on public.listings;

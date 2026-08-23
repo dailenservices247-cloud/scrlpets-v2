@@ -36,8 +36,13 @@ begin
     ('boost'),('brand_page'),('sell_merch'),('create_group'),
     ('publish_guide'),('featured_placement'),('analytics')) as e(k)
    where public.has_entitlement(seller, e.k);
-  if n <> 7 then raise exception 'PROBE FAILED: Pro grants % of 7 entitlements', n; end if;
-  results := results || E'2a Pro grants all seven gated features\n';
+  if n <> 7 then raise exception 'PROBE FAILED: has_entitlement resolves % of 7 rows', n; end if;
+  -- MECHANISM, NOT A PROMISE. Nothing gates on these any more — the brand_page
+  -- and sell_merch policies came off in 20260823165414, and TierList never
+  -- rendered the list. has_entitlement is kept working for a future ADDITIVE
+  -- paid surface, and this asserts the resolver still resolves. See the comment
+  -- on tier_entitlements before building a gate from it.
+  results := results || E'2a has_entitlement resolves every row for an active plan (mechanism only)\n';
 
   if public.seller_fee_bps_for(seller) <> 250 then
     raise exception 'PROBE FAILED: Pro is not on 2.5%%';
@@ -56,7 +61,7 @@ begin
     ('publish_guide'),('featured_placement'),('analytics')) as e(k)
    where public.has_entitlement(seller, e.k);
   if n <> 0 then raise exception 'PROBE FAILED: paused seller keeps % entitlements', n; end if;
-  results := results || E'3a paused: every gated feature goes dark\n';
+  results := results || E'3a paused: has_entitlement stops resolving, so a future gate would too\n';
 
   if public.seller_fee_bps_for(seller) <> 500 then
     raise exception 'PROBE FAILED: paused seller still pays the Pro rate — pausing is free money';
