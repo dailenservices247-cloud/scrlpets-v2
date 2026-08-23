@@ -76,9 +76,8 @@ export async function followingFeedBroadened(
   viewerId?: string | null,
 ): Promise<boolean> {
   if (!viewerId) return true;
-  const { getFollowingIds } = await import("@/lib/social/follows");
-  const followed = await getFollowingIds(viewerId);
-  return followed.length < MIN_FOLLOWING_FOR_FILTER;
+  const { countFollowing } = await import("@/lib/social/follows");
+  return (await countFollowing(viewerId)) < MIN_FOLLOWING_FOR_FILTER;
 }
 
 /**
@@ -135,38 +134,29 @@ export async function getFeed(
 ): Promise<FeedItem[]> {
   const { createClient } = await import("@/lib/supabase/server");
   const supabase = await createClient();
-  let query = supabase
-    .from("unified_feed")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (hideFixtures()) {
-    // NULL-safe: `not like` alone is NULL-eliminating in SQL and would drop
-    // caption-less media posts (NULL title) from the production feed.
-    query = query.or("title.is.null,title.not.like.E2E *");
-  }
-  if (viewerId) {
-    const { getBlockedFeedIds } = await import("@/lib/social/follows");
-    const blocked = await getBlockedFeedIds(viewerId);
-    // Hide content from anyone you blocked or who blocked you, on both tabs.
-    if (blocked.length > 0) {
-      query = query.not(
-        "author_id",
-        "in",
-        `(${blocked.join(",")})`,
-      );
-    }
-  }
+
+  // Only filter once the graph is big enough to carry a feed; below that, show
+  // all content (discovery bootstrap) so a first-run feed is never a near-empty
+  // page. FeedTabs labels the broadened case.
+  //
+  // A COUNT, not a list. Reading `.length` off every followed id is what put
+  // 430 UUIDs in a URL.
+  let followingOnly = false;
   if (tab === "following" && viewerId) {
-    const { getFollowingIds } = await import("@/lib/social/follows");
-    const followed = await getFollowingIds(viewerId);
-    // Only filter once the graph is big enough to carry a feed; below that,
-    // show all content (discovery bootstrap) so a first-run feed is never a
-    // near-empty page. FeedTabs labels the broadened case.
-    if (followed.length >= MIN_FOLLOWING_FOR_FILTER) {
-      query = query.in("author_id", [...followed, viewerId]); // + your own posts
-    }
+    const { countFollowing } = await import("@/lib/social/follows");
+    followingOnly = (await countFollowing(viewerId)) >= MIN_FOLLOWING_FOR_FILTER;
   }
-  const { data, error } = await query.limit(hideFixtures() ? 50 : 200);
+
+  // Both filters — followed authors and blocked profiles — now happen in SQL.
+  // They used to be PostgREST `in` lists, which put every id in the query
+  // string and stopped fitting in a request line somewhere past 400 of either.
+  // The block filter was the worse of the two: it ran for every signed-in
+  // viewer on both tabs, so its overflow broke the feed outright.
+  const { data, error } = await supabase.rpc("feed_rows", {
+    following_only: followingOnly,
+    hide_fixtures: hideFixtures(),
+    max_rows: hideFixtures() ? 50 : 200,
+  });
   if (error) throw error;
   const items = (data as Row[]).map(rowToFeedItem);
   if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));

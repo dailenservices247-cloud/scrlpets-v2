@@ -72,3 +72,20 @@ export async function getBlockedFeedIds(viewerId: string): Promise<string[]> {
     .eq("blocker_id", viewerId);
   return (outgoing ?? []).map((r) => r.blocked_id as string);
 }
+
+/**
+ * How many profiles the viewer follows, without naming any of them.
+ *
+ * getFollowingIds stays for callers that genuinely need the ids (the reel
+ * realm does). The feed only ever needed the COUNT — to decide whether the
+ * bootstrap threshold is met — and fetching ids to measure their length is
+ * what put 430 UUIDs in a URL.
+ */
+export async function countFollowing(viewerId: string): Promise<number> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("follows")
+    .select("following_id", { count: "exact", head: true })
+    .eq("follower_id", viewerId);
+  return count ?? 0;
+}
