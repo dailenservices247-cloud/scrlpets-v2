@@ -694,7 +694,19 @@
       "transported": "Transportado",
       "shipped": "Enviado"
     },
-    "disputesHeading": "Disputas"
+    "disputesHeading": "Disputas",
+    "shipmentsHeading": "Envíos con retraso",
+    "shipmentsEmpty": "Ningún envío lleva más de 14 días en tránsito.",
+    "shipmentShipped": "Enviado",
+    "shipmentCarrier": "Transportista",
+    "shipmentTracking": "Seguimiento",
+    "shipmentConfirmDelivered": "Confirmar entrega",
+    "shipmentConfirming": "Confirmando…",
+    "shipmentHelp": "Confirma solo cuando el seguimiento muestre la entrega. Esto inicia el periodo de revisión del comprador y es lo que acaba pagando al vendedor.",
+    "shipmentErrorNotAdmin": "No eres administrador.",
+    "shipmentErrorNotDispatched": "Ese pedido no está pendiente de entrega.",
+    "shipmentErrorNotShipped": "Ese pedido no es un envío.",
+    "shipmentErrorGeneric": "No ha funcionado. Inténtalo de nuevo."
   },
   "guides": {
     "title": "Guías",

@@ -694,7 +694,19 @@
       "transported": "Transported",
       "shipped": "Shipped"
     },
-    "disputesHeading": "Disputes"
+    "disputesHeading": "Disputes",
+    "shipmentsHeading": "Overdue shipments",
+    "shipmentsEmpty": "No shipment has been in transit longer than 14 days.",
+    "shipmentShipped": "Shipped",
+    "shipmentCarrier": "Carrier",
+    "shipmentTracking": "Tracking",
+    "shipmentConfirmDelivered": "Confirm delivered",
+    "shipmentConfirming": "Confirming…",
+    "shipmentHelp": "Only confirm once tracking shows delivery. This starts the buyer's inspection window and is what eventually pays the seller.",
+    "shipmentErrorNotAdmin": "You are not an admin.",
+    "shipmentErrorNotDispatched": "That order is not awaiting delivery.",
+    "shipmentErrorNotShipped": "That order is not a shipped order.",
+    "shipmentErrorGeneric": "That did not work. Try again."
   },
   "guides": {
     "title": "Guides",

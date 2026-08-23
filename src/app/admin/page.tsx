@@ -4,6 +4,7 @@ import { AppPage } from "@/components/app/AppPage";
 import { getPendingPrograms, isPlatformAdmin } from "@/lib/verification/queries";
 import { getOpenReports } from "@/lib/moderation/queries";
 import { getDraftGuides } from "@/lib/guides/queries";
+import { getOverdueShipments } from "@/lib/admin/shipments";
 import {
   getModerationLog,
   getOpenTickets,
@@ -13,6 +14,7 @@ import {
 } from "@/lib/admin/queries";
 import { ProgramReviewQueue } from "@/components/admin/ProgramReviewQueue";
 import { DisputeQueue } from "@/components/admin/DisputeQueue";
+import { ShipmentQueue } from "@/components/admin/ShipmentQueue";
 import { ReportQueue } from "@/components/admin/ReportQueue";
 import { GuideApprovalQueue } from "@/components/admin/GuideApprovalQueue";
 import { SuspensionPanel } from "@/components/admin/SuspensionPanel";
@@ -25,7 +27,7 @@ import { ModerationLog } from "@/components/admin/ModerationLog";
 export default async function AdminPage() {
   const t = await getTranslations("admin");
   if (!(await isPlatformAdmin())) notFound();
-  const [programs, reports, drafts, tickets, redemptions, disputes, suspended, log] =
+  const [programs, reports, drafts, tickets, redemptions, disputes, suspended, log, overdue] =
     await Promise.all([
     getPendingPrograms(),
     getOpenReports(),
@@ -35,6 +37,7 @@ export default async function AdminPage() {
     getDisputeQueue(),
     getSuspendedAccounts(),
     getModerationLog(),
+    getOverdueShipments(),
   ]);
 
   return (
@@ -48,6 +51,10 @@ export default async function AdminPage() {
             money is held and two people are waiting on one person to decide. */}
         <h2 className="pb-2 text-sm font-semibold">{t("disputesHeading")}</h2>
         <DisputeQueue disputes={disputes} />
+        {/* Beside disputes on purpose: both are how a stuck order gets unstuck,
+            and both hold someone's money while they wait. */}
+        <h2 className="pb-2 pt-6 text-sm font-semibold">{t("shipmentsHeading")}</h2>
+        <ShipmentQueue rows={overdue} />
         <h2 className="pb-2 pt-6 text-sm font-semibold">{t("reportsHeading")}</h2>
         <ReportQueue reports={reports} />
         <h2 className="pb-2 pt-6 text-sm font-semibold">{t("ticketsHeading")}</h2>
