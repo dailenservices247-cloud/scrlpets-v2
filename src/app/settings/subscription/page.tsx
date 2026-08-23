@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { TierList } from "@/components/subscriptions/TierList";
+import { PausePanel } from "@/components/subscriptions/PausePanel";
 import {
   getMySubscription,
   getTiers,
@@ -42,6 +43,12 @@ export default async function SubscriptionSettingsPage() {
             <p className="mt-1 text-xs text-muted-foreground">
               {t(`status.${subscription.status}`)}
             </p>
+          </div>
+          <div className="pt-3">
+            <PausePanel
+              subscription={subscription}
+              tier={tiers.find((tier) => tier.key === subscription.tierKey) ?? null}
+            />
           </div>
         </section>
       )}

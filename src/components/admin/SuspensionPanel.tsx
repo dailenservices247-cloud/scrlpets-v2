@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { suspendAccount, type AdminError } from "@/lib/admin/actions";
+import { reactivateAccount, suspendAccount, type AdminError } from "@/lib/admin/actions";
 import type { SuspendedAccount } from "@/lib/admin/queries";
 
 /**
@@ -12,6 +12,9 @@ import type { SuspendedAccount } from "@/lib/admin/queries";
  * action refuses a blank reason regardless of what the UI allows.
  */
 export function SuspensionPanel({ suspended }: { suspended: SuspendedAccount[] }) {
+  const [reactivateReason, setReactivateReason] = useState<Record<string, string>>({});
+  const [reactivateBusy, setReactivateBusy] = useState<string | null>(null);
+  const [reactivateError, setReactivateError] = useState<Record<string, AdminError>>({});
   const t = useTranslations("admin");
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -99,6 +102,58 @@ export function SuspensionPanel({ suspended }: { suspended: SuspendedAccount[] }
                   <span className="text-destructive">{t("suspendedNoReason")}</span>
                 )}
               </p>
+
+              {/* Until this existed, suspending was a ONE-WAY DOOR: the only
+                  exit was a hand-written statement against production. The
+                  reason is recorded exactly like the suspension it reverses. */}
+              <input
+                value={reactivateReason[s.profileId] ?? ""}
+                onChange={(e) =>
+                  setReactivateReason((r) => ({ ...r, [s.profileId]: e.target.value }))
+                }
+                placeholder={t("reactivateReason")}
+                aria-label={t("reactivateReason")}
+                data-testid={`reactivate-reason-${s.profileId}`}
+                className="mt-3 min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm"
+              />
+              <button
+                type="button"
+                disabled={reactivateBusy === s.profileId}
+                data-testid={`reactivate-submit-${s.profileId}`}
+                className="mt-2 min-h-11 w-full rounded-xl border border-input px-4 text-sm font-medium disabled:opacity-50"
+                onClick={async () => {
+                  setReactivateBusy(s.profileId);
+                  setReactivateError((e) => {
+                    const next = { ...e };
+                    delete next[s.profileId];
+                    return next;
+                  });
+                  const result = await reactivateAccount(
+                    s.profileId,
+                    reactivateReason[s.profileId] ?? "",
+                  );
+                  setReactivateBusy(null);
+                  if (!result.ok) {
+                    setReactivateError((e) => ({ ...e, [s.profileId]: result.error }));
+                    return;
+                  }
+                  router.refresh();
+                }}
+              >
+                {reactivateBusy === s.profileId ? t("reactivating") : t("reactivate")}
+              </button>
+              <p className="mt-1 text-xs text-muted-foreground">{t("reactivateHelp")}</p>
+              {reactivateError[s.profileId] && (
+                <p
+                  role="alert"
+                  className="mt-1 text-xs text-destructive"
+                  data-testid={`reactivate-error-${s.profileId}`}
+                >
+                  {reactivateError[s.profileId] === "not_suspended"
+                    ? t("reactivateErrorNotSuspended")
+                    : t(`suspendError.${reactivateError[s.profileId]}`)}
+                </p>
+              )}
             </li>
           ))}
         </ul>

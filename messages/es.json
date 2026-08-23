@@ -706,7 +706,12 @@
     "shipmentErrorNotAdmin": "No eres administrador.",
     "shipmentErrorNotDispatched": "Ese pedido no está pendiente de entrega.",
     "shipmentErrorNotShipped": "Ese pedido no es un envío.",
-    "shipmentErrorGeneric": "No ha funcionado. Inténtalo de nuevo."
+    "shipmentErrorGeneric": "No ha funcionado. Inténtalo de nuevo.",
+    "reactivateReason": "Motivo de la reactivación",
+    "reactivate": "Reactivar cuenta",
+    "reactivating": "Reactivando…",
+    "reactivateHelp": "El motivo queda registrado en el log de moderación, igual que la suspensión que revierte.",
+    "reactivateErrorNotSuspended": "Esa cuenta no está suspendida."
   },
   "guides": {
     "title": "Guías",
@@ -1069,7 +1074,27 @@
       "active": "Activo",
       "past_due": "Pago vencido",
       "cancelled": "Cancelado"
-    }
+    },
+    "pauseHeading": "Pausa tu plan",
+    "pauseHelp": "Una pausa conserva tu plan y tu tarifa. No lo cancela.",
+    "pauseMonths": "Meses de pausa",
+    "pauseSubmit": "Pausar plan",
+    "pausing": "Pausando…",
+    "pausedNotice": "Tu plan está en pausa. Estás en la tarifa gratuita hasta que lo reanudes.",
+    "resumeSubmit": "Reanudar plan",
+    "resuming": "Reanudando…",
+    "pauseAllowance": "{used} de {allowed} meses usados, {count} de {countAllowed} pausas realizadas",
+    "pauseNotOnThisPlan": "Este plan no incluye pausas.",
+    "pauseErrorMonths": "Elige al menos un mes.",
+    "pauseErrorNoSubscription": "No tienes un plan activo.",
+    "pauseErrorAlreadyPaused": "Tu plan ya está en pausa.",
+    "pauseErrorPlanDisallows": "Este plan no incluye pausas.",
+    "pauseErrorNoneRemaining": "Has usado todas las pausas que permite este plan.",
+    "pauseErrorAllowanceExceeded": "Son más meses de los que te quedan disponibles.",
+    "pauseErrorTooSoon": "Un plan se puede pausar cuando tiene 30 días.",
+    "pauseErrorOrderInFlight": "Cierra o resuelve tus pedidos abiertos primero: una pausa cambia la tarifa mientras hay dinero retenido.",
+    "pauseErrorNotPaused": "Tu plan no está en pausa.",
+    "pauseErrorGeneric": "No ha funcionado. Inténtalo de nuevo."
   },
   "referrals": {
     "title": "Invitar personas",

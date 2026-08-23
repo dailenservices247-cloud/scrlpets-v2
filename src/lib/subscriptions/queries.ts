@@ -7,6 +7,10 @@ export type SubscriptionTier = {
   feeBps: number;
   description: string | null;
   enabled: boolean;
+  /** How many separate pauses the plan permits. 0 means it does not pause. */
+  pauseCountAllowed: number;
+  /** Total months across all pauses. */
+  pauseMonthsAllowed: number;
 };
 
 export type Subscription = {
@@ -14,6 +18,12 @@ export type Subscription = {
   tierKey: string;
   status: string;
   currentPeriodEnd: string | null;
+  /** Non-null while paused. */
+  pausedAt: string | null;
+  pausesUsed: number;
+  pausedMonthsUsed: number;
+  /** pause_subscription refuses for the first 30 days, so the panel needs this. */
+  createdAt: string;
 };
 
 /**
@@ -37,7 +47,9 @@ export async function getTiers(): Promise<SubscriptionTier[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("subscription_tiers")
-    .select("key,name,monthly_price_cents,fee_bps,description,enabled")
+    .select(
+      "key,name,monthly_price_cents,fee_bps,description,enabled,pause_count_allowed,pause_months_allowed",
+    )
     .order("sort_order", { ascending: true });
   return ((data ?? []) as {
     key: string;
@@ -46,6 +58,8 @@ export async function getTiers(): Promise<SubscriptionTier[]> {
     fee_bps: number;
     description: string | null;
     enabled: boolean;
+    pause_count_allowed: number;
+    pause_months_allowed: number;
   }[]).map((t) => ({
     key: t.key,
     name: t.name,
@@ -53,6 +67,8 @@ export async function getTiers(): Promise<SubscriptionTier[]> {
     feeBps: t.fee_bps,
     description: t.description,
     enabled: t.enabled,
+    pauseCountAllowed: t.pause_count_allowed,
+    pauseMonthsAllowed: t.pause_months_allowed,
   }));
 }
 
@@ -61,7 +77,9 @@ export async function getMySubscription(): Promise<Subscription | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("subscriptions")
-    .select("id,tier_key,status,current_period_end")
+    .select(
+      "id,tier_key,status,current_period_end,paused_at,pauses_used,paused_months_used,created_at",
+    )
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -70,6 +88,10 @@ export async function getMySubscription(): Promise<Subscription | null> {
     tier_key: string;
     status: string;
     current_period_end: string | null;
+    paused_at: string | null;
+    pauses_used: number;
+    paused_months_used: number;
+    created_at: string;
   } | null;
   return row
     ? {
@@ -77,6 +99,47 @@ export async function getMySubscription(): Promise<Subscription | null> {
         tierKey: row.tier_key,
         status: row.status,
         currentPeriodEnd: row.current_period_end,
+        pausedAt: row.paused_at,
+        pausesUsed: row.pauses_used,
+        pausedMonthsUsed: row.paused_months_used,
+        createdAt: row.created_at,
       }
     : null;
+}
+
+/**
+ * Does this member hold a paid entitlement?
+ *
+ * FLAG-CONDITIONAL AT THE CALL SITE, not here — the same shape the DB gates use
+ * in 20260813114001. While `subscriptions_enabled` is false nobody holds Pro, so
+ * enforcing an entitlement would not turn a paywall on; it would take a working
+ * capability away from every member who has it today.
+ *
+ * `analytics` is the only entitlement with nowhere in the database to live: it
+ * guards a read surface with no write behind it.
+ */
+export async function hasEntitlement(profileId: string, key: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("has_entitlement", {
+    target_profile: profileId,
+    key,
+  });
+  return data === true;
+}
+
+/**
+ * Should a paid read surface render?
+ *
+ * Pure, and extracted because the wrong version of this is ALSO inert today.
+ * `enabled && hasEnt` hides the panel from everyone right now; `!enabled ||
+ * hasEnt` shows it to everyone right now. Both look identical from any test
+ * that only runs with the flag off, which is every test that exists.
+ */
+export function paidReadSurfaceVisible(
+  subscriptionsEnabled: boolean,
+  holdsEntitlement: boolean,
+): boolean {
+  // While subscriptions are off nobody holds Pro, so enforcing would not turn a
+  // paywall on — it would take a working capability away from every member.
+  return !subscriptionsEnabled || holdsEntitlement;
 }

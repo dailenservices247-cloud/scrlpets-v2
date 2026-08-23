@@ -706,7 +706,12 @@
     "shipmentErrorNotAdmin": "You are not an admin.",
     "shipmentErrorNotDispatched": "That order is not awaiting delivery.",
     "shipmentErrorNotShipped": "That order is not a shipped order.",
-    "shipmentErrorGeneric": "That did not work. Try again."
+    "shipmentErrorGeneric": "That did not work. Try again.",
+    "reactivateReason": "Reason for reactivating",
+    "reactivate": "Reactivate account",
+    "reactivating": "Reactivating…",
+    "reactivateHelp": "The reason is recorded in the moderation log, exactly like the suspension it reverses.",
+    "reactivateErrorNotSuspended": "That account is not suspended."
   },
   "guides": {
     "title": "Guides",
@@ -1069,7 +1074,27 @@
       "active": "Active",
       "past_due": "Payment overdue",
       "cancelled": "Cancelled"
-    }
+    },
+    "pauseHeading": "Pause your plan",
+    "pauseHelp": "A pause keeps your plan and your rate. It does not cancel it.",
+    "pauseMonths": "Months to pause",
+    "pauseSubmit": "Pause plan",
+    "pausing": "Pausing…",
+    "pausedNotice": "Your plan is paused. You are on the free rate until you resume.",
+    "resumeSubmit": "Resume plan",
+    "resuming": "Resuming…",
+    "pauseAllowance": "{used} of {allowed} months used, {count} of {countAllowed} pauses taken",
+    "pauseNotOnThisPlan": "This plan does not include pausing.",
+    "pauseErrorMonths": "Choose at least one month.",
+    "pauseErrorNoSubscription": "You do not have an active plan.",
+    "pauseErrorAlreadyPaused": "Your plan is already paused.",
+    "pauseErrorPlanDisallows": "This plan does not include pausing.",
+    "pauseErrorNoneRemaining": "You have used every pause this plan allows.",
+    "pauseErrorAllowanceExceeded": "That is more months than your plan's remaining allowance.",
+    "pauseErrorTooSoon": "A plan can be paused once it is 30 days old.",
+    "pauseErrorOrderInFlight": "Finish or settle your open orders first — a pause changes the fee rate while money is held.",
+    "pauseErrorNotPaused": "Your plan is not paused.",
+    "pauseErrorGeneric": "That did not work. Try again."
   },
   "referrals": {
     "title": "Invite people",
