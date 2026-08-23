@@ -170,3 +170,75 @@ export async function settleOrder(
   revalidatePath("/admin");
   return { ok: true };
 }
+
+/**
+ * Each party supplies the address they actually know: the seller where the
+ * animal is, the buyer where it is going. The definer decides which column your
+ * uid may write, so passing both from one caller cannot cross the wires.
+ */
+export async function setOrderAddresses(
+  orderId: string,
+  fields: { pickup?: string; pickupPhone?: string; delivery?: string; deliveryPhone?: string },
+): Promise<OrderResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_order_addresses", {
+    target_order: orderId,
+    pickup: fields.pickup ?? null,
+    pickup_phone: fields.pickupPhone ?? null,
+    delivery: fields.delivery ?? null,
+    delivery_phone: fields.deliveryPhone ?? null,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/orders/${orderId}`);
+  revalidatePath("/jobs");
+  return { ok: true };
+}
+
+/** The shipped path's dispatch. Tracking is mandatory — the definer refuses without it. */
+export async function recordShipment(
+  orderId: string,
+  carrier: string,
+  tracking: string,
+): Promise<OrderResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("record_shipment", {
+    target_order: orderId,
+    ship_carrier: carrier,
+    tracking,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/orders/${orderId}`);
+  revalidatePath("/applications");
+  return { ok: true };
+}
+
+/**
+ * The SELLER's step, not the driver's, and the split is the point: the seller
+ * proves the right animal got in the van, the buyer's code proves it reached the
+ * right person, and neither can fake the chain alone. `anchor_mismatch` means
+ * the animal presented was not the animal listed — a §3 dispute, not a typo.
+ */
+export async function confirmPickup(orderId: string, scannedAnchor: string): Promise<OrderResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("confirm_pickup", {
+    target_order: orderId,
+    scanned_anchor: scannedAnchor,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/orders/${orderId}`);
+  revalidatePath("/jobs");
+  return { ok: true };
+}
+
+/**
+ * The return leg of a refund-on-return remedy. Idempotent in the definer — a
+ * second call returns without writing — so a double click cannot restate it.
+ */
+export async function confirmAnimalReturned(orderId: string): Promise<OrderResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("confirm_animal_returned", { target_order: orderId });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/orders/${orderId}`);
+  revalidatePath("/admin");
+  return { ok: true };
+}
