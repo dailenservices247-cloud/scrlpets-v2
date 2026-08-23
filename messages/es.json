@@ -1055,6 +1055,13 @@
     "catalogEmptyBody": "Aquí no hay nada que comprar. Los puntos se aplican directamente a la comisión de una venta: 100 puntos son 1 $ de descuento, hasta la mitad de la comisión de ese pedido. Ganas 10 puntos por cada 1 $ de comisión que pagas, en cualquiera de los dos lados de una venta.",
     "catalogEmptyNotLive": "Esto se aplica cuando los pagos estén activados."
   },
+  "settings": {
+    "languageHeading": "Idioma",
+    "languageHelp": "Se aplica a todas las páginas, en este dispositivo.",
+    "languageEnglish": "English",
+    "languageSpanish": "Español",
+    "languageSaving": "Guardando…"
+  },
   "subscriptions": {
     "title": "Planes",
     "back": "Atrás",

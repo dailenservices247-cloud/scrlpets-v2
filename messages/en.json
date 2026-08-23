@@ -1055,6 +1055,13 @@
     "catalogEmptyBody": "There is nothing to buy here. Points apply directly to the platform fee on a sale — 100 points is $1 off, up to half the fee on that order. You earn 10 points for every $1 of fee you pay, on either side of a sale.",
     "catalogEmptyNotLive": "This applies once payments are switched on."
   },
+  "settings": {
+    "languageHeading": "Language",
+    "languageHelp": "Applies to every page, on this device.",
+    "languageEnglish": "English",
+    "languageSpanish": "Español",
+    "languageSaving": "Saving…"
+  },
   "subscriptions": {
     "title": "Plans",
     "back": "Back",

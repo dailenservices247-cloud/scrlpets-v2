@@ -19,6 +19,9 @@ import {
   Users,
 } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
+import { cookies } from "next/headers";
+import { LanguageSwitcher } from "@/components/settings/LanguageSwitcher";
+import { LOCALE_COOKIE, resolveLocale } from "@/lib/i18n/locale";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
 import { isPlatformAdmin } from "@/lib/verification/queries";
@@ -167,6 +170,19 @@ export default async function MenuPage() {
           </Link>
         </section>
       )}
+
+      {/* HERE and not /settings, which is auth-only. The language is a device
+          preference in a cookie and it works signed out — a Spanish-speaking
+          visitor has to be able to read the app before they have an account,
+          and public discovery without registration is a locked strength. It was
+          on /settings first; the e2e caught that guests could never reach it. */}
+      <section className="mt-5 px-4">
+        <div className="premium-panel rounded-2xl p-4">
+          <LanguageSwitcher
+            current={resolveLocale((await cookies()).get(LOCALE_COOKIE)?.value)}
+          />
+        </div>
+      </section>
 
       <section className="mt-5 px-4">
         <div className="rounded-2xl border border-border/70 bg-muted/35 p-4">
