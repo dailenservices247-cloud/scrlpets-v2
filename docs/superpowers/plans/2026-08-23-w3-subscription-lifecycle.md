@@ -390,3 +390,60 @@ than free meaning none, that is a different change.
 `enabled && !hasEntitlement` hiding the panel would also be inert today and would be
 wrong the moment the flag flips — and no test running now would tell them apart. The
 brand-os e2e passing unchanged is necessary but not sufficient; read the condition twice.
+
+---
+
+## Verification record — 2026-08-23, branch `claude/w3-subscription-lifecycle`
+
+| Gate | Result |
+|---|---|
+| typescript | exit 0 |
+| lint | exit 0 — 0 errors, 26 pre-existing warnings |
+| unit | **281 passed** (was 268) |
+| sql probes | 23 probes, 226 assertions, ALL PASS (W3 adds no migration) |
+| e2e | **182 passed, 7 skipped, 0 failed** (5.1m) |
+| prod build | exit 0 |
+| HEAD, not worktree | tsc exit 0 · **281 passed** |
+
+### The analytics gate nearly shipped unverified
+
+This is the finding worth keeping from W3.
+
+The gate is flag-conditional, so with `subscriptions_enabled` false it is inert.
+**So is the wrong version of it.** `!enabled || hasEnt` shows the panel to
+everyone today; `enabled && hasEnt` hides it from everyone today. No test that
+runs with the flag off can distinguish them — and every test runs with the flag
+off.
+
+I wrote the inverted condition deliberately and ran `brand-os.spec.ts`, which
+passed 2/2. That looked like confirmation and was nothing of the kind: **that
+spec never asserts on the stats panel.** The assertion lives in
+`breeder-os.spec.ts:38`.
+
+Fixed by extracting the condition to a pure `paidReadSurfaceVisible(enabled,
+holds)` and pinning it with a unit test that does not depend on the flag's real
+value. Both now detect the inversion:
+
+```
+unit → × shows the surface to everyone while subscriptions are off (1 failed | 1 passed)
+e2e breeder-os → 2 failed, 1 passed
+reverted → unit 2 passed, e2e 3 passed
+```
+
+The general shape: **a flag-conditional gate cannot be verified by a suite that
+only ever runs on one side of the flag.** Test the condition, not the rendering.
+
+### Banked, with a named unblock
+
+`redeem_fee_credit` still has no caller. It mutates `buyer_fee_cents` /
+`seller_fee_cents` on a live order, and adding a fee-mutating call to checkout is
+exactly what the banked go-live money-path review gate covers. **Unblock:** that
+review pass, or Dailen confirming §3–§6 of the money-architecture PRD.
+
+### The pricing decision this encoded
+
+`BreederStatsPanel` is honest own-record counts, free for every brand operator
+today. When `subscriptions_enabled` flips, non-Pro operators lose it. If Pro was
+meant to grant MORE analytics rather than free granting none, this gate is the
+wrong shape and the `analytics` row should come out of the Pro promise instead.
+Nothing changes until the flag moves.
