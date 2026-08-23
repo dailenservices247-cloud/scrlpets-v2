@@ -39,10 +39,19 @@ test("feed destination page has no serious/critical a11y violations", async ({ p
   // Pinned to a seeded listing, not whatever the feed happens to show: E2E rows
   // are created and soft-deleted by other workers mid-run, so `.first()` can
   // click a tile whose listing is gone by the time the route renders.
+  //
+  // FILTER ON THE CARD, NOT THE LINK. `tile-destination-listing` is the action
+  // <Link>, whose only text is a translated label and an aria-hidden icon — it
+  // never contains the title, so `hasNotText: "E2E "` matched every tile and
+  // excluded nothing. The mitigation above was written, and did nothing; the
+  // race it describes stayed live and this test failed intermittently on a 404.
+  // `tile-listing` is the FeedCardShell, which does contain `item.title`, and
+  // is the same shape comments.spec.ts and video-realms.spec.ts already use.
   await page
-    .getByTestId("tile-destination-listing")
+    .getByTestId("tile-listing")
     .filter({ hasNotText: "E2E " })
     .first()
+    .getByTestId("tile-destination-listing")
     .click();
   // Tolerant: dev-mode first-compile of the destination route under load.
   await expect(page.getByTestId("destination-listing")).toBeVisible({ timeout: 20_000 });
