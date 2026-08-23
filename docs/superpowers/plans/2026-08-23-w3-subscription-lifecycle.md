@@ -440,10 +440,22 @@ only ever runs on one side of the flag.** Test the condition, not the rendering.
 exactly what the banked go-live money-path review gate covers. **Unblock:** that
 review pass, or Dailen confirming §3–§6 of the money-architecture PRD.
 
-### The pricing decision this encoded
+### The pricing decision this encoded — SINCE REVERSED
 
 `BreederStatsPanel` is honest own-record counts, free for every brand operator
-today. When `subscriptions_enabled` flips, non-Pro operators lose it. If Pro was
-meant to grant MORE analytics rather than free granting none, this gate is the
-wrong shape and the `analytics` row should come out of the Pro promise instead.
-Nothing changes until the flag moves.
+today. The gate would have taken it from non-Pro operators the moment
+`subscriptions_enabled` flipped.
+
+**Reverted 2026-08-23 in `46948af`,** once the pricing copy was actually read.
+`TierList` renders price, fee rate and description and never the entitlement
+list — so the promise a member sees is free's *"Everything on Scrlpets"* against
+Pro's *"A 2.5% fee ... instead of 5%."* Pro's copy sells the fee cut and nothing
+else, and the two statements cannot both be true.
+
+`paidReadSurfaceVisible` and `hasEntitlement` went with it. Keeping an uncalled
+helper for a hypothetical future surface is the exact thing these workstreams
+have been removing.
+
+What the episode is still worth reading for is the verification trap above: the
+gate and its inverse were both inert, and the spec I reached for to check it
+never asserted on the panel.
