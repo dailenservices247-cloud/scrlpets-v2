@@ -6,11 +6,6 @@ import { BrandMembersPanel } from "@/components/brand/BrandMembersPanel";
 import { BrandPostingSetting } from "@/components/brand/BrandPostingSetting";
 import { getSessionUser } from "@/lib/auth/session";
 import {
-  hasEntitlement,
-  isSubscriptionsEnabled,
-  paidReadSurfaceVisible,
-} from "@/lib/subscriptions/queries";
-import {
   getMyBrands,
   getBrandContentCounts,
   getBrandMembers,
@@ -52,15 +47,6 @@ export default async function BrandOSPage({
 }) {
   const user = (await getSessionUser())!; // middleware guarantees auth on /brand-os
   const brands = await getMyBrands(user.id);
-  // FLAG-CONDITIONAL, exactly like the DB entitlement gates in 20260813114001.
-  // While subscriptions_enabled is false nobody holds Pro, so enforcing would
-  // not turn a paywall on — it would take stats away from every operator who
-  // has them today. NOTE: when that flag flips, non-Pro operators lose this
-  // panel. That is a pricing decision, recorded here so it is not a surprise.
-  const statsVisible = paidReadSurfaceVisible(
-    await isSubscriptionsEnabled(),
-    await hasEntitlement(user.id, "analytics"),
-  );
   const { brand: requestedBrandId } = await searchParams;
 
   // R16: the operating modules are scoped to the OPERATOR, not the brand —
@@ -105,11 +91,9 @@ export default async function BrandOSPage({
         <section className="px-3 py-3">
           <ReadinessPanel steps={readiness} />
         </section>
-        {statsVisible && (
-          <section className="px-3 py-3">
-            <BreederStatsPanel stats={stats} />
-          </section>
-        )}
+        <section className="px-3 py-3">
+          <BreederStatsPanel stats={stats} />
+        </section>
         <section className="px-3 py-3">
           <RosterPanel animals={roster} />
         </section>
@@ -224,11 +208,9 @@ export default async function BrandOSPage({
         <ReadinessPanel steps={readiness} />
       </section>
 
-      {statsVisible && (
-        <section className="px-3 py-3">
-          <BreederStatsPanel stats={stats} />
-        </section>
-      )}
+      <section className="px-3 py-3">
+        <BreederStatsPanel stats={stats} />
+      </section>
 
       {canBreeding && (
         <section className="px-3 py-3">
