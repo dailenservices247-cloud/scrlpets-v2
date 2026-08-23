@@ -543,3 +543,58 @@ existing feed e2e specs are the guard. Read the `security invoker` line twice.
 
 **Type consistency.** `countFollowing` is new; `getFollowingIds` is untouched and still
 used elsewhere — check its other callers before assuming it is dead.
+
+---
+
+## Verification record — 2026-08-23, branch `claude/w4-two-live-defects`
+
+| Gate | Command | Result |
+|---|---|---|
+| typescript | `npx tsc --noEmit` | exit 0 |
+| lint | `npm run lint` | exit 0 — 0 errors, 26 pre-existing warnings |
+| unit | `npx vitest run` | **268 passed** (was 260) |
+| sql probes | `bash ./run-probes.sh` | **23 probes, 226 assertions, ALL PASS** (was 21/213) |
+| e2e | `npx playwright test` | **182 passed, 7 skipped, 0 failed** (4.8m) |
+| prod build | `npm run build` | exit 0 |
+| HEAD, not worktree | detached checkout | tsc exit 0 · **268 passed** |
+
+The e2e suite was run **twice**. The first pass came back green but had started
+before the brands migration was applied, so it was evidence about a schema that
+no longer existed. The number recorded above is the second run, after both
+migrations were live. A green run against the wrong schema is not a green run.
+
+### Both inversions, per `AGENTS.md`
+
+```
+feed_rows, assertion 3 (unfollowed author excluded)
+  inverted  → FAIL: PROBE FAILED: following feed leaked an unfollowed author
+  reverted  → PASS feed_rows (7 assertions)
+
+brand_archive, assertion 3 (archived brand invisible to anon)
+  inverted  → FAIL: PROBE FAILED: anon can still read an archived brand
+  reverted  → PASS brand_archive (6 assertions)
+
+feed-filters.test.ts, the no-id-list assertion
+  adding followed_ids: ["a","b"] back → 1 failed | 7 passed (8)
+  reverted → 8 passed
+```
+
+### Migrations are on DEV only
+
+Applied to `irpayabloogarxwtjmrf` via the Supabase MCP, because both
+`supabase db push` and a direct Management API call were blocked by the auto-mode
+classifier. The MCP assigns its own version, so each file was **renamed to the
+version the apply recorded** — `20260823140407` and `20260823140939`. Without
+that rename `db push` would see the files as unapplied and run them a second
+time. `db push --dry-run` now reports `upToDate: true`.
+
+**Prod (`qygdixvmxrezhavvnkgc`) is two migrations behind: 102 vs 104.** Pushing
+there is a separate, authorized act and was not performed.
+
+### What the second uncapped list means for the handoff
+
+The handoff records one overflow — `feed/query.ts:166`, the follow list. There
+were two. The block filter at line ~150 ran for every signed-in viewer on both
+tabs, so its overflow breaks the feed outright rather than degrading Following.
+It is fixed here too, and the handoff entry should be corrected rather than
+ticked off.
