@@ -796,3 +796,67 @@ rm -rf /tmp/w2-headcheck && git worktree prune
 **Type consistency.** `PayoutRunResult` and `RefundRunResult` are imported from `payouts.ts`, not redefined. `ShipmentResult` mirrors `OrderResult`'s shape from `orders/actions.ts` but is deliberately a separate type — it is returned by a service-role path and should not be interchangeable with a user-session one.
 
 **Known risk this plan does not remove.** `getOverdueShipments` returns `[]` both when the caller is not an admin and when the RPC errors. An admin seeing an empty queue cannot tell "nothing overdue" from "the query failed". Acceptable for a read-only surface whose failure mode is a missing prompt rather than a wrong action, and the cron's own `overdue_shipments` count is a second signal. Worth revisiting if the queue ever drives something automatic.
+
+---
+
+## Verification record — 2026-08-23, branch `claude/w2-unattended-runners`
+
+`./ship-verify.sh` was blocked by the auto-mode classifier, so each gate was run
+directly.
+
+| Gate | Command | Result |
+|---|---|---|
+| typescript | `npx tsc --noEmit` | exit 0 |
+| lint | `npm run lint` | exit 0 — 0 errors, 26 pre-existing warnings |
+| unit | `npx vitest run` | 22 files, **260 passed** (was 242) |
+| sql probes | `bash ./run-probes.sh` | 21 probes, **213 assertions, ALL PASS** |
+| e2e | `npx playwright test` | **182 passed, 7 skipped, 0 failed** (4.6m) |
+| prod build | `npm run build` | exit 0, `/api/cron/tick` present |
+| HEAD, not worktree | detached checkout of `HEAD` | tsc exit 0 · **260 passed** |
+
+`git status --short` showed only the pre-existing `M AGENTS.md`. The W1 failure —
+a file that passed every gate while being in no commit — did not recur.
+
+### The e2e suite went red first, and it was not W2
+
+The first full run came back **181 passed, 1 failed, exit 1**:
+`a11y.spec.ts:37 › feed destination page` timed out on `destination-listing`.
+The captured snapshot showed the page had rendered **404**.
+
+The test already carried a comment describing that exact race and a filter
+written to prevent it — `getByTestId("tile-destination-listing").filter({
+hasNotText: "E2E " })`. But `tile-destination-listing` is the action `<Link>`,
+whose only text is a translated label and an aria-hidden arrow. **It has never
+contained the listing title**, so the filter matched every tile and excluded
+nothing. The comment claimed the click was "pinned to a seeded listing"; it was
+`.first()` over all listing tiles, which is what the comment says it avoids.
+
+Fixed in `f3d9f3d` by filtering the card (`tile-listing`, the `FeedCardShell`,
+which does contain `item.title`) — the shape `comments.spec.ts:134`,
+`content-edit-delete.spec.ts:61` and `video-realms.spec.ts:62` already use.
+
+Proof the filter is now load-bearing, which the old locator could not have
+passed: a no-op filter matches everything for `hasText` and `hasNotText` alike.
+
+```
+inverted  (hasText: "E2E ")     → 1 failed, locator.click timed out, zero matches
+corrected (hasNotText: "E2E ")  → 8 passed
+full suite re-run               → 182 passed, 7 skipped, exit 0
+```
+
+### Still outstanding, and Dailen's
+
+1. **`CRON_SECRET` as a Vercel Production environment variable.** Without it every
+   invocation 401s, and a cron that 401s daily looks exactly like a cron with
+   nothing to do.
+2. **`SUPABASE_SERVICE_ROLE_KEY` in `.env.local`**, still absent — the same 7
+   skips as W1. Nothing in W2 depends on it, but `order-actions`, `order-thread`,
+   `transport-jobs` and `trust-core` remain unrun.
+
+### Not covered by any test
+
+`getOverdueShipments` returns `[]` both when the caller is not an admin and when
+the RPC errors, so an empty queue cannot be told from a failed query. Accepted
+for a read-only surface whose failure mode is a missing prompt rather than a
+wrong action; the cron's own `overdueShipments` count is a second signal. Worth
+revisiting if the queue ever drives something automatic.
