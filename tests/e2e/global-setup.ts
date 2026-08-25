@@ -40,6 +40,30 @@ async function cleanOwnMarkers(email: string, password: string) {
   for (const row of staleListings ?? []) {
     await db.rpc("soft_delete_managed_listing", { target_listing_id: row.id });
   }
+
+  // Third table, same story: every litter on the dev database was an `E2E `
+  // leftover, because subject-layer.spec's own delete is its LAST line and any
+  // earlier failure skips it. Litters have no deleted_at — deleteLitter in
+  // src/lib/litters/actions.ts is a hard delete too — and creatures.litter_id
+  // is ON DELETE SET NULL, so retiring a fixture litter never touches the young
+  // it recorded. One filtered statement; RLS keeps it to this account's rows.
+  await db.from("litters").delete().eq("owner_id", data.user.id).like("name", "E2E %");
+
+  // The young outlive their litter by design, so they need their own sweep —
+  // and they get the app's escape hatch instead of a DELETE, which `creatures`
+  // has no policy for anyway. The RPC refuses any creature something still
+  // points at (lineage, listings, posts, alumni, tests, breeding events), so
+  // this can only ever remove rows nothing depends on; the rest simply stay.
+  // Order matters: it counts a still-linked young as referenced, and the litter
+  // delete above is what clears litter_id.
+  const { data: strays } = await db
+    .from("creatures")
+    .select("id")
+    .eq("owner_id", data.user.id)
+    .like("name", "E2E %");
+  for (const row of strays ?? []) {
+    await db.rpc("delete_creature_if_unreferenced", { target_creature: row.id });
+  }
 }
 
 export default async function globalSetup() {
