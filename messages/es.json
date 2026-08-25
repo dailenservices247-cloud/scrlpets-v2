@@ -1321,7 +1321,7 @@
       "cancel": "Cancelar",
       "error": "No se pudo guardar. Inténtalo de nuevo."
     },
-    "fromLitter": "De la camada: {name}",
+    "fromLitter": "De {group}: {name}",
     "healthTests": {
       "title": "Pruebas de salud",
       "disclaimer": "Autodeclarado por el dueño. Scrlpets no ha verificado estos resultados.",
@@ -2182,5 +2182,14 @@
     "errorNotAParty": "No formas parte de este pedido.",
     "errorSuspended": "Tu cuenta está suspendida, así que no puedes publicar.",
     "errorGeneric": "No se envió. No se ha publicado nada."
+  },
+  "species": {
+    "youngGroup": {
+      "litter": "la camada",
+      "clutch": "la nidada",
+      "brood": "la cría",
+      "spawn": "la freza",
+      "group": "la cría"
+    }
   }
 }

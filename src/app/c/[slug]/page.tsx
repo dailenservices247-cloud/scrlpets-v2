@@ -16,6 +16,7 @@ import { AnchorSection } from "@/components/anchor/AnchorSection";
 import { getCreatureBySlug, getCreatureFeed } from "@/lib/profiles/queries";
 import { getAnimalRecord } from "@/lib/records/queries";
 import { getSessionUser } from "@/lib/auth/session";
+import { speciesIdentity } from "@/lib/species/identity";
 import { getFeedDestination } from "@/lib/feed/destinations";
 import {
 
@@ -69,6 +70,10 @@ export default async function CreaturePage({
   const isDeceased = !!detail?.deceasedAt;
   const litter = detail?.litterId ? await getLitterName(detail.litterId) : null;
   const t = await getTranslations("creature");
+  const tSpecies = await getTranslations("species");
+  // A bird lays a clutch, a fish spawns. The word comes from the animal's own
+  // species rather than the sentence, so this link never calls a clutch a litter.
+  const youngGroup = tSpecies(`youngGroup.${speciesIdentity(creature.species).youngGroup}`);
 
   return (
     <AppPage>
@@ -158,7 +163,7 @@ export default async function CreaturePage({
       {litter && (
         <section className="mx-auto max-w-2xl px-4 pt-3" data-testid="creature-litter-link">
           <Link href={`/litters/${litter.id}`} className="text-sm text-brand-link underline">
-            {t("fromLitter", { name: litter.name })}
+            {t("fromLitter", { group: youngGroup, name: litter.name })}
           </Link>
         </section>
       )}

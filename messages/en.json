@@ -1321,7 +1321,7 @@
       "cancel": "Cancel",
       "error": "Couldn't save. Try again."
     },
-    "fromLitter": "From litter: {name}",
+    "fromLitter": "From {group}: {name}",
     "healthTests": {
       "title": "Health tests",
       "disclaimer": "Self-reported by the owner. Scrlpets has not verified these results.",
@@ -2182,5 +2182,14 @@
     "errorNotAParty": "You're not part of this order.",
     "errorSuspended": "Your account is suspended, so you can't post.",
     "errorGeneric": "That didn't send. Nothing was posted."
+  },
+  "species": {
+    "youngGroup": {
+      "litter": "litter",
+      "clutch": "clutch",
+      "brood": "brood",
+      "spawn": "spawn",
+      "group": "group"
+    }
   }
 }

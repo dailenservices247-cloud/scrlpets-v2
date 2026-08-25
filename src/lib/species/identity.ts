@@ -1,19 +1,19 @@
-export type SpeciesIdentity = { groupName: string; roleBadge: string };
+export type SpeciesIdentity = { groupName: string; roleBadge: string; youngGroup: string };
 
 // Species-neutral by construction: every family gets its own vocabulary
 // instead of forcing "kennel"/"pack" onto a cattery or an aviary. Unknown or
 // unset species fall back to the generic pair rather than guessing.
 const IDENTITY_BY_SPECIES: Record<string, SpeciesIdentity> = {
-  dog: { groupName: "My Pack", roleBadge: "Kennel" },
-  cat: { groupName: "My Clowder", roleBadge: "Cattery" },
-  rabbit: { groupName: "My Warren", roleBadge: "Rabbitry" },
-  bird: { groupName: "My Aviary", roleBadge: "Aviary" },
-  reptile: { groupName: "My Colony", roleBadge: "Herpetarium" },
-  fish: { groupName: "My School", roleBadge: "Aquarium" },
-  insect: { groupName: "My Colony", roleBadge: "Insectary" },
+  dog: { groupName: "My Pack", roleBadge: "Kennel", youngGroup: "litter" },
+  cat: { groupName: "My Clowder", roleBadge: "Cattery", youngGroup: "litter" },
+  rabbit: { groupName: "My Warren", roleBadge: "Rabbitry", youngGroup: "litter" },
+  bird: { groupName: "My Aviary", roleBadge: "Aviary", youngGroup: "clutch" },
+  reptile: { groupName: "My Colony", roleBadge: "Herpetarium", youngGroup: "clutch" },
+  fish: { groupName: "My School", roleBadge: "Aquarium", youngGroup: "spawn" },
+  insect: { groupName: "My Colony", roleBadge: "Insectary", youngGroup: "brood" },
 };
 
-const DEFAULT_IDENTITY: SpeciesIdentity = { groupName: "My Animals", roleBadge: "Breeder" };
+const DEFAULT_IDENTITY: SpeciesIdentity = { groupName: "My Animals", roleBadge: "Breeder", youngGroup: "group" };
 
 /** Case-insensitive species → group identity. Unknown species get the default pair. */
 export function speciesIdentity(species: string | null | undefined): SpeciesIdentity {
