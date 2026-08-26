@@ -53,9 +53,10 @@ describe("service categories", () => {
   });
 
   it("has a label in every locale, not just English", () => {
+    type WithCategories = { services: { category: Record<string, string> } };
     const locales: Record<string, Record<string, string>> = {
-      en: (en as Record<string, any>).services.category,
-      es: (es as Record<string, any>).services.category,
+      en: (en as WithCategories).services.category,
+      es: (es as WithCategories).services.category,
     };
     for (const [locale, labels] of Object.entries(locales)) {
       for (const c of SERVICE_CATEGORIES) {

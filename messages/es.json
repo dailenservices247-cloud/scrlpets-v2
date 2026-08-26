@@ -991,6 +991,9 @@
       "boarding": "Alojamiento",
       "transport": "Transporte",
       "veterinary": "Veterinaria",
+      "walking": "Paseos",
+      "sitting": "Cuidado",
+      "photography": "Fotografía",
       "other": "Otro"
     },
     "manage": {

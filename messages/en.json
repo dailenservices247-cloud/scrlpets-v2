@@ -991,6 +991,9 @@
       "boarding": "Boarding",
       "transport": "Transport",
       "veterinary": "Veterinary",
+      "walking": "Walking",
+      "sitting": "Sitting",
+      "photography": "Photography",
       "other": "Other"
     },
     "manage": {

@@ -5,6 +5,9 @@ export const SERVICE_CATEGORIES = [
   "boarding",
   "transport",
   "veterinary",
+  "walking",
+  "sitting",
+  "photography",
   "other",
 ] as const;
 
