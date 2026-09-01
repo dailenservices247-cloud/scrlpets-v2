@@ -14,6 +14,24 @@ code. Check these when standing up a new environment or rotating projects.
 | `NEXT_PUBLIC_POSTHOG_HOST` | optional | Defaults to `https://us.i.posthog.com`. |
 | `NEXT_PUBLIC_SENTRY_DSN` | optional | Error reports plus a 10% performance-trace sample. |
 
+## Where the API keys live (moved — checked 2026-08-26)
+
+`/settings/api` now REDIRECTS to an Integrations page with no keys on it. The
+real location is **Settings → API Keys**, split into two tabs, and this project
+uses the LEGACY pair:
+
+```
+https://supabase.com/dashboard/project/<ref>/settings/api-keys/legacy
+```
+
+`anon`/`public` on top, `service_role`/`secret` below it behind a Reveal button.
+
+**Do NOT press "Disable JWT-based API keys" on that page.** Every environment
+variable in this project is the legacy pair — `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+and `SUPABASE_SERVICE_ROLE_KEY`. Disabling them takes the app down everywhere,
+production included. Migrating to the publishable/secret system is real work,
+not a button press.
+
 ## Supabase Auth settings (dashboard)
 
 - **Site URL** must match the deployed origin (`NEXT_PUBLIC_SITE_URL`).
