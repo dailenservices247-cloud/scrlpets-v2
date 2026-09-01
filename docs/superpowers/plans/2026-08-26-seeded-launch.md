@@ -61,8 +61,6 @@ describe("FUNNEL_EVENTS", () => {
       "breederBranchTaken",
       "breederBranchSkipped",
       "firstBrandCreated",
-      "firstAnimalCreated",
-      "firstListingCreated",
     ] as const) {
       expect(FUNNEL_EVENTS[key], `FUNNEL_EVENTS.${key} missing`).toBeTruthy();
     }
@@ -98,9 +96,13 @@ export const FUNNEL_EVENTS = {
   breederBranchTaken: "breeder_branch_taken",
   breederBranchSkipped: "breeder_branch_skipped",
   firstBrandCreated: "first_brand_created",
-  firstAnimalCreated: "first_animal_created",
-  firstListingCreated: "first_listing_created",
 } as const;
+
+// Deliberately ABSENT: first_listing_created and first_animal_created.
+// `listing_created` already fires (ListingForm.tsx:163) and PostHog derives
+// first-occurrence per user from it natively — a server round-trip to compute
+// "is this your first" would duplicate the analytics tool's own job. An event
+// name with no call site is the exact drift this registry exists to prevent.
 
 export type FunnelEvent = (typeof FUNNEL_EVENTS)[keyof typeof FUNNEL_EVENTS];
 ```
@@ -465,13 +467,15 @@ git commit -m "GREEN: the breeder branch V1-14 specified and never got"
 
 ---
 
-## Task 4: Funnel events at the remaining call sites
+## Task 4: Fire the event that starts the funnel
 
 **Files:**
-- Modify: `src/components/compose/ListingForm.tsx:163`
 - Modify: `src/lib/analytics.ts`
+- Modify: `src/components/auth/LoginForm.tsx:88`
 
-`listing_created` already fires. The funnel needs the first-time variant so activation is separable from ongoing use.
+Every other funnel event has a call site from Task 3. `signup_completed` is the
+one that starts it, and signup runs through `LoginForm` in signup mode — there is
+no `SignupForm` component.
 
 - [ ] **Step 1: Re-export the registry from the analytics entry point**
 
@@ -481,37 +485,36 @@ Append to `src/lib/analytics.ts`:
 export { FUNNEL_EVENTS, type FunnelEvent } from "./analytics/events";
 ```
 
-- [ ] **Step 2: Add the first-listing event**
+- [ ] **Step 2: Fire it at the real completion point**
 
-In `src/components/compose/ListingForm.tsx`, directly after the existing
-`capture("listing_created", ...)` call at line 163, add:
+`src/components/auth/LoginForm.tsx` line 88 is the signup success path — it
+pushes to `/onboarding`. Immediately BEFORE that push, add:
 
 ```typescript
-      // Activation, not volume: the funnel needs to know a breeder crossed the
-      // line once. `isFirst` comes from the server response, never from a
-      // client-side count that a refresh would reset.
-      if (result.isFirstListing) capture(FUNNEL_EVENTS.firstListingCreated);
+      capture(FUNNEL_EVENTS.signupCompleted);
 ```
 
 Add to that file's imports:
 
 ```typescript
+import { capture } from "@/lib/analytics";
 import { FUNNEL_EVENTS } from "@/lib/analytics/events";
 ```
+
+Placing it before the push matters: `capture` is a synchronous no-op when the
+visitor has not consented, and firing after a navigation has begun can lose the
+event to the unload.
 
 - [ ] **Step 3: Verify types and units**
 
 Run: `npx tsc --noEmit && npx vitest run`
-Expected: tsc exits 0. If `result.isFirstListing` does not exist on the action's
-return type, tsc fails — add it to the listing action's result as
-`isFirstListing: boolean` computed server-side from a `count` query on the
-seller's existing listings, then re-run.
+Expected: tsc exits 0 with no output; all unit tests pass.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/lib/analytics.ts src/components/compose/ListingForm.tsx
-git commit -m "GREEN: activation events, separable from volume"
+git add src/lib/analytics.ts src/components/auth/LoginForm.tsx
+git commit -m "GREEN: the funnel starts where signup actually completes"
 ```
 
 ---
