@@ -89,3 +89,26 @@ test("menu and shop shell pages have no serious/critical a11y violations", async
   await page.goto("/terms");
   await expectNoSerious(page);
 });
+
+test("the seeded onboarding path has no serious/critical a11y violations", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
+  await page.waitForURL("http://localhost:3000/");
+  for (const route of ["/onboarding/breeder", "/hub", "/litters", "/settings"]) {
+    // Status asserted first: a 404 page is trivially accessible, so without
+    // this a mistyped route reads as a passing a11y check forever.
+    const res = await page.goto(route);
+    expect(res?.status(), `${route} did not resolve`).toBeLessThan(400);
+    await expectNoSerious(page);
+  }
+});
+
+test("guest discovery surfaces have no serious/critical a11y violations", async ({ page }) => {
+  for (const route of ["/discover", "/market", "/services", "/guides", "/adopt", "/faq"]) {
+    const res = await page.goto(route);
+    expect(res?.status(), `${route} did not resolve`).toBeLessThan(400);
+    await expectNoSerious(page);
+  }
+});
