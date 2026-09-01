@@ -1782,7 +1782,13 @@
     "skip": "Skip for now",
     "working": "Working…",
     "error": "We could not save that. Try again.",
-    "installLink": "You can also <install>add Scrlpets to your home screen</install>."
+    "installLink": "You can also <install>add Scrlpets to your home screen</install>.",
+    "breederTitle": "Do you breed or raise animals?",
+    "breederBody": "If you do, we'll set up your page now so your animals have somewhere to live. If you're here to follow along or find an animal, skip this — nothing is locked behind it.",
+    "breederYes": "Yes, set up my page",
+    "breederNo": "Not right now",
+    "breederNameLabel": "What should we call it?",
+    "breederNameHint": "Your kennel, cattery, aviary or program name. You can change it later."
   },
   "install": {
     "eyebrow": "Install",

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { completeOnboarding } from "@/app/onboarding/actions";
 import { LITTER_SPECIES } from "@/lib/litters/constants";
+import { capture } from "@/lib/analytics";
+import { FUNNEL_EVENTS } from "@/lib/analytics/events";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -47,7 +49,13 @@ export function SpeciesInterests({
       setErr(res.error ?? "error");
       return;
     }
-    router.push(nextPath);
+    capture(
+      species.length > 0
+        ? FUNNEL_EVENTS.onboardingSpeciesSaved
+        : FUNNEL_EVENTS.onboardingSkipped,
+      { count: species.length },
+    );
+    router.push(`/onboarding/breeder?next=${encodeURIComponent(nextPath)}`);
     router.refresh();
   }
 

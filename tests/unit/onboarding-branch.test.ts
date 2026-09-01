@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { brandRedirectTarget } from "@/lib/brands/actions";
+import { brandRedirectTarget } from "@/lib/brands/redirect";
 
 /**
  * Extracted as a pure function because the redirect is the ONLY thing that

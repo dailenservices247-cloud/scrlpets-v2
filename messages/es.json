@@ -1782,7 +1782,13 @@
     "skip": "Omitir por ahora",
     "working": "Procesando…",
     "error": "No pudimos guardarlo. Inténtalo de nuevo.",
-    "installLink": "También puedes <install>añadir Scrlpets a tu pantalla de inicio</install>."
+    "installLink": "También puedes <install>añadir Scrlpets a tu pantalla de inicio</install>.",
+    "breederTitle": "¿Crías o cuidas animales?",
+    "breederBody": "Si es así, configuramos tu página ahora para que tus animales tengan dónde vivir. Si estás aquí para seguir a otros o encontrar un animal, omite esto: no bloquea nada.",
+    "breederYes": "Sí, configurar mi página",
+    "breederNo": "Ahora no",
+    "breederNameLabel": "¿Cómo la llamamos?",
+    "breederNameHint": "El nombre de tu criadero, aviario o programa. Puedes cambiarlo después."
   },
   "install": {
     "eyebrow": "Instalar",

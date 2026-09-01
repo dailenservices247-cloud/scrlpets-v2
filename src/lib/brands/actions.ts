@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isBrandRole, isBrandType } from "./types";
+import { brandRedirectTarget } from "./redirect";
 
 export type BrandActionResult = { ok: true } | { ok: false; error: string };
 type CreateBrandResult = { ok: false; error: string };
@@ -23,18 +24,6 @@ async function requireUser() {
  * checks here are the app-layer guard. Returns ONLY on validation/DB failure; on success
  * it redirects (redirect throws NEXT_REDIRECT, so callers never receive an ok result).
  */
-/**
- * Where to land after a brand is created. `next` reaches this from a form
- * field, so it is attacker-supplied: only same-origin absolute PATHS are
- * honoured, and a protocol-relative `//host` is rejected along with full URLs.
- */
-export function brandRedirectTarget(brandId: string, next: string | null): string {
-  const fallback = `/compose?brand=${brandId}`;
-  if (!next) return fallback;
-  if (!next.startsWith("/") || next.startsWith("//")) return fallback;
-  return next;
-}
-
 export async function createBrand(formData: FormData): Promise<CreateBrandResult> {
   const { supabase, user } = await requireUser();
   const name = String(formData.get("name") ?? "").trim();
