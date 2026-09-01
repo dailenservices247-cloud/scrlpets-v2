@@ -11,6 +11,12 @@ import { SELLER_EMAIL, MEMBER_EMAIL, signInCached } from "./fixtures";
  * the flag is what stops it.
  */
 async function loginViaUi(page: import("@playwright/test").Page, email: string) {
+  // This spec signs in as TWO people in sequence. Without clearing the session
+  // first, the second call lands on a /login that no longer renders a form —
+  // the visitor is already authenticated — and `fill` waits out the whole
+  // timeout. Matches the pattern every other multi-user spec uses
+  // (block-report.spec.ts:13).
+  await page.context().clearCookies();
   await page.goto("/login");
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
@@ -20,6 +26,28 @@ async function loginViaUi(page: import("@playwright/test").Page, email: string) 
 
 test.describe("order actions", () => {
   test.describe.configure({ timeout: 120_000 });
+
+  // Cleanup CANNOT live on the last line of a test. It did, and two failing
+  // runs left `funds_held` orders on shared dev — which then broke the
+  // entitlements_and_pause PROBE, because pause_subscription correctly refuses
+  // while an order is in flight. A leaked fixture here is not litter, it is a
+  // false failure somewhere else entirely. Same defect subject-layer.spec.ts
+  // had (fixed in f8d7277).
+  const created: { orders: string[]; listings: string[] } = { orders: [], listings: [] };
+
+  test.afterEach(async () => {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return;
+    const asService = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+    // Orders first: every child (events, messages, payments, payouts, refunds)
+    // is ON DELETE CASCADE, so this leaves nothing orphaned.
+    if (created.orders.length) await asService.from("orders").delete().in("id", created.orders);
+    if (created.listings.length) await asService.from("listings").delete().in("id", created.listings);
+    created.orders = [];
+    created.listings = [];
+  });
 
   test("a seller sees seller controls and a buyer sees buyer controls", async ({ page }) => {
     test.skip(
@@ -40,6 +68,7 @@ test.describe("order actions", () => {
       .select("id")
       .single();
     expect(listing.error, "fixture listing must exist or this proves nothing").toBeNull();
+    created.listings.push(listing.data!.id as string);
 
     const order = await asService
       .from("orders")
@@ -57,6 +86,7 @@ test.describe("order actions", () => {
     // Without this the whole test passes vacuously on a null order id.
     expect(order.error, "fixture order must exist or this proves nothing").toBeNull();
     const orderId = order.data!.id as string;
+    created.orders.push(orderId);
 
     // Seller at funds_held on an in-person order: dispatch, not shipment.
     await loginViaUi(page, SELLER_EMAIL);
@@ -72,15 +102,15 @@ test.describe("order actions", () => {
     });
 
     // Buyer on the same order: no seller controls, and the dispute is theirs too.
-    await page.goto("/auth/signout");
+    // No signout hop: /auth/signout is POST-only, so navigating to it was a GET
+    // against a route with no GET handler and never signed anyone out. The
+    // session is cleared inside loginViaUi instead.
     await loginViaUi(page, MEMBER_EMAIL);
     await page.goto(`/orders/${orderId}`);
     await expect(page.getByTestId("order-dispute")).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId("order-mark-dispatched")).toHaveCount(0);
     await expect(page.getByTestId("order-address-line")).toBeVisible();
 
-    await asService.from("orders").delete().eq("id", orderId);
-    await asService.from("listings").delete().eq("id", listing.data!.id);
   });
 
   test("a shipped order offers the seller tracking, never a dispatch button", async ({ page }) => {
@@ -99,6 +129,7 @@ test.describe("order actions", () => {
       .select("id")
       .single();
     expect(listing.error, "fixture listing must exist or this proves nothing").toBeNull();
+    created.listings.push(listing.data!.id as string);
 
     const order = await asService
       .from("orders")
@@ -115,6 +146,7 @@ test.describe("order actions", () => {
       .single();
     expect(order.error, "fixture order must exist or this proves nothing").toBeNull();
     const orderId = order.data!.id as string;
+    created.orders.push(orderId);
 
     await loginViaUi(page, SELLER_EMAIL);
     await page.goto(`/orders/${orderId}`);
@@ -124,7 +156,5 @@ test.describe("order actions", () => {
     // so offering the button at all would be offering a guaranteed refusal.
     await expect(page.getByTestId("order-mark-dispatched")).toHaveCount(0);
 
-    await asService.from("orders").delete().eq("id", orderId);
-    await asService.from("listings").delete().eq("id", listing.data!.id);
   });
 });
