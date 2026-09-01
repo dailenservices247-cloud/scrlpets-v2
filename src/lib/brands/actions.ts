@@ -23,6 +23,18 @@ async function requireUser() {
  * checks here are the app-layer guard. Returns ONLY on validation/DB failure; on success
  * it redirects (redirect throws NEXT_REDIRECT, so callers never receive an ok result).
  */
+/**
+ * Where to land after a brand is created. `next` reaches this from a form
+ * field, so it is attacker-supplied: only same-origin absolute PATHS are
+ * honoured, and a protocol-relative `//host` is rejected along with full URLs.
+ */
+export function brandRedirectTarget(brandId: string, next: string | null): string {
+  const fallback = `/compose?brand=${brandId}`;
+  if (!next) return fallback;
+  if (!next.startsWith("/") || next.startsWith("//")) return fallback;
+  return next;
+}
+
 export async function createBrand(formData: FormData): Promise<CreateBrandResult> {
   const { supabase, user } = await requireUser();
   const name = String(formData.get("name") ?? "").trim();
@@ -46,7 +58,7 @@ export async function createBrand(formData: FormData): Promise<CreateBrandResult
 
   // Land in the composer with the new brand preselected (?brand=) — without this,
   // multi-brand owners get their OLDEST brand auto-selected and misattribute the post.
-  redirect(`/compose?brand=${brand.id}`);
+  redirect(brandRedirectTarget(brand.id, String(formData.get("next") ?? "") || null));
 }
 
 export async function addBrandMember(formData: FormData): Promise<BrandActionResult> {
