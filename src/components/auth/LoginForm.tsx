@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { authErrorKey, type AuthErrorKey, type AuthNoticeKey } from "@/lib/auth/errors";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password";
 import { signUpWithPassword } from "@/lib/auth/signup";
+import { capture } from "@/lib/analytics";
+import { FUNNEL_EVENTS } from "@/lib/analytics/events";
 import { TurnstileWidget } from "@/components/auth/TurnstileWidget";
 import { captchaEnabled } from "@/lib/auth/captcha";
 
@@ -78,6 +80,15 @@ export function LoginForm({
         setError("already_registered");
         return;
       }
+      // Fired BEFORE the verify/session split, because both remaining outcomes
+      // created an account: `verify` is awaiting email confirmation and the
+      // fallthrough already has a session. Counting only the session path would
+      // undercount every signup that needs confirmation — the common path while
+      // SMTP is unconfigured. capture() is a no-op without consent, and it runs
+      // before any navigation so an unload cannot lose it.
+      capture(FUNNEL_EVENTS.signupCompleted, {
+        needsVerification: result.status === "verify",
+      });
       if (result.status === "verify") {
         setAwaitingVerification(true);
         return;

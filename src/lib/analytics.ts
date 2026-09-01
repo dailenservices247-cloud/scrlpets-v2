@@ -27,3 +27,5 @@ export function disableAnalytics() {
 export function capture(event: string, props?: Record<string, unknown>) {
   if (ready && !posthog.has_opted_out_capturing()) posthog.capture(event, props);
 }
+
+export { FUNNEL_EVENTS, type FunnelEvent } from "./analytics/events";
