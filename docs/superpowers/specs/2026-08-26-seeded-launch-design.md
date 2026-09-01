@@ -19,21 +19,34 @@ empty state, because empty is the truth.
 Meanwhile `scrlpets.com` still serves the legacy Lovable app to every visitor,
 so the finished product has no audience and the empty product has no traffic.
 
-**The legacy-parity work this was assumed to need is already done.** Across all
-74 walkthrough items covering 66 of legacy's 72 pages: 28 built, 29 ruled kills
-(each verified absent before the ruling), 7 banked behind named unblocks, 6
-partial with a named delta, 1 undecided. Settings shipped. The admin portal ships
-nine queues. There is no backlog of legacy features waiting to be ported.
+**The legacy-parity work this was assumed to need is already done.** The
+walkthrough covers 66 of legacy's 72 pages across **89 rulable items** — V1's 15
+plus 74 in V2–V9 (the 74 figure quoted in earlier session notes is V2–V9 ONLY and
+does not include V1):
+
+| | V1 | V2–V9 | Total |
+|---|---:|---:|---:|
+| Built | 9 | 28 | **37** |
+| Ruled kills | 2 | 29 | **31** |
+| Banked behind a named unblock | 3 | 7 | **10** |
+| Partial, named delta only | 0 | 6 | **6** |
+| Undecided | 1 (V1-07) | 0 | **1** |
+| Unchanged / no ruling needed | 0 | 4 | **4** |
+| | **15** | **74** | **89** |
+
+Settings shipped. The admin portal ships nine queues — dispute, guides,
+moderation log, program review, redemptions, reports, shipments, support,
+suspension. There is no backlog of legacy features waiting to be ported.
 
 What is missing is everything between "the software works" and "a breeder joins,
 fills it in, and stays."
 
 ## Non-goals
 
-- **Re-examining the 29 ruled kills.** Verified absent, ruled 2026-08-25.
+- **Re-examining the 31 ruled kills.** The 29 in V2–V9 were verified absent and ruled 2026-08-25; V1's two were provisionally ruled 2026-07-29.
   Reopening one requires Dailen naming it specifically.
 - **Flipping either money flag.** Separate reviewed event.
-- **Building the 7 banked items.** Each has a named unblock that has not fired.
+- **Building the 10 banked items.** Each has a named unblock that has not fired.
 - **New features.** Every item below closes a gap between the app and its first
   real user. Nothing here is a new capability.
 
@@ -91,9 +104,11 @@ items 1 and 2 get covered as part of those items rather than as a separate pass.
 
 ### 4. Cold start
 
-Dailen and a small cohort create genuine content — animals, brands, litters,
-listings — through the onboarding path from item 1. The domain flips only once
-there is something to see.
+Dailen creates genuine content first — animals, brands, litters, listings —
+through the onboarding path from item 1, then invites breeders one at a time.
+Cohort size is Dailen's call and is deliberately not fixed here; the gating
+condition is qualitative, not numeric: **the domain flips when a first-time
+visitor lands on a populated feed rather than an empty state.**
 
 **This item cannot complete without Dailen's nine.** The domain flip is his, and
 the seeding depends on email (Resend) for anything involving another person.
@@ -137,7 +152,9 @@ Specific risks worth naming:
 
 ## Success criteria
 
-- A breeder signs up and reaches a populated profile without assistance.
+- A breeder signs up and reaches a populated profile **without Dailen walking
+  them through it**. During seeding he will be present; the criterion is that his
+  presence is not load-bearing.
 - The funnel from signup to first listing is visible in analytics.
 - Every route on that path passes a11y.
 - Production holds real content created through the product.
