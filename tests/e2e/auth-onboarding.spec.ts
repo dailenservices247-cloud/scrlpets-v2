@@ -101,6 +101,14 @@ test("onboarding pre-selects no species and skipping still counts as answered", 
   await expect(page.locator('[data-testid^="onboarding-species-"][aria-pressed="true"]')).toHaveCount(0);
 
   await page.getByTestId("onboarding-skip").click();
+
+  // The breeder branch now sits between the species step and the destination.
+  // The requirement this spec protects is unchanged — skipping still counts as
+  // answered and still gets you where you were going — so it follows through
+  // the branch rather than dropping the assertion. `next` has to survive the
+  // extra hop, and this is what proves it does.
+  await expect(page.getByTestId("onboarding-breeder")).toBeVisible({ timeout: 20_000 });
+  await page.getByTestId("breeder-skip").click();
   await expect(page).toHaveURL("http://localhost:3000/saved", { timeout: 20_000 });
 
   const after = await db
