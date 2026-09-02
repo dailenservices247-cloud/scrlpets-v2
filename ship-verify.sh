@@ -10,7 +10,7 @@
 set -uo pipefail
 cd "$(dirname "$0")"
 
-PROD_URL="https://scrlpets-v2.vercel.app"
+PROD_URL="https://scrlpets.com"
 declare -a RESULTS=()
 FAIL=0
 
