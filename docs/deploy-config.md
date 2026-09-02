@@ -42,10 +42,30 @@ under `/auth/`, not `/settings/`:
 | SMTP | `/dashboard/project/<ref>/auth/smtp` (Authentication → Emails → SMTP Settings) |
 | Site URL + redirect allow-list | `/dashboard/project/<ref>/auth/url-configuration` |
 
-**PROD SMTP IS OFF (checked 2026-08-26, `qygdixvmxrezhavvnkgc`).** "Enable custom
-SMTP" is toggled off, so production auth email goes through Supabase's built-in
-sender and its low hourly rate limit. Dev is configured; prod is not. Nobody can
-be onboarded at volume until this is on.
+**PROD SMTP IS ON and VERIFIED END TO END (2026-08-26, `qygdixvmxrezhavvnkgc`).**
+Same Resend settings as dev — `smtp.resend.com:465`, username `resend`, sender
+`Scrlpets <auth@synapsedynamics.io>` — with its own key
+`scrlpets-supabase-smtp-prod` (Sending access, `synapsedynamics.io`).
+
+Proven by a real password reset through the LIVE site, not by reading the form:
+`POST /emails 200` in Resend's log, then **Delivered** to a Gmail address.
+Resend had "No logs yet" immediately before, so the send is attributable.
+
+**The app's own success message cannot verify this.** `/forgot-password` says
+"if an account exists… a link is on its way" whether or not the mail left — it
+is deliberately non-committal to prevent user enumeration. Resend's log is the
+only discriminating evidence.
+
+**Rate limit: 30 emails/hour** once custom SMTP is on. Signups, confirmations,
+resets and notifications all draw from it.
+
+**A Resend API key is shown ONCE at creation.** `scrlpets-supabase-smtp` (dev,
+still in use — do not delete) was never saved anywhere, which is why prod needed
+a new key rather than a lookup. Save new keys to `~/.secret_keys` at creation.
+
+**Watch browser autofill on this form.** The Username field arrived prefilled
+with an unrelated Supabase project name; saving that would have broken auth mail
+silently.
 
 **PROD URL config is CORRECT as of 2026-08-26:** Site URL
 `https://scrlpets-v2.vercel.app`, allow-list `https://scrlpets-v2.vercel.app/**`
