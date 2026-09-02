@@ -14,6 +14,77 @@ code. Check these when standing up a new environment or rotating projects.
 | `NEXT_PUBLIC_POSTHOG_HOST` | optional | Defaults to `https://us.i.posthog.com`. |
 | `NEXT_PUBLIC_SENTRY_DSN` | optional | Error reports plus a 10% performance-trace sample. |
 
+## Where the API keys live (moved — checked 2026-08-26)
+
+`/settings/api` now REDIRECTS to an Integrations page with no keys on it. The
+real location is **Settings → API Keys**, split into two tabs, and this project
+uses the LEGACY pair:
+
+```
+https://supabase.com/dashboard/project/<ref>/settings/api-keys/legacy
+```
+
+`anon`/`public` on top, `service_role`/`secret` below it behind a Reveal button.
+
+**Do NOT press "Disable JWT-based API keys" on that page.** Every environment
+variable in this project is the legacy pair — `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+and `SUPABASE_SERVICE_ROLE_KEY`. Disabling them takes the app down everywhere,
+production included. Migrating to the publishable/secret system is real work,
+not a button press.
+
+## Auth dashboard URLs (they moved — checked 2026-08-26)
+
+`/settings/auth` REDIRECTS to `/auth/providers`. The auth settings now live
+under `/auth/`, not `/settings/`:
+
+| Setting | URL |
+| --- | --- |
+| SMTP | `/dashboard/project/<ref>/auth/smtp` (Authentication → Emails → SMTP Settings) |
+| Site URL + redirect allow-list | `/dashboard/project/<ref>/auth/url-configuration` |
+
+**PROD SMTP IS ON and VERIFIED END TO END (2026-08-26, `qygdixvmxrezhavvnkgc`).**
+Same Resend settings as dev — `smtp.resend.com:465`, username `resend`, sender
+`Scrlpets <auth@synapsedynamics.io>` — with its own key
+`scrlpets-supabase-smtp-prod` (Sending access, `synapsedynamics.io`).
+
+Proven by a real password reset through the LIVE site, not by reading the form:
+`POST /emails 200` in Resend's log, then **Delivered** to a Gmail address.
+Resend had "No logs yet" immediately before, so the send is attributable.
+
+**The app's own success message cannot verify this.** `/forgot-password` says
+"if an account exists… a link is on its way" whether or not the mail left — it
+is deliberately non-committal to prevent user enumeration. Resend's log is the
+only discriminating evidence.
+
+**Rate limit: 30 emails/hour** once custom SMTP is on. Signups, confirmations,
+resets and notifications all draw from it.
+
+**A Resend API key is shown ONCE at creation.** `scrlpets-supabase-smtp` (dev,
+still in use — do not delete) was never saved anywhere, which is why prod needed
+a new key rather than a lookup. Save new keys to `~/.secret_keys` at creation.
+
+**Watch browser autofill on this form.** The Username field arrived prefilled
+with an unrelated Supabase project name; saving that would have broken auth mail
+silently.
+
+**PROD URL config is CORRECT as of 2026-08-26:** Site URL
+`https://scrlpets-v2.vercel.app`, allow-list `https://scrlpets-v2.vercel.app/**`
++ `http://localhost:3000/**`. The `/**` wildcard already covers `/auth/callback`.
+
+## THE DOMAIN-FLIP CHECKLIST (four places, not one)
+
+Flipping `scrlpets.com` is not one change. Miss any of these and links break
+silently — including the link inside every confirmation email:
+
+1. `NEXT_PUBLIC_SITE_URL` on Vercel Production (currently UNSET — six surfaces
+   fall back to the vercel.app host).
+2. Supabase **Site URL** → the new origin.
+3. Supabase **redirect allow-list** → add `https://<new-domain>/**`.
+4. DNS at the registrar + add the domain in the Vercel project.
+
+Do 1–3 before or with 4. `scrlpets.com` is NOT on the Vercel account today
+(only `synapsedynamics.io`), so step 4 is a real DNS move.
+
 ## Supabase Auth settings (dashboard)
 
 - **Site URL** must match the deployed origin (`NEXT_PUBLIC_SITE_URL`).
