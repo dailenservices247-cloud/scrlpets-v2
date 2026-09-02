@@ -112,3 +112,71 @@ test("guest discovery surfaces have no serious/critical a11y violations", async 
     await expectNoSerious(page);
   }
 });
+
+/**
+ * The rest of the static routes — spec item 3's "then the rest".
+ *
+ * Split by auth because a signed-out visit to a protected route lands on
+ * /login, and scanning the login page 12 times proves nothing about the route
+ * you meant to check. Status is asserted before axe runs for the same reason a
+ * 404 page is trivially accessible.
+ *
+ * `/admin` is deliberately absent: it needs an admin fixture that does not
+ * exist, and granting admin to a test account would weaken the RBAC refusal
+ * specs that depend on it.
+ */
+const GUEST_ROUTES = [
+  "/groups",
+  "/guidelines",
+  "/install",
+  "/jobs",
+  "/market/offer",
+  "/search",
+  "/signup",
+  "/support",
+  "/tree",
+  "/waitlist",
+];
+
+const SIGNED_IN_ROUTES = [
+  "/applications",
+  "/brand-os",
+  "/brands/new",
+  "/calendar",
+  "/health",
+  "/notifications",
+  "/onboarding",
+  "/pack",
+  "/pack/alumni",
+  "/rewards",
+  "/saved",
+  "/settings/account",
+  "/settings/payouts",
+  "/settings/profile",
+  "/settings/referrals",
+  "/settings/subscription",
+  "/settings/verification",
+];
+
+test("every remaining guest route has no serious/critical a11y violations", async ({ page }) => {
+  test.setTimeout(180_000);
+  for (const route of GUEST_ROUTES) {
+    const res = await page.goto(route);
+    expect(res?.status(), `${route} did not resolve`).toBeLessThan(400);
+    await expectNoSerious(page);
+  }
+});
+
+test("every remaining signed-in route has no serious/critical a11y violations", async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
+  await page.waitForURL("http://localhost:3000/");
+  for (const route of SIGNED_IN_ROUTES) {
+    const res = await page.goto(route);
+    expect(res?.status(), `${route} did not resolve`).toBeLessThan(400);
+    await expectNoSerious(page);
+  }
+});
