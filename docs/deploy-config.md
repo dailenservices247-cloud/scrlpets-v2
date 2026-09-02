@@ -32,6 +32,39 @@ and `SUPABASE_SERVICE_ROLE_KEY`. Disabling them takes the app down everywhere,
 production included. Migrating to the publishable/secret system is real work,
 not a button press.
 
+## Auth dashboard URLs (they moved — checked 2026-08-26)
+
+`/settings/auth` REDIRECTS to `/auth/providers`. The auth settings now live
+under `/auth/`, not `/settings/`:
+
+| Setting | URL |
+| --- | --- |
+| SMTP | `/dashboard/project/<ref>/auth/smtp` (Authentication → Emails → SMTP Settings) |
+| Site URL + redirect allow-list | `/dashboard/project/<ref>/auth/url-configuration` |
+
+**PROD SMTP IS OFF (checked 2026-08-26, `qygdixvmxrezhavvnkgc`).** "Enable custom
+SMTP" is toggled off, so production auth email goes through Supabase's built-in
+sender and its low hourly rate limit. Dev is configured; prod is not. Nobody can
+be onboarded at volume until this is on.
+
+**PROD URL config is CORRECT as of 2026-08-26:** Site URL
+`https://scrlpets-v2.vercel.app`, allow-list `https://scrlpets-v2.vercel.app/**`
++ `http://localhost:3000/**`. The `/**` wildcard already covers `/auth/callback`.
+
+## THE DOMAIN-FLIP CHECKLIST (four places, not one)
+
+Flipping `scrlpets.com` is not one change. Miss any of these and links break
+silently — including the link inside every confirmation email:
+
+1. `NEXT_PUBLIC_SITE_URL` on Vercel Production (currently UNSET — six surfaces
+   fall back to the vercel.app host).
+2. Supabase **Site URL** → the new origin.
+3. Supabase **redirect allow-list** → add `https://<new-domain>/**`.
+4. DNS at the registrar + add the domain in the Vercel project.
+
+Do 1–3 before or with 4. `scrlpets.com` is NOT on the Vercel account today
+(only `synapsedynamics.io`), so step 4 is a real DNS move.
+
 ## Supabase Auth settings (dashboard)
 
 - **Site URL** must match the deployed origin (`NEXT_PUBLIC_SITE_URL`).
