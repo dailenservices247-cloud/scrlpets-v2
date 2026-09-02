@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { currentUsernameFor } from "@/lib/profiles/queries";
 import { getTranslations } from "next-intl/server";
 import { getSessionUser } from "@/lib/auth/session";
 import {
@@ -52,7 +53,14 @@ export default async function ProfilePage({
   const { username } = await params;
   const { tab } = await searchParams;
   const profile = await getProfileByUsername(username);
-  if (!profile) notFound();
+  if (!profile) {
+    // A retired handle is retained forever, so an old link resolves to whoever
+    // released it rather than 404ing. This is the half of the rename that
+    // 20260801171418 called the "link-rot" objection.
+    const current = await currentUsernameFor(username);
+    if (current) redirect(`/u/${current}`);
+    notFound();
+  }
   const user = await getSessionUser();
   const active = tab === "pets" || tab === "about" ? tab : "posts";
   // Counts come from the SAME reads the list pages render, so tapping a count

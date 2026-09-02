@@ -185,3 +185,26 @@ export async function getCreaturesByOwner(ownerId: string): Promise<OwnedCreatur
     .order("created_at");
   return data ?? [];
 }
+
+/**
+ * The handle someone uses NOW, given one they used to use.
+ *
+ * `username_history` retains every released handle, so `/u/<old>` can redirect
+ * instead of 404ing. Returns null when the handle was never held by anyone —
+ * that is a genuine not-found, not a rename.
+ */
+export async function currentUsernameFor(retired: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("username_history")
+    .select("profile_id")
+    .eq("username", retired.toLowerCase())
+    .maybeSingle();
+  if (!data) return null;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("id", (data as { profile_id: string }).profile_id)
+    .maybeSingle();
+  return (profile as { username: string } | null)?.username ?? null;
+}

@@ -271,7 +271,20 @@
     "followListSubtitle": "{count, plural, =0 {Aún sin cuentas} =1 {# cuenta} other {# cuentas}} · {name}",
     "followersEmpty": "Aún no hay seguidores.",
     "followingEmpty": "Todavía no sigue a ninguna cuenta.",
-    "cover": "Foto de portada"
+    "cover": "Foto de portada",
+    "usernameLabel": "Tu nombre de usuario",
+    "usernameHint": "Es la dirección de tu página: scrlpets.com/u/tunombre. Letras, números y guiones bajos; puedes cambiarlo una vez cada 30 días.",
+    "usernameSave": "Cambiar nombre",
+    "usernameSaved": "Nombre actualizado",
+    "usernameError": {
+      "username_taken": "Ese nombre ya está en uso.",
+      "username_cooldown": "Cambiaste tu nombre en los últimos 30 días. Inténtalo más tarde.",
+      "username_reserved": "Ese nombre está reservado.",
+      "username_format": "Usa solo letras, números y guiones bajos.",
+      "username_length": "Entre 3 y 30 caracteres.",
+      "username_leading": "Debe empezar con una letra.",
+      "generic": "No se pudo guardar. Inténtalo de nuevo."
+    }
   },
   "detail": {
     "backToFeed": "Volver al feed",

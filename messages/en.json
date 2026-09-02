@@ -271,7 +271,20 @@
     "followListSubtitle": "{count, plural, =0 {No accounts yet} =1 {# account} other {# accounts}} · {name}",
     "followersEmpty": "No followers yet.",
     "followingEmpty": "Not following anyone yet.",
-    "cover": "Cover photo"
+    "cover": "Cover photo",
+    "usernameLabel": "Your handle",
+    "usernameHint": "This is your page address — scrlpets.com/u/yourhandle. Letters, numbers and underscores; you can change it once every 30 days.",
+    "usernameSave": "Change handle",
+    "usernameSaved": "Handle updated",
+    "usernameError": {
+      "username_taken": "That handle is already taken.",
+      "username_cooldown": "You changed your handle in the last 30 days. Try again later.",
+      "username_reserved": "That handle is reserved.",
+      "username_format": "Use only letters, numbers and underscores.",
+      "username_length": "Between 3 and 30 characters.",
+      "username_leading": "Start with a letter.",
+      "generic": "That didn't save. Try again."
+    }
   },
   "detail": {
     "backToFeed": "Back to feed",

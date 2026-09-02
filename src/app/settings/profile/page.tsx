@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
 import { AppPage } from "@/components/app/AppPage";
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm";
+import { UsernameForm } from "@/components/profile/UsernameForm";
 
 export default async function ProfileSettingsPage() {
   const t = await getTranslations("profile");
@@ -24,6 +25,7 @@ export default async function ProfileSettingsPage() {
             ←
           </Link>
         </header>
+        <UsernameForm current={data!.username as string} />
         <ProfileEditForm
           userId={user.id}
           username={data!.username}
