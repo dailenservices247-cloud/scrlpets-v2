@@ -85,6 +85,17 @@ about time.
 
 Fees are the ruled ones: seller 5% (2.5% on Pro), buyer 3% capped at $150.
 
+**A standalone booking IS charged, and transport is not — the two are not in
+conflict.** `book_transport_with_the_order` rules that *"the platform's cut is
+on the ANIMAL, never on the transporter's fee"*, because transport rides a sale
+the platform already earns on and charging twice would be taking two cuts of one
+transaction. A standalone grooming booking has no animal sale behind it. If it is
+not charged, the platform earns nothing for carrying the payment, the guarantee
+and the dispute.
+
+Read the transport rule as *never charge twice for one transaction*, not *never
+charge for a service*.
+
 **No new money code.** This is the existing order machine with a service on the
 other end.
 
