@@ -54,16 +54,29 @@ money path, a second dispute story, and a second place for every guard already
 written to be got wrong. The order machine is the thing that has been probed 25
 ways; a booking should inherit that rather than re-earn it.
 
-What is genuinely new is narrow: **services have no *when*.** A booking needs a
-scheduled window, and that is the only new column set.
+What is genuinely new is narrow: **services have no *when*.** A booking carries a
+scheduled **start and end**, not a single time — the auto-cancel guard below is
+measured from the end, so an open-ended appointment has nothing to measure from.
+That is the only new column set.
 
 ## Money flow — unchanged
 
 ```
-funds_held → (provider marks complete) → inspection → released
+proposed → funds_held → (provider marks complete) → inspection → released
 ```
 
-Buyer pays at booking. The platform holds it. The provider marks the job
+**The buyer pays when they propose, not when the provider accepts.** The
+alternative — accept first, then collect — leaves a provider holding a slot
+against nothing, and needs the buyer present a second time to complete a
+payment they already agreed to.
+
+Paying up front costs one more time-trigger: **a proposal the provider declines,
+or never answers, refunds in full.** That is the same cron shape as the two
+guards below, so it is a third instance of a mechanism rather than a new one.
+It also means acceptance is instant and one-sided, which is the behaviour a
+provider actually wants.
+
+The platform holds the money from proposal. The provider marks the job
 complete, which opens the inspection window the listing already carries
 (`listings.inspection_hours`, 24–336, default 24). The customer disputes inside
 that window, or `runScheduledJobs` auto-releases when it elapses — the same cron
@@ -106,7 +119,8 @@ customer a window and an admin a queue.
 
 - **Availability calendars.** A provider publishing bookable slots is a
   scheduling system and a larger build than everything above. First version: the
-  customer proposes a time, the provider accepts or declines.
+  customer proposes a start and end, and the provider accepts or declines. The
+  provider advertises availability in their own words, in the listing text.
 - **Recurring bookings.**
 - **Deposits / partial payment.** The columns exist. Adding a second money shape
   before the first has run once is guessing.
@@ -120,9 +134,11 @@ merge.
 
 Specific risks worth naming:
 
-- **The auto-cancel and the auto-release are both time-triggered and opposite.**
-  A bug that fires the wrong one refunds a provider who did the work, or pays one
-  who never showed. Each needs a probe that proves the *other* does not fire.
+- **THREE time-triggers now, and two of them are opposites.** Proposal expiry
+  refunds; no-completion refunds; window elapse RELEASES. A bug that fires the
+  wrong one either refunds a provider who did the work or pays one who never
+  showed. Each needs a probe that proves the other two do not fire — asserting
+  only that the right one fired would pass while all three fired.
 - **A booking is an order, so every existing order guard now applies to a shape
   it was not written for.** The probes that pin the money machine must be re-run
   against a service order, not assumed to carry over.
