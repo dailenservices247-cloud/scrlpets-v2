@@ -1,7 +1,40 @@
 # Domain flip runbook — scrlpets.com
 
-**Status as of 2026-08-26:** PREPARED, NOT FIRED. The domain is attached to the
-Vercel project; DNS still points at Lovable. Nothing a visitor sees has changed.
+**STATUS: EXECUTED 2026-08-26. scrlpets.com serves v2.** Kept as the record of
+what was done and what surprised us. The steps below are history now, not a
+to-do — read this section first.
+
+## What actually happened
+
+**The A records were LOCKED by Lovable** while the domain was connected to the
+project. The planned edit was impossible until `scrlpets.com` and
+`www.scrlpets.com` were disconnected from the Scrlpets Beta Magic project. That
+was the real first step and it is nowhere in the plan below, because nobody knew
+it until we hit it.
+
+Disconnecting removed exactly Lovable's own four records — `A @`, `A www`,
+`TXT _lovable`, `TXT _lovable.www` — and left everything else alone. **All four
+Resend records survived** (MX `send`, SPF `send`, DKIM `resend._domainkey`,
+`_dmarc`). That is the only reason this was safe to do in one pass.
+
+**Lovable's DNS form lied about the `www` write.** It displayed "Request was
+cancelled" and then span indefinitely. The record had already been written
+successfully. Only a direct query against the authoritative nameserver
+(`dig +short @ns1hwy.name.com www.scrlpets.com A`) revealed the truth. **Do not
+trust that form's feedback — verify at the nameserver.**
+
+**TLS lags DNS by about five minutes.** `curl` fails with
+`SSL_ERROR_SYSCALL` in the gap, which reads exactly like a misconfiguration and
+is not one. Wait before diagnosing.
+
+Result: `scrlpets.com` and `www` both 200, sitemap cites the new origin, and
+`./ship-verify.sh --prod` passes with `PROD_URL` now pointing at
+`https://scrlpets.com` — so the five live smokes stop testing a host nobody
+visits.
+
+**Still outstanding:** Supabase prod Site URL and the redirect allow-list are
+still set to the vercel.app host. Auth links keep using the old front door until
+that is changed.
 
 ## The gate — do not start until this is true
 
