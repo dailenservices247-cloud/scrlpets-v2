@@ -27,6 +27,9 @@ export type CreatureDetail = {
    * getMyCreatureAnchor is the owner's read path, verifyCreatureAnchor the
    * scanner's. */
   anchorType: AnchorType | null;
+  /** The animal's own picture. Nullable by design — the letter placeholder is
+   * a legitimate resting state, unlike legacy which forced photo_url NOT NULL. */
+  avatarUrl: string | null;
 };
 
 type CreatureDetailRow = {
@@ -45,10 +48,11 @@ type CreatureDetailRow = {
   litter_id: string | null;
   archived_at: string | null;
   anchor_type: AnchorType | null;
+  avatar_url: string | null;
 };
 
 const DETAIL_COLUMNS =
-  "id,species,breed,gender,color,markings,birth_date,registration_number,creature_role,page_visible,deceased_at,memorial_message,litter_id,archived_at,anchor_type";
+  "id,species,breed,gender,color,markings,birth_date,registration_number,creature_role,page_visible,deceased_at,memorial_message,litter_id,archived_at,anchor_type,avatar_url";
 
 function toCreatureDetail(r: CreatureDetailRow): CreatureDetail {
   return {
@@ -67,6 +71,7 @@ function toCreatureDetail(r: CreatureDetailRow): CreatureDetail {
     litterId: r.litter_id,
     archivedAt: r.archived_at,
     anchorType: r.anchor_type,
+    avatarUrl: r.avatar_url,
   };
 }
 

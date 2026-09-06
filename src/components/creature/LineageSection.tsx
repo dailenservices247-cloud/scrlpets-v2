@@ -13,7 +13,7 @@ function LineageCard({ creature, roleLabel }: { creature: LineageCreature; roleL
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={creature.avatarUrl}
-          alt=""
+          alt={creature.name}
           width={136}
           height={100}
           className="aspect-[4/3] w-full rounded-lg object-cover"

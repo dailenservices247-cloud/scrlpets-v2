@@ -94,6 +94,7 @@ export default async function CreaturePage({
         <AboutInfoCard
           creatureId={creature.id}
           slug={creature.slug}
+          userId={user?.id ?? ""}
           detail={detail}
           isOwner={isOwner}
           isDeceased={isDeceased}

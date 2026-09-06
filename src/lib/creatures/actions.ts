@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isAnchorType, isCreatureRole, isGender, isGeneticTestType, isGeneticTestResult } from "./types";
+import { resolveAvatarPatch } from "./avatar";
 
 export type CreatureActionResult = { ok: true } | { ok: false; error: string };
 
@@ -32,9 +33,18 @@ export async function updateCreatureDetails(
   if (role && !isCreatureRole(role)) return { ok: false, error: "invalid_role" };
   if (gender && !isGender(gender)) return { ok: false, error: "invalid_gender" };
 
+  // Absent avatar fields must leave the column alone: editing the colour must
+  // not blank the picture. resolveAvatarPatch is what keeps "untouched" and
+  // "removed" distinguishable through a single nullable string.
+  const avatarPatch = resolveAvatarPatch(
+    str(formData, "avatarUrl"),
+    formData.get("removeAvatar") === "true",
+  );
+
   const { error } = await supabase
     .from("creatures")
     .update({
+      ...avatarPatch,
       species: str(formData, "species"),
       breed: str(formData, "breed"),
       gender: gender || null,

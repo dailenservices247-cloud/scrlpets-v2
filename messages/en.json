@@ -1335,7 +1335,12 @@
       "save": "Save changes",
       "saving": "Saving…",
       "cancel": "Cancel",
-      "error": "Couldn't save. Try again."
+      "error": "Couldn't save. Try again.",
+      "photoLabel": "Photo",
+      "photoHint": "A picture of this animal. Shown on their card, in search, and on the family tree.",
+      "photoRemove": "Remove photo",
+      "photoKeep": "Keep photo",
+      "photoPendingRemoval": "Photo will be removed when you save."
     },
     "fromLitter": "From {group}: {name}",
     "healthTests": {

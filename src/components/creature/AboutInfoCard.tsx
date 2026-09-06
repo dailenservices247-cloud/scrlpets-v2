@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Dialog } from "@base-ui/react/dialog";
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { updateCreatureDetails, setCreatureArchived, deleteCreaturePermanently } from "@/lib/creatures/actions";
+import { MediaInput } from "@/components/compose/MediaInput";
 import { CREATURE_ROLES, GENDERS } from "@/lib/creatures/types";
 import type { CreatureDetail } from "@/lib/creatures/queries";
 
@@ -18,12 +19,15 @@ const ABOUT_FIELDS = ["species", "breed", "gender", "color", "markings", "birthD
 export function AboutInfoCard({
   creatureId,
   slug,
+  userId,
   detail,
   isOwner,
   isDeceased,
 }: {
   creatureId: string;
   slug: string;
+  /** The viewer's id — MediaInput paths uploads by owner. */
+  userId: string;
   detail: CreatureDetail;
   isOwner: boolean;
   isDeceased: boolean;
@@ -34,6 +38,8 @@ export function AboutInfoCard({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pageVisible, setPageVisible] = useState(detail.pageVisible);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
   const isArchived = !!detail.archivedAt;
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [unarchiveOpen, setUnarchiveOpen] = useState(false);
@@ -60,6 +66,8 @@ export function AboutInfoCard({
     setBusy(true);
     setError(null);
     formData.set("pageVisible", String(pageVisible));
+    if (avatarUrl) formData.set("avatarUrl", avatarUrl);
+    formData.set("removeAvatar", String(removeAvatar));
     const result = await updateCreatureDetails(creatureId, slug, formData);
     setBusy(false);
     if (!result.ok) {
@@ -111,6 +119,8 @@ export function AboutInfoCard({
                 // toggle-then-cancel would leave a stale checkbox state that
                 // resurfaces (and mis-describes itself) on the next reopen.
                 setPageVisible(detail.pageVisible);
+                setAvatarUrl(null);
+                setRemoveAvatar(false);
                 setOpen(true);
               }}
               data-testid="about-edit-open"
@@ -399,6 +409,40 @@ export function AboutInfoCard({
                       ))}
                     </select>
                   </label>
+
+                  <div className="rounded-xl border border-border/70 bg-muted/20 p-3">
+                    <p className="text-sm font-medium">{t("about.photoLabel")}</p>
+                    <p className="mt-1 mb-2 text-xs text-muted-foreground">
+                      {t("about.photoHint")}
+                    </p>
+                    {removeAvatar ? (
+                      <p className="text-xs text-muted-foreground" data-testid="about-photo-pending-removal">
+                        {t("about.photoPendingRemoval")}
+                      </p>
+                    ) : (
+                      <MediaInput userId={userId} onUploaded={setAvatarUrl} imagesOnly />
+                    )}
+                    {detail.avatarUrl && !avatarUrl && !removeAvatar && (
+                      <button
+                        type="button"
+                        onClick={() => setRemoveAvatar(true)}
+                        data-testid="about-photo-remove"
+                        className="mt-2 min-h-11 rounded-xl border border-input px-3 text-sm font-medium"
+                      >
+                        {t("about.photoRemove")}
+                      </button>
+                    )}
+                    {removeAvatar && (
+                      <button
+                        type="button"
+                        onClick={() => setRemoveAvatar(false)}
+                        data-testid="about-photo-keep"
+                        className="mt-2 min-h-11 rounded-xl border border-input px-3 text-sm font-medium"
+                      >
+                        {t("about.photoKeep")}
+                      </button>
+                    )}
+                  </div>
 
                   <div className="rounded-xl border border-border/70 bg-muted/20 p-3">
                     <label className="flex min-h-11 items-center justify-between gap-3 text-sm font-medium">

@@ -1335,7 +1335,12 @@
       "save": "Guardar cambios",
       "saving": "Guardando…",
       "cancel": "Cancelar",
-      "error": "No se pudo guardar. Inténtalo de nuevo."
+      "error": "No se pudo guardar. Inténtalo de nuevo.",
+      "photoLabel": "Foto",
+      "photoHint": "Una foto de este animal. Aparece en su tarjeta, en la búsqueda y en el árbol genealógico.",
+      "photoRemove": "Quitar foto",
+      "photoKeep": "Conservar foto",
+      "photoPendingRemoval": "La foto se quitará al guardar."
     },
     "fromLitter": "De {group}: {name}",
     "healthTests": {

@@ -4,12 +4,20 @@ import { useTranslations } from "next-intl";
 import { uploadMedia, type MediaKind } from "@/lib/media/upload";
 import { isVideoUrl } from "@/lib/media/media-kind";
 
+const IMAGE_TYPES = "image/jpeg,image/png,image/webp";
+const ALL_TYPES = `${IMAGE_TYPES},video/mp4,video/webm,video/quicktime`;
+
 export function MediaInput({
   userId,
   onUploaded,
+  imagesOnly = false,
 }: {
   userId: string;
   onUploaded: (url: string | null, kind?: MediaKind) => void;
+  /** Narrow the picker to stills. An avatar renders through <img>, so a video
+   * chosen here would set a photo that silently fails to display everywhere it
+   * is read. Refusing it at the picker beats a 50MB upload then a rejection. */
+  imagesOnly?: boolean;
 }) {
   const t = useTranslations("compose");
   const [preview, setPreview] = useState<string | null>(null);
@@ -45,7 +53,7 @@ export function MediaInput({
         {busy ? t("uploading") : t("addPhoto")}
         <input
           type="file"
-          accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
+          accept={imagesOnly ? IMAGE_TYPES : ALL_TYPES}
           onChange={handle}
           className="block mt-1 text-sm"
           data-testid="media-input"
