@@ -9,16 +9,14 @@
  * not a claim this process is entitled to make.
  */
 
+import { isStripeKeyUsable, stripeKey } from "@/lib/stripe-key";
+
 const API = "https://api.stripe.com/v1";
 
 export type ConnectResult<T> = { ok: true; data: T } | { ok: false; reason: string };
 
-function key(): string | null {
-  return process.env.STRIPE_SECRET_KEY ?? null;
-}
-
 export function isStripeConfigured(): boolean {
-  return Boolean(key());
+  return isStripeKeyUsable();
 }
 
 async function post<T>(
@@ -33,10 +31,10 @@ async function post<T>(
    */
   idempotencyKey?: string,
 ): Promise<ConnectResult<T>> {
-  const k = key();
-  if (!k) return { ok: false, reason: "not_configured" };
+  const k = stripeKey();
+  if (!k.ok) return k;
   const headers: Record<string, string> = {
-    Authorization: `Bearer ${k}`,
+    Authorization: `Bearer ${k.key}`,
     "Content-Type": "application/x-www-form-urlencoded",
   };
   if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
@@ -92,10 +90,10 @@ export async function createAccountLink(accountId: string, refreshUrl: string, r
 }
 
 export async function fetchAccount(accountId: string): Promise<ConnectResult<StripeAccount>> {
-  const k = key();
-  if (!k) return { ok: false, reason: "not_configured" };
+  const k = stripeKey();
+  if (!k.ok) return k;
   const response = await fetch(`${API}/accounts/${accountId}`, {
-    headers: { Authorization: `Bearer ${k}` },
+    headers: { Authorization: `Bearer ${k.key}` },
   });
   const json = (await response.json()) as StripeAccount & { error?: { code?: string } };
   if (!response.ok) return { ok: false, reason: json.error?.code ?? "provider_error" };

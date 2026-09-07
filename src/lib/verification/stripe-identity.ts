@@ -6,20 +6,28 @@
  * Until then this reports `not_configured` honestly instead of pretending, and
  * the state machine is exercised directly by tests.
  */
+import { isStripeKeyUsable, stripeKey } from "@/lib/stripe-key";
+
 export type IdentitySessionResult =
   | { ok: true; url: string; sessionId: string }
-  | { ok: false; reason: "not_configured" | "provider_error" };
+  | { ok: false; reason: "not_configured" | "test_key_in_production" | "provider_error" };
 
 export function isIdentityConfigured(): boolean {
-  return Boolean(process.env.STRIPE_SECRET_KEY);
+  return isStripeKeyUsable();
 }
 
 export async function createIdentitySession(
   profileId: string,
   returnUrl: string,
 ): Promise<IdentitySessionResult> {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key) return { ok: false, reason: "not_configured" };
+  /**
+   * Identity is NOT behind `payments_enabled`, so it is the surface that would
+   * reach a wrongly-moded Stripe first — and test-mode Identity accepts
+   * synthetic documents, which is the fake-verified-badge threat the inbound
+   * guard was built for, arriving from the other side.
+   */
+  const k = stripeKey();
+  if (!k.ok) return k;
 
   const body = new URLSearchParams({
     type: "document",
@@ -30,7 +38,7 @@ export async function createIdentitySession(
   const response = await fetch("https://api.stripe.com/v1/identity/verification_sessions", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${key}`,
+      Authorization: `Bearer ${k.key}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body,
