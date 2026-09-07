@@ -134,7 +134,12 @@ test("a recorded ancestor joins the tree but not the public roster", async ({ pa
   const guestContext = await browser.newContext();
   const guest = await guestContext.newPage();
   await guest.goto(`/u/${SELLER_USERNAME}`);
-  const before = Number(await guest.getByTestId("metric-animals").innerText());
+  // The testid is on the tile, which also carries the "Animals" label — read the
+  // <dd> that holds the number, or the baseline is NaN and every comparison
+  // below silently compares against "NaN".
+  const animalCount = guest.getByTestId("metric-animals").locator("dd");
+  const before = Number(await animalCount.innerText());
+  expect(Number.isInteger(before)).toBe(true);
 
   // One animal the breeder OWNS and one ancestor they are only RECORDING —
   // the pair is the point. A test with the ancestor alone would pass against a
@@ -184,7 +189,8 @@ test("a recorded ancestor joins the tree but not the public roster", async ({ pa
   // pets tab. The owned animal added alongside it proves the filter
   // discriminates rather than just returning less.
   await guest.goto(`/u/${SELLER_USERNAME}`);
-  await expect(guest.getByTestId("metric-animals")).toHaveText(String(before + 1));
+  // +1, not +2: two animals were inserted and only the one they own counts.
+  await expect(animalCount).toHaveText(String(before + 1));
   await expect(guest.getByTestId("animal-rail").getByText(`E2E Mine ${stamp}`)).toBeVisible();
   await expect(guest.getByTestId("animal-rail").getByText(`E2E Ancestor ${stamp}`)).toHaveCount(0);
 
