@@ -10,6 +10,6 @@ import { handleStripeWebhook } from "@/lib/payments/webhook-handler";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  const { status, body } = await handleStripeWebhook(request);
+  const { status, body } = await handleStripeWebhook(request, process.env.STRIPE_IDENTITY_WEBHOOK_SECRET);
   return NextResponse.json(body, { status });
 }

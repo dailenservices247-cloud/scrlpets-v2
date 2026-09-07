@@ -8,14 +8,20 @@ import { createClient } from "@supabase/supabase-js";
  * Two routes call it — `/api/webhooks/stripe` (the one to register) and the
  * original `/api/webhooks/stripe-identity`, which stays alive because its secret
  * is already configured in production and a dead URL is a silently dropped event.
+ *
+ * The SECRET is not resolved here, though. Stripe signs each endpoint's events
+ * with that endpoint's own signing secret, so each route passes its own and this
+ * handler never guesses. It used to fall back from `STRIPE_WEBHOOK_SECRET` to
+ * `STRIPE_IDENTITY_WEBHOOK_SECRET`, which is correct only while ONE Stripe
+ * endpoint serves both URLs — true today, and false the moment a separate
+ * payments endpoint is registered. At that point every payment event would fail
+ * verification against the identity endpoint's secret, and the fallback is what
+ * would hide the reason: the symptom is `bad_signature`, which reads as a forged
+ * request rather than as the wrong secret for this endpoint. A missing secret
+ * now says `not_configured` instead.
  */
 
 const TOLERANCE_SECONDS = 300;
-
-/** Prefer the general name; fall back so an already-configured prod keeps working. */
-function webhookSecret(): string | undefined {
-  return process.env.STRIPE_WEBHOOK_SECRET ?? process.env.STRIPE_IDENTITY_WEBHOOK_SECRET;
-}
 
 export function verifySignature(payload: string, header: string | null, secret: string): boolean {
   if (!header) return false;
@@ -51,8 +57,11 @@ type StripeEvent = {
 
 export type WebhookOutcome = { status: number; body: Record<string, unknown> };
 
-export async function handleStripeWebhook(request: Request): Promise<WebhookOutcome> {
-  const secret = webhookSecret();
+export async function handleStripeWebhook(
+  request: Request,
+  /** This endpoint's own signing secret. Required, so a new route cannot silently inherit another's. */
+  secret: string | undefined,
+): Promise<WebhookOutcome> {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!secret || !serviceKey) {
     return { status: 503, body: { error: "not_configured" } };

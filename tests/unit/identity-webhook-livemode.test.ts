@@ -10,6 +10,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  *
  * Production ran on a test key from 2026-07-28 with no such guard. These tests
  * exist so removing it fails loudly rather than silently reopening that.
+ *
+ * These drive the IDENTITY route, which is what the fixture has always described
+ * — the signed request is built for `/api/webhooks/stripe-identity` and the only
+ * secret set is `STRIPE_IDENTITY_WEBHOOK_SECRET`. They used to import the
+ * payments route anyway, which worked only because the handler fell back to the
+ * identity secret. Each route now carries its own, so the import matches the
+ * fixture. The livemode guard is shared, and the payments route re-asserts it
+ * over its own secret in stripe-webhook-events.test.ts.
  */
 
 const SECRET = "whsec_test_secret";
@@ -56,7 +64,7 @@ describe("stripe-identity webhook livemode guard", () => {
 
   it("refuses a correctly-signed TEST-mode event in production, and writes nothing", async () => {
     process.env.VERCEL_ENV = "production";
-    const { POST } = await import("@/app/api/webhooks/stripe/route");
+    const { POST } = await import("@/app/api/webhooks/stripe-identity/route");
 
     const res = await POST(signed(event(false)));
 
@@ -68,7 +76,7 @@ describe("stripe-identity webhook livemode guard", () => {
 
   it("accepts a live event in production", async () => {
     process.env.VERCEL_ENV = "production";
-    const { POST } = await import("@/app/api/webhooks/stripe/route");
+    const { POST } = await import("@/app/api/webhooks/stripe-identity/route");
 
     const res = await POST(signed(event(true)));
 
@@ -80,7 +88,7 @@ describe("stripe-identity webhook livemode guard", () => {
 
   it("still accepts test-mode events outside production, or preview and local are useless", async () => {
     process.env.VERCEL_ENV = "preview";
-    const { POST } = await import("@/app/api/webhooks/stripe/route");
+    const { POST } = await import("@/app/api/webhooks/stripe-identity/route");
 
     const res = await POST(signed(event(false)));
 
