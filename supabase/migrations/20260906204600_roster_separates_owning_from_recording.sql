@@ -35,6 +35,25 @@ alter table public.creatures
 
 comment on column public.creatures.in_roster is 'True when owner_id actually OWNS this animal; false when they merely authored the record (a pedigree ancestor). Public rosters, counts, and anything sellable filter on it. Not a visibility dial: page_visible stays the visibility dial and the two compose.';
 
+-- WITHOUT THIS GRANT THE COLUMN DOES NOT EXIST AS FAR AS ANY CLIENT IS
+-- CONCERNED. 20260801174832 revoked the table-wide SELECT on creatures and
+-- replaced it with an explicit column allow-list, and said so: "any column
+-- added to creatures in future is invisible to clients until someone grants it
+-- deliberately". Postgres checks column SELECT privilege on every column a
+-- query REFERENCES, a WHERE clause included, so `.eq("in_roster", true)` fails
+-- on privilege even though no caller selects the column — which is every read
+-- this migration exists to fix.
+--
+-- SELECT only. The 20260720140453 baseline granted ALL on this table and
+-- 20260801174832 revoked SELECT and nothing else, so INSERT and UPDATE are
+-- still table-wide and need no column grant here. Verified against the live
+-- catalog, not inferred: information_schema.table_privileges lists INSERT and
+-- UPDATE for anon and authenticated on creatures, and no SELECT.
+--
+-- anon as well as authenticated: a signed-out visitor reading a public profile
+-- goes through the same filtered query.
+grant select (in_roster) on public.creatures to anon, authenticated;
+
 -- Ancestors are the overwhelming majority of what will ever be false here, and
 -- every owner-scoped read that matters is `owner_id + in_roster`.
 create index if not exists idx_creatures_owner_roster
