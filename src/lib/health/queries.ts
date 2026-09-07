@@ -51,6 +51,8 @@ export async function getMyCreatures(): Promise<CreatureOption[]> {
     .from("creatures")
     .select("id,name,species")
     .eq("owner_id", user.id)
+    // You do not book a vet reminder for an ancestor you only recorded.
+    .eq("in_roster", true)
     .is("archived_at", null)
     .order("name");
   return (data ?? []) as CreatureOption[];

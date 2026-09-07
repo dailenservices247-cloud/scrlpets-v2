@@ -11,7 +11,7 @@ export async function TreeHeader({
   initialPrivacy,
 }: {
   identity: SpeciesIdentity;
-  stats: { animals: number; memorials: number; packSize: number };
+  stats: { animals: number; recorded: number; memorials: number; packSize: number };
   initialPrivacy: TreePrivacy;
 }) {
   const t = await getTranslations("tree");
@@ -40,11 +40,17 @@ export async function TreeHeader({
           <AddAnimalSheet />
         </div>
 
-        <dl className="mt-4 grid grid-cols-3 gap-2" data-testid="tree-stats">
+        <dl className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4" data-testid="tree-stats">
           <div className="rounded-xl border border-border/70 bg-muted/35 px-3 py-2">
             <dt className="text-xs text-muted-foreground">{t("statAnimals")}</dt>
             <dd className="mt-1 text-lg font-semibold" data-testid="tree-stat-animals">
               {stats.animals}
+            </dd>
+          </div>
+          <div className="rounded-xl border border-border/70 bg-muted/35 px-3 py-2">
+            <dt className="text-xs text-muted-foreground">{t("statRecorded")}</dt>
+            <dd className="mt-1 text-lg font-semibold" data-testid="tree-stat-recorded">
+              {stats.recorded}
             </dd>
           </div>
           <div className="rounded-xl border border-border/70 bg-muted/35 px-3 py-2">

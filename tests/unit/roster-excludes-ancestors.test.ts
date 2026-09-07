@@ -68,6 +68,18 @@ describe("the public profile's animal read", () => {
     // this one array, so excluding an ancestor here excludes it from both.
     expect(q.__calls).toContainEqual({ method: "eq", args: ["in_roster", true] });
   });
+
+  it("leaves archived animals out too", async () => {
+    // Found in the same function: every OTHER owner-scoped read drops archived
+    // rows (the tree, the breeder roster, the listing picker), and this one did
+    // not. An animal the operator archived still counted on their public
+    // profile — the same over-count, a different cause.
+    const q = chain({ data: [] });
+    from.mockReturnValue(q);
+    const { getCreaturesByOwner } = await import("@/lib/profiles/queries");
+    await getCreaturesByOwner(OWNER);
+    expect(q.__calls).toContainEqual({ method: "is", args: ["archived_at", null] });
+  });
 });
 
 describe("recording an ancestor from the tree", () => {

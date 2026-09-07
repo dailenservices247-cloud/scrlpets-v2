@@ -178,7 +178,9 @@ export async function getBadges(): Promise<Badge[]> {
     supabase
       .from("creatures")
       .select("id", { count: "exact", head: true })
-      .eq("owner_id", user.id),
+      .eq("owner_id", user.id)
+      // Recording a pedigree must not earn rewards for animals you don't own.
+      .eq("in_roster", true),
   ]);
 
   return [

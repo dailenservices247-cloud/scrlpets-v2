@@ -192,6 +192,10 @@ export async function getCreaturesByOwner(ownerId: string): Promise<OwnedCreatur
     .select("id,name,species,slug,avatar_url")
     .eq("owner_id", ownerId)
     .eq("in_roster", true)
+    // Every other owner-scoped read drops archived rows; this one did not, so
+    // an animal the operator archived still counted in public. Same over-count,
+    // different cause.
+    .is("archived_at", null)
     .order("created_at");
   return data ?? [];
 }

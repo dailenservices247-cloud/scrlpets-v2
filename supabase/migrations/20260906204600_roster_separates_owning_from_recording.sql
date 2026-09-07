@@ -33,11 +33,7 @@
 alter table public.creatures
   add column if not exists in_roster boolean not null default true;
 
-comment on column public.creatures.in_roster is
-  'True when the owner_id actually OWNS this animal; false when they merely '
-  'authored the record (a pedigree ancestor). Public rosters, counts, and '
-  'anything sellable filter on this. Not a visibility dial — page_visible '
-  'stays the visibility dial, and the two compose.';
+comment on column public.creatures.in_roster is 'True when owner_id actually OWNS this animal; false when they merely authored the record (a pedigree ancestor). Public rosters, counts, and anything sellable filter on it. Not a visibility dial: page_visible stays the visibility dial and the two compose.';
 
 -- Ancestors are the overwhelming majority of what will ever be false here, and
 -- every owner-scoped read that matters is `owner_id + in_roster`.

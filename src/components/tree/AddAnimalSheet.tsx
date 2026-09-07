@@ -106,6 +106,22 @@ export function AddAnimalSheet() {
                   data-testid="add-animal-birth-date"
                 />
               </label>
+              {/* The same sheet adds an animal you own and an ancestor you are
+                  only recording. value="false" so leaving it unticked submits
+                  nothing and the action's default (in the roster) applies. */}
+              <label className="flex gap-2 rounded-lg border border-input p-3 text-sm">
+                <input
+                  type="checkbox"
+                  name="inRoster"
+                  value="false"
+                  className="mt-0.5 size-4 shrink-0"
+                  data-testid="add-animal-record-only"
+                />
+                <span className="flex flex-col gap-1">
+                  <span>{t("recordOnlyLabel")}</span>
+                  <span className="text-xs text-muted-foreground">{t("recordOnlyHint")}</span>
+                </span>
+              </label>
               {error && (
                 <p className="text-sm text-destructive" role="alert">
                   {t("addAnimalError")}

@@ -357,6 +357,9 @@ export async function getMyCreatures(): Promise<{ id: string; name: string }[]> 
     .from("creatures")
     .select("id,name")
     .eq("owner_id", user.id)
+    // Listings and attestations attach to this list. A pedigree ancestor is
+    // somebody else's animal, so it must never be offerable for sale.
+    .eq("in_roster", true)
     .is("archived_at", null)
     .order("created_at");
   return data ?? [];
