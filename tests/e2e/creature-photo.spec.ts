@@ -106,3 +106,65 @@ test("an owner can put a photo on their animal and take it back down", async ({ 
   });
   expect(archived.error, "archiving the test animal").toBeNull();
 });
+
+/**
+ * The production failure this guards against: the action POST came back 503
+ * from the edge, so the await threw and every line after it in the submit
+ * handler was skipped. No busy reset, no error, no close — a dialog that sat
+ * there silently. The copy written for exactly this moment could only ever
+ * render for a clean {ok:false}.
+ *
+ * A failed save SHOULD leave the dialog open — closing it would throw away
+ * what the person typed. What it must not do is stay silent.
+ */
+test("a save that fails at the network layer says so instead of hanging", async ({ page }) => {
+  test.setTimeout(120_000);
+  const stamp = Date.now();
+  const slug = `e2e-savefail-${stamp}`;
+  const { db, userId } = await signInCached(SELLER_EMAIL);
+
+  const created = await db
+    .from("creatures")
+    .insert({ owner_id: userId, name: slug, slug, species: "cockatiel", page_visible: true })
+    .select("id")
+    .single();
+  expect(created.error, "creating the test animal").toBeNull();
+  const creatureId = created.data!.id as string;
+
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
+  await expect(page).toHaveURL("http://localhost:3000/", { timeout: 20_000 });
+
+  await page.goto(`/c/${slug}`);
+  await page.getByTestId("about-edit-open").click();
+  await expect(page.getByTestId("about-edit-dialog")).toHaveCount(1, { timeout: 20_000 });
+
+  // Reproduce the edge answering before the function does. Server actions POST
+  // to the page's own URL.
+  await page.route(`**/c/${slug}`, async (route) => {
+    if (route.request().method() === "POST") {
+      await route.fulfill({ status: 503, contentType: "text/plain", body: "" });
+      return;
+    }
+    await route.continue();
+  });
+
+  await page.getByTestId("about-input-color").fill("Pied");
+  await page.getByTestId("about-save").click();
+
+  // The person is told. This is the assertion that fails without settleAction.
+  await expect(page.getByText(/Couldn.t save/i)).toBeVisible({ timeout: 20_000 });
+  // The dialog stays open on purpose — their typing is still in it.
+  await expect(page.getByTestId("about-edit-dialog")).toHaveCount(1);
+  // And the button is usable again rather than stuck on "Saving…".
+  await expect(page.getByTestId("about-save")).toBeEnabled();
+
+  await page.unroute(`**/c/${slug}`);
+  const archived = await db.rpc("archive_creature", {
+    target_creature: creatureId,
+    archived: true,
+  });
+  expect(archived.error, "archiving the test animal").toBeNull();
+});

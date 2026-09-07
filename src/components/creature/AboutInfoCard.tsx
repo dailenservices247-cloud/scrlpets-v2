@@ -7,6 +7,7 @@ import { Dialog } from "@base-ui/react/dialog";
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { updateCreatureDetails, setCreatureArchived, deleteCreaturePermanently } from "@/lib/creatures/actions";
 import { MediaInput } from "@/components/compose/MediaInput";
+import { settleAction } from "@/lib/actions/settle";
 import { CREATURE_ROLES, GENDERS } from "@/lib/creatures/types";
 import type { CreatureDetail } from "@/lib/creatures/queries";
 
@@ -68,7 +69,13 @@ export function AboutInfoCard({
     formData.set("pageVisible", String(pageVisible));
     if (avatarUrl) formData.set("avatarUrl", avatarUrl);
     formData.set("removeAvatar", String(removeAvatar));
-    const result = await updateCreatureDetails(creatureId, slug, formData);
+    // Wrapped so a THROWN failure (dropped network, an edge layer answering
+    // 503 before the function does) arrives as a returned one. Without this the
+    // await throws, every line below is skipped, and the person is left staring
+    // at a dialog that never closes and never says why.
+    const result = await settleAction(() =>
+      updateCreatureDetails(creatureId, slug, formData),
+    );
     setBusy(false);
     if (!result.ok) {
       setError(t("about.error"));
