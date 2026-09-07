@@ -1623,6 +1623,11 @@
     },
     "generationLabel": "Gen {number}",
     "founderBadge": "Founder",
+    "recordedBadge": "Recorded",
+    "rosterMineLabel": "Mine",
+    "rosterMakeRecorded": "Mark as recorded — remove from your public roster",
+    "rosterMakeMine": "Mark as mine — add to your public roster",
+    "rosterError": "Couldn't change that. Try again.",
     "memorialLabel": "In loving memory",
     "role": {
       "pet": "Pet",

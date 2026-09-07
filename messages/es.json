@@ -1623,6 +1623,11 @@
     },
     "generationLabel": "Gen {number}",
     "founderBadge": "Fundador",
+    "recordedBadge": "Registrado",
+    "rosterMineLabel": "Mío",
+    "rosterMakeRecorded": "Marcar como registrado: quitar de tu lista pública",
+    "rosterMakeMine": "Marcar como mío: añadir a tu lista pública",
+    "rosterError": "No se pudo cambiar. Inténtalo de nuevo.",
     "memorialLabel": "En memoria",
     "role": {
       "pet": "Mascota",
