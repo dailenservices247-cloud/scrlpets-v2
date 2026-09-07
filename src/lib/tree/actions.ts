@@ -30,6 +30,11 @@ export async function createTreeAnimal(formData: FormData): Promise<ActionResult
   const roleRaw = String(formData.get("creatureRole") ?? "pet");
   const creatureRole = ROLES.has(roleRaw) ? roleRaw : "pet";
   const birthDate = (formData.get("birthDate") as string) || null;
+  // The same sheet adds an animal you own and an ancestor you are only
+  // recording, and only the form knows which. Defaulting to the roster keeps
+  // the honest reading of a missing field: a row nobody marked as somebody
+  // else's animal is your own.
+  const inRoster = formData.get("inRoster") !== "false";
 
   // Same immutable-slug convention as compose/actions.ts createCreature and brands/actions.ts createBrand.
   const slug = `${name
@@ -47,6 +52,7 @@ export async function createTreeAnimal(formData: FormData): Promise<ActionResult
       gender,
       creature_role: creatureRole,
       birth_date: birthDate,
+      in_roster: inRoster,
       slug,
     })
     .select("id")

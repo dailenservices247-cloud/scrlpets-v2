@@ -176,12 +176,22 @@ export type OwnedCreature = {
   avatar_url: string | null;
 };
 
+/**
+ * Animals this profile OWNS — not every row it authored.
+ *
+ * `owner_id` alone over-counts, because recording a pedigree creates a row per
+ * ancestor under the recorder's id (see the in_roster migration). The profile
+ * page derives BOTH the "Animals" metric and the AnimalRail from this one
+ * array, so excluding an ancestor here excludes it from both, and the count can
+ * never disagree with the animals behind it.
+ */
 export async function getCreaturesByOwner(ownerId: string): Promise<OwnedCreature[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("creatures")
     .select("id,name,species,slug,avatar_url")
     .eq("owner_id", ownerId)
+    .eq("in_roster", true)
     .order("created_at");
   return data ?? [];
 }
