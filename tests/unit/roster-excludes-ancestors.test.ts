@@ -108,3 +108,80 @@ describe("recording an ancestor from the tree", () => {
     expect((insert?.args[0] as { in_roster?: boolean }).in_roster).toBe(true);
   });
 });
+
+describe("correcting a mis-set roster flag", () => {
+  /**
+   * The tick is easy to get wrong in either direction, and until now there was
+   * no way back: updateCreatureDetails deliberately does not touch in_roster,
+   * so a mistake stranded a real animal off the owner's public profile with no
+   * UI able to undo it. This is that path, kept separate from the bulk edit for
+   * the same reason — an unrelated form must never move an animal in or out of
+   * the roster as a side effect.
+   */
+  function form(fields: Record<string, string>) {
+    const fd = new FormData();
+    for (const [k, v] of Object.entries(fields)) fd.set(k, v);
+    return fd;
+  }
+
+  it("takes an animal off the roster", async () => {
+    const q = chain({ error: null });
+    from.mockReturnValue(q);
+    const { setInRoster } = await import("@/lib/tree/actions");
+    const result = await setInRoster(form({ targetCreature: "c1", inRoster: "false" }));
+    expect(result).toEqual({ ok: true });
+    expect(q.__calls.find((c) => c.method === "update")?.args[0]).toEqual({ in_roster: false });
+  });
+
+  it("puts one back on it", async () => {
+    const q = chain({ error: null });
+    from.mockReturnValue(q);
+    const { setInRoster } = await import("@/lib/tree/actions");
+    const result = await setInRoster(form({ targetCreature: "c1", inRoster: "true" }));
+    expect(result).toEqual({ ok: true });
+    expect(q.__calls.find((c) => c.method === "update")?.args[0]).toEqual({ in_roster: true });
+  });
+
+  it("writes nothing but the flag", async () => {
+    // The whole reason this is not part of updateCreatureDetails. If it ever
+    // grows a second column, it can clobber a field the operator did not touch.
+    const q = chain({ error: null });
+    from.mockReturnValue(q);
+    const { setInRoster } = await import("@/lib/tree/actions");
+    await setInRoster(form({ targetCreature: "c1", inRoster: "false" }));
+    const payload = q.__calls.find((c) => c.method === "update")?.args[0] as object;
+    expect(Object.keys(payload)).toEqual(["in_roster"]);
+  });
+
+  it("refuses a missing value instead of defaulting it onto the roster", async () => {
+    // createTreeAnimal reads a MISSING flag as true, which is right there — an
+    // animal nobody marked as somebody else's is your own. Here the same
+    // default would be a bug: a dropped field would silently republish an
+    // ancestor onto the public roster, which is the misrepresentation this
+    // whole column exists to stop. No write may happen at all.
+    const q = chain({ error: null });
+    from.mockReturnValue(q);
+    const { setInRoster } = await import("@/lib/tree/actions");
+    const result = await setInRoster(form({ targetCreature: "c1" }));
+    expect(result).toEqual({ ok: false, error: "required" });
+    expect(q.__calls.find((c) => c.method === "update")).toBeUndefined();
+  });
+
+  it("refuses a value that is neither true nor false", async () => {
+    const q = chain({ error: null });
+    from.mockReturnValue(q);
+    const { setInRoster } = await import("@/lib/tree/actions");
+    const result = await setInRoster(form({ targetCreature: "c1", inRoster: "yes" }));
+    expect(result).toEqual({ ok: false, error: "required" });
+    expect(q.__calls.find((c) => c.method === "update")).toBeUndefined();
+  });
+
+  it("refuses a missing animal", async () => {
+    const q = chain({ error: null });
+    from.mockReturnValue(q);
+    const { setInRoster } = await import("@/lib/tree/actions");
+    const result = await setInRoster(form({ inRoster: "false" }));
+    expect(result).toEqual({ ok: false, error: "required" });
+    expect(q.__calls.find((c) => c.method === "update")).toBeUndefined();
+  });
+});
