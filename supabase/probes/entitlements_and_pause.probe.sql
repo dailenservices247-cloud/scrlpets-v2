@@ -18,6 +18,19 @@ begin
   perform set_config('role', 'postgres', true);
   delete from public.subscriptions where profile_id = seller;
 
+  -- 0. The preconditions are the probe's to establish, not the database's to
+  -- happen to have. Section 3 pauses, and pause_subscription refuses while ANY
+  -- order of this seller's is in flight, so one leaked fixture order anywhere on
+  -- shared dev turns this probe red at the section 3 pause -- forty lines before
+  -- the section that is actually about that rule, and reporting the wrong thing.
+  -- The subscriptions delete above already treats ambient state this way; orders
+  -- were simply left out.
+  if exists (select 1 from public.orders
+              where seller_id in (seller, buyer) or buyer_id in (seller, buyer)) then
+    raise exception 'PROBE FAILED: an order for this probe''s parties already existed on entry -- sections 3 and 6 cannot mean anything until the probe owns that precondition';
+  end if;
+  results := results || E'0a the probe owns its own order precondition\n';
+
   ---------------------------------------------------- 1. free gets nothing gated
   if public.has_entitlement(seller, 'brand_page') then
     raise exception 'PROBE FAILED: unsubscribed seller has a gated entitlement';
