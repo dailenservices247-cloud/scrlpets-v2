@@ -44,8 +44,12 @@ export default async function TreePage() {
     getAcceptedPackLinkCount(user.id),
   ]);
   const identity = dominantSpeciesIdentity(tree.creatures.map((c) => c.species));
+  // The canvas renders every card, ancestors included — that is what a tree is
+  // for. The COUNT splits them, so "Animals" means animals this operator owns
+  // on their own console for the same reason it does on their public profile.
   const stats = {
-    animals: tree.creatures.length,
+    animals: tree.creatures.filter((c) => c.inRoster).length,
+    recorded: tree.creatures.filter((c) => !c.inRoster).length,
     memorials: tree.creatures.filter((c) => c.deceasedAt).length,
     packSize,
   };

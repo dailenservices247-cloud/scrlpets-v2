@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Card } from "@/components/ui/card";
 import type { TreeCreature } from "@/lib/tree/queries";
 import { LinkParentsSheet } from "./LinkParentsSheet";
+import { RosterToggle } from "./RosterToggle";
 
 export function TreeCard({
   creature,
@@ -67,13 +68,29 @@ export function TreeCard({
                 {t("memorialLabel")}
               </span>
             )}
+            {/* Visitors get the label, not the control: a card for an animal
+                this operator does not own should say so on their tree too, not
+                only be absent from their profile. */}
+            {!creature.inRoster && !canManage && (
+              <span
+                className="mt-1 inline-block rounded-full border border-secondary/50 bg-secondary px-2 text-[11px] font-medium text-secondary-foreground"
+                data-testid="tree-recorded-badge"
+              >
+                {t("recordedBadge")}
+              </span>
+            )}
           </div>
         </Card>
       </Link>
       {canManage && (
-        <div className="absolute -right-2 -top-2 z-10">
-          <LinkParentsSheet creature={creature} allCreatures={allCreatures} />
-        </div>
+        <>
+          <div className="absolute -right-2 -top-2 z-10">
+            <LinkParentsSheet creature={creature} allCreatures={allCreatures} />
+          </div>
+          <div className="absolute -left-2 -top-2 z-10">
+            <RosterToggle creature={creature} />
+          </div>
+        </>
       )}
     </div>
   );

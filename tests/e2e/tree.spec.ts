@@ -18,7 +18,9 @@ async function loginViaUi(page: import("@playwright/test").Page, email: string) 
   await page.getByLabel("Email address").fill(email);
   await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
   await page.getByTestId("auth-submit").click();
-  await expect(page).toHaveURL("http://localhost:3000/", { timeout: 20_000 });
+  // Relative, resolved against baseURL: a hardcoded port makes this file
+  // unrunnable whenever another worktree already holds 3000.
+  await expect(page).toHaveURL("/", { timeout: 20_000 });
 }
 
 test("own tree: generation rows, founder badge, memorial treatment", async ({ page }) => {
@@ -122,4 +124,119 @@ test("visitor tree honors private tree_privacy", async ({ browser }) => {
     .update({ tree_privacy: "public" }, { count: "exact" })
     .eq("id", seller.userId);
   expect(restore.count).toBe(1);
+});
+
+test("a recorded ancestor joins the tree but not the public roster", async ({ page, browser }) => {
+  test.setTimeout(120_000);
+  const seller = await signIn(SELLER_EMAIL);
+  const stamp = Date.now();
+
+  const guestContext = await browser.newContext();
+  const guest = await guestContext.newPage();
+
+  /**
+   * The metric agrees with the list it summarizes.
+   *
+   * NOT an absolute count. This suite shares one dev DB and these fixture
+   * accounts with every other worker AND with other worktrees, so a `before + 1`
+   * assertion fails the moment anyone else inserts a creature — which is exactly
+   * what happened, and what playwright.config.ts already warns about: cross-file
+   * assertions must be "invariants over ids they fetched themselves, not counts
+   * of global state".
+   *
+   * This is that invariant. The profile derives the metric and the rail from ONE
+   * array, so metric === rendered cards holds no matter what else is inserted,
+   * and paired with the absence assertions below it proves the metric excludes
+   * the ancestor rather than merely being some number.
+   */
+  async function metricMatchesRail() {
+    const shown = await guest.getByTestId("animal-rail-card").count();
+    await expect(guest.getByTestId("metric-animals").locator("dd")).toHaveText(String(shown));
+  }
+
+  // One animal the breeder OWNS and one ancestor they are only RECORDING —
+  // the pair is the point. A test with the ancestor alone would pass against a
+  // profile query that had simply stopped returning anything.
+  const mine = await seller.db
+    .from("creatures")
+    .insert({
+      owner_id: seller.userId,
+      name: `E2E Mine ${stamp}`,
+      slug: `e2e-roster-mine-${stamp}`,
+      species: "Dog",
+    })
+    .select("id")
+    .single();
+  expect(mine.error).toBeNull();
+  const mineId = mine.data!.id;
+
+  const ancestor = await seller.db
+    .from("creatures")
+    .insert({
+      owner_id: seller.userId,
+      name: `E2E Ancestor ${stamp}`,
+      slug: `e2e-roster-ancestor-${stamp}`,
+      species: "Dog",
+      creature_role: "breeding",
+      in_roster: false,
+    })
+    .select("id")
+    .single();
+  expect(ancestor.error).toBeNull();
+  const ancestorId = ancestor.data!.id;
+
+  const link = await seller.db.rpc("link_creature_parent", {
+    target_creature: mineId,
+    target_parent: ancestorId,
+    link_type: "sire",
+  });
+  expect(link.error).toBeNull();
+
+  // The tree KEEPS the ancestor — recording a pedigree is what it is for.
+  await loginViaUi(page, SELLER_EMAIL);
+  await page.goto("/tree");
+  await expect(page.getByTestId(`tree-card-link-${ancestorId}`)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByTestId(`tree-card-link-${mineId}`)).toBeVisible();
+
+  // The public profile does not: not in the count, not in the rail, not in the
+  // pets tab. The owned animal added alongside it proves the filter
+  // discriminates rather than just returning less.
+  await guest.goto(`/u/${SELLER_USERNAME}`);
+  // Both animals were inserted; only the owned one may appear. Adding the owned
+  // one alongside proves the filter discriminates rather than returning less.
+  await expect(guest.getByTestId("animal-rail").getByText(`E2E Mine ${stamp}`)).toBeVisible();
+  await expect(guest.getByTestId("animal-rail").getByText(`E2E Ancestor ${stamp}`)).toHaveCount(0);
+  await metricMatchesRail();
+
+  await guest.goto(`/u/${SELLER_USERNAME}?tab=pets`);
+  await expect(guest.getByTestId("pets-list").getByText(`E2E Mine ${stamp}`)).toBeVisible();
+  await expect(guest.getByTestId("pets-list").getByText(`E2E Ancestor ${stamp}`)).toHaveCount(0);
+
+  // THE CORRECTION PATH. A stray tick in the add-animal sheet used to strand a
+  // real animal off its owner's profile forever, because the owner edit sheet
+  // does not write this column. Undo it from the tree and the animal comes back.
+  const toggle = page.getByTestId(`tree-roster-toggle-${ancestorId}`);
+  await expect(toggle).toHaveAttribute("data-in-roster", "false");
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("data-in-roster", "true", { timeout: 15_000 });
+
+  await guest.goto(`/u/${SELLER_USERNAME}`);
+  await expect(guest.getByTestId("animal-rail").getByText(`E2E Ancestor ${stamp}`)).toBeVisible();
+  await metricMatchesRail();
+
+  // And back, so this proves a toggle rather than a one-way door.
+  await toggle.click();
+  await expect(toggle).toHaveAttribute("data-in-roster", "false", { timeout: 15_000 });
+  await guest.goto(`/u/${SELLER_USERNAME}`);
+  await expect(guest.getByTestId("animal-rail").getByText(`E2E Ancestor ${stamp}`)).toHaveCount(0);
+  await metricMatchesRail();
+  await guestContext.close();
+
+  // Cleanup — asserted, no hard delete exists on creatures. archived_at is what
+  // takes them off the profile now, which page_visible alone would not do.
+  const archive = await seller.db
+    .from("creatures")
+    .update({ archived_at: new Date().toISOString(), page_visible: false }, { count: "exact" })
+    .in("id", [mineId, ancestorId]);
+  expect(archive.count).toBe(2);
 });

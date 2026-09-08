@@ -9,6 +9,8 @@ export type TreeCreature = {
   slug: string;
   avatarUrl: string | null;
   creatureRole: "pet" | "breeding";
+  /** False for a pedigree ancestor: on the tree, but not an animal you own. */
+  inRoster: boolean;
   pageVisible: boolean;
   deceasedAt: string | null;
   memorialMessage: string | null;
@@ -34,6 +36,7 @@ type RawCreatureRow = {
   slug: string;
   avatar_url: string | null;
   creature_role: "pet" | "breeding";
+  in_roster: boolean;
   page_visible: boolean;
   deceased_at: string | null;
   memorial_message: string | null;
@@ -45,7 +48,7 @@ type RawCreatureRow = {
 type RawLineageEdge = { creature_id: string; parent_id: string; parent_type: "sire" | "dam" };
 
 const CREATURE_COLUMNS =
-  "id,name,species,slug,avatar_url,creature_role,page_visible,deceased_at,memorial_message,birth_date,breed,gender";
+  "id,name,species,slug,avatar_url,creature_role,in_roster,page_visible,deceased_at,memorial_message,birth_date,breed,gender";
 
 /**
  * generation/is_founder ARE DB columns, but link_creature_parent/unlink_creature_parent
@@ -97,6 +100,7 @@ function assembleTree(rows: RawCreatureRow[], edges: RawLineageEdge[]): TreeData
       slug: row.slug,
       avatarUrl: row.avatar_url,
       creatureRole: row.creature_role,
+      inRoster: row.in_roster,
       pageVisible: row.page_visible,
       deceasedAt: row.deceased_at,
       memorialMessage: row.memorial_message,
