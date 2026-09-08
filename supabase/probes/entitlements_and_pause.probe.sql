@@ -25,6 +25,13 @@ begin
   -- the section that is actually about that rule, and reporting the wrong thing.
   -- The subscriptions delete above already treats ambient state this way; orders
   -- were simply left out.
+  --
+  -- EVERY order of these two, not just the statuses pause_subscription happens
+  -- to name today: an enumerated list here would silently drift out of step with
+  -- the function's, and this probe would go back to inheriting whatever the list
+  -- forgot. The whole block is begin/rollback, so nothing on dev is touched.
+  delete from public.orders where seller_id in (seller, buyer)
+                                or buyer_id  in (seller, buyer);
   if exists (select 1 from public.orders
               where seller_id in (seller, buyer) or buyer_id in (seller, buyer)) then
     raise exception 'PROBE FAILED: an order for this probe''s parties already existed on entry -- sections 3 and 6 cannot mean anything until the probe owns that precondition';
