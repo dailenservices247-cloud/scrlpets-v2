@@ -19,6 +19,33 @@ async function loginViaUi(page: import("@playwright/test").Page, email: string) 
 test.describe("transport jobs", () => {
   test.describe.configure({ timeout: 120_000 });
 
+  // Cleanup CANNOT live on the last line of a test. It did, and order af62bc82
+  // sat in `awaiting_payment` on shared dev from 2026-09-07 with this worker's
+  // member as its transporter -- there is no client DELETE on orders, so nothing
+  // else was ever going to reclaim it.
+  //
+  // This file poisons ITSELF with that row, which is what made the damage look
+  // intermittent. The empty-state test below asserts the member has no bookings;
+  // a leaked booking assigned to that member makes /jobs non-empty and fails it
+  // on the NEXT run -- but only on the parallel slot whose account owns the row,
+  // so the same spec passes on the other two slots and looks flaky rather than
+  // broken. Same defect order-actions.spec.ts had (fixed in 141a9cd).
+  const created: { orders: string[]; listings: string[] } = { orders: [], listings: [] };
+
+  test.afterEach(async () => {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return;
+    const asService = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+    // Orders first: every child is ON DELETE CASCADE, so this leaves nothing
+    // orphaned.
+    if (created.orders.length) await asService.from("orders").delete().in("id", created.orders);
+    if (created.listings.length) await asService.from("listings").delete().in("id", created.listings);
+    created.orders = [];
+    created.listings = [];
+  });
+
   test("a driver with no bookings is told so, not shown a blank page", async ({ page }) => {
     await loginViaUi(page, MEMBER_EMAIL);
     await page.goto("/jobs");
@@ -48,6 +75,7 @@ test.describe("transport jobs", () => {
       .select("id")
       .single();
     expect(listing.error).toBeNull();
+    created.listings.push(listing.data!.id as string);
 
     // Unpaid: awaiting_payment, so addresses_visible is false.
     const order = await asService
@@ -72,7 +100,8 @@ test.describe("transport jobs", () => {
     // The order insert is only possible for a party; if the fixture cannot make
     // one, say so rather than passing an empty assertion.
     expect(order.error, "fixture order must exist for this test to mean anything").toBeNull();
-    const orderId = order.data!.id;
+    const orderId = order.data!.id as string;
+    created.orders.push(orderId);
 
     await loginViaUi(page, MEMBER_EMAIL);
     await page.goto("/jobs");
@@ -91,9 +120,6 @@ test.describe("transport jobs", () => {
 
     // No delivery action before the seller has released the animal.
     await expect(page.getByTestId(`job-deliver-${orderId}`)).toHaveCount(0);
-
-    await asService.from("orders").delete().eq("id", orderId);
-    await seller.db.from("listings").delete().eq("id", listing.data!.id);
   });
 
   test("signed-out cannot reach jobs", async ({ page }) => {

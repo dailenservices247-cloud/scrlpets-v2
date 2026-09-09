@@ -13,6 +13,31 @@ async function loginViaUi(page: import("@playwright/test").Page, email: string) 
 test.describe("order thread", () => {
   test.describe.configure({ timeout: 120_000 });
 
+  // Cleanup CANNOT live on the last line of a test. It did, and order 6ed07d8c
+  // sat in `funds_held` on shared dev from 2026-09-07 -- there is no client
+  // DELETE on orders, so nothing else was ever going to reclaim it. A leaked
+  // fixture here is not litter, it is a false failure somewhere else: that row
+  // is what turned the entitlements_and_pause probe red, because
+  // pause_subscription correctly refuses while an order is in flight. Same
+  // defect order-actions.spec.ts had (fixed in 141a9cd) and subject-layer.spec
+  // before it (f8d7277).
+  const created: { orders: string[]; listings: string[] } = { orders: [], listings: [] };
+
+  test.afterEach(async () => {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return;
+    const asService = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+    // Orders first: order_messages and every other child is ON DELETE CASCADE
+    // (20260812131120_order_thread.sql:22), so this leaves nothing orphaned and
+    // needs no separate sweep of the thread.
+    if (created.orders.length) await asService.from("orders").delete().in("id", created.orders);
+    if (created.listings.length) await asService.from("listings").delete().in("id", created.listings);
+    created.orders = [];
+    created.listings = [];
+  });
+
   test("a non-party gets a 404, not a permission message", async ({ page }) => {
     // A "you don't have access" page confirms the order exists. A 404 does not.
     await loginViaUi(page, MEMBER_EMAIL);
@@ -38,6 +63,9 @@ test.describe("order thread", () => {
       .insert({ seller_id: seller.userId, title: `E2E thread ${stamp}`, price_cents: 50000 })
       .select("id")
       .single();
+    expect(listing.error, "fixture listing must exist or this proves nothing").toBeNull();
+    created.listings.push(listing.data!.id as string);
+
     const order = await asService
       .from("orders")
       .insert({
@@ -50,7 +78,8 @@ test.describe("order thread", () => {
       .select("id")
       .single();
     expect(order.error, "fixture order must exist or this proves nothing").toBeNull();
-    const orderId = order.data!.id;
+    const orderId = order.data!.id as string;
+    created.orders.push(orderId);
 
     await loginViaUi(page, MEMBER_EMAIL);
     await page.goto(`/orders/${orderId}`);
@@ -68,10 +97,6 @@ test.describe("order thread", () => {
     await expect(page.getByTestId("thread-messages")).toContainText(/buyer/i);
     // Stated once, plainly: this is evidence.
     await expect(page.getByTestId("order-thread")).toContainText(/can't be edited or deleted/i);
-
-    await asService.from("order_messages").delete().eq("order_id", orderId);
-    await asService.from("orders").delete().eq("id", orderId);
-    await seller.db.from("listings").delete().eq("id", listing.data!.id);
   });
 
   test("signed-out is sent to login", async ({ page }) => {
