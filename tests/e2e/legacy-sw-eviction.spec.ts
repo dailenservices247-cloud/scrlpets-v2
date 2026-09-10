@@ -23,6 +23,13 @@ test("registering /sw.js unregisters itself and leaves no caches", async ({ page
 
   await page.goto("/");
 
+  // The stale caches exist BEFORE the replacement worker arrives — that is the
+  // real-world order, and seeding them afterwards races activation.
+  await page.evaluate(async () => {
+    const c = await caches.open("workbox-precache-v2-legacy-probe");
+    await c.put("/probe", new Response("stale"));
+  });
+
   // Stand in for the legacy worker: whatever is served at /sw.js is what a
   // returning visitor's browser fetches on its next update check.
   const registered = await page.evaluate(async () => {
@@ -39,14 +46,6 @@ test("registering /sw.js unregisters itself and leaves no caches", async ({ page
       registered.ok ? "" : registered.message
     }`,
   ).toBe(true);
-
-  // Seed a cache under the same origin. The legacy worker left five behind, and
-  // clearing the registration without the caches leaves the stale app's assets
-  // sitting on disk.
-  await page.evaluate(async () => {
-    const c = await caches.open("workbox-precache-v2-legacy-probe");
-    await c.put("/probe", new Response("stale"));
-  });
 
   // It removes itself. Polled rather than slept: activation is asynchronous and
   // a fixed wait is either flaky or slow.
