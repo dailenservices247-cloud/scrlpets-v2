@@ -65,8 +65,12 @@ test("account form exposes accessible browser semantics and recovery", async ({ 
   await expect(ageConfirmation).toBeVisible();
   await expect(ageConfirmation).toHaveAttribute("required", "");
 
+  // Reworded: someone who joined with Google has no password to "reset", and
+  // reading it that way is exactly how you end up stuck with no way in.
   await page.goto("/forgot-password");
-  await expect(page.getByRole("heading", { name: "Reset your password" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Set or reset your password" }),
+  ).toBeVisible();
   await expect(page.getByLabel("Email address")).toHaveAttribute("type", "email");
 });
 
@@ -140,5 +144,52 @@ test("a referral link lands on the signup tab with the invite preserved", async 
   await expect(page.getByTestId("auth-mode-signup")).toHaveAttribute(
     "aria-pressed",
     "true",
+  );
+});
+
+test("the login page offers a passwordless code, sign-in only", async ({ page }) => {
+  await page.goto("/login");
+  const codeButton = page.getByTestId("auth-email-code");
+  await expect(codeButton).toBeVisible();
+  // Nothing to send a code to yet, so the control says so instead of failing
+  // after the click.
+  await expect(codeButton).toBeDisabled();
+  await page.getByLabel("Email address").fill("someone@example.com");
+  await expect(codeButton).toBeEnabled();
+
+  // Signing UP still goes through the server action, where the 18+ gate and the
+  // password rule are decided. A code box that could create accounts would walk
+  // straight past both.
+  await page.getByTestId("auth-mode-signup").click();
+  await expect(codeButton).toHaveCount(0);
+});
+
+test("a code request never reveals whether the account exists", async ({ page }) => {
+  await page.goto("/login");
+  // Certainly not an account. `shouldCreateUser: false` makes Supabase refuse
+  // it — and refusing OUT LOUD would turn this box into a membership oracle,
+  // so the screen has to be the same one a real account gets. No email is sent
+  // on this path, which is also why it is safe to run every suite.
+  await page
+    .getByLabel("Email address")
+    .fill(`no-such-${Date.now()}@example.com`);
+  await page.getByTestId("auth-email-code").click();
+
+  await expect(page.getByTestId("auth-code-sent")).toBeVisible();
+  await expect(page.getByTestId("auth-error")).toHaveCount(0);
+
+  const code = page.getByLabel("6-digit code");
+  // What makes the platform offer the code from the notification shade.
+  await expect(code).toHaveAttribute("autocomplete", "one-time-code");
+  await expect(code).toHaveAttribute("inputmode", "numeric");
+
+  // A wrong code is a CODE problem. The shared error mapper turns anything
+  // containing "otp" into `link_expired`, whose copy talks about a link that
+  // was never clicked.
+  await code.fill("000000");
+  await page.getByTestId("auth-code-submit").click();
+  await expect(page.getByTestId("auth-error")).toHaveAttribute(
+    "data-error",
+    "code_invalid",
   );
 });
