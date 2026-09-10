@@ -16,6 +16,7 @@
     "passwordHint": "Usa al menos 8 caracteres.",
     "working": "Procesando…",
     "forgot": "¿Olvidaste tu contraseña?",
+    "emailCode": "Envíame un código de 6 dígitos",
     "google": "Continuar con Google",
     "legal": "Al continuar, aceptas los <terms>Términos</terms> y reconoces el <privacy>Aviso de Privacidad</privacy>.",
     "backToSignIn": "Volver a iniciar sesión",
@@ -26,12 +27,20 @@
       "resent": "Se envió un nuevo correo de verificación.",
       "back": "Usar otra cuenta"
     },
+    "code": {
+      "title": "Revisa tu correo",
+      "body": "Si existe una cuenta para {email}, un código de 6 dígitos está en camino. Vence pronto.",
+      "label": "Código de 6 dígitos",
+      "submit": "Iniciar sesión",
+      "resend": "Enviar un código nuevo",
+      "back": "Volver a iniciar sesión"
+    },
     "recovery": {
-      "title": "Restablece tu contraseña",
-      "body": "Ingresa el correo asociado con tu cuenta.",
-      "send": "Enviar enlace",
+      "title": "Crea o restablece tu contraseña",
+      "body": "Ingresa el correo asociado con tu cuenta. Sirve tanto si ya tienes una contraseña como si te uniste con Google y quieres crear una por primera vez.",
+      "send": "Enviar el enlace",
       "sentTitle": "Revisa tu correo",
-      "sentBody": "Si existe una cuenta para {email}, el enlace para restablecer la contraseña está en camino."
+      "sentBody": "Si existe una cuenta para {email}, el enlace para crear tu contraseña está en camino."
     },
     "reset": {
       "title": "Elige una contraseña nueva",
@@ -46,6 +55,7 @@
       "email_not_confirmed": "Verifica tu correo antes de iniciar sesión.",
       "invalid_credentials": "El correo o la contraseña son incorrectos.",
       "link_expired": "El enlace no es válido o venció. Solicita uno nuevo.",
+      "code_invalid": "Ese código no es correcto o ya venció. Solicita uno nuevo.",
       "rate_limited": "Hubo demasiados intentos. Espera un momento e inténtalo de nuevo.",
       "unknown": "No pudimos completar la solicitud. Inténtalo de nuevo.",
       "already_registered": "Ya existe una cuenta con este correo. Inicia sesión o restablece tu contraseña.",

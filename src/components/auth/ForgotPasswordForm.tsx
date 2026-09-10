@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { authErrorKey, type AuthErrorKey } from "@/lib/auth/errors";
 import { TurnstileWidget } from "@/components/auth/TurnstileWidget";
+import { authSubmitBlocked, captchaEnabled } from "@/lib/auth/captcha";
 
 export function ForgotPasswordForm() {
   const t = useTranslations("auth");
   const supabase = createClient();
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaNonce, setCaptchaNonce] = useState(0);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -28,6 +30,8 @@ export function ForgotPasswordForm() {
       captchaToken: captchaToken ?? undefined,
     });
     setBusy(false);
+    // Supabase spent the token verifying this call; a retry needs a fresh one.
+    setCaptchaNonce((n) => n + 1);
     if (resetError) {
       setError(authErrorKey(resetError.message));
       return;
@@ -71,8 +75,15 @@ export function ForgotPasswordForm() {
               {t(`errors.${error}`)}
             </p>
           )}
-          <TurnstileWidget onToken={setCaptchaToken} />
-          <Button className="min-h-11" type="submit" disabled={busy}>
+          <TurnstileWidget onToken={setCaptchaToken} resetKey={captchaNonce} />
+          {/* Without the token gate this offered a button that could not
+              succeed: clicking before the challenge resolved failed with the
+              generic message, on a page where nothing looked wrong. */}
+          <Button
+            className="min-h-11"
+            type="submit"
+            disabled={authSubmitBlocked(busy, captchaEnabled(), captchaToken)}
+          >
             {busy ? t("working") : t("recovery.send")}
           </Button>
         </form>

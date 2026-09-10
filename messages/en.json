@@ -16,6 +16,7 @@
     "passwordHint": "Use at least 8 characters.",
     "working": "Working…",
     "forgot": "Forgot your password?",
+    "emailCode": "Email me a 6-digit code instead",
     "google": "Continue with Google",
     "legal": "By continuing, you agree to the <terms>Terms</terms> and acknowledge the <privacy>Privacy Notice</privacy>.",
     "backToSignIn": "Back to sign in",
@@ -26,12 +27,20 @@
       "resent": "A new verification email was sent.",
       "back": "Use a different account"
     },
+    "code": {
+      "title": "Check your email",
+      "body": "If an account exists for {email}, a 6-digit code is on its way. It expires shortly.",
+      "label": "6-digit code",
+      "submit": "Sign in",
+      "resend": "Send a new code",
+      "back": "Back to sign in"
+    },
     "recovery": {
-      "title": "Reset your password",
-      "body": "Enter the email address attached to your account.",
-      "send": "Send reset link",
+      "title": "Set or reset your password",
+      "body": "Enter the email address attached to your account. This works whether you already have a password or joined with Google and want to set one for the first time.",
+      "send": "Send the link",
       "sentTitle": "Check your email",
-      "sentBody": "If an account exists for {email}, a password reset link is on its way."
+      "sentBody": "If an account exists for {email}, a link to set your password is on its way."
     },
     "reset": {
       "title": "Choose a new password",
@@ -46,6 +55,7 @@
       "email_not_confirmed": "Verify your email before signing in.",
       "invalid_credentials": "The email or password is incorrect.",
       "link_expired": "That link is invalid or has expired. Request a new one.",
+      "code_invalid": "That code is not right, or it has expired. Request a new one.",
       "rate_limited": "Too many attempts were made. Wait a moment and try again.",
       "unknown": "We could not complete that request. Please try again.",
       "already_registered": "An account with this email already exists. Sign in or reset your password instead.",

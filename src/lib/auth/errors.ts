@@ -1,6 +1,7 @@
 export type AuthErrorKey =
   | "age_unconfirmed"
   | "already_registered"
+  | "code_invalid"
   | "confirmation_failed"
   | "email_not_confirmed"
   | "invalid_credentials"
@@ -13,6 +14,7 @@ export type AuthErrorKey =
 const AUTH_ERROR_KEYS = new Set<AuthErrorKey>([
   "age_unconfirmed",
   "already_registered",
+  "code_invalid",
   "confirmation_failed",
   "email_not_confirmed",
   "invalid_credentials",
@@ -59,6 +61,26 @@ export function authErrorKey(message: string): AuthErrorKey {
     return "rate_limited";
   }
   return "unknown";
+}
+
+/**
+ * Supabase refusing an address that has no account, because we asked it not to
+ * create one (`shouldCreateUser: false` on the email-code path).
+ *
+ * This refusal must never reach the person typing. Answering "no account here"
+ * turns the code box into a membership oracle anyone can query one address at a
+ * time. The caller swallows it and shows the same "code sent" screen a real
+ * account gets — the same bargain `/forgot-password` already makes.
+ *
+ * Deliberately narrow. Matching loosely would also swallow the rate-limit
+ * refusal, and someone would sit waiting for an email that was never sent.
+ */
+export function isUnknownAccountOtp(message: string): boolean {
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("signups not allowed") ||
+    normalized.includes("otp_disabled")
+  );
 }
 
 export function safeAuthErrorKey(value: string | null | undefined): AuthErrorKey | null {

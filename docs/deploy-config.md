@@ -149,3 +149,28 @@ Schema is managed through the Supabase CLI as of 2026-07-20 (Slice D). The
   uploads) via a shared fetch wrapper.
 - Google OAuth consent screen is in testing mode; only listed test users can
   sign in with Google until the app is published.
+
+## Email-code (OTP) sign-in — one dashboard edit, on BOTH projects
+
+The `/login` page requests a 6-digit code with `signInWithOtp`. Supabase only
+puts a code in that email if the **Magic Link** template contains `{{ .Token }}`.
+The stock template contains `{{ .ConfirmationURL }}` and nothing else, so
+untouched it sends a link to a page that is asking for a code.
+
+Add `{{ .Token }}` to the Magic Link template on:
+
+- dev  `irpayabloogarxwtjmrf`
+- prod `qygdixvmxrezhavvnkgc`
+
+Leave `{{ .ConfirmationURL }}` in place. The link is a free second route and it
+already lands correctly — the callback route accepts `magiclink` and `email`
+token types, and the client passes an `emailRedirectTo` pointing at it.
+
+**Order does not matter here, unlike CAPTCHA.** Ship the code first and the
+feature is simply unreachable-but-harmless until the template catches up; there
+is no window where auth breaks. Contrast the CAPTCHA rollout above, where
+enabling the dashboard toggle before the key was deployed would have been a
+total authentication outage.
+
+Optional, and Dailen's click: OTP expiry defaults to **1 hour**. Ten minutes is
+a better fit for a 6-digit code.

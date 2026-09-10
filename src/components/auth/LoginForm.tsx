@@ -6,13 +6,18 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { authErrorKey, type AuthErrorKey, type AuthNoticeKey } from "@/lib/auth/errors";
+import {
+  authErrorKey,
+  isUnknownAccountOtp,
+  type AuthErrorKey,
+  type AuthNoticeKey,
+} from "@/lib/auth/errors";
 import { PASSWORD_MIN_LENGTH } from "@/lib/auth/password";
 import { signUpWithPassword } from "@/lib/auth/signup";
 import { capture } from "@/lib/analytics";
 import { FUNNEL_EVENTS } from "@/lib/analytics/events";
 import { TurnstileWidget } from "@/components/auth/TurnstileWidget";
-import { captchaEnabled } from "@/lib/auth/captcha";
+import { authSubmitBlocked, captchaEnabled } from "@/lib/auth/captcha";
 
 type Mode = "signin" | "signup";
 
@@ -35,6 +40,9 @@ export function LoginForm({
   // null until the widget produces one, and null forever when CAPTCHA is off.
   // Supabase ignores the field entirely until it is enabled dashboard-side.
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  // Bumped after every auth call, because Supabase spends the token verifying
+  // it. Without this, the second attempt on one page load fails as `unknown`.
+  const [captchaNonce, setCaptchaNonce] = useState(0);
   const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,6 +51,8 @@ export function LoginForm({
   const [awaitingVerification, setAwaitingVerification] = useState(false);
   const [resent, setResent] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [code, setCode] = useState("");
 
   function callbackUrl(destination = nextPath) {
     const callback = new URL("/auth/callback", location.origin);
@@ -124,6 +134,7 @@ export function LoginForm({
       options: { captchaToken: captchaToken ?? undefined },
     });
     setBusy(false);
+    setCaptchaNonce((n) => n + 1);
     if (signInError) {
       const key = authErrorKey(signInError.message);
       // Unconfirmed accounts get the pending/resend screen, not a dead end —
@@ -147,6 +158,7 @@ export function LoginForm({
     }
     // A good login un-sticks the counter.
     await supabase.rpc("clear_login_failures", { target_email: email });
+    capture(FUNNEL_EVENTS.signedIn, { method: "password" });
 
     router.push(nextPath);
     router.refresh();
@@ -172,6 +184,77 @@ export function LoginForm({
     setResent(true);
   }
 
+  /**
+   * The way in for an account that has no password to get wrong — every Google
+   * signup, and anyone who has simply forgotten which button they used.
+   */
+  async function sendEmailCode() {
+    setError(null);
+    setBusy(true);
+
+    // The same lockout the password path respects. Owning the inbox is strong
+    // proof, but it is not a reason to open a second door while the first is
+    // still bolted — that is the decision Dailen made when he declined the
+    // bypass.
+    const { data: locked } = await supabase.rpc("is_locked_out", {
+      target_email: email,
+    });
+    if (locked) {
+      setBusy(false);
+      setError("locked_out");
+      return;
+    }
+
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        // Sign-in ONLY. This defaults to true, and left alone it would create
+        // accounts here — walking straight past the 18+ gate and the password
+        // rule, which live in the signup server action precisely because a
+        // client cannot be trusted to apply them.
+        shouldCreateUser: false,
+        // CAPTCHA is enforced on production. Without this the whole feature
+        // works locally and fails for every real user.
+        captchaToken: captchaToken ?? undefined,
+        // The same email also carries a link. Point it at the callback so a
+        // click lands exactly where the typed code would have.
+        emailRedirectTo: callbackUrl(),
+      },
+    });
+    setBusy(false);
+    setCaptchaNonce((n) => n + 1);
+    // A refused unknown address is swallowed on purpose: see isUnknownAccountOtp.
+    if (otpError && !isUnknownAccountOtp(otpError.message)) {
+      setError(authErrorKey(otpError.message));
+      return;
+    }
+    setCodeSent(true);
+  }
+
+  async function verifyEmailCode(event: React.FormEvent) {
+    event.preventDefault();
+    setError(null);
+    setBusy(true);
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: code.trim(),
+      type: "email",
+    });
+    setBusy(false);
+    if (verifyError) {
+      const key = authErrorKey(verifyError.message);
+      // authErrorKey turns anything mentioning "otp" or "expired" into
+      // `link_expired`, whose copy talks about a link nobody clicked. A rate
+      // limit is still a rate limit; everything else here is a bad code.
+      setError(key === "rate_limited" ? key : "code_invalid");
+      return;
+    }
+    await supabase.rpc("clear_login_failures", { target_email: email });
+    capture(FUNNEL_EVENTS.signedIn, { method: "email_code" });
+    router.push(nextPath);
+    router.refresh();
+  }
+
   async function signInGoogle() {
     setError(null);
     setBusy(true);
@@ -183,6 +266,76 @@ export function LoginForm({
       setBusy(false);
       setError(authErrorKey(oauthError.message));
     }
+  }
+
+  if (codeSent) {
+    return (
+      <AuthShell>
+        <section
+          className="rounded-2xl border border-secondary/35 bg-secondary/10 p-5"
+          role="status"
+          data-testid="auth-code-sent"
+        >
+          <h1 className="text-center text-2xl font-semibold">{t("code.title")}</h1>
+          {/* Says "if an account exists" whether or not one does. An address
+              that gets a different screen is an address someone can test. */}
+          <p className="mt-2 text-center text-sm leading-6 text-muted-foreground">
+            {t("code.body", { email })}
+          </p>
+          <form onSubmit={verifyEmailCode} className="mt-5 flex flex-col gap-3">
+            <label className="flex flex-col gap-1.5 text-sm font-medium">
+              {t("code.label")}
+              <input
+                className="min-h-11 rounded border border-input bg-transparent p-2 text-center text-lg tracking-[0.4em]"
+                type="text"
+                name="one-time-code"
+                // The pair that makes iOS and Android offer the code straight
+                // from the notification instead of making someone app-switch.
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                required
+                value={code}
+                onChange={(event) =>
+                  setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                }
+              />
+            </label>
+            {error && <AuthError error={error} />}
+            <Button
+              className="min-h-11"
+              type="submit"
+              disabled={busy || code.length < 6}
+              data-testid="auth-code-submit"
+            >
+              {busy ? t("working") : t("code.submit")}
+            </Button>
+          </form>
+          <TurnstileWidget onToken={setCaptchaToken} resetKey={captchaNonce} />
+          <Button
+            className="mt-2 min-h-11 w-full"
+            variant="ghost"
+            data-testid="auth-code-resend"
+            disabled={authSubmitBlocked(busy, captchaEnabled(), captchaToken)}
+            onClick={sendEmailCode}
+          >
+            {t("code.resend")}
+          </Button>
+          <Button
+            className="mt-2 min-h-11 w-full"
+            variant="ghost"
+            onClick={() => {
+              setCodeSent(false);
+              setCode("");
+              setError(null);
+            }}
+          >
+            {t("code.back")}
+          </Button>
+        </section>
+      </AuthShell>
+    );
   }
 
   if (awaitingVerification) {
@@ -299,13 +452,13 @@ export function LoginForm({
           </label>
         )}
         {error && <AuthError error={error} />}
-        <TurnstileWidget onToken={setCaptchaToken} />
+        <TurnstileWidget onToken={setCaptchaToken} resetKey={captchaNonce} />
         <Button
           className="min-h-11"
           type="submit"
           // Submitting before the challenge resolves fails as a credential
           // error, which reads as "wrong password" to the person typing.
-          disabled={busy || (captchaEnabled() && captchaToken === null)}
+          disabled={authSubmitBlocked(busy, captchaEnabled(), captchaToken)}
           data-testid="auth-submit"
         >
           {busy ? t("working") : t(mode === "signin" ? "signIn" : "createAccount")}
@@ -313,12 +466,29 @@ export function LoginForm({
       </form>
 
       {mode === "signin" && (
-        <Link
-          href="/forgot-password"
-          className="text-center text-sm text-brand-link underline"
-        >
-          {t("forgot")}
-        </Link>
+        <>
+          <Link
+            href="/forgot-password"
+            className="text-center text-sm text-brand-link underline"
+          >
+            {t("forgot")}
+          </Link>
+          {/* Sign-in only. Creating an account still goes through the server
+              action, where the 18+ gate and the password rule are decided. */}
+          <Button
+            className="min-h-11"
+            variant="secondary"
+            type="button"
+            data-testid="auth-email-code"
+            disabled={
+              authSubmitBlocked(busy, captchaEnabled(), captchaToken) ||
+              email.trim() === ""
+            }
+            onClick={sendEmailCode}
+          >
+            {t("emailCode")}
+          </Button>
+        </>
       )}
 
       <Button className="min-h-11" variant="secondary" disabled={busy} onClick={signInGoogle}>

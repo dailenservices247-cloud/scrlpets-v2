@@ -24,3 +24,22 @@ export function turnstileSiteKey(): string | null {
 export function captchaEnabled(): boolean {
   return turnstileSiteKey() !== null;
 }
+
+/**
+ * Whether an auth submit control must stay disabled.
+ *
+ * Submitting before the challenge resolves fails as a credential error, which
+ * reads as "wrong password" to the person typing.
+ *
+ * `captchaOn` is an argument rather than a call to captchaEnabled() so the
+ * enforced case is reachable from a test. CAPTCHA is off on the dev project
+ * every local run points at, so end to end this gate and its inverse behave
+ * identically — the case that matters exists only in production.
+ */
+export function authSubmitBlocked(
+  busy: boolean,
+  captchaOn: boolean,
+  token: string | null,
+): boolean {
+  return busy || (captchaOn && token === null);
+}

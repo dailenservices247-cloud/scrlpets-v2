@@ -7,6 +7,7 @@
  */
 export const FUNNEL_EVENTS = {
   signupCompleted: "signup_completed",
+  signedIn: "signed_in",
   onboardingSpeciesSaved: "onboarding_species_saved",
   onboardingSkipped: "onboarding_skipped",
   breederBranchTaken: "breeder_branch_taken",
@@ -14,6 +15,13 @@ export const FUNNEL_EVENTS = {
   firstBrandCreated: "first_brand_created",
 } as const;
 
+// `signed_in` carries a `method` property ("password" | "email_code") and is
+// fired from the two success points that stay in the browser. Google is
+// deliberately NOT counted yet: signInWithOAuth navigates away and the
+// session lands in the server-side callback, so attributing it means an
+// event fired from there. Until that exists, treat this as "of the sign-ins
+// that happen in-page, which method", not as a share of all sign-ins.
+//
 // Deliberately ABSENT: first_listing_created and first_animal_created.
 // `listing_created` already fires (ListingForm.tsx:163) and PostHog derives
 // first-occurrence per user from it natively — a server round-trip to compute
