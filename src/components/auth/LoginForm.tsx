@@ -54,6 +54,19 @@ export function LoginForm({
   const [codeSent, setCodeSent] = useState(false);
   const [code, setCode] = useState("");
 
+  /**
+   * Supabase redeems the Turnstile token while verifying the request — before
+   * it looks at any credential — so the token is spent whatever the outcome.
+   * Clearing state as well as resetting the widget matters on the paths that
+   * swap screens: the old widget unmounts before its reset effect can run, so
+   * without this the next screen briefly holds a spent token and offers a
+   * button that cannot succeed.
+   */
+  function spendCaptchaToken() {
+    setCaptchaToken(null);
+    setCaptchaNonce((n) => n + 1);
+  }
+
   function callbackUrl(destination = nextPath) {
     const callback = new URL("/auth/callback", location.origin);
     callback.searchParams.set("next", destination);
@@ -134,7 +147,7 @@ export function LoginForm({
       options: { captchaToken: captchaToken ?? undefined },
     });
     setBusy(false);
-    setCaptchaNonce((n) => n + 1);
+    spendCaptchaToken();
     if (signInError) {
       const key = authErrorKey(signInError.message);
       // Unconfirmed accounts get the pending/resend screen, not a dead end —
@@ -222,7 +235,7 @@ export function LoginForm({
       },
     });
     setBusy(false);
-    setCaptchaNonce((n) => n + 1);
+    spendCaptchaToken();
     // A refused unknown address is swallowed on purpose: see isUnknownAccountOtp.
     if (otpError && !isUnknownAccountOtp(otpError.message)) {
       setError(authErrorKey(otpError.message));

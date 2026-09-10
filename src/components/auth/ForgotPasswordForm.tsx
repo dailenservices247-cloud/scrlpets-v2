@@ -31,6 +31,7 @@ export function ForgotPasswordForm() {
     });
     setBusy(false);
     // Supabase spent the token verifying this call; a retry needs a fresh one.
+    setCaptchaToken(null);
     setCaptchaNonce((n) => n + 1);
     if (resetError) {
       setError(authErrorKey(resetError.message));
