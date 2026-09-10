@@ -166,11 +166,15 @@ Leave `{{ .ConfirmationURL }}` in place. The link is a free second route and it
 already lands correctly — the callback route accepts `magiclink` and `email`
 token types, and the client passes an `emailRedirectTo` pointing at it.
 
-**Order does not matter here, unlike CAPTCHA.** Ship the code first and the
-feature is simply unreachable-but-harmless until the template catches up; there
-is no window where auth breaks. Contrast the CAPTCHA rollout above, where
-enabling the dashboard toggle before the key was deployed would have been a
-total authentication outage.
+**Edit the template BEFORE deploying, or accept a confusing window.** Nothing
+breaks either way — this is not the CAPTCHA rollout, where enabling the
+dashboard toggle before the key was deployed would have been a total
+authentication outage. But "harmless" overstates it: with the code deployed and
+the template untouched, the button works, the email arrives, and it carries only
+a link. Clicking that link DOES sign the person in, because the callback route
+accepts the token — but they are meanwhile staring at a box asking for a code
+that was never sent. Confusing, recoverable, and entirely avoidable by doing the
+template first.
 
 Optional, and Dailen's click: OTP expiry defaults to **1 hour**. Ten minutes is
 a better fit for a 6-digit code.
