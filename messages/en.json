@@ -16,7 +16,7 @@
     "passwordHint": "Use at least 8 characters.",
     "working": "Working…",
     "forgot": "Forgot your password?",
-    "emailCode": "Email me a 6-digit code instead",
+    "emailCode": "Email me a sign-in code instead",
     "google": "Continue with Google",
     "legal": "By continuing, you agree to the <terms>Terms</terms> and acknowledge the <privacy>Privacy Notice</privacy>.",
     "backToSignIn": "Back to sign in",
@@ -29,8 +29,8 @@
     },
     "code": {
       "title": "Check your email",
-      "body": "If an account exists for {email}, a 6-digit code is on its way. It expires shortly.",
-      "label": "6-digit code",
+      "body": "If an account exists for {email}, a sign-in code is on its way. It expires shortly.",
+      "label": "Sign-in code",
       "submit": "Sign in",
       "resend": "Send a new code",
       "back": "Back to sign in"

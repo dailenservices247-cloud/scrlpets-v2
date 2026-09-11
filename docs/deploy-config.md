@@ -152,7 +152,7 @@ Schema is managed through the Supabase CLI as of 2026-07-20 (Slice D). The
 
 ## Email-code (OTP) sign-in — one dashboard edit, on BOTH projects
 
-The `/login` page requests a 6-digit code with `signInWithOtp`. Supabase only
+The `/login` page requests a one-time code with `signInWithOtp`. Supabase only
 puts a code in that email if the **Magic Link** template contains `{{ .Token }}`.
 The stock template contains `{{ .ConfirmationURL }}` and nothing else, so
 untouched it sends a link to a page that is asking for a code.
@@ -176,5 +176,10 @@ accepts the token — but they are meanwhile staring at a box asking for a code
 that was never sent. Confusing, recoverable, and entirely avoidable by doing the
 template first.
 
+**Code length is dashboard config too**: `mailer_otp_length`, 6 to 10, and **8** on
+both projects as of 2026-09-11. The code box holds up to 10 and never assumes a
+length — it once truncated at 6, which would have refused every real code.
+Change the length freely; do not reintroduce a number into the UI or its copy.
+
 Optional, and Dailen's click: OTP expiry defaults to **1 hour**. Ten minutes is
-a better fit for a 6-digit code.
+a better fit for a typed code.

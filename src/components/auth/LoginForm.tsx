@@ -307,11 +307,15 @@ export function LoginForm({
                 autoComplete="one-time-code"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                maxLength={6}
+                // The LENGTH is dashboard config (`mailer_otp_length`, 6 to
+                // 10) and 8 on both projects today — never a number this page
+                // gets to assume. Hold the longest Supabase can issue; submit
+                // waits for its minimum.
+                maxLength={10}
                 required
                 value={code}
                 onChange={(event) =>
-                  setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                  setCode(event.target.value.replace(/\D/g, "").slice(0, 10))
                 }
               />
             </label>

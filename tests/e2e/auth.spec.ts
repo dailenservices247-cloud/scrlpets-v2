@@ -178,7 +178,7 @@ test("a code request never reveals whether the account exists", async ({ page })
   await expect(page.getByTestId("auth-code-sent")).toBeVisible();
   await expect(page.getByTestId("auth-error")).toHaveCount(0);
 
-  const code = page.getByLabel("6-digit code");
+  const code = page.getByLabel("Sign-in code");
   // What makes the platform offer the code from the notification shade.
   await expect(code).toHaveAttribute("autocomplete", "one-time-code");
   await expect(code).toHaveAttribute("inputmode", "numeric");
