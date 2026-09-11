@@ -162,6 +162,14 @@ Add `{{ .Token }}` to the Magic Link template on:
 - dev  `irpayabloogarxwtjmrf`
 - prod `qygdixvmxrezhavvnkgc`
 
+**Done 2026-09-11 on both**, through the Management API
+(`PATCH /v1/projects/<ref>/config/auth`, fields `mailer_subjects_magic_link` and
+`mailer_templates_magic_link_content`), each read back after saving. Subject is
+now "Your sign-in code"; the body shows `{{ .Token }}` large, keeps
+`{{ .ConfirmationURL }}` as a same-browser fallback, and says to ignore the email
+if you did not ask to sign in. **Anyone editing it later in the dashboard must
+keep `{{ .Token }}`**, or the code box never receives a code.
+
 Leave `{{ .ConfirmationURL }}` in place. The link is a free second route and it
 already lands correctly — the callback route accepts `magiclink` and `email`
 token types, and the client passes an `emailRedirectTo` pointing at it.
