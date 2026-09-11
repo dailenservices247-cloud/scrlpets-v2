@@ -183,10 +183,18 @@ test("a code request never reveals whether the account exists", async ({ page })
   await expect(code).toHaveAttribute("autocomplete", "one-time-code");
   await expect(code).toHaveAttribute("inputmode", "numeric");
 
+  // The code's LENGTH is dashboard config (`mailer_otp_length`, anywhere from
+  // 6 to 10), not something this page gets to assume. Both projects turned out
+  // to be set to 8 while this box cut input off at 6 — every real code would
+  // have been truncated and refused, and no test noticed, because none of them
+  // ever typed a real one. The box must hold the longest code Supabase issues.
+  await code.fill("1234567890");
+  await expect(code).toHaveValue("1234567890");
+
   // A wrong code is a CODE problem. The shared error mapper turns anything
   // containing "otp" into `link_expired`, whose copy talks about a link that
   // was never clicked.
-  await code.fill("000000");
+  await code.fill("00000000");
   await page.getByTestId("auth-code-submit").click();
   await expect(page.getByTestId("auth-error")).toHaveAttribute(
     "data-error",
