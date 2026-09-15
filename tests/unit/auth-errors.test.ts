@@ -34,6 +34,18 @@ describe("auth errors", () => {
     expect(isUnknownAccountOtp("Invalid login credentials")).toBe(false);
   });
 
+  it("names a missing second factor instead of a generic failure", () => {
+    // Supabase's refusal once a factor is verified and the session is aal1.
+    expect(
+      authErrorKey("AAL2 session is required to update email or password when MFA is enabled."),
+    ).toBe("second_factor_required");
+    expect(authErrorKey("AAL2 required to unenroll verified factor")).toBe("second_factor_required");
+    // The database gate and the recovery-code mint.
+    expect(authErrorKey("second_factor_required")).toBe("second_factor_required");
+    expect(authErrorKey("aal2_required")).toBe("second_factor_required");
+    expect(safeAuthErrorKey("second_factor_required")).toBe("second_factor_required");
+  });
+
   it("rejects arbitrary query-string messages", () => {
     expect(safeAuthErrorKey("provider stack trace")).toBeNull();
     expect(safeAuthNoticeKey("<script>")).toBeNull();

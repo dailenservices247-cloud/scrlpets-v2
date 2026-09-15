@@ -227,3 +227,33 @@ test("a recovery code gets a member in and switches two-factor off", async ({ pa
   await expect(page.getByTestId("mfa-start")).toBeVisible();
   expect(await verifiedFactors(member)).toBe(0);
 });
+
+test("turning two-factor off says so when it fails", async ({ page }) => {
+  const member = await createMember();
+  const { secret } = await enrol(member);
+  await signInWithPassword(page, member);
+  await expect(page).toHaveURL("/two-factor?next=%2F");
+  await page.getByTestId("two-factor-code-input").fill(totp(secret));
+  await page.getByTestId("two-factor-submit").click();
+  await expect(page).toHaveURL("/");
+
+  await page.goto("/settings/account");
+  const refuseUnenrol = (route: import("@playwright/test").Route) =>
+    route.request().method() === "DELETE"
+      ? route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ code: 500, error_code: "unexpected_failure", msg: "E2E refused unenrol" }),
+        })
+      : route.fallback();
+  await page.route("**/auth/v1/factors/**", refuseUnenrol);
+  await page.getByTestId("mfa-disable").click();
+  await expect(page.getByTestId("mfa-error")).toBeVisible();
+  await expect(page.getByTestId("mfa-enrolled")).toBeVisible();
+  expect(await verifiedFactors(member)).toBe(1);
+
+  await page.unroute("**/auth/v1/factors/**", refuseUnenrol);
+  await page.getByTestId("mfa-disable").click();
+  await expect(page.getByTestId("mfa-start")).toBeVisible();
+  expect(await verifiedFactors(member)).toBe(0);
+});
