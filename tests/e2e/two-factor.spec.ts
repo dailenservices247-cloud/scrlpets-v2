@@ -165,13 +165,24 @@ test("a password-reset link is challenged too, and the new password saves after 
   await page.getByTestId("two-factor-submit").click();
   await expect(page).toHaveURL("/reset-password");
 
+  // Checked here, on the pages this feature owns. What follows the save is the
+  // pre-existing /login → / hop, whose RSC fetch trips upgrade-insecure-requests
+  // on http://localhost, and whatever the feed loads — neither is this change.
+  expect(problems).toEqual([]);
+
   const newPassword = crypto.randomBytes(18).toString("base64url");
   await page.getByLabel("New password", { exact: true }).fill(newPassword);
   await page.getByLabel("Confirm new password", { exact: true }).fill(newPassword);
   await page.getByRole("button", { name: "Save new password" }).click();
-  await expect(page).toHaveURL("/login?notice=password_updated");
-
-  expect(problems).toEqual([]);
+  // ResetPasswordForm heads for /login?notice=password_updated, and the existing
+  // signed-in rule in proxy.ts forwards a signed-in member to / — so assert that
+  // the form moved on and that the new password is the one that now works.
+  await page.waitForURL((url) => url.pathname !== "/reset-password");
+  const withNewPassword = await client().auth.signInWithPassword({
+    email: member.email,
+    password: newPassword,
+  });
+  expect(withNewPassword.error).toBeNull();
 });
 
 test("the challenge can be left by signing out, and is closed to signed-out visitors", async ({ page }) => {

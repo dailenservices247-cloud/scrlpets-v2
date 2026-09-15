@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { owesSecondFactor } from "@/lib/auth/second-factor";
 import { fetchWithTimeout } from "./fetch";
 
 export async function updateSession(request: NextRequest) {
@@ -27,8 +28,20 @@ export async function updateSession(request: NextRequest) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    return { response, user };
+    if (!user) return { response, user: null, secondFactorOwed: false };
+    // The token getUser() just validated — only its aal claim is read. Factors
+    // come from getUser() itself, never from this stored session.
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    return {
+      response,
+      user,
+      secondFactorOwed: owesSecondFactor(user.factors, session?.access_token),
+    };
   } catch {
-    return { response, user: null };
+    // ponytail: a failed getUser() keeps the existing signed-out handling; the
+    // database gate refuses an owing session even if this one request slips by.
+    return { response, user: null, secondFactorOwed: false };
   }
 }

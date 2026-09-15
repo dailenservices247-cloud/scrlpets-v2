@@ -67,7 +67,19 @@
       "password_updated": "Your password was updated. Sign in with the new password."
     },
     "ageConfirmation": "I confirm I am at least 18 years old.",
-    "passwordRule": "At least 8 characters, including one letter and one number."
+    "passwordRule": "At least 8 characters, including one letter and one number.",
+    "twoFactor": {
+      "title": "Two-factor authentication",
+      "body": "Enter the 6-digit code from your authenticator app to finish signing in.",
+      "codeLabel": "6-digit code",
+      "submit": "Continue",
+      "working": "Checking…",
+      "signOut": "Sign out",
+      "errors": {
+        "code": "That code is not right. Check your authenticator app and try again.",
+        "rate_limited": "Too many attempts were made. Wait a moment and try again."
+      }
+    }
   },
   "consent": {
     "label": "Analytics choice",

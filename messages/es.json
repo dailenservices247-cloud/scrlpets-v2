@@ -67,7 +67,19 @@
       "password_updated": "Tu contraseña se actualizó. Inicia sesión con la nueva contraseña."
     },
     "ageConfirmation": "Confirmo que tengo al menos 18 años.",
-    "passwordRule": "Al menos 8 caracteres, incluyendo una letra y un número."
+    "passwordRule": "Al menos 8 caracteres, incluyendo una letra y un número.",
+    "twoFactor": {
+      "title": "Verificación en dos pasos",
+      "body": "Ingresa el código de 6 dígitos de tu app de autenticación para terminar de iniciar sesión.",
+      "codeLabel": "Código de 6 dígitos",
+      "submit": "Continuar",
+      "working": "Verificando…",
+      "signOut": "Cerrar sesión",
+      "errors": {
+        "code": "Ese código no es correcto. Revísalo en tu app de autenticación e inténtalo de nuevo.",
+        "rate_limited": "Hubo demasiados intentos. Espera un momento e inténtalo de nuevo."
+      }
+    }
   },
   "consent": {
     "label": "Preferencia de analítica",

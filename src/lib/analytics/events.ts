@@ -13,6 +13,8 @@ export const FUNNEL_EVENTS = {
   breederBranchTaken: "breeder_branch_taken",
   breederBranchSkipped: "breeder_branch_skipped",
   firstBrandCreated: "first_brand_created",
+  mfaChallengePassed: "mfa_challenge_passed",
+  mfaRecoveryCodeUsed: "mfa_recovery_code_used",
 } as const;
 
 // `signed_in` carries a `method` property ("password" | "email_code") and is
@@ -21,6 +23,10 @@ export const FUNNEL_EVENTS = {
 // session lands in the server-side callback, so attributing it means an
 // event fired from there. Until that exists, treat this as "of the sign-ins
 // that happen in-page, which method", not as a share of all sign-ins.
+//
+// `mfa_challenge_passed` and `mfa_recovery_code_used` fire from /two-factor
+// (TwoFactorChallenge), consent-gated like everything else. No properties: they
+// answer whether two-factor is used, and whether members fall back to recovery.
 //
 // Deliberately ABSENT: first_listing_created and first_animal_created.
 // `listing_created` already fires (ListingForm.tsx:163) and PostHog derives
