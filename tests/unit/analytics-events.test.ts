@@ -20,6 +20,11 @@ describe("FUNNEL_EVENTS", () => {
     }
   });
 
+  it("names the two-factor sign-in events", () => {
+    expect(FUNNEL_EVENTS.mfaChallengePassed).toBe("mfa_challenge_passed");
+    expect(FUNNEL_EVENTS.mfaRecoveryCodeUsed).toBe("mfa_recovery_code_used");
+  });
+
   it("uses snake_case names with no collisions", () => {
     const names = Object.values(FUNNEL_EVENTS);
     expect(new Set(names).size, "duplicate event name").toBe(names.length);
