@@ -8,6 +8,7 @@ import {
   exportMyData,
   requestAccountDeletion,
 } from "@/lib/account/actions";
+import { authErrorKey } from "@/lib/auth/errors";
 
 // R10: the account-safety surface legacy had and v2 was missing —
 // email change, password change, data export, deletion request.
@@ -25,7 +26,14 @@ export function AccountSettings({ currentEmail }: { currentEmail: string }) {
     const result = await fn();
     setBusy(null);
     if (result.ok) setNotice(result.message ? t(`notice.${result.message}`) : t("notice.saved"));
-    else setError(t("error.generic"));
+    else
+      setError(
+        t(
+          authErrorKey(result.error ?? "") === "second_factor_required"
+            ? "error.secondFactorRequired"
+            : "error.generic",
+        ),
+      );
   }
 
   async function download() {

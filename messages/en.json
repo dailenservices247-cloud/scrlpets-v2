@@ -61,7 +61,8 @@
       "already_registered": "An account with this email already exists. Sign in or reset your password instead.",
       "locked_out": "Too many failed sign-in attempts. This account is locked for about 15 minutes — wait and try again, or reset your password.",
       "weak_password": "That password is too weak. Use at least 8 characters, including one letter and one number.",
-      "age_unconfirmed": "Confirm you are at least 18 years old to create an account."
+      "age_unconfirmed": "Confirm you are at least 18 years old to create an account.",
+      "second_factor_required": "Enter your two-factor code first, then try again."
     },
     "notices": {
       "password_updated": "Your password was updated. Sign in with the new password."
@@ -549,7 +550,8 @@
       "deletion_requested": "Deletion requested. We will confirm by email."
     },
     "error": {
-      "generic": "That did not work. Try again."
+      "generic": "That did not work. Try again.",
+      "secondFactorRequired": "Enter your two-factor code first, then try again."
     },
     "mfaTitle": "Two-factor authentication",
     "mfaBody": "An authenticator app code, in addition to your password.",
@@ -572,7 +574,8 @@
     "mfaErrorInvalidCode": "That code is not right. Check your app and try again.",
     "mfaErrorNotConfigured": "Two-factor recovery is not available in this environment.",
     "mfaErrorAuthRequired": "Sign in again to change this.",
-    "mfaErrorGeneric": "That did not work. Try again."
+    "mfaErrorGeneric": "That did not work. Try again.",
+    "mfaErrorSecondFactorRequired": "Sign in again with your two-factor code, then try again."
   },
   "verification": {
     "title": "Verification",

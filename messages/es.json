@@ -61,7 +61,8 @@
       "already_registered": "Ya existe una cuenta con este correo. Inicia sesión o restablece tu contraseña.",
       "locked_out": "Demasiados intentos fallidos de inicio de sesión. Esta cuenta queda bloqueada unos 15 minutos: espera e inténtalo de nuevo, o restablece tu contraseña.",
       "weak_password": "Esa contraseña es demasiado débil. Usa al menos 8 caracteres, incluyendo una letra y un número.",
-      "age_unconfirmed": "Confirma que tienes al menos 18 años para crear una cuenta."
+      "age_unconfirmed": "Confirma que tienes al menos 18 años para crear una cuenta.",
+      "second_factor_required": "Primero ingresa tu código de verificación en dos pasos y luego inténtalo de nuevo."
     },
     "notices": {
       "password_updated": "Tu contraseña se actualizó. Inicia sesión con la nueva contraseña."
@@ -549,7 +550,8 @@
       "deletion_requested": "Eliminación solicitada. Te confirmaremos por correo."
     },
     "error": {
-      "generic": "No funcionó. Inténtalo de nuevo."
+      "generic": "No funcionó. Inténtalo de nuevo.",
+      "secondFactorRequired": "Primero ingresa tu código de verificación en dos pasos y luego inténtalo de nuevo."
     },
     "mfaTitle": "Verificación en dos pasos",
     "mfaBody": "Un código de tu app de autenticación, además de tu contraseña.",
@@ -572,7 +574,8 @@
     "mfaErrorInvalidCode": "Ese código no es correcto. Revísalo en tu app e inténtalo de nuevo.",
     "mfaErrorNotConfigured": "La recuperación en dos pasos no está disponible en este entorno.",
     "mfaErrorAuthRequired": "Vuelve a iniciar sesión para cambiar esto.",
-    "mfaErrorGeneric": "No ha funcionado. Inténtalo de nuevo."
+    "mfaErrorGeneric": "No ha funcionado. Inténtalo de nuevo.",
+    "mfaErrorSecondFactorRequired": "Vuelve a iniciar sesión con tu código de verificación en dos pasos e inténtalo de nuevo."
   },
   "verification": {
     "title": "Verificación",

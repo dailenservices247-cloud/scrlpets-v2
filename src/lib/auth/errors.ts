@@ -8,6 +8,7 @@ export type AuthErrorKey =
   | "link_expired"
   | "locked_out"
   | "rate_limited"
+  | "second_factor_required"
   | "unknown"
   | "weak_password";
 
@@ -21,12 +22,20 @@ const AUTH_ERROR_KEYS = new Set<AuthErrorKey>([
   "link_expired",
   "locked_out",
   "rate_limited",
+  "second_factor_required",
   "unknown",
   "weak_password",
 ]);
 
 export function authErrorKey(message: string): AuthErrorKey {
   const normalized = message.toLowerCase();
+  // Supabase refuses email/password changes and factor removal at aal1 once a
+  // factor is verified ("AAL2 session is required…"); the database gate and the
+  // recovery-code mint say it in their own words. Checked first: Supabase's
+  // sentence also mentions "password".
+  if (normalized.includes("aal2") || normalized.includes("second_factor_required")) {
+    return "second_factor_required";
+  }
   if (normalized.includes("email not confirmed")) return "email_not_confirmed";
   if (
     normalized.includes("already registered") ||

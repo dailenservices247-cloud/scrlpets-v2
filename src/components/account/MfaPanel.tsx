@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
+import { authErrorKey } from "@/lib/auth/errors";
 import { generateRecoveryCodes } from "@/lib/mfa/actions";
 
 /**
@@ -41,6 +42,7 @@ export function MfaPanel({ enrolled, codesLeft }: { enrolled: boolean; codesLeft
     }
     if (raw.includes("not_configured")) return t("mfaErrorNotConfigured");
     if (raw.includes("auth_required")) return t("mfaErrorAuthRequired");
+    if (authErrorKey(raw) === "second_factor_required") return t("mfaErrorSecondFactorRequired");
     return t("mfaErrorGeneric");
   }
 
@@ -102,11 +104,20 @@ export function MfaPanel({ enrolled, codesLeft }: { enrolled: boolean; codesLeft
   async function disable() {
     setBusy(true);
     setError(null);
-    const { data } = await supabase.auth.mfa.listFactors();
+    const { data, error: listError } = await supabase.auth.mfa.listFactors();
+    // Every failure is shown. This used to ignore them and refresh, so a refused
+    // unenrol looked like success while two-factor stayed on.
+    let failure: string | null = listError ? listError.message : null;
     for (const factor of data?.totp ?? []) {
-      await supabase.auth.mfa.unenroll({ factorId: factor.id });
+      if (failure !== null) break;
+      const { error: unenrollError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
+      if (unenrollError) failure = unenrollError.message;
     }
     setBusy(false);
+    if (failure !== null) {
+      setError(explain(failure));
+      return;
+    }
     router.refresh();
   }
 
