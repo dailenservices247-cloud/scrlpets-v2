@@ -257,3 +257,34 @@ test("turning two-factor off says so when it fails", async ({ page }) => {
   await expect(page.getByTestId("mfa-start")).toBeVisible();
   expect(await verifiedFactors(member)).toBe(0);
 });
+
+test("the database refuses a session that still owes its code", async () => {
+  const member = await createMember();
+  const { factorId, secret } = await enrol(member);
+
+  // The password alone, straight at the Data API — no website involved.
+  const owing = client();
+  const signIn = await owing.auth.signInWithPassword({ email: member.email, password: member.password });
+  if (signIn.error) throw signIn.error;
+  const refused = await owing.from("saved_searches").select("id");
+  expect(refused.error?.code).toBe("PT403");
+  expect(refused.error?.message).toBe("second_factor_required");
+
+  // The way back in stays open.
+  const recovery = await owing.rpc("consume_mfa_recovery_code", { candidate: "00000-00000" });
+  expect(recovery.error).toBeNull();
+  expect(recovery.data).toBe(false);
+
+  // Nobody else is touched: signed-out visitors, members without two-factor.
+  expect((await client().from("guides").select("id").limit(1)).error).toBeNull();
+  const plain = await createMember();
+  const plainDb = client();
+  const plainSignIn = await plainDb.auth.signInWithPassword({ email: plain.email, password: plain.password });
+  if (plainSignIn.error) throw plainSignIn.error;
+  expect((await plainDb.from("saved_searches").select("id")).error).toBeNull();
+
+  // And the code opens it.
+  const passed = await owing.auth.mfa.challengeAndVerify({ factorId, code: totp(secret) });
+  expect(passed.error).toBeNull();
+  expect((await owing.from("saved_searches").select("id")).error).toBeNull();
+});
