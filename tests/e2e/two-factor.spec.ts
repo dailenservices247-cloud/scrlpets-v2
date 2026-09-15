@@ -208,3 +208,22 @@ test("a member without two-factor is never challenged", async ({ page }) => {
   await expect(page).toHaveURL("/settings/account");
   await expect(page.getByTestId("mfa-start")).toBeVisible();
 });
+
+test("a recovery code gets a member in and switches two-factor off", async ({ page }) => {
+  const member = await createMember();
+  const { codes } = await enrol(member);
+  await signInWithPassword(page, member);
+  await expect(page).toHaveURL("/two-factor?next=%2F");
+
+  await page.getByTestId("two-factor-use-recovery").click();
+  await page.getByTestId("two-factor-recovery-input").fill("00000-00000");
+  await page.getByTestId("two-factor-recovery-submit").click();
+  await expect(page.getByTestId("two-factor-error")).toHaveAttribute("data-error", "recovery");
+  expect(await verifiedFactors(member)).toBe(1);
+
+  await page.getByTestId("two-factor-recovery-input").fill(codes[0]);
+  await page.getByTestId("two-factor-recovery-submit").click();
+  await expect(page).toHaveURL("/settings/account");
+  await expect(page.getByTestId("mfa-start")).toBeVisible();
+  expect(await verifiedFactors(member)).toBe(0);
+});
