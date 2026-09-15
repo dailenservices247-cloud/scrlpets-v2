@@ -7,16 +7,19 @@ import { AuthShell } from "@/components/auth/LoginForm";
 import { Button } from "@/components/ui/button";
 import { capture, FUNNEL_EVENTS } from "@/lib/analytics";
 import { authErrorKey } from "@/lib/auth/errors";
+import { recoverWithCode } from "@/lib/mfa/actions";
 import { createClient } from "@/lib/supabase/client";
 
-type Failure = "code" | "rate_limited";
+type Failure = "code" | "recovery" | "rate_limited" | "generic";
 
 /**
  * The second factor, asked for after any sign-in — proxy.ts sends every session
  * that still owes it here, however it signed in.
  *
- * The exchange runs in the browser because challenge/verify upgrades the session
- * making the call; a server action would upgrade the wrong thing.
+ * The code exchange runs in the browser because challenge/verify upgrades the
+ * session making the call. A recovery code goes through `recoverWithCode`, which
+ * spends it and removes the factor — so the screen says that before anyone uses
+ * one.
  */
 export function TwoFactorChallenge({
   nextPath,
@@ -28,7 +31,11 @@ export function TwoFactorChallenge({
   const t = useTranslations("auth.twoFactor");
   const router = useRouter();
   const supabase = createClient();
+  // No authenticator factor to challenge (e.g. only a phone factor): recovery is
+  // the only way through, so start there.
+  const [useRecovery, setUseRecovery] = useState(factorId === null);
   const [code, setCode] = useState("");
+  const [recoveryCode, setRecoveryCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<Failure | null>(null);
 
@@ -51,6 +58,27 @@ export function TwoFactorChallenge({
     router.refresh();
   }
 
+  async function submitRecovery(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setFailure(null);
+    const result = await recoverWithCode(recoveryCode.trim());
+    setBusy(false);
+    if (!result.ok) {
+      setFailure(result.error === "invalid_code" ? "recovery" : "generic");
+      return;
+    }
+    capture(FUNNEL_EVENTS.mfaRecoveryCodeUsed);
+    // Two-factor is off now; the account page is where it is switched back on.
+    router.push("/settings/account");
+    router.refresh();
+  }
+
+  function switchTo(recovery: boolean) {
+    setUseRecovery(recovery);
+    setFailure(null);
+  }
+
   return (
     <AuthShell>
       <section
@@ -58,34 +86,85 @@ export function TwoFactorChallenge({
         data-testid="two-factor"
       >
         <h1 className="text-center text-2xl font-semibold">{t("title")}</h1>
-        <form onSubmit={submitCode} className="mt-5 flex flex-col gap-3">
-          <p className="text-center text-sm leading-6 text-muted-foreground">{t("body")}</p>
-          <label className="flex flex-col gap-1.5 text-sm font-medium">
-            {t("codeLabel")}
-            <input
-              className="min-h-11 rounded border border-input bg-transparent p-2 text-center text-lg tracking-[0.4em]"
-              type="text"
-              name="one-time-code"
-              autoComplete="one-time-code"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              maxLength={6}
-              required
-              value={code}
-              onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
-              data-testid="two-factor-code-input"
-            />
-          </label>
-          {failure && <ChallengeError failure={failure} />}
-          <Button
-            className="min-h-11"
-            type="submit"
-            disabled={busy || code.length < 6}
-            data-testid="two-factor-submit"
-          >
-            {busy ? t("working") : t("submit")}
-          </Button>
-        </form>
+        {useRecovery ? (
+          <form onSubmit={submitRecovery} className="mt-5 flex flex-col gap-3">
+            <p className="text-center text-sm leading-6 text-muted-foreground">
+              {t("recoveryBody")}
+            </p>
+            <label className="flex flex-col gap-1.5 text-sm font-medium">
+              {t("recoveryLabel")}
+              <input
+                className="min-h-11 rounded border border-input bg-transparent p-2 text-center font-mono text-lg"
+                type="text"
+                name="recovery-code"
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                required
+                value={recoveryCode}
+                onChange={(event) => setRecoveryCode(event.target.value)}
+                data-testid="two-factor-recovery-input"
+              />
+            </label>
+            {failure && <ChallengeError failure={failure} />}
+            <Button
+              className="min-h-11"
+              type="submit"
+              disabled={busy || recoveryCode.trim() === ""}
+              data-testid="two-factor-recovery-submit"
+            >
+              {busy ? t("working") : t("recoverySubmit")}
+            </Button>
+            {factorId && (
+              <Button
+                className="min-h-11"
+                variant="ghost"
+                type="button"
+                onClick={() => switchTo(false)}
+              >
+                {t("useCode")}
+              </Button>
+            )}
+          </form>
+        ) : (
+          <form onSubmit={submitCode} className="mt-5 flex flex-col gap-3">
+            <p className="text-center text-sm leading-6 text-muted-foreground">{t("body")}</p>
+            <label className="flex flex-col gap-1.5 text-sm font-medium">
+              {t("codeLabel")}
+              <input
+                className="min-h-11 rounded border border-input bg-transparent p-2 text-center text-lg tracking-[0.4em]"
+                type="text"
+                name="one-time-code"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                required
+                value={code}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))}
+                data-testid="two-factor-code-input"
+              />
+            </label>
+            {failure && <ChallengeError failure={failure} />}
+            <Button
+              className="min-h-11"
+              type="submit"
+              disabled={busy || code.length < 6}
+              data-testid="two-factor-submit"
+            >
+              {busy ? t("working") : t("submit")}
+            </Button>
+            <Button
+              className="min-h-11"
+              variant="ghost"
+              type="button"
+              onClick={() => switchTo(true)}
+              data-testid="two-factor-use-recovery"
+            >
+              {t("useRecovery")}
+            </Button>
+          </form>
+        )}
         <form action="/auth/signout" method="post" className="mt-2">
           <Button
             className="min-h-11 w-full"

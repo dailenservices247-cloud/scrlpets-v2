@@ -77,8 +77,15 @@
       "signOut": "Sign out",
       "errors": {
         "code": "That code is not right. Check your authenticator app and try again.",
-        "rate_limited": "Too many attempts were made. Wait a moment and try again."
-      }
+        "rate_limited": "Too many attempts were made. Wait a moment and try again.",
+        "recovery": "That recovery code is not right, or it has already been used.",
+        "generic": "We could not complete that request. Please try again."
+      },
+      "useRecovery": "Use a recovery code instead",
+      "recoveryBody": "Enter one of the recovery codes you saved. Using one turns two-factor off, so set it up again from your account page straight after.",
+      "recoveryLabel": "Recovery code",
+      "recoverySubmit": "Use recovery code",
+      "useCode": "Use my authenticator app instead"
     }
   },
   "consent": {

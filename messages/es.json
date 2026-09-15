@@ -77,8 +77,15 @@
       "signOut": "Cerrar sesión",
       "errors": {
         "code": "Ese código no es correcto. Revísalo en tu app de autenticación e inténtalo de nuevo.",
-        "rate_limited": "Hubo demasiados intentos. Espera un momento e inténtalo de nuevo."
-      }
+        "rate_limited": "Hubo demasiados intentos. Espera un momento e inténtalo de nuevo.",
+        "recovery": "Ese código de recuperación no es correcto o ya se usó.",
+        "generic": "No pudimos completar la solicitud. Inténtalo de nuevo."
+      },
+      "useRecovery": "Usar un código de recuperación",
+      "recoveryBody": "Ingresa uno de los códigos de recuperación que guardaste. Al usarlo se desactiva la verificación en dos pasos; vuelve a activarla desde tu cuenta enseguida.",
+      "recoveryLabel": "Código de recuperación",
+      "recoverySubmit": "Usar código de recuperación",
+      "useCode": "Usar mi app de autenticación"
     }
   },
   "consent": {
