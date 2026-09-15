@@ -29,6 +29,9 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "worker-src 'self' blob:",
   "img-src 'self' data: blob: https:",
+  // Without media-src, <video> falls back to default-src 'self' and refuses
+  // Supabase-hosted video and the composer's blob: preview.
+  `media-src 'self' blob: ${supabaseOrigin || "https://*.supabase.co"}`,
   "font-src 'self' data:",
   `connect-src 'self' ${supabaseSources} https://*.sentry.io https://us.i.posthog.com https://*.posthog.com https://challenges.cloudflare.com`,
   // Turnstile renders its challenge in an iframe, so script-src alone is not
