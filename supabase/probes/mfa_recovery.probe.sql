@@ -1,6 +1,7 @@
 -- Recovery codes, rolled back.
--- 4 is the one that matters: a code must work exactly ONCE, ever. A recovery
--- code that can be replayed is a password that never expires, written on paper.
+-- 4 is the one that matters for replay: a code must work exactly ONCE, ever.
+-- 0 is the one that matters for the sign-in challenge: a password alone must not
+-- be able to mint codes, or it can spend one and delete the second factor.
 begin;
 
 create temp table probe_out (msg text) on commit drop;
@@ -19,11 +20,23 @@ begin
   select id into other from public.profiles where id <> member limit 1;
   delete from public.mfa_recovery_codes where profile_id in (member, other);
 
+  ------------------------------------------ 0. a password alone cannot mint
   perform set_config('request.jwt.claims',
-    json_build_object('sub', member, 'role', 'authenticated')::text, true);
+    json_build_object('sub', member, 'role', 'authenticated', 'aal', 'aal1')::text, true);
   perform set_config('role', 'authenticated', true);
+  begin
+    perform public.generate_mfa_recovery_codes();
+    raise exception 'PROBE FAILED: an aal1 session minted recovery codes';
+  exception when others then
+    if sqlerrm <> 'aal2_required' then raise; end if;
+  end;
+  results := results || E'0a an aal1 session cannot mint recovery codes\n';
 
   --------------------------------------------------- 1. ten codes, once
+  perform set_config('role', 'postgres', true);
+  perform set_config('request.jwt.claims',
+    json_build_object('sub', member, 'role', 'authenticated', 'aal', 'aal2')::text, true);
+  perform set_config('role', 'authenticated', true);
   select array_agg(code) into codes from public.generate_mfa_recovery_codes();
   if array_length(codes, 1) <> 10 then
     raise exception 'PROBE FAILED: expected 10 codes, got %', array_length(codes, 1);
@@ -44,12 +57,13 @@ begin
   results := results || E'2a codes are stored as bcrypt hashes, never plaintext\n';
 
   ------------------------------------------------------ 3. a good code works
+  -- Spending stays open at aal1: it is the way back in after a lost phone.
   perform set_config('request.jwt.claims',
-    json_build_object('sub', member, 'role', 'authenticated')::text, true);
+    json_build_object('sub', member, 'role', 'authenticated', 'aal', 'aal1')::text, true);
   perform set_config('role', 'authenticated', true);
   ok := public.consume_mfa_recovery_code(first);
   if not ok then raise exception 'PROBE FAILED: a freshly issued code was refused'; end if;
-  results := results || E'3a a freshly issued code is accepted\n';
+  results := results || E'3a a freshly issued code is accepted at aal1\n';
 
   ------------------------------------------- 4. and works exactly ONCE, ever
   ok := public.consume_mfa_recovery_code(first);
@@ -91,7 +105,7 @@ begin
   ------------------------------- 8. regenerating invalidates what came before
   perform set_config('role', 'postgres', true);
   perform set_config('request.jwt.claims',
-    json_build_object('sub', member, 'role', 'authenticated')::text, true);
+    json_build_object('sub', member, 'role', 'authenticated', 'aal', 'aal2')::text, true);
   perform set_config('role', 'authenticated', true);
   perform public.generate_mfa_recovery_codes();
   ok := public.consume_mfa_recovery_code(codes[3]);
