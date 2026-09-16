@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { FeedItem } from "@/lib/feed/types";
+import { designHarnessEnabled } from "@/lib/design/harness";
 import { PostTile } from "@/components/feed/tiles/PostTile";
 import { ReelTile } from "@/components/feed/tiles/ReelTile";
 import { LongVideoTile } from "@/components/feed/tiles/LongVideoTile";
@@ -110,7 +111,7 @@ const ITEMS: FeedItem[] = [
 ];
 
 export default function DesignHarnessPage() {
-  if (process.env.NODE_ENV === "production") notFound();
+  if (!designHarnessEnabled(process.env)) notFound();
 
   return (
     <div className="lg:mx-auto lg:flex lg:max-w-5xl">

@@ -89,6 +89,9 @@ export default defineConfig({
       // The suite asserts on its own `E2E *` marker content; the production
       // build would otherwise hide it (see hideFixtures in lib/feed/query).
       E2E_KEEP_FIXTURES: "1",
+      // The visual specs measure the design harness, which is off by default in
+      // a production build (src/lib/design/harness.ts).
+      DESIGN_HARNESS: "1",
       NEXT_PUBLIC_POSTHOG_KEY:
         process.env.NEXT_PUBLIC_POSTHOG_KEY ?? "phc_e2e_dummy_key",
     },
