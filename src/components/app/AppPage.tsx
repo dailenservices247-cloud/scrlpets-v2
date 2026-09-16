@@ -33,7 +33,7 @@ export async function AppPage({
       {/* Header, content and footer stack in one column so the header is a
           sibling of <main> — a <header> nested inside main is not a banner
           landmark, and `app-shell` stays scoped to the page's own content. */}
-      <div className="app-surface flex min-h-dvh w-full min-w-0 flex-col lg:max-w-2xl lg:border-x lg:border-border/60">
+      <div className="app-surface flex min-h-dvh w-full min-w-0 flex-col lg:max-w-[720px] lg:border-x lg:border-border/60">
         {showBottomNav && (
           <AppHeader signedIn={Boolean(user)} unreadCount={unreadCount}>
             {header}

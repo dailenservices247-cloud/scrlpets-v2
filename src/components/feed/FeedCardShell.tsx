@@ -87,7 +87,13 @@ export function FeedCardShell({
   if (register === "editorial") {
     return (
       <article
-        className={cn("flex flex-col gap-3 px-1", className)}
+        className={cn(
+          // The hairline is what the border used to be: separation without
+          // enclosure. The last entry drops it so the column ends on content
+          // rather than on a rule pointing at nothing.
+          "flex flex-col gap-3 border-b border-border/45 px-1 pb-5 last:border-b-0 last:pb-0",
+          className,
+        )}
         data-testid={`tile-${item.type}`}
       >
         {header}

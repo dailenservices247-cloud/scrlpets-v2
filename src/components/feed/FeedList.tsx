@@ -80,7 +80,7 @@ export async function FeedList({
           <FeedTabs broadened={broadened} />
         </div>
       )}
-      <div className="flex flex-col gap-4" data-testid="feed-list">
+      <div className="flex flex-col gap-5" data-testid="feed-list">
         {items.map((item) => {
           const Tile = MAP[item.type];
           // matrix rows 6-7: author OR admin/owner of the attributed brand.

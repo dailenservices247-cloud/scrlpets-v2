@@ -115,10 +115,10 @@ export default function DesignHarnessPage() {
 
   return (
     <div className="lg:mx-auto lg:flex lg:max-w-5xl">
-      <div className="app-surface flex min-h-dvh w-full min-w-0 flex-col lg:max-w-2xl lg:border-x lg:border-border/60">
+      <div className="app-surface flex min-h-dvh w-full min-w-0 flex-col lg:max-w-[720px] lg:border-x lg:border-border/60">
         <section className="px-3 py-4" data-testid="design-harness">
           <p className="eyebrow mb-3 px-1">Design harness · dev only · fixed fixtures</p>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             {ITEMS.map((it) => {
               if (it.type === "post")
                 return <PostTile key={it.id} item={it} social={null} signedIn={false} />;
