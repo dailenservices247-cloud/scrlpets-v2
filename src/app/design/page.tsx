@@ -13,8 +13,9 @@ import { PromoTile } from "@/components/feed/tiles/PromoTile";
  * The feed cannot be judged against an empty database, and seeding the shared
  * dev database is not free: 62 e2e specs bind to its seeded rows. So the real
  * tiles render here against fixed fixtures, in the same wrapper the feed uses
- * (`px-3 py-4` + `flex flex-col gap-4`, FeedList.tsx), at the same column width
- * (`lg:max-w-2xl`, AppPage.tsx).
+ * (`px-3 py-4` + `flex flex-col gap-5`, FeedList.tsx), at the same column width
+ * (`lg:max-w-[720px]`, AppPage.tsx). Those three values are mirrored by hand, so
+ * change them here whenever they change there.
  *
  * Fixed content is also what makes screenshot baselines meaningful — real feed
  * rows change under you, so a diff would never mean anything.
@@ -23,25 +24,40 @@ import { PromoTile } from "@/components/feed/tiles/PromoTile";
  * removed after. This page earns its keep the same way.
  */
 
+/**
+ * Local fixtures, deliberately. The first version of this page pulled photos
+ * from loremflickr, which silently served its own fallback image for some
+ * requests — three tiles rendered inside bright red blocks — and would have
+ * changed what it served over time, so a screenshot baseline built on it could
+ * never mean anything. Committed files also keep someone else's licensed photo
+ * out of a public repo.
+ *
+ * The three aspect ratios are the point: they prove media keeps its own shape
+ * now that the forced 4:3 crop is gone.
+ */
+const LANDSCAPE = "/design-fixtures/landscape-4x3.svg";
+const PORTRAIT = "/design-fixtures/portrait-3x4.svg";
+const WIDE = "/design-fixtures/wide-16x9.svg";
+
 const PERSON = {
   id: "fixture-person",
   username: "dailenhuntley",
   displayName: "Dailen Huntley",
-  avatarUrl: "https://loremflickr.com/200/200/portrait?lock=21",
+  avatarUrl: PORTRAIT,
 };
 
 const BRAND = {
   id: "fixture-brand",
   name: "Ridgeline Ranch",
   slug: "ridgeline-ranch",
-  avatarUrl: "https://loremflickr.com/200/200/dog?lock=9",
+  avatarUrl: LANDSCAPE,
 };
 
 const CREATURE = {
   id: "fixture-creature",
   name: "Juniper",
   slug: "juniper",
-  avatarUrl: "https://loremflickr.com/200/200/puppy?lock=4",
+  avatarUrl: LANDSCAPE,
 };
 
 function item(over: Partial<FeedItem> & Pick<FeedItem, "id" | "type">): FeedItem {
@@ -69,7 +85,7 @@ const ITEMS: FeedItem[] = [
     type: "post",
     creature: CREATURE,
     title: "Blue merle pups, 6 weeks today. First shots done, temperament testing Saturday.",
-    mediaUrl: "https://loremflickr.com/800/600/puppy?lock=11",
+    mediaUrl: LANDSCAPE,
   }),
   item({
     id: "fx-post-brand-long",
@@ -78,7 +94,7 @@ const ITEMS: FeedItem[] = [
     creature: CREATURE,
     title:
       "Long one, because people keep asking how we pick placements. We temperament test at seven weeks, not six — a week matters more than you would think at that age. Every pup gets the same five situations: a startle, a stranger, a restraint hold, a surface change, and a short separation. We write down what we see, not what we hope. Then families get matched to the dog that fits their week, not the dog they saw first on the internet.",
-    mediaUrl: "https://loremflickr.com/800/600/dog?lock=14",
+    mediaUrl: PORTRAIT,
   }),
   item({
     id: "fx-listing",
@@ -86,21 +102,21 @@ const ITEMS: FeedItem[] = [
     brand: BRAND,
     creature: CREATURE,
     title: "Blue merle female · 8 weeks · health tested",
-    mediaUrl: "https://loremflickr.com/800/600/dog?lock=17",
+    mediaUrl: LANDSCAPE,
   }),
   item({
     id: "fx-reel",
     type: "reel",
     brand: BRAND,
     title: "Ten seconds of Juniper losing a fight with a leaf",
-    mediaUrl: "https://loremflickr.com/600/900/puppy?lock=23",
+    mediaUrl: PORTRAIT,
   }),
   item({
     id: "fx-long-video",
     type: "long_video",
     brand: BRAND,
     title: "Whelping box setup, start to finish",
-    mediaUrl: "https://loremflickr.com/800/600/dogs?lock=27",
+    mediaUrl: WIDE,
   }),
   item({
     id: "fx-promo",

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720" role="img" aria-label="Design fixture, wide">
+  <defs>
+    <linearGradient id="a" x1="0" y1="0.2" x2="1" y2="0.9">
+      <stop offset="0" stop-color="#5a6470"/><stop offset="0.5" stop-color="#7e8478"/><stop offset="1" stop-color="#43423e"/>
+    </linearGradient>
+    <radialGradient id="b" cx="0.2" cy="0.3" r="0.6">
+      <stop offset="0" stop-color="#f0e8cf" stop-opacity="0.6"/><stop offset="1" stop-color="#f0e8cf" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#a)"/>
+  <rect width="1280" height="720" fill="url(#b)"/>
+  <ellipse cx="820" cy="600" rx="470" ry="150" fill="#35342f" opacity="0.42"/>
+  <circle cx="300" cy="245" r="104" fill="#efede5" opacity="0.15"/>
+</svg>

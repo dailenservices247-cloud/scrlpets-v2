@@ -1,4 +1,5 @@
 import { expect, test, type Locator } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 /**
  * Measured against /design, never the real feed: fixture content never moves,
@@ -77,5 +78,40 @@ test.describe("rhythm", () => {
     const width = await column.evaluate((el) => el.getBoundingClientRect().width);
     expect(width).toBeGreaterThan(700);
     expect(width).toBeLessThanOrEqual(720);
+  });
+});
+
+test.describe("baselines", () => {
+  // Fixture content is fixed, so a diff here means the design moved — which is
+  // the only reason a screenshot test is worth its flake budget. These are the
+  // repo's first: they are authoritative on this machine only, so regenerate
+  // them if the suite ever moves to hosted CI.
+  test("phone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/design");
+    await page.getByTestId("tile-promo").waitFor();
+    await expect(page).toHaveScreenshot("feed-390.png", {
+      maxDiffPixelRatio: 0.02,
+      fullPage: true,
+    });
+  });
+
+  test("desktop", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/design");
+    await page.getByTestId("tile-promo").waitFor();
+    await expect(page).toHaveScreenshot("feed-1440.png", {
+      maxDiffPixelRatio: 0.02,
+      fullPage: true,
+    });
+  });
+
+  test("no serious or critical accessibility violations", async ({ page }) => {
+    await page.goto("/design");
+    const results = await new AxeBuilder({ page }).analyze();
+    const bad = results.violations.filter(
+      (v) => v.impact === "serious" || v.impact === "critical",
+    );
+    expect(bad.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
   });
 });
