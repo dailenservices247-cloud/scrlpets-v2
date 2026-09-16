@@ -81,7 +81,7 @@ export default async function BrandOSPage({
             <Link
               href="/brands/new"
               data-testid="brand-os-create-cta"
-              className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl bg-secondary px-5 font-semibold text-secondary-foreground"
+              className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary/15 hover:bg-primary/25 px-5 font-semibold text-brand-link"
             >
               Create a brand
             </Link>
@@ -277,7 +277,7 @@ export default async function BrandOSPage({
       <section className="px-3 py-3">
         <div className="premium-panel rounded-2xl p-4">
           <div className="mb-2 flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-xl border border-secondary/35 bg-secondary/20 text-secondary-foreground">
+            <span className="grid size-10 place-items-center rounded-xl border border-secondary/35 bg-primary/15 hover:bg-primary/25/20 text-secondary-foreground">
               <PawPrint className="size-5" aria-hidden />
             </span>
             <div>
@@ -292,7 +292,7 @@ export default async function BrandOSPage({
           </p>
           <Link
             href={`/compose?brand=${brand.id}`}
-            className="mt-4 flex min-h-12 items-center justify-center rounded-xl bg-secondary px-4 font-semibold text-secondary-foreground"
+            className="mt-4 flex min-h-12 items-center justify-center rounded-xl bg-primary/15 hover:bg-primary/25 px-4 font-semibold text-brand-link"
           >
             Open composer
           </Link>

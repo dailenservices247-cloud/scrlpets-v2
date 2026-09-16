@@ -34,7 +34,7 @@ export default function AppError({
           </button>
           <Link
             href="/"
-            className="grid min-h-11 place-items-center rounded-xl bg-secondary px-4 text-sm font-semibold text-secondary-foreground"
+            className="grid min-h-11 place-items-center rounded-xl bg-primary/15 hover:bg-primary/25 px-4 text-sm font-semibold text-brand-link"
           >
             Back to feed
           </Link>

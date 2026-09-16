@@ -30,7 +30,7 @@ export function TreeNotice({
         {cta && (
           <Link
             href={cta.href}
-            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-secondary px-5 font-semibold text-secondary-foreground"
+            className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary/15 hover:bg-primary/25 px-5 font-semibold text-brand-link"
             data-testid={`${testId}-cta`}
           >
             {cta.label}

@@ -132,7 +132,7 @@ export function BrandMembersPanel({
             {t("yourRole", { role: t(`roles.${viewerRole}`) })}
           </p>
         </div>
-        <span className="rounded-full border border-secondary/40 bg-secondary/20 px-2.5 py-1 text-xs font-medium text-secondary-foreground">
+        <span className="rounded-full border border-secondary/40 bg-primary/15 hover:bg-primary/25/20 px-2.5 py-1 text-xs font-medium text-secondary-foreground">
           {t(`roles.${viewerRole}`)}
         </span>
       </div>
@@ -185,7 +185,7 @@ export function BrandMembersPanel({
           <button
             type="submit"
             disabled={busy !== null || !username.trim()}
-            className="mt-3 min-h-11 w-full rounded-lg bg-secondary px-4 font-semibold text-secondary-foreground disabled:opacity-50"
+            className="mt-3 min-h-11 w-full rounded-lg bg-primary/15 hover:bg-primary/25 px-4 font-semibold text-brand-link disabled:opacity-50"
             data-testid="brand-member-add"
           >
             {busy === "add" ? t("adding") : t("add")}
