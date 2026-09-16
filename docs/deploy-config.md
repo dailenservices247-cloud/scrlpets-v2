@@ -7,7 +7,7 @@ code. Check these when standing up a new environment or rotating projects.
 
 | Variable | Required | Notes |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | yes | Also feeds the production CSP `connect-src` (https + wss origins). |
+| `NEXT_PUBLIC_SUPABASE_URL` | yes | Also feeds the production CSP `connect-src` (https + wss origins) and `media-src` (https origin). |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | yes | |
 | `NEXT_PUBLIC_SITE_URL` | yes (prod) | Canonical origin used by robots/sitemap. |
 | `NEXT_PUBLIC_POSTHOG_KEY` | optional | Analytics stays fully disabled without it; consent banner only renders when present. |
