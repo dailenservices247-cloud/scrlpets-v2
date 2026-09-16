@@ -52,4 +52,30 @@ test.describe("editorial register", () => {
     await expect(tile).toBeVisible();
     expect(await borderTopOf(tile)).toBeGreaterThan(0);
   });
+
+  test("editorial entries are separated by a hairline", async ({ page }) => {
+    await page.goto("/design");
+    const tile = page.getByTestId("tile-post").first();
+    await expect(tile).toBeVisible();
+    const width = await tile.evaluate((el) => parseFloat(getComputedStyle(el).borderBottomWidth));
+    expect(width).toBeGreaterThan(0);
+  });
+});
+
+test.describe("rhythm", () => {
+  test("entries are separated by 20px of rhythm, not 16", async ({ page }) => {
+    await page.goto("/design");
+    const list = page.getByTestId("design-harness").locator(":scope > div").first();
+    const gap = await list.evaluate((el) => parseFloat(getComputedStyle(el).rowGap));
+    expect(gap).toBe(20);
+  });
+
+  test("the reading column is 720px at desktop width", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/design");
+    const column = page.getByTestId("design-harness").locator("xpath=..");
+    const width = await column.evaluate((el) => el.getBoundingClientRect().width);
+    expect(width).toBeGreaterThan(700);
+    expect(width).toBeLessThanOrEqual(720);
+  });
 });
