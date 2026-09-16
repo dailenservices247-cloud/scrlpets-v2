@@ -1,14 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { createClient } from "@supabase/supabase-js";
 import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, THIRD_PROFILE_ID, THIRD_USERNAME, signInCached } from "./fixtures";
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
@@ -45,7 +37,6 @@ test("owner, admin, and contributor permissions stay inside the brand boundary",
   page,
 }) => {
   test.setTimeout(120_000);
-  const password = process.env.E2E_PASSWORD!;
   const brandName = `E2E RBAC Brand ${Date.now()}`;
   const ownerBrandPostBody = `E2E owner brand post ${Date.now()}`;
   const memberBrandPostBody = `E2E member brand post ${Date.now()}`;

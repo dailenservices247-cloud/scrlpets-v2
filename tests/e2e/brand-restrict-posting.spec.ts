@@ -1,13 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, signInCached } from "./fixtures";
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
@@ -23,7 +15,6 @@ async function signIn(page: Page, email: string) {
 // still can; the setting round-trips through the manager-gated RPC.
 test("owner can restrict posting-as-brand to managers", async ({ page }) => {
   test.setTimeout(120_000);
-  const password = process.env.E2E_PASSWORD!;
   const brandName = `E2E Restrict Brand ${Date.now()}`;
   const contributorPost = `E2E restrict contributor post ${Date.now()}`;
   const managerPost = `E2E restrict manager post ${Date.now()}`;
