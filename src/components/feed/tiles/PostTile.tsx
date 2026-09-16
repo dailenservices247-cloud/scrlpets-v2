@@ -22,8 +22,12 @@ export function PostTile({
 }) {
   return (
     <FeedCardShell item={item} canManage={canManage} register="editorial">
+      {/* The testid is "post-body-text", NOT "post-body": the composer textarea
+          has owned that id since PostForm, and seven assertions across four
+          specs fill it by that name. A second element answering to it made
+          every one of them ambiguous. */}
       {item.title && (
-        <p className="whitespace-pre-wrap text-body" data-testid="post-body">
+        <p className="whitespace-pre-wrap text-body" data-testid="post-body-text">
           {item.title}
         </p>
       )}

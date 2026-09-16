@@ -34,7 +34,7 @@ const borderTopOf = (locator: Locator) =>
 test.describe("editorial register", () => {
   test("post body copy is at least 16px", async ({ page }) => {
     await page.goto("/design");
-    const body = page.getByTestId("post-body").first();
+    const body = page.getByTestId("post-body-text").first();
     await expect(body).toBeVisible();
     const size = await body.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
     expect(size).toBeGreaterThanOrEqual(16);
