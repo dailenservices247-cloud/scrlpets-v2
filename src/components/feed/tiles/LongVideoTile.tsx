@@ -9,7 +9,7 @@ export function LongVideoTile({ item, canManage }: { item: FeedItem; canManage?:
   return (
     <FeedCardShell item={item} canManage={canManage}>
       <p className="eyebrow">{t("longVideoContext")}</p>
-      <p className="font-medium leading-snug">{item.title}</p>
+      <p className="text-title font-medium leading-snug">{item.title}</p>
       <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
       <FeedTileAction item={item} />
     </FeedCardShell>

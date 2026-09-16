@@ -10,7 +10,9 @@ export function PromoTile({ item, canManage }: { item: FeedItem; canManage?: boo
     <FeedCardShell item={item} className="bg-accent/5" canManage={canManage}>
       <div className="rounded-xl border border-accent/30 bg-background/45 p-3.5 shadow-inner" data-testid="product-summary">
         <p className="eyebrow">{t("productIntent")}</p>
-        <p className="mt-1 text-[17px] font-semibold leading-snug tracking-tight">{item.title}</p>
+        {/* Promo copy is marketing, not identity: it stays in Geist and keeps
+            its weight. */}
+        <p className="mt-1 text-title font-semibold leading-snug">{item.title}</p>
         <p className="mt-1 text-xs text-muted-foreground">{t("productContext")}</p>
       </div>
       <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
