@@ -29,6 +29,16 @@ export function FeedVideo({
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
+    // React attaches media `error` listeners directly to the element during
+    // hydration and never replays one that already fired. This <video> is
+    // server-rendered with src + preload, so a refused or broken source errors
+    // while the HTML is still parsing — before onError exists — and A18 never
+    // fires, leaving the member a black box. The failure is still recorded on
+    // the element, so read it once on mount.
+    if (video.error) {
+      setFailed(true);
+      return;
+    }
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) video.play().catch(() => {});
