@@ -48,6 +48,10 @@ Single scale, applied everywhere. Tokens, never raw `text-[Npx]`.
 
 Body moves 15 → 17. That single change carries most of the "editorial" feel.
 
+**Faces per role (see §9).** `display` and `title` render in **Instrument Serif** when the
+string is an identity string — a brand name, an animal name, a realm or section heading.
+Every other string at every other size is Geist Sans; `eyebrow` stays Geist Mono.
+
 ### 3.2 Spacing rhythm
 
 4px grid. Within a tile: 8 / 12 / 16. Between tiles: 20. Section breaks: 32.
@@ -151,18 +155,29 @@ passes" is a fail.
 9. Screenshot baselines committed for feed, market, listing, profile at 390px and 1440px; diffs reviewed on every later visual change.
 10. `package.json` gains zero runtime dependencies.
 
-## 9. Open decision — typography (escalated, not decided)
+## 9. Typography — DECIDED 2026-09-15 (option b)
 
-`brand-house-v1.md` locks **Geist Sans + Geist Mono, two weights**. The strongest option on
-the direction board used a display serif for identity. Those conflict, and the Brand House
-says new public tokens land only after approval in the private Brand House. So this is your
-call, not mine:
+Dailen approved the display serif and the Brand House amendment that carries it. **Instrument
+Serif**, identity only: brand names, animal names, realm and section headings. Never on
+controls, buttons, form labels, metadata, timestamps, counts or body copy — those stay Geist
+Sans. Geist Mono keeps eyebrows.
 
-- **(a) Stay Geist.** The editorial feel then comes entirely from scale and rhythm. Zero canon change, slightly less distinctive.
-- **(b) Amend Brand House** to add one display serif, scoped to identity only — brand names, animal names, realm headings. Never on controls, labels, forms or metadata. Highest distinctiveness; requires a private Brand House amendment plus a font-loading decision.
-- **(c) Geist Mono as the display voice** for identity, since it is already locked and already used for eyebrows. Reads technical/pedigree rather than warm.
+Amendment landed in the private Brand House §2.3 (status line updated) and in this repo's
+public subset, `docs/brand/brand-house-v1.md`. The face is swappable before first ship: any
+substitute must be a display serif, OFL-licensed, and legible at 19px on `shell`.
 
-Everything else in this spec is independent of this choice and can proceed.
+**Tie-breaker rule, so this does not rot:** if a surface cannot say which of the three faces a
+string belongs to and why, the string is Geist Sans.
+
+### Canon conflict found while amending (not fixed here — needs your call)
+
+Private Brand House **§2.2** (amended 2026-07-08) says the action system is the **spine
+family** — "every button/pill/live-dot/focus-ring". **§7** (locked 2026-07-22, your sampler
+pick, commit `bbb81d2`) says standard actions are **soft wine tint**, with spine demoted to
+trust/verification reserve. The code agrees with §7: `--primary` is wine.
+
+So §2.2's line is stale canon, contradicted by a later lock and by the shipped app. This spec
+follows §7 and the code. Fixing §2.2 is a canon edit, which is yours to authorize, not mine.
 
 ## 10. Prerequisites
 

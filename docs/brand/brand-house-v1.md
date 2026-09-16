@@ -30,8 +30,10 @@ The full portfolio Brand House lives in private project docs. Do not copy privat
 
 - Sans: Geist Sans
 - Mono: Geist Mono
-- Use two weights by default: regular and medium.
+- Display serif: Instrument Serif — identity only (brand names, animal names, realm and section headings). Never on controls, buttons, form labels, metadata or body copy.
+- Use two weights by default: regular and medium. The display serif ships one weight (400) plus italic.
 - Eyebrows use mono, uppercase, 11px, `wine-text`.
+- If it is unclear which face a string belongs to, it is Geist Sans. The serif is the exception, never the default.
 
 ## Accessibility Notes
 
