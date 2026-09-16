@@ -78,12 +78,20 @@ export default defineConfig({
     // sane window at 3 workers. One ~30s build up front beats per-route
     // compile stalls, and the suite now exercises the artifact that ships.
     command: "npm run build && npm run start -- -p 3000",
-    url: "http://localhost:3000",
+    // Ready = THIS run's `next start` logged "Ready in", which it does only
+    // from its own server.on("listening"). Deliberately no `url`/`port`:
+    // Playwright takes whichever settles first — probe, this wait, or process
+    // exit — and anything answering on :3000 satisfies a probe. 2026-09-16: a
+    // sibling worktree's server answered mid-build, our `next start` died
+    // EADDRINUSE unnoticed, and the suite ran against that build. Now its exit
+    // aborts the run before any test. No probe also means no reuse: every run
+    // gets a fresh server, so the dummy PostHog key below is always present.
+    // ponytail: macOS lets a listener on 127.0.0.1:3000 or ::1:3000 coexist with
+    // our wildcard bind and take that address's traffic. Siblings bind the
+    // wildcard and collide instead; if anything else ever does, add a
+    // .next/BUILD_ID provenance check to globalSetup.
+    wait: { stdout: /Ready in \d/ },
     timeout: 240_000,
-    // Fresh server every run: guarantees the dummy PostHog key below is
-    // present so the consent test can never pass vacuously, and the suite
-    // always runs the committed code instead of a stale dev server.
-    reuseExistingServer: false,
     env: {
       ...process.env,
       // The suite asserts on its own `E2E *` marker content; the production
