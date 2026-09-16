@@ -21,9 +21,11 @@ export function PostTile({
   signedIn?: boolean;
 }) {
   return (
-    <FeedCardShell item={item} canManage={canManage}>
+    <FeedCardShell item={item} canManage={canManage} register="editorial">
       {item.title && (
-        <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{item.title}</p>
+        <p className="whitespace-pre-wrap text-body" data-testid="post-body">
+          {item.title}
+        </p>
       )}
       <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
       {social && (

@@ -47,7 +47,18 @@ export function TileMedia({
       width={800}
       height={600}
       loading="lazy"
-      className="mt-1 aspect-[4/3] w-full rounded-xl object-cover ring-1 ring-white/10"
+      className={
+        variant === "feed"
+          ? // Native aspect and full-bleed: the photo is the point of most
+            // posts. Dropping aspect-[4/3] restores aspect-ratio:auto, so the
+            // width/height attributes above only hold the space until the image
+            // loads and the real shape takes over — no forced crop, and the
+            // lazy-loader still has the intrinsic size it needs. -mx-4 pulls the
+            // media to the column edge in the editorial register and to the
+            // panel's inner edge in the panel register; both insets are 16px.
+            "-mx-4 mt-1 h-auto w-[calc(100%+2rem)] max-w-none object-cover"
+          : "mt-1 h-auto w-full rounded-xl object-cover"
+      }
       data-testid="tile-media"
     />
   );
