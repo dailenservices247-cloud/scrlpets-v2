@@ -10,6 +10,23 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-serif: var(--font-instrument-serif), Georgia, serif;
+
+  /* One scale, used everywhere. Raw text-[Npx] is guarded against in
+     tests/unit/type-scale.test.ts — add a role here instead of inventing one. */
+  --text-display: 24px;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.02em;
+  --text-title: 19px;
+  --text-title--line-height: 1.25;
+  --text-title--letter-spacing: -0.015em;
+  --text-body: 17px;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: -0.011em;
+  --text-ui: 15px;
+  --text-ui--line-height: 1.4;
+  --text-meta: 13px;
+  --text-meta--line-height: 1.35;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
