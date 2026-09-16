@@ -1,15 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, signInCached } from "./fixtures";
 
 // Seeded fixture users (see brand-rbac.spec.ts).
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
@@ -22,7 +14,6 @@ async function signIn(page: Page, email: string) {
 
 test("follow round-trip, counts, and self-follow guard", async ({ page }) => {
   test.setTimeout(120_000);
-  const password = process.env.E2E_PASSWORD!;
 
   // The DB refuses a self-follow (CHECK constraint), regardless of the app.
   const { db: ownerDb, userId: __uid_ownerDb } = await signInCached(SELLER_EMAIL);

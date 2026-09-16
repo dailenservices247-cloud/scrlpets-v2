@@ -1,17 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { SELLER_EMAIL, signInCached } from "./fixtures";
 
 // A tiny real MP4 URL is unnecessary — realm/tile rendering keys off the URL
 // extension; playback itself is browser-policy territory, not app logic.
 const FAKE_MP4 = "https://example.com/e2e-clip.mp4";
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(page: Page) {
   await page.context().clearCookies();

@@ -1,13 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, signInCached } from "./fixtures";
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
@@ -22,7 +14,6 @@ test("block severs follows, hides feed, stops DMs; report is append-only", async
   page,
 }) => {
   test.setTimeout(120_000);
-  const password = process.env.E2E_PASSWORD!;
 
   const { db: ownerDb, userId: __uid_ownerDb } = await signInCached(SELLER_EMAIL);
   const ownerAuth = { data: { user: { id: __uid_ownerDb } }, error: null };

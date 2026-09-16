@@ -1,13 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { MEMBER_EMAIL, MEMBER_PROFILE_ID, SELLER_EMAIL, signInCached } from "./fixtures";
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
@@ -35,7 +27,6 @@ test("search finds people, animals and listings, and is public", async ({ page }
 // Phase 1 / R12: notifications are written by DB triggers, owner-only.
 test("notifications arrive from real events and stay private", async ({ page }) => {
   test.setTimeout(120_000);
-  const password = process.env.E2E_PASSWORD!;
   const { db: ownerDb, userId: __uid_ownerDb } = await signInCached(SELLER_EMAIL);
   const ownerAuth = { data: { user: { id: __uid_ownerDb } }, error: null };
   const ownerId = ownerAuth.data.user!.id;

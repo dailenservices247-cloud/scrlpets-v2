@@ -1,15 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { MEMBER_EMAIL, SELLER_EMAIL, THIRD_EMAIL, signInCached } from "./fixtures";
 
 const BUYER_EMAIL = MEMBER_EMAIL;
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(email: string) {
   return signInCached(email);

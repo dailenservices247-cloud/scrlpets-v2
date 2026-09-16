@@ -1,15 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { MEMBER_EMAIL, MEMBER_PROFILE_ID, MEMBER_USERNAME, SELLER_EMAIL, signInCached } from "./fixtures";
 
 // Reuses the seeded RBAC fixture users (see brand-rbac.spec.ts).
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
@@ -29,7 +21,6 @@ test("brand owner controls a departed contributor's brand content, audited", asy
   page,
 }) => {
   test.setTimeout(120_000);
-  const password = process.env.E2E_PASSWORD!;
   const brandName = `E2E Departure Brand ${Date.now()}`;
   const memberBrandPostBody = `E2E departed member brand post ${Date.now()}`;
   const memberPersonalPostBody = `E2E departed member personal post ${Date.now()}`;
