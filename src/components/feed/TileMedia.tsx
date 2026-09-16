@@ -56,7 +56,12 @@ export function TileMedia({
             // lazy-loader still has the intrinsic size it needs. -mx-4 pulls the
             // media to the column edge in the editorial register and to the
             // panel's inner edge in the panel register; both insets are 16px.
-            "-mx-4 mt-1 h-auto w-[calc(100%+2rem)] max-w-none object-cover"
+            // max-h caps portrait at 4:5 (spec §3.4) so one tall photo cannot
+            // take the whole screen and push the next entry out of the feed.
+            // The media is the column's width, so 125vw is the mobile cap and
+            // 910px is the same ratio against the 728px desktop media width.
+            // object-cover crops to the cap instead of letterboxing.
+            "-mx-4 mt-1 h-auto max-h-[125vw] w-[calc(100%+2rem)] max-w-none object-cover lg:max-h-[910px]"
           : "mt-1 h-auto w-full rounded-xl object-cover"
       }
       data-testid="tile-media"
