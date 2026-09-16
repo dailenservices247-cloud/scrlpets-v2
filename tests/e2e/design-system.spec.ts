@@ -81,6 +81,39 @@ test.describe("rhythm", () => {
   });
 });
 
+test.describe("brand house compliance", () => {
+  // Wine is red-dominant (#7e303a), spine is green-dominant (#2a6055). Comparing
+  // channels is mechanical and survives any opacity the tint is applied at.
+  const channels = async (locator: Locator) => {
+    const color = await locator.evaluate((el) => getComputedStyle(el).backgroundColor);
+    const [r, g, b] = color.match(/[\d.]+/g)!.map(Number);
+    return { r, g, b, color };
+  };
+
+  test("a feed tile's action is wine, not the reserved spine", async ({ page }) => {
+    await page.goto("/design");
+    const cta = page.getByTestId("tile-destination-listing").first();
+    await expect(cta).toBeVisible();
+    const { r, g, color } = await channels(cta);
+    expect(
+      r > g,
+      `Brand House §7 reserves spine for trust/verification. Got ${color}`,
+    ).toBe(true);
+  });
+});
+
+test.describe("media policy", () => {
+  test("portrait media is capped at 4:5 so one photo cannot own the screen", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/design");
+    // The third post carries the portrait fixture (3:4, taller than the cap).
+    const media = page.getByTestId("tile-post").nth(2).getByTestId("tile-media");
+    await expect(media).toBeVisible();
+    const box = (await media.boundingBox())!;
+    expect(box.height).toBeLessThanOrEqual(box.width * 1.25 + 1);
+  });
+});
+
 test.describe("baselines", () => {
   // Fixture content is fixed, so a diff here means the design moved — which is
   // the only reason a screenshot test is worth its flake budget. These are the
