@@ -27,7 +27,12 @@ describe("type scale tokens", () => {
  * converted, so the list is a record of what the system actually covers rather
  * than a wish.
  */
-const GUARDED = ["src/components/feed/AttributionStack.tsx"];
+const GUARDED = [
+  "src/components/feed/AttributionStack.tsx",
+  "src/components/feed/tiles/ListingTile.tsx",
+  "src/components/feed/tiles/PromoTile.tsx",
+  "src/components/feed/tiles/LongVideoTile.tsx",
+];
 
 describe("feed components use the scale, not raw values", () => {
   it.each(GUARDED)("%s has no raw pixel font size", (file) => {
