@@ -21,3 +21,20 @@ describe("type scale tokens", () => {
     expect(layout).toContain("--font-instrument-serif");
   });
 });
+
+/**
+ * Grows one file per task. A component only joins this list once it has been
+ * converted, so the list is a record of what the system actually covers rather
+ * than a wish.
+ */
+const GUARDED = ["src/components/feed/AttributionStack.tsx"];
+
+describe("feed components use the scale, not raw values", () => {
+  it.each(GUARDED)("%s has no raw pixel font size", (file) => {
+    expect(readFileSync(file, "utf8")).not.toMatch(/text-\[\d+(\.\d+)?px\]/);
+  });
+
+  it.each(GUARDED)("%s has no color literal", (file) => {
+    expect(readFileSync(file, "utf8")).not.toMatch(/#[0-9a-fA-F]{3,8}\b|oklch\(|rgba?\(/);
+  });
+});

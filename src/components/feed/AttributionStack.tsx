@@ -30,7 +30,7 @@ function Avatar({
       className={cn(
         dims,
         "grid shrink-0 place-items-center rounded-full bg-primary/25 font-semibold text-brand-link",
-        size === "lg" ? "text-base" : "text-[10px]",
+        size === "lg" ? "text-base" : "text-xs",
       )}
       aria-hidden
     >
@@ -62,7 +62,7 @@ export function AttributionStack({
         <div className="min-w-0">
           <Link
             href={`/b/${item.brand.slug}`}
-            className="block max-w-full truncate text-[15px] font-semibold leading-tight text-foreground transition hover:text-brand-link hover:underline"
+            className="block max-w-full truncate font-serif text-title leading-tight text-foreground transition hover:text-brand-link hover:underline"
             data-testid="brand-attribution"
           >
             {item.brand.name}
@@ -96,7 +96,7 @@ export function AttributionStack({
       <div className="min-w-0">
         <Link
           href={`/u/${item.author.username}`}
-          className="block max-w-full truncate text-[15px] font-semibold leading-tight text-foreground transition hover:text-brand-link hover:underline"
+          className="block max-w-full truncate font-serif text-title leading-tight text-foreground transition hover:text-brand-link hover:underline"
         >
           {personName}
         </Link>
