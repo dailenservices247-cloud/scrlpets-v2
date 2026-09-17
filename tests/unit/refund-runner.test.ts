@@ -34,8 +34,6 @@ const depositLeg = {
   payment_intent_id: "pi_deposit",
 };
 
-type FetchArgs = [string | URL | Request, RequestInit | undefined];
-
 /** Stripe echoes the amount it actually refunded, which is not always the ask. */
 function stripeRefunding(amountByIntent: Record<string, number>) {
   return vi.fn(async (_url: string | URL | Request, init?: RequestInit) => {

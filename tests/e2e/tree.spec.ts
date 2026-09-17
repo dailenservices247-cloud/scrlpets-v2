@@ -1,13 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { SELLER_EMAIL, SELLER_USERNAME, signInCached } from "./fixtures";
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(email: string) {
   return signInCached(email);

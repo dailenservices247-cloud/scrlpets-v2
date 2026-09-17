@@ -1,15 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 import { MEMBER_EMAIL, SELLER_EMAIL, signInCached } from "./fixtures";
 
 const BANNER_URL = "https://example.com/e2e-brand-banner.png";
-
-function databaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
-}
 
 async function signIn(page: Page, email: string) {
   await page.context().clearCookies();
@@ -25,7 +17,6 @@ async function signIn(page: Page, email: string) {
 test("brand banner renders and a listing gateways into the brand's world", async ({
   page,
 }) => {
-  const password = process.env.E2E_PASSWORD!;
   const brandName = `E2E Gateway Brand ${Date.now()}`;
   const listingOne = `E2E gateway listing one ${Date.now()}`;
   const listingTwo = `E2E gateway listing two ${Date.now()}`;
