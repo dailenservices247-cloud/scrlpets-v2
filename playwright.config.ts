@@ -1,5 +1,9 @@
 import { defineConfig } from "@playwright/test";
 import { config as dotenv } from "dotenv";
+import { holdE2eLock } from "./tests/e2e/run-lock";
+
+// Runs from other worktrees take turns, build included. See tests/e2e/run-lock.ts.
+holdE2eLock();
 
 dotenv({ path: ".env.local" });
 
