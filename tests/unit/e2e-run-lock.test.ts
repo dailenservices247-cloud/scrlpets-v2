@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { holdE2eLock } from "../e2e/run-lock";
 
@@ -32,6 +32,18 @@ if (process.env.SPAWN_OWN_CHILD) {
 setTimeout(() => { console.log("releasing " + Date.now()); process.exit(0); }, Number(process.env.HOLD_MS ?? 0));
 `;
 
+// One of a crowd queued on the same lock: it polls every 1ms and marks its hold
+// with S and E lines in a shared O_APPEND log, so the log is in the kernel's order.
+const CROWD_RUNNER = `
+import { appendFileSync } from "node:fs";
+import { holdE2eLock } from ${JSON.stringify(LOCK_MODULE)};
+holdE2eLock({ lockDir: process.env.LOCK_DIR, pollMs: 1, maxWaitMs: 60_000 });
+appendFileSync(process.env.LOG, "S\\n");
+Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 30);
+appendFileSync(process.env.LOG, "E\\n");
+process.exit(0);
+`;
+
 const children: ReturnType<typeof spawn>[] = [];
 const tempDirs: string[] = [];
 
@@ -41,13 +53,17 @@ function freshLockDir(): string {
   return join(dir, "e2e-run.lock");
 }
 
-function startRunner(lockDir: string, extraEnv: Record<string, string> = {}) {
+function childEnv(lockDir: string, extraEnv: Record<string, string>): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = { ...process.env, LOCK_DIR: lockDir };
   for (const key of Object.keys(env)) {
     if (key.startsWith("VITEST") || key === "SCRLPETS_E2E_LOCK_OWNER") delete env[key];
   }
+  return { ...env, ...extraEnv };
+}
+
+function startRunner(lockDir: string, extraEnv: Record<string, string> = {}) {
   const child = spawn(process.execPath, ["--input-type=module", "-e", RUNNER], {
-    env: { ...env, ...extraEnv },
+    env: childEnv(lockDir, extraEnv),
   });
   children.push(child);
   const lines: string[] = [];
@@ -87,6 +103,34 @@ describe("e2e run lock", () => {
     expect(secondAcquired).toBeGreaterThanOrEqual(firstReleased);
     expect(await second.exited).toBe(0);
   });
+
+  it("never lets two runs hold the lock at once, even with a crowd waiting", async () => {
+    // 2026-09-21: under the mkdir lock, a waiter that found the lock gone mid-check
+    // deleted the next holder's brand-new lock, and 2–3 runs held it together.
+    for (let round = 0; round < 3; round++) {
+      const lockDir = freshLockDir();
+      const log = join(dirname(lockDir), "log");
+      writeFileSync(log, "");
+      const crowd = Array.from({ length: 10 }, () =>
+        spawn(process.execPath, ["--input-type=module", "-e", CROWD_RUNNER], {
+          env: childEnv(lockDir, { LOG: log }),
+        }),
+      );
+      children.push(...crowd);
+      const codes = await Promise.all(
+        crowd.map((child) => new Promise<number | null>((done) => child.on("exit", done))),
+      );
+
+      let holding = 0;
+      let mostAtOnce = 0;
+      for (const mark of readFileSync(log, "utf8").split("\n")) {
+        if (mark === "S") mostAtOnce = Math.max(mostAtOnce, ++holding);
+        if (mark === "E") holding--;
+      }
+      expect(codes).toEqual(Array(10).fill(0));
+      expect(mostAtOnce, `round ${round}`).toBe(1);
+    }
+  }, 60_000);
 
   it("does not let a killed run block the next one", async () => {
     const lockDir = freshLockDir();
