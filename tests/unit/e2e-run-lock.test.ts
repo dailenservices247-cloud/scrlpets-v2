@@ -20,13 +20,13 @@ const LOCK_MODULE = resolve(__dirname, "../e2e/run-lock.ts");
 const RUNNER = `
 import { spawnSync } from "node:child_process";
 import { holdE2eLock } from ${JSON.stringify(LOCK_MODULE)};
-holdE2eLock({ lockDir: process.env.LOCK_DIR, pollMs: 25, maxWaitMs: Number(process.env.MAX_WAIT_MS ?? 5000) });
+holdE2eLock({ lockFile: process.env.LOCK_FILE, pollMs: 25, maxWaitMs: Number(process.env.MAX_WAIT_MS ?? 5000) });
 console.log("acquired " + Date.now());
 if (process.env.SPAWN_OWN_CHILD) {
   // A Playwright worker: a child of the holder that loads the same config.
   const worker = spawnSync(process.execPath, ["--input-type=module", "-e",
     "import { holdE2eLock } from " + JSON.stringify(${JSON.stringify(LOCK_MODULE)}) + ";" +
-    "holdE2eLock({ lockDir: process.env.LOCK_DIR, pollMs: 25, maxWaitMs: 300 });"]);
+    "holdE2eLock({ lockFile: process.env.LOCK_FILE, pollMs: 25, maxWaitMs: 300 });"]);
   console.log("worker-exit " + worker.status);
 }
 setTimeout(() => { console.log("releasing " + Date.now()); process.exit(0); }, Number(process.env.HOLD_MS ?? 0));
@@ -37,7 +37,7 @@ setTimeout(() => { console.log("releasing " + Date.now()); process.exit(0); }, N
 const CROWD_RUNNER = `
 import { appendFileSync } from "node:fs";
 import { holdE2eLock } from ${JSON.stringify(LOCK_MODULE)};
-holdE2eLock({ lockDir: process.env.LOCK_DIR, pollMs: 1, maxWaitMs: 60_000 });
+holdE2eLock({ lockFile: process.env.LOCK_FILE, pollMs: 1, maxWaitMs: 60_000 });
 appendFileSync(process.env.LOG, "S\\n");
 Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 30);
 appendFileSync(process.env.LOG, "E\\n");
@@ -47,23 +47,23 @@ process.exit(0);
 const children: ReturnType<typeof spawn>[] = [];
 const tempDirs: string[] = [];
 
-function freshLockDir(): string {
+function freshLockFile(): string {
   const dir = mkdtempSync(join(tmpdir(), "e2e-run-lock-"));
   tempDirs.push(dir);
-  return join(dir, "e2e-run.lock");
+  return join(dir, "e2e-run.flock");
 }
 
-function childEnv(lockDir: string, extraEnv: Record<string, string>): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env, LOCK_DIR: lockDir };
+function childEnv(lockFile: string, extraEnv: Record<string, string>): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = { ...process.env, LOCK_FILE: lockFile };
   for (const key of Object.keys(env)) {
     if (key.startsWith("VITEST") || key === "SCRLPETS_E2E_LOCK_OWNER") delete env[key];
   }
   return { ...env, ...extraEnv };
 }
 
-function startRunner(lockDir: string, extraEnv: Record<string, string> = {}) {
+function startRunner(lockFile: string, extraEnv: Record<string, string> = {}) {
   const child = spawn(process.execPath, ["--input-type=module", "-e", RUNNER], {
-    env: childEnv(lockDir, extraEnv),
+    env: childEnv(lockFile, extraEnv),
   });
   children.push(child);
   const lines: string[] = [];
@@ -92,10 +92,10 @@ describe("e2e run lock", () => {
   });
 
   it("makes a second run wait until the first one exits", async () => {
-    const lockDir = freshLockDir();
-    const first = startRunner(lockDir, { HOLD_MS: "600" });
+    const lockFile = freshLockFile();
+    const first = startRunner(lockFile, { HOLD_MS: "600" });
     await first.line("acquired");
-    const second = startRunner(lockDir);
+    const second = startRunner(lockFile);
 
     const firstReleased = at(await first.line("releasing"));
     const secondAcquired = at(await second.line("acquired"));
@@ -108,12 +108,12 @@ describe("e2e run lock", () => {
     // 2026-09-21: under the mkdir lock, a waiter that found the lock gone mid-check
     // deleted the next holder's brand-new lock, and 2–3 runs held it together.
     for (let round = 0; round < 3; round++) {
-      const lockDir = freshLockDir();
-      const log = join(dirname(lockDir), "log");
+      const lockFile = freshLockFile();
+      const log = join(dirname(lockFile), "log");
       writeFileSync(log, "");
       const crowd = Array.from({ length: 10 }, () =>
         spawn(process.execPath, ["--input-type=module", "-e", CROWD_RUNNER], {
-          env: childEnv(lockDir, { LOG: log }),
+          env: childEnv(lockFile, { LOG: log }),
         }),
       );
       children.push(...crowd);
@@ -133,51 +133,51 @@ describe("e2e run lock", () => {
   }, 60_000);
 
   it("does not let a killed run block the next one", async () => {
-    const lockDir = freshLockDir();
-    const first = startRunner(lockDir, { HOLD_MS: "60000" });
+    const lockFile = freshLockFile();
+    const first = startRunner(lockFile, { HOLD_MS: "60000" });
     await first.line("acquired");
     first.child.kill("SIGKILL");
     await first.exited;
 
-    const second = startRunner(lockDir, { MAX_WAIT_MS: "3000" });
+    const second = startRunner(lockFile, { MAX_WAIT_MS: "3000" });
 
     await second.line("acquired");
     expect(await second.exited).toBe(0);
   });
 
   it("lets the holder's own worker processes through without waiting", async () => {
-    const holder = startRunner(freshLockDir(), { SPAWN_OWN_CHILD: "1" });
+    const holder = startRunner(freshLockFile(), { SPAWN_OWN_CHILD: "1" });
 
     expect(await holder.line("worker-exit")).toBe("worker-exit 0");
   });
 
   it("does not wave a run through because of an owner id that is not the live holder", async () => {
-    const lockDir = freshLockDir();
-    const first = startRunner(lockDir, { HOLD_MS: "60000" });
+    const lockFile = freshLockFile();
+    const first = startRunner(lockFile, { HOLD_MS: "60000" });
     await first.line("acquired");
 
     // pid 1 is alive (launchd/init) but is not the process holding the lock.
-    const second = startRunner(lockDir, { MAX_WAIT_MS: "300", SCRLPETS_E2E_LOCK_OWNER: "1" });
+    const second = startRunner(lockFile, { MAX_WAIT_MS: "300", SCRLPETS_E2E_LOCK_OWNER: "1" });
 
     expect(await second.exited).not.toBe(0);
   });
 
   it("fails a run that waits past its deadline, naming the holder", async () => {
-    const lockDir = freshLockDir();
-    const first = startRunner(lockDir, { HOLD_MS: "60000" });
+    const lockFile = freshLockFile();
+    const first = startRunner(lockFile, { HOLD_MS: "60000" });
     await first.line("acquired");
 
-    const second = startRunner(lockDir, { MAX_WAIT_MS: "300" });
+    const second = startRunner(lockFile, { MAX_WAIT_MS: "300" });
 
     expect(await second.exited).not.toBe(0);
     expect(second.stderr()).toContain(`pid ${first.child.pid}`);
   });
 
   it("never takes the lock when vitest imports the Playwright config", () => {
-    const lockDir = freshLockDir();
+    const lockFile = freshLockFile();
 
-    holdE2eLock({ lockDir });
+    holdE2eLock({ lockFile });
 
-    expect(existsSync(lockDir)).toBe(false);
+    expect(existsSync(lockFile)).toBe(false);
   });
 });

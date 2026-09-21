@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync, writeSync } from "node:fs";
+import { constants, openSync, readFileSync, writeFileSync, writeSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
@@ -16,73 +16,61 @@ import { join, resolve } from "node:path";
  * It has to block synchronously. Playwright does not await a config export, and
  * webServer starts the two-minute build BEFORE globalSetup, so a lock taken any
  * later would let builds overlap.
+ *
+ * The lock is the kernel's, taken by open(2) itself. The first version was a
+ * mkdir lock with pid checks, and on 2026-09-21 a crowd of waiters broke it: one
+ * that found the lock gone mid-check deleted the next holder's fresh lock, and
+ * 2–3 runs held it at once. The kernel releases this one when the holder exits,
+ * however it exits, and children don't inherit it, so there is no stale lock to
+ * recover and nothing to delete.
  */
 const OWNER_ENV = "SCRLPETS_E2E_LOCK_OWNER";
+// macOS <fcntl.h>: open() also takes an exclusive flock on the file. Node doesn't export it.
+const O_EXLOCK = 0x20;
 
 type Owner = { pid: number; worktree: string; command: string; startedAt: string };
 
-function sharedLockDir(): string {
+function sharedLockFile(): string {
   try {
     // One .git for every worktree of this repo, and nothing in it is ever committed.
     const gitDir = execSync("git rev-parse --git-common-dir", {
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
     }).trim();
-    return join(resolve(gitDir), "e2e-run.lock");
+    // Not the old e2e-run.lock path: branches still on the mkdir lock rmSync it.
+    return join(resolve(gitDir), "e2e-run.flock");
   } catch {
-    return join(tmpdir(), "scrlpets-e2e-run.lock");
+    return join(tmpdir(), "scrlpets-e2e-run.flock");
   }
 }
 
-function readOwner(lockDir: string): Owner | null {
+function readOwner(lockFile: string): Owner | null {
   try {
-    return JSON.parse(readFileSync(join(lockDir, "owner.json"), "utf8")) as Owner;
+    return JSON.parse(readFileSync(lockFile, "utf8")) as Owner;
   } catch {
     return null;
   }
 }
 
-function isAlive(pid: number): boolean {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch (error) {
-    return (error as NodeJS.ErrnoException).code === "EPERM";
-  }
-}
-
-function heldByLiveRun(lockDir: string, owner: Owner | null): boolean {
-  // ponytail: a reused pid can pass for a dead holder; the queue deadline names it.
-  if (owner) return isAlive(owner.pid);
-  try {
-    // mkdir happened but owner.json isn't written yet: a run that is starting.
-    return Date.now() - statSync(lockDir).mtimeMs < 10_000;
-  } catch {
-    return false;
-  }
-}
-
 export function holdE2eLock(
-  options: { lockDir?: string; pollMs?: number; maxWaitMs?: number } = {},
+  options: { lockFile?: string; pollMs?: number; maxWaitMs?: number } = {},
 ): void {
   // Unit tests import playwright.config.ts; they are not a run.
   if (process.env.VITEST) return;
-  const { lockDir = sharedLockDir(), pollMs = 2_000, maxWaitMs = 30 * 60_000 } = options;
+  // ponytail: O_EXLOCK is macOS-only, and this Mac is the only e2e host. Elsewhere
+  // runs don't take turns; a flock(1) holder process would cover Linux.
+  if (process.platform !== "darwin") return;
+  const { lockFile = sharedLockFile(), pollMs = 2_000, maxWaitMs = 30 * 60_000 } = options;
   const startedWaiting = Date.now();
   let lastNotice = -Infinity;
 
   for (;;) {
     try {
-      mkdirSync(lockDir);
+      // Never closed: this process holds the lock until it exits.
+      openSync(lockFile, constants.O_RDONLY | constants.O_CREAT | constants.O_NONBLOCK | O_EXLOCK);
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
-      const owner = readOwner(lockDir);
-      if (!heldByLiveRun(lockDir, owner)) {
-        // ponytail: two waiters that both find a crashed holder can race here; only
-        // reachable right after a crash, and the loser simply waits one more turn.
-        rmSync(lockDir, { recursive: true, force: true });
-        continue;
-      }
+      if ((error as NodeJS.ErrnoException).code !== "EAGAIN") throw error;
+      const owner = readOwner(lockFile);
       // Workers and the test loader are children of the holder and load this config too.
       if (owner && String(owner.pid) === process.env[OWNER_ENV]) return;
 
@@ -91,7 +79,7 @@ export function holdE2eLock(
         : "a run that is still starting";
       const waited = Date.now() - startedWaiting;
       if (waited >= maxWaitMs) {
-        throw new Error(`e2e run lock: gave up after ${Math.round(waited / 1000)}s waiting for ${holder}. Lock: ${lockDir}`);
+        throw new Error(`e2e run lock: gave up after ${Math.round(waited / 1000)}s waiting for ${holder}. Lock: ${lockFile}`);
       }
       if (waited - lastNotice >= 60_000) {
         // writeSync: stderr to a pipe is async on macOS, and the wait below blocks the loop.
@@ -108,11 +96,8 @@ export function holdE2eLock(
       command: process.argv.slice(1).join(" "),
       startedAt: new Date().toISOString(),
     };
-    writeFileSync(join(lockDir, "owner.json"), JSON.stringify(owner));
+    writeFileSync(lockFile, JSON.stringify(owner));
     process.env[OWNER_ENV] = String(process.pid);
-    process.on("exit", () => {
-      if (readOwner(lockDir)?.pid === process.pid) rmSync(lockDir, { recursive: true, force: true });
-    });
     return;
   }
 }
