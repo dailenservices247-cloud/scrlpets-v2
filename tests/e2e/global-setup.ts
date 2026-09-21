@@ -61,9 +61,23 @@ async function cleanOwnMarkers(email: string, password: string) {
     .select("id")
     .eq("owner_id", data.user.id)
     .like("name", "E2E %");
-  for (const row of strays ?? []) {
-    await db.rpc("delete_creature_if_unreferenced", { target_creature: row.id });
-  }
+  // Almost every call here is a refusal, and one at a time they were ~60s of
+  // every run: on 2026-09-21 dev held 1,844 `E2E ` creatures, all but a
+  // handful still referenced — 1,193 only by soft-deleted listings, which RLS
+  // hides from this account, so no read here can skip them. Their order is
+  // free: removing a row nothing points at changes no other creature's answer.
+  // So 8 loops share ONE iterator; each takes the next id, none repeats one.
+  // 8 was the knee on dev (busiest account 8.8s; 16 started queueing).
+  // ponytail: still one round trip per stray and the pile only grows; the
+  // upgrade is a batch RPC running this same guard server-side in one call.
+  const queue = (strays ?? []).values();
+  await Promise.all(
+    Array.from({ length: 8 }, async () => {
+      for (const row of queue) {
+        await db.rpc("delete_creature_if_unreferenced", { target_creature: row.id });
+      }
+    }),
+  );
 }
 
 export default async function globalSetup() {
