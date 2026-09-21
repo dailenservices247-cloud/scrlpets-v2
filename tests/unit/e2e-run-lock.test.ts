@@ -29,7 +29,10 @@ if (process.env.SPAWN_OWN_CHILD) {
     "holdE2eLock({ lockFile: process.env.LOCK_FILE, pollMs: 25, maxWaitMs: 300 });"]);
   console.log("worker-exit " + worker.status);
 }
-setTimeout(() => { console.log("releasing " + Date.now()); process.exit(0); }, Number(process.env.HOLD_MS ?? 0));
+const release = () => { console.log("releasing " + Date.now()); process.exit(0); };
+// HOLD_UNTIL_STDIN: hold until the test says so, instead of for a fixed time.
+if (process.env.HOLD_UNTIL_STDIN) process.stdin.once("data", release);
+else setTimeout(release, Number(process.env.HOLD_MS ?? 0));
 `;
 
 // One of a crowd queued on the same lock: it polls every 1ms and marks its hold
@@ -71,17 +74,23 @@ function startRunner(lockFile: string, extraEnv: Record<string, string> = {}) {
   child.stdout.on("data", (chunk) => lines.push(...String(chunk).trim().split("\n")));
   child.stderr.on("data", (chunk) => (stderr += chunk));
   const exited = new Promise<number | null>((done) => child.on("exit", (code) => done(code)));
-  async function line(prefix: string): Promise<string> {
-    const deadline = Date.now() + 10_000;
+  // 20s, inside the tests' 30s budget, so a slow child fails with this message.
+  async function until<T>(find: () => T | undefined, what: string): Promise<T> {
+    const deadline = Date.now() + 20_000;
     while (Date.now() < deadline) {
-      const found = lines.find((l) => l.startsWith(prefix));
-      if (found) return found;
+      const found = find();
+      if (found !== undefined) return found;
       await new Promise((r) => setTimeout(r, 20));
     }
-    throw new Error(`no "${prefix}" line; stdout=${lines.join("|")} stderr=${stderr}`);
+    throw new Error(`no ${what}; stdout=${lines.join("|")} stderr=${stderr}`);
   }
-  return { child, exited, line, stderr: () => stderr };
+  const line = (prefix: string) => until(() => lines.find((l) => l.startsWith(prefix)), `"${prefix}" line`);
+  const said = (text: string) => until(() => (stderr.includes(text) ? true : undefined), `"${text}" on stderr`);
+  return { child, exited, line, said, stderr: () => stderr };
 }
+
+// Child-process tests: vitest's 5s default is shorter than two Node startups on a loaded Mac.
+const CHILD_TIMEOUT_MS = 30_000;
 
 const at = (line: string) => Number(line.split(" ")[1]);
 
@@ -93,16 +102,21 @@ describe("e2e run lock", () => {
 
   it("makes a second run wait until the first one exits", async () => {
     const lockFile = freshLockFile();
-    const first = startRunner(lockFile, { HOLD_MS: "600" });
+    const first = startRunner(lockFile, { HOLD_UNTIL_STDIN: "1" });
     await first.line("acquired");
     const second = startRunner(lockFile);
+
+    // The first holds until the second is visibly queued behind it, however slow
+    // the machine is. Without a lock the second never says this.
+    await second.said(`waiting for pid ${first.child.pid}`);
+    first.child.stdin!.write("go\n");
 
     const firstReleased = at(await first.line("releasing"));
     const secondAcquired = at(await second.line("acquired"));
 
     expect(secondAcquired).toBeGreaterThanOrEqual(firstReleased);
     expect(await second.exited).toBe(0);
-  });
+  }, CHILD_TIMEOUT_MS);
 
   it("never lets two runs hold the lock at once, even with a crowd waiting", async () => {
     // 2026-09-21: under the mkdir lock, a waiter that found the lock gone mid-check
@@ -143,13 +157,13 @@ describe("e2e run lock", () => {
 
     await second.line("acquired");
     expect(await second.exited).toBe(0);
-  });
+  }, CHILD_TIMEOUT_MS);
 
   it("lets the holder's own worker processes through without waiting", async () => {
     const holder = startRunner(freshLockFile(), { SPAWN_OWN_CHILD: "1" });
 
     expect(await holder.line("worker-exit")).toBe("worker-exit 0");
-  });
+  }, CHILD_TIMEOUT_MS);
 
   it("does not wave a run through because of an owner id that is not the live holder", async () => {
     const lockFile = freshLockFile();
@@ -160,7 +174,7 @@ describe("e2e run lock", () => {
     const second = startRunner(lockFile, { MAX_WAIT_MS: "300", SCRLPETS_E2E_LOCK_OWNER: "1" });
 
     expect(await second.exited).not.toBe(0);
-  });
+  }, CHILD_TIMEOUT_MS);
 
   it("fails a run that waits past its deadline, naming the holder", async () => {
     const lockFile = freshLockFile();
@@ -171,7 +185,7 @@ describe("e2e run lock", () => {
 
     expect(await second.exited).not.toBe(0);
     expect(second.stderr()).toContain(`pid ${first.child.pid}`);
-  });
+  }, CHILD_TIMEOUT_MS);
 
   it("never takes the lock when vitest imports the Playwright config", () => {
     const lockFile = freshLockFile();
