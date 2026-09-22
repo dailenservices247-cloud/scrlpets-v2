@@ -64,8 +64,10 @@ function childEnv(lockFile: string, extraEnv: Record<string, string>): NodeJS.Pr
   return { ...env, ...extraEnv };
 }
 
-function startRunner(lockFile: string, extraEnv: Record<string, string> = {}) {
-  const child = spawn(process.execPath, ["--input-type=module", "-e", RUNNER], {
+function startRunner(lockFile: string, extraEnv: Record<string, string> = {}, args: string[] = []) {
+  // args land in the child's real process.argv, the way Playwright's CLI flags do.
+  const argv = args.length ? ["--", ...args] : [];
+  const child = spawn(process.execPath, ["--input-type=module", "-e", RUNNER, ...argv], {
     env: childEnv(lockFile, extraEnv),
   });
   children.push(child);
@@ -163,6 +165,19 @@ describe("e2e run lock", () => {
     const holder = startRunner(freshLockFile(), { SPAWN_OWN_CHILD: "1" });
 
     expect(await holder.line("worker-exit")).toBe("worker-exit 0");
+  }, CHILD_TIMEOUT_MS);
+
+  it("lets `playwright test --list` through without waiting, since it runs no tests", async () => {
+    // 2026-09-22 review: behind a real run, --list queued and then failed at the
+    // 30-minute deadline, only to print test titles.
+    const lockFile = freshLockFile();
+    const holder = startRunner(lockFile, { HOLD_MS: "60000" });
+    await holder.line("acquired");
+
+    const lister = startRunner(lockFile, { MAX_WAIT_MS: "300" }, ["--list"]);
+
+    expect(await lister.exited).toBe(0);
+    expect(lister.stderr()).not.toContain("waiting for");
   }, CHILD_TIMEOUT_MS);
 
   it("does not wave a run through because of an owner id that is not the live holder", async () => {
