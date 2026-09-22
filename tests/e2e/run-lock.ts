@@ -57,6 +57,11 @@ export function holdE2eLock(
 ): void {
   // Unit tests import playwright.config.ts; they are not a run.
   if (process.env.VITEST) return;
+  // `playwright test --list` runs no tests, so it has no turn to wait for.
+  // ponytail: Playwright 1.60 loads the list in this process (no workers, no
+  // webServer). If list mode moves to a child loader, that child won't see
+  // --list and will queue; hand the skip down through the env then.
+  if (process.argv.includes("--list")) return;
   // ponytail: O_EXLOCK is macOS-only, and this Mac is the only e2e host. Elsewhere
   // runs don't take turns; a flock(1) holder process would cover Linux.
   if (process.platform !== "darwin") return;
