@@ -2,6 +2,16 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **STATUS: CODE COMPLETE 2026-09-01 — checkboxes below were never ticked, the work shipped anyway.**
+> Task 1 `7f72119` (event registry) · Task 2 `f0e8a88` (createBrand return path) · Task 3 `789c417`
+> (breeder branch) · Task 5 `3c0bbae` (a11y coverage). Artifacts verified present on `main`
+> 2026-09-23: `tests/unit/analytics-events.test.ts`, `src/app/onboarding/breeder/`, and
+> `/onboarding/breeder` inside `tests/e2e/a11y.spec.ts`.
+>
+> **What did NOT happen is the launch.** Measured on production the same day: 1 profile, 1 brand,
+> 2 creatures, 0 posts, 0 listings, 0 waitlist signups, newest signup 2026-07-28. The funnel this
+> plan built has never had a person walk into it. The remaining blocker is outreach, not code.
+
 **Goal:** Close the gap between working software and a breeder who joins, fills the app in, and stays — onboarding depth, funnel measurement, and accessibility coverage.
 
 **Architecture:** Three independent slices against `b7e21c7`. Onboarding gains an optional post-species branch into brand creation, reusing the existing `createBrand` action rather than duplicating it. Measurement adds funnel events to the existing PostHog wrapper, which already has a consent surface — only the events are missing. Accessibility extends the existing `a11y.spec.ts` pattern to the routes the seeded path touches. No new dependencies.
