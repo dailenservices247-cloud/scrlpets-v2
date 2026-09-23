@@ -1616,7 +1616,10 @@
       },
       "visibility": "Anyone can see this litter as soon as you save — including people who are not signed in."
     },
-    "youngGenderLabel": "Sex"
+    "youngGenderLabel": "Sex",
+    "promptTitle": "Expecting a litter?",
+    "promptBody": "Publish it before the animals arrive, and people can join your waitlist while you wait.",
+    "promptCta": "Publish an expecting litter"
   },
   "tree": {
     "eyebrow": "Ecosystem Tree",

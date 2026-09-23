@@ -253,3 +253,28 @@ export async function getLitterYoung(litterId: string): Promise<LitterYoung[]> {
     listingId: listingByCreature.get(r.id) ?? null,
   }));
 }
+
+/**
+ * Whether to offer a breeder the expecting-litter path on the feed.
+ *
+ * True for someone who has set up — owns a brand and at least one animal — and
+ * has published no litter. That is the state the first real breeder sat in from
+ * 2026-09-06: brand created, animals added, nothing published, because the app's
+ * terminal action was "list something" and he had nothing to sell.
+ *
+ * Existence checks, never id lists: the seller fixture owns ~600 brands, and an
+ * `.in()` built from that overflows at 16KB.
+ *
+ * Ownership only, not brand-manager membership. A contributor on someone else's
+ * brand is not who this prompt is for, and the manager check costs a second
+ * round trip to answer a question this nudge does not ask.
+ */
+export async function shouldPromptFirstLitter(viewerId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const [brand, creature, litter] = await Promise.all([
+    supabase.from("brands").select("id").eq("owner_id", viewerId).limit(1).maybeSingle(),
+    supabase.from("creatures").select("id").eq("owner_id", viewerId).limit(1).maybeSingle(),
+    supabase.from("litters").select("id").eq("owner_id", viewerId).limit(1).maybeSingle(),
+  ]);
+  return Boolean(brand.data) && Boolean(creature.data) && !litter.data;
+}

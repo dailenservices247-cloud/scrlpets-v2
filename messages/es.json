@@ -1616,7 +1616,10 @@
       },
       "visibility": "Cualquiera puede ver esta camada en cuanto la guardes, incluidas las personas que no han iniciado sesión."
     },
-    "youngGenderLabel": "Sexo"
+    "youngGenderLabel": "Sexo",
+    "promptTitle": "¿Esperas una camada?",
+    "promptBody": "Publícala antes de que lleguen los animales y podrán unirse a tu lista de espera mientras tanto.",
+    "promptCta": "Publicar una camada esperada"
   },
   "tree": {
     "eyebrow": "Árbol del Ecosistema",
