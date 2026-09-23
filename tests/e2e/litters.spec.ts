@@ -170,3 +170,24 @@ test("the wizard says who can see a litter before you publish it", async ({ page
   await expect(page.getByTestId("wizard-save")).toBeVisible();
   await expect(page.getByTestId("litter-visibility-note")).toBeVisible();
 });
+
+test("a breeder with animals and no litter is pointed at the expecting-litter path", async ({
+  page,
+}) => {
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
+  await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
+
+  // The fixture seller is exactly the state Dailen has been in since 09-06:
+  // owns brands and creatures, has published no litter.
+  const prompt = page.getByTestId("first-litter-prompt");
+  await expect(prompt).toBeVisible();
+  await expect(prompt.getByRole("link")).toHaveAttribute("href", "/litters");
+});
+
+test("a signed-out visitor is not pointed at it", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("first-litter-prompt")).toHaveCount(0);
+});
