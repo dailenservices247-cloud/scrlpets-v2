@@ -140,3 +140,33 @@ test.describe("signed in", () => {
     expect(hide.count).toBe(2);
   });
 });
+
+/**
+ * Standalone rather than inside the serial describe above: that chain shares one
+ * litter across create/edit/delete, and this test deliberately never saves, so
+ * it leaves nothing behind to clean up.
+ */
+test("the wizard says who can see a litter before you publish it", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
+  await expect(page).toHaveURL("http://localhost:3000/", { timeout: 15_000 });
+
+  await page.goto("/litters");
+  await page.getByTestId("record-litter-cta").click();
+  await expect(page.getByTestId("litter-wizard")).toBeVisible();
+
+  await page.getByTestId("litter-name").fill(`E2E visibility ${Date.now()}`);
+  await page.getByTestId("litter-species").selectOption("dog");
+  await page.getByTestId("litter-status").selectOption("expecting");
+  await page.getByTestId("wizard-next").click();
+  await page.getByTestId("wizard-next").click();
+  await page.getByTestId("wizard-next").click();
+
+  // RLS on litters is `public read litters` for anon and authenticated with a
+  // qualifier of true: the row is world-readable the instant it is inserted,
+  // and nothing in the wizard says so.
+  await expect(page.getByTestId("wizard-save")).toBeVisible();
+  await expect(page.getByTestId("litter-visibility-note")).toBeVisible();
+});
