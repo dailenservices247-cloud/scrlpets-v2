@@ -13,6 +13,7 @@ export const FUNNEL_EVENTS = {
   breederBranchTaken: "breeder_branch_taken",
   breederBranchSkipped: "breeder_branch_skipped",
   firstBrandCreated: "first_brand_created",
+  litterPublished: "litter_published",
   mfaChallengePassed: "mfa_challenge_passed",
   mfaRecoveryCodeUsed: "mfa_recovery_code_used",
 } as const;

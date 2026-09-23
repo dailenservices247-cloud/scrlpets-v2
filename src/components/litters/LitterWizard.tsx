@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { capture } from "@/lib/analytics";
+import { FUNNEL_EVENTS } from "@/lib/analytics/events";
 import { LITTER_SPECIES, LITTER_STATUSES, YOUNG_GENDERS } from "@/lib/litters/constants";
 import {
   addYoung,
@@ -139,6 +141,9 @@ export function LitterWizard({
         return;
       }
       litterId = result.id;
+      // Creation only. An edit is not a new thing entering the world, and
+      // counting it would inflate the one step this funnel exists to measure.
+      capture(FUNNEL_EVENTS.litterPublished);
     }
 
     const toLink = [...checkedIds].filter((id) => !originallyLinked.has(id));
