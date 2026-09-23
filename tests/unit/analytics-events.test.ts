@@ -20,6 +20,13 @@ describe("FUNNEL_EVENTS", () => {
     }
   });
 
+  it("names the event that closes the loop for a breeder with nothing to list", () => {
+    // Publishing an expecting litter is the terminal action for a breeder
+    // between litters. Without its own name it is invisible in the funnel, and
+    // the drop-off that stalled the first real breeder stays a guess.
+    expect(FUNNEL_EVENTS.litterPublished).toBe("litter_published");
+  });
+
   it("names the two-factor sign-in events", () => {
     expect(FUNNEL_EVENTS.mfaChallengePassed).toBe("mfa_challenge_passed");
     expect(FUNNEL_EVENTS.mfaRecoveryCodeUsed).toBe("mfa_recovery_code_used");
