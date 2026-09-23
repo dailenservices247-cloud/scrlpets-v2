@@ -55,7 +55,10 @@ export function ApplyPanel({
         {listingId ? t("applyHelp") : t("waitlistHelp")}
       </p>
 
-      {!paymentsEnabled && (
+      {/* Only a listing can be checked out. On a waitlist there is nothing to
+          buy, so "checkout is switched off" would answer a question nobody
+          asked. */}
+      {!paymentsEnabled && listingId && (
         <p className="mt-3 text-xs text-muted-foreground" data-testid="checkout-off">
           {t("checkoutOff")}
         </p>

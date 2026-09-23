@@ -2,6 +2,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
+import { ApplyPanel } from "@/components/marketplace/ApplyPanel";
+import { getOpenApplication } from "@/lib/applications/queries";
+import { getSessionUser } from "@/lib/auth/session";
 import { getLitterYoung, getPublicLitter } from "@/lib/litters/queries";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +35,15 @@ export default async function LitterPublicPage({ params }: { params: Promise<{ i
   const litter = await getPublicLitter(id);
   if (!litter) notFound();
   const young = await getLitterYoung(id);
+
+  // A breeder between litters has nothing to list, so the expecting litter is
+  // the only thing they can publish — and it is worth publishing only if a
+  // visitor can raise a hand from it. A waitlist is a buyer_applications row
+  // with a null listing; ApplyPanel has rendered that mode since it was
+  // written, and no page had ever passed null.
+  const user = await getSessionUser();
+  const viewerIsSeller = user?.id === litter.ownerId;
+  const openApplication = user ? await getOpenApplication(litter.ownerId, null) : null;
 
   const expected = formatDate(litter.expectedDate);
   const born = formatDate(litter.birthDate);
@@ -96,6 +108,17 @@ export default async function LitterPublicPage({ params }: { params: Promise<{ i
             </>
           ) : null}
         </p>
+      </section>
+
+      <section className="px-4 pb-4">
+        <ApplyPanel
+          sellerId={litter.ownerId}
+          listingId={null}
+          viewerId={user?.id}
+          viewerIsSeller={viewerIsSeller}
+          hasOpenApplication={Boolean(openApplication)}
+          paymentsEnabled={false}
+        />
       </section>
 
       {(litter.dam || litter.sire) && (
