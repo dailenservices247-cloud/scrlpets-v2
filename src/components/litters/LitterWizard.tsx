@@ -443,6 +443,19 @@ export function LitterWizard({
               </p>
             )}
 
+            {/* `public read litters` grants SELECT to anon with a qualifier of
+                true, so the row is world-readable the moment it is inserted and
+                there is no draft state. Say so where the decision is made,
+                rather than leaving a breeder to discover it. */}
+            {step === TOTAL_STEPS && (
+              <p
+                className="mt-5 text-xs text-muted-foreground"
+                data-testid="litter-visibility-note"
+              >
+                {t("wizard.visibility")}
+              </p>
+            )}
+
             <div className="mt-5 flex items-center justify-between gap-2">
               <div>
                 {step > 1 && (

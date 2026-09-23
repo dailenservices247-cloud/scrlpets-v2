@@ -1613,7 +1613,8 @@
         "not_found": "Could not find that litter, or you don't have permission.",
         "auth_required": "Sign in to continue.",
         "generic": "Could not save. Try again."
-      }
+      },
+      "visibility": "Anyone can see this litter as soon as you save — including people who are not signed in."
     },
     "youngGenderLabel": "Sex"
   },

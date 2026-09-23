@@ -1613,7 +1613,8 @@
         "not_found": "No se encontró esa camada, o no tienes permiso.",
         "auth_required": "Inicia sesión para continuar.",
         "generic": "No se pudo guardar. Inténtalo de nuevo."
-      }
+      },
+      "visibility": "Cualquiera puede ver esta camada en cuanto la guardes, incluidas las personas que no han iniciado sesión."
     },
     "youngGenderLabel": "Sexo"
   },
