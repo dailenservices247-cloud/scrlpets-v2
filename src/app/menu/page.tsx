@@ -50,7 +50,7 @@ function MenuRow({
       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-background/65 text-brand-link">
         <Icon className="size-4" aria-hidden />
       </span>
-      <span className="flex-1 text-[15px] font-medium">{label}</span>
+      <span className="flex-1 text-ui font-medium">{label}</span>
       <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
     </Link>
   );

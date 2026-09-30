@@ -33,6 +33,12 @@ const GUARDED = [
   "src/components/feed/tiles/PromoTile.tsx",
   "src/components/feed/tiles/LongVideoTile.tsx",
   "src/app/b/[slug]/page.tsx",
+  // The app chrome, 2026-09-30. These four carried `text-[15px]`, which is the
+  // `ui` role's value exactly — a token swap that changes no rendered pixel.
+  "src/components/app/SideNav.tsx",
+  "src/app/menu/page.tsx",
+  "src/app/settings/page.tsx",
+  "src/components/feed/tiles/ReelTile.tsx",
 ];
 
 /**
