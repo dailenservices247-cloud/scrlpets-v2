@@ -79,6 +79,21 @@ test.describe("realm registers", () => {
     expect(surface.shadow, "editorial has no shadow").toBe("none");
   });
 
+  test("a realm is as wide as the feed it was opened from", async ({ page }) => {
+    // §3.2 fixes the content column at 720px on lg+, and AppPage already caps
+    // the page there. The destination shell's own max-w-2xl narrowed it another
+    // 48px inside that column, so on desktop the morph landed in a column that
+    // had visibly shrunk — the one thing a shared-element transition exists to
+    // deny. Same tolerance as design-system.spec.ts's column test.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await openTheListingRealm(page);
+    const width = await page
+      .getByTestId("destination-column")
+      .evaluate((el) => el.getBoundingClientRect().width);
+    expect(width).toBeGreaterThan(700);
+    expect(width).toBeLessThanOrEqual(720);
+  });
+
   test("a realm heading is display-size, in the identity serif", async ({ page }) => {
     // Spec §3.1 sizes it and §9 assigns the face: a realm heading is an
     // identity string, so it takes Instrument Serif. Measured on the listing
