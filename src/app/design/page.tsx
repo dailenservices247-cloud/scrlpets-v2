@@ -46,6 +46,12 @@ const PERSON = {
   avatarUrl: PORTRAIT,
 };
 
+const GROUP = {
+  id: "fixture-group",
+  name: "Merle Genetics",
+  slug: "merle-genetics",
+};
+
 const BRAND = {
   id: "fixture-brand",
   name: "Ridgeline Ranch",
@@ -95,6 +101,28 @@ const ITEMS: FeedItem[] = [
     title:
       "Long one, because people keep asking how we pick placements. We temperament test at seven weeks, not six — a week matters more than you would think at that age. Every pup gets the same five situations: a startle, a stranger, a restraint hold, a surface change, and a short separation. We write down what we see, not what we hope. Then families get matched to the dog that fits their week, not the dog they saw first on the internet.",
     mediaUrl: PORTRAIT,
+  }),
+  // The three chips only appear under conditions no other fixture creates: an
+  // updatedAt later than createdAt, a pinnedAt, and a group. Before these, the
+  // baselines had never rendered a chip — see the RED commit for the proof.
+  item({
+    id: "fx-post-edited",
+    type: "post",
+    title: "Corrected the weights below. Four pounds, not three.",
+    updatedAt: "2026-09-15T18:00:00.000Z",
+  }),
+  item({
+    id: "fx-post-pinned",
+    type: "post",
+    brand: BRAND,
+    title: "Pinned: how we pick placements, and why we test at seven weeks.",
+    pinnedAt: "2026-09-15T12:00:00.000Z",
+  }),
+  item({
+    id: "fx-post-group",
+    type: "post",
+    title: "Anyone else seeing merle-to-merle listings on the open market?",
+    group: GROUP,
   }),
   item({
     id: "fx-listing",
