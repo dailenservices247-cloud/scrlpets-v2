@@ -7,6 +7,7 @@ import { AttributionStack } from "./AttributionStack";
 import { ContentTypeBadge } from "./ContentTypeBadge";
 import { FeedTileAction } from "./FeedTileAction";
 import { TileMedia } from "./TileMedia";
+import { realmTransitionName } from "@/lib/feed/realm-transition";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { ReportButton } from "@/components/social/ReportButton";
 import { ReactionBar } from "@/components/social/ReactionBar";
@@ -127,7 +128,12 @@ export async function FeedDestinationShell({
           )}
 
           <h2 className="mt-4 text-lg font-semibold">{item.title ?? t("untitled")}</h2>
-          <TileMedia src={item.mediaUrl} alt={item.title ?? ""} variant="player" />
+          <TileMedia
+            src={item.mediaUrl}
+            alt={item.title ?? ""}
+            variant="player"
+            transitionName={realmTransitionName(item.type, item.id)}
+          />
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground">{t("nextAction")}</p>
             <FeedTileAction item={item} />

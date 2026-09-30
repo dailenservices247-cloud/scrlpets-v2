@@ -60,18 +60,22 @@ async function openTheListingRealm(page: Page) {
   await expect(page.getByTestId("destination-listing")).toBeVisible({ timeout: 20_000 });
 }
 
-async function morphMs(page: Page) {
+async function morphMs(page: Page, label: string) {
   await page.waitForFunction(() => (window as Instrumented).__morphMs !== null, null, {
     timeout: 15_000,
   });
-  return page.evaluate(() => (window as Instrumented).__morphMs as number);
+  const ms = await page.evaluate(() => (window as Instrumented).__morphMs as number);
+  // Recorded, not just asserted: criterion 6 asks for a measurement, and a
+  // pass/fail alone does not tell a later reader what was measured.
+  test.info().annotations.push({ type: "measurement", description: `${label}: ${ms.toFixed(1)}ms` });
+  return ms;
 }
 
 test.describe("the morph animates", () => {
   test("a tile that opens a listing realm morphs for the spec's 320ms", async ({ page }) => {
     await instrument(page);
     await openTheListingRealm(page);
-    const ms = await morphMs(page);
+    const ms = await morphMs(page, "morph");
     // Nominal 320ms. The floor is what matters: it proves this doorway really
     // does animate, which is the only thing that gives the reduced-motion
     // reading below any meaning.
@@ -88,7 +92,7 @@ test.describe("reduced motion", () => {
     await openTheListingRealm(page);
     // A reading at all means the transition still ran — it just carried no
     // duration, which is the browser's own instant swap.
-    const ms = await morphMs(page);
+    const ms = await morphMs(page, "morph under reduced motion");
     expect(ms, `morph lasted ${ms}ms under prefers-reduced-motion`).toBeLessThan(100);
   });
 });

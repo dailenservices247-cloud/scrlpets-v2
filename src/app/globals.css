@@ -184,3 +184,35 @@
     color: var(--brand-wine-text);
   }
 }
+
+/* Motion (spec §6). One curve, defined once, and one duration for a realm
+   morph. Both live outside @layer on purpose: ::view-transition-* pseudo
+   elements hang off the document root's transition tree, not off any element
+   a layer can reach. */
+:root {
+  --ease-realm: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-morph: 320ms;
+}
+
+/* The `.morph` class comes from share="morph" on the <ViewTransition> that
+   wraps a tile's media — see src/lib/feed/realm-transition.ts for why both
+   sides share one name. Only the group is retimed: the image pair keeps the
+   browser's own cross-fade, which is what hides the interpolation between two
+   differently-sized photos. */
+::view-transition-group(.morph) {
+  animation-duration: var(--duration-morph);
+  animation-timing-function: var(--ease-realm);
+}
+
+/* Spec §6, non-negotiable. 0s rather than `animation: none`, because the
+   default cross-fade IS an animation: cancelling it outright leaves the old
+   snapshot painted over the new page. Zero duration is the browser's own
+   instant swap, which is what the app did before any of this existed. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}

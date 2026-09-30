@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { FeedCardShell } from "../FeedCardShell";
 import { FeedTileAction } from "../FeedTileAction";
 import { TileMedia } from "../TileMedia";
+import { realmTransitionName } from "@/lib/feed/realm-transition";
 
 export function PromoTile({ item, canManage }: { item: FeedItem; canManage?: boolean }) {
   const t = useTranslations("feed");
@@ -15,7 +16,11 @@ export function PromoTile({ item, canManage }: { item: FeedItem; canManage?: boo
         <p className="mt-1 text-title font-semibold leading-snug">{item.title}</p>
         <p className="mt-1 text-xs text-muted-foreground">{t("productContext")}</p>
       </div>
-      <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
+      <TileMedia
+        src={item.mediaUrl}
+        alt={item.title ?? ""}
+        transitionName={realmTransitionName(item.type, item.id)}
+      />
       <FeedTileAction item={item} />
     </FeedCardShell>
   );
