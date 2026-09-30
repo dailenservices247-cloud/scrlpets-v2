@@ -5,7 +5,7 @@ const css = readFileSync("src/app/globals.css", "utf8");
 const layout = readFileSync("src/app/layout.tsx", "utf8");
 
 describe("type scale tokens", () => {
-  it.each(["display", "title", "body", "ui", "meta"])(
+  it.each(["display", "title", "body", "ui", "meta", "micro"])(
     "defines --text-%s so it can be used as a utility",
     (role) => {
       expect(css).toContain(`--text-${role}:`);
@@ -39,19 +39,31 @@ const GUARDED = [
   "src/app/menu/page.tsx",
   "src/app/settings/page.tsx",
   "src/components/feed/tiles/ReelTile.tsx",
+  // The micro tier, 2026-09-30. Seventeen 9/10/11px values across these twelve
+  // files had no role to come from: the scale stopped at `meta` 13px. They now
+  // read `micro`, including the two chip files the previous pass deferred.
+  "src/components/feed/FeedCardShell.tsx",
+  "src/components/feed/FeedDestinationShell.tsx",
+  "src/components/app/BottomNav.tsx",
+  "src/components/app/AppHeader.tsx",
+  "src/components/compose/ComposerTabs.tsx",
+  "src/components/calendar/MonthGrid.tsx",
+  "src/components/calendar/EventSheet.tsx",
+  "src/components/health/HealthCenterClient.tsx",
+  "src/components/health/ReminderSheet.tsx",
+  "src/components/tree/TreeCard.tsx",
+  "src/components/tree/RosterToggle.tsx",
 ];
 
 /**
  * NOT guarded, with a reason rather than an omission.
  *
- * FeedDestinationShell was converted in the same pass as the brand page above
- * and is clean except for one thing: the pinned / edited / group chips are
- * `text-[10px]`, which is below `meta`, the smallest role the scale has. The
- * same three chips at the same size live in FeedCardShell, so moving only this
- * file's copy to `meta` would make one chip two sizes depending on which
- * surface you are looking at. Fixing it properly means one shared chip at one
- * role, which changes the /design baselines and wants a reviewed diff
- * (criterion 9) — a decision, not a cleanup. Add the file here when that lands.
+ * `src/components/social/ReactionBar.tsx` carries `text-[22px]`, and it stays.
+ * That value sizes an `aria-hidden` emoji rendered as the reaction icon, so it
+ * is an icon dimension wearing font-size's clothes, not a type role — the same
+ * category as `size-4` on a lucide glyph. Routing it through the scale would
+ * make the scale responsible for something it does not describe. If the emoji
+ * ever becomes an SVG, this note goes away with it.
  */
 
 
