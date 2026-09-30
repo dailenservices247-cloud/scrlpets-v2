@@ -77,34 +77,36 @@ export default async function BrandPage({
 
       {hasAbout && (
         <section className="px-3 pt-3" data-testid="brand-about-panel">
+          {/* Already the panel register (§3.3) — the type inside it now
+              reads off the one scale too. */}
           <div className="premium-panel rounded-2xl p-4">
             {kit.tagline && (
-              <p className="text-sm italic text-muted-foreground" data-testid="brand-tagline">
+              <p className="text-body italic text-muted-foreground" data-testid="brand-tagline">
                 {kit.tagline}
               </p>
             )}
             {foundedYear && (
-              <p className="mt-1 text-xs text-muted-foreground" data-testid="brand-established">
+              <p className="mt-1 text-meta text-muted-foreground" data-testid="brand-established">
                 {t("establishedLabel", { year: foundedYear })}
               </p>
             )}
             {kit.philosophy && (
               <blockquote
-                className="mt-3 border-l-2 border-accent/40 pl-3 text-sm italic leading-6 text-foreground/90"
+                className="mt-3 border-l-2 border-accent/40 pl-3 text-body italic text-foreground/90"
                 data-testid="brand-philosophy"
               >
                 {kit.philosophy}
               </blockquote>
             )}
             {kit.yearsExperience !== null && (
-              <p className="mt-3 text-sm font-medium" data-testid="brand-years-experience">
+              <p className="mt-3 text-ui font-medium" data-testid="brand-years-experience">
                 {t("yearsExperiencePublic", { years: kit.yearsExperience })}
               </p>
             )}
             {kit.specialties.length > 0 && (
               <ul className="mt-2 flex flex-wrap gap-2" data-testid="brand-specialties">
                 {kit.specialties.map((s) => (
-                  <li key={s} className="rounded-full border border-border/70 bg-muted/35 px-3 py-1 text-xs">
+                  <li key={s} className="rounded-full border border-border/70 bg-muted/35 px-3 py-1 text-meta">
                     {s}
                   </li>
                 ))}
@@ -118,7 +120,7 @@ export default async function BrandPage({
 
       {products.length > 0 && (
         <section className="px-4 py-5" data-testid="brand-shop">
-          <h2 className="pb-3 text-sm font-semibold">Shop</h2>
+          <h2 className="pb-3 font-serif text-display">Shop</h2>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {products.map((p) => (
               <ProductCard key={p.id} product={p} />

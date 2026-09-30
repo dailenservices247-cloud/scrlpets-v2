@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { MessageCircle } from "lucide-react";
+import { ViewTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { FeedItem } from "@/lib/feed/types";
@@ -12,6 +13,7 @@ import { FeedCommentSection } from "@/components/social/FeedCommentSection";
 import { loginHrefFor } from "@/lib/auth/redirect";
 import { FeedCardShell } from "../FeedCardShell";
 import { FeedVideo } from "../FeedVideo";
+import { realmTransitionName } from "@/lib/feed/realm-transition";
 
 // F6 / punch list A19 — the Facebook reel contract: the reel plays INLINE in
 // the card (portrait, not cropped), the mute toggle sits ON the video, and
@@ -38,25 +40,29 @@ export function ReelTile({
       )}
       {isVideoUrl(item.mediaUrl) ? (
         <div className="cursor-pointer" data-testid="reel-open" role="link" aria-label={t("openReel")}>
-          <FeedVideo
-            src={item.mediaUrl!}
-            showMute
-            onOpen={() => router.push(realmHref)}
-            className="mt-1 max-h-[520px] w-full rounded-xl bg-black object-contain ring-1 ring-white/10"
-          />
+          <ViewTransition name={realmTransitionName("reel", item.id)} share="morph" default="none">
+            <FeedVideo
+              src={item.mediaUrl!}
+              showMute
+              onOpen={() => router.push(realmHref)}
+              className="mt-1 max-h-[520px] w-full rounded-xl bg-black object-contain ring-1 ring-white/10"
+            />
+          </ViewTransition>
         </div>
       ) : item.mediaUrl ? (
         <Link href={realmHref} data-testid="reel-open" aria-label={t("openReel")}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={item.mediaUrl}
-            alt={item.title ?? ""}
-            width={800}
-            height={600}
-            loading="lazy"
-            className="mt-1 max-h-[520px] w-full rounded-xl bg-black object-contain ring-1 ring-white/10"
-            data-testid="tile-media"
-          />
+          <ViewTransition name={realmTransitionName("reel", item.id)} share="morph" default="none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.mediaUrl}
+              alt={item.title ?? ""}
+              width={800}
+              height={600}
+              loading="lazy"
+              className="mt-1 max-h-[520px] w-full rounded-xl bg-black object-contain ring-1 ring-white/10"
+              data-testid="tile-media"
+            />
+          </ViewTransition>
         </Link>
       ) : null}
       {social && (

@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { FeedCardShell } from "../FeedCardShell";
 import { FeedTileAction } from "../FeedTileAction";
 import { TileMedia } from "../TileMedia";
+import { realmTransitionName } from "@/lib/feed/realm-transition";
 
 export function LongVideoTile({ item, canManage }: { item: FeedItem; canManage?: boolean }) {
   const t = useTranslations("feed");
@@ -10,7 +11,11 @@ export function LongVideoTile({ item, canManage }: { item: FeedItem; canManage?:
     <FeedCardShell item={item} canManage={canManage}>
       <p className="eyebrow">{t("longVideoContext")}</p>
       <p className="text-title font-medium leading-snug">{item.title}</p>
-      <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
+      <TileMedia
+        src={item.mediaUrl}
+        alt={item.title ?? ""}
+        transitionName={realmTransitionName(item.type, item.id)}
+      />
       <FeedTileAction item={item} />
     </FeedCardShell>
   );

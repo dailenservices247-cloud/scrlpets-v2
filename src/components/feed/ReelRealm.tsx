@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, ViewTransition } from "react";
 import Link from "next/link";
 import { ArrowLeft, VideoOff, Volume2, VolumeX } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -11,6 +11,7 @@ import { FeedCommentSection } from "@/components/social/FeedCommentSection";
 import { SaveButton } from "@/components/social/SaveButton";
 import { FollowButton } from "@/components/social/FollowButton";
 import { loginHrefFor } from "@/lib/auth/redirect";
+import { realmTransitionName } from "@/lib/feed/realm-transition";
 import type { PostSocialContext } from "@/lib/social/reactions";
 
 // F4 / A4: vertical snap-scroll reel realm. F6 / A20: the FB/TikTok viewer
@@ -72,26 +73,33 @@ function ReelSlide({
       data-reel-id={item.id}
     >
       {isVideoUrl(item.mediaUrl) && !failed ? (
-        <video
-          ref={videoRef}
-          src={item.mediaUrl!}
-          muted={muted}
-          playsInline
-          loop
-          preload="metadata"
-          onError={() => setFailed(true)}
-          onClick={onToggleMuted}
-          className="h-full w-full object-contain"
-          data-testid="reel-video"
-        />
+        /* The realm side of the doorway (spec §5): the tapped tile's video
+           grows into this one. Every slide in the queue is named, so the queue
+           still morphs when the reel it opened on is not the first slide. */
+        <ViewTransition name={realmTransitionName("reel", item.id)} share="morph" default="none">
+          <video
+            ref={videoRef}
+            src={item.mediaUrl!}
+            muted={muted}
+            playsInline
+            loop
+            preload="metadata"
+            onError={() => setFailed(true)}
+            onClick={onToggleMuted}
+            className="h-full w-full object-contain"
+            data-testid="reel-video"
+          />
+        </ViewTransition>
       ) : failed ? (
         <div className="grid place-items-center gap-3 text-white/70" data-testid="video-unplayable">
           <VideoOff className="size-10" aria-hidden />
           <p className="px-8 text-center text-sm">{t("videoUnplayable")}</p>
         </div>
       ) : item.mediaUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={item.mediaUrl} alt="" className="h-full w-full object-contain" />
+        <ViewTransition name={realmTransitionName("reel", item.id)} share="morph" default="none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={item.mediaUrl} alt="" className="h-full w-full object-contain" />
+        </ViewTransition>
       ) : (
         <p className="px-8 text-center text-lg text-white/85">{item.title}</p>
       )}

@@ -32,7 +32,22 @@ const GUARDED = [
   "src/components/feed/tiles/ListingTile.tsx",
   "src/components/feed/tiles/PromoTile.tsx",
   "src/components/feed/tiles/LongVideoTile.tsx",
+  "src/app/b/[slug]/page.tsx",
 ];
+
+/**
+ * NOT guarded, with a reason rather than an omission.
+ *
+ * FeedDestinationShell was converted in the same pass as the brand page above
+ * and is clean except for one thing: the pinned / edited / group chips are
+ * `text-[10px]`, which is below `meta`, the smallest role the scale has. The
+ * same three chips at the same size live in FeedCardShell, so moving only this
+ * file's copy to `meta` would make one chip two sizes depending on which
+ * surface you are looking at. Fixing it properly means one shared chip at one
+ * role, which changes the /design baselines and wants a reviewed diff
+ * (criterion 9) — a decision, not a cleanup. Add the file here when that lands.
+ */
+
 
 describe("feed components use the scale, not raw values", () => {
   it.each(GUARDED)("%s has no raw pixel font size", (file) => {

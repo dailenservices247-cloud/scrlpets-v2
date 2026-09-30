@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import { isVideoUrl } from "@/lib/media/media-kind";
 import { FeedVideo } from "./FeedVideo";
 
@@ -10,12 +11,40 @@ export function TileMedia({
   src,
   alt,
   variant = "feed",
+  transitionName,
 }: {
   src: string | null;
   alt: string;
   variant?: "feed" | "player";
+  /* The doorway rule (spec §5): pass the SAME name on the tile and on the
+     destination and the browser morphs one into the other. Omit it and the
+     media is an ordinary element, which is every surface that is not a
+     doorway — an alumni update, a rail thumbnail. */
+  transitionName?: string;
 }) {
   if (!src) return null;
+  const media = renderMedia({ src, alt, variant });
+  if (!transitionName) return media;
+  /* share="morph" names the class the 320ms curve in globals.css targets, and
+     default="none" keeps every OTHER named element on the page still: without
+     it, the nineteen reels that have no counterpart on the destination would
+     each play an enter animation alongside the one morph that means something. */
+  return (
+    <ViewTransition name={transitionName} share="morph" default="none">
+      {media}
+    </ViewTransition>
+  );
+}
+
+function renderMedia({
+  src,
+  alt,
+  variant,
+}: {
+  src: string;
+  alt: string;
+  variant: "feed" | "player";
+}) {
   // F4: video media — feed tiles autoplay muted (A3); destination pages get a
   // real player with controls (A5).
   if (isVideoUrl(src)) {

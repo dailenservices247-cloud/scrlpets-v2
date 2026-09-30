@@ -58,6 +58,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // The doorway rule (visual system spec §5). Without this flag React's
+  // <ViewTransition> is inert, so tapping a tile cuts to the destination
+  // instead of the tapped media growing into it. Browsers without View
+  // Transitions support simply navigate, which is today's behaviour.
+  experimental: { viewTransition: true },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

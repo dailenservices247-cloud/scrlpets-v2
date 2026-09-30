@@ -3,10 +3,13 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import type { FeedItem, FeedItemType } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { EDITORIAL_SURFACE, PANEL_ACCENT, PANEL_SURFACE, registerFor } from "@/lib/feed/registers";
 import { AttributionStack } from "./AttributionStack";
 import { ContentTypeBadge } from "./ContentTypeBadge";
 import { FeedTileAction } from "./FeedTileAction";
 import { TileMedia } from "./TileMedia";
+import { realmTransitionName } from "@/lib/feed/realm-transition";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { ReportButton } from "@/components/social/ReportButton";
 import { ReactionBar } from "@/components/social/ReactionBar";
@@ -31,6 +34,34 @@ const copyByType: Record<FeedItemType, DetailCopy> = {
   promo: { titleKey: "productDetail", bodyKey: "productDetailBody" },
 };
 
+/**
+ * The one surface a realm sits on. A panel is a Card; an editorial entry is not
+ * a box at all, so it is a plain element carrying the same testid — the e2e
+ * measurement reads the register off the same node either way.
+ */
+function Surface({
+  register,
+  accent,
+  children,
+}: {
+  register: "editorial" | "panel";
+  accent: string;
+  children: ReactNode;
+}) {
+  if (register === "editorial") {
+    return (
+      <div className={EDITORIAL_SURFACE} data-testid="destination-surface">
+        {children}
+      </div>
+    );
+  }
+  return (
+    <Card className={cn(PANEL_SURFACE, accent)} data-testid="destination-surface">
+      {children}
+    </Card>
+  );
+}
+
 export async function FeedDestinationShell({
   item: rawItem,
   viewerId,
@@ -48,6 +79,10 @@ export async function FeedDestinationShell({
   const copy = copyByType[item.type];
   const isListing = item.type === "listing";
   const isProduct = item.type === "promo";
+  // §4: the room is on the register of the tile that opened it. A post is
+  // something someone said, so its realm is an entry in a column with no
+  // surface under it; everything else here carries price or state.
+  const register = registerFor(item.type);
   const edited =
     new Date(item.updatedAt).getTime() > new Date(item.createdAt).getTime();
   const manageableBrandIds = new Set(
@@ -76,25 +111,29 @@ export async function FeedDestinationShell({
     // AppPage shell, which owns the page's one <main>.
     <div className="pb-10" data-testid={`destination-${item.type}`}>
       <div className="sticky top-0 z-10 border-b bg-background/85 px-4 py-3 backdrop-blur">
-        <Link href="/" className="text-sm text-brand-link underline">
+        <Link href="/" className="text-ui text-brand-link underline">
           {t("backToFeed")}
         </Link>
       </div>
 
-      <section className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4">
+      {/* 720px, not max-w-2xl's 672: §3.2 fixes the content column and AppPage
+          already caps the page there, so a second narrower cap meant the morph
+          landed in a column that had shrunk. Same arbitrary value AppPage uses. */}
+      <section
+        className="mx-auto flex w-full max-w-[720px] flex-col gap-4 p-4"
+        data-testid="destination-column"
+      >
         <div>
           <p className="eyebrow">{t("surfaceLabel")}</p>
-          <h1 className="text-2xl font-bold" data-testid="destination-heading">
+          {/* A realm heading is an identity string (§9), so it takes the
+              display serif — the same face a brand or an animal name uses. */}
+          <h1 className="font-serif text-display" data-testid="destination-heading">
             {t(copy.titleKey)}
           </h1>
-          <p className="mt-2 text-muted-foreground">{t(copy.bodyKey)}</p>
+          <p className="mt-2 text-body text-muted-foreground">{t(copy.bodyKey)}</p>
         </div>
 
-        <Card
-          className={
-            isListing ? "border-primary/60 p-4" : isProduct ? "border-accent/45 p-4" : "p-4"
-          }
-        >
+        <Surface register={register} accent={PANEL_ACCENT[item.type]}>
           <header className="flex items-start justify-between gap-3">
             <AttributionStack item={item} />
             <div className="flex flex-col items-end gap-2">
@@ -120,16 +159,28 @@ export async function FeedDestinationShell({
               <p className="eyebrow">
                 {isListing ? t("listingSummaryLabel") : t("productSummaryLabel")}
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-body text-muted-foreground">
                 {isListing ? t("listingSummaryBody") : t("productSummaryBody")}
               </p>
             </div>
           )}
 
-          <h2 className="mt-4 text-lg font-semibold">{item.title ?? t("untitled")}</h2>
-          <TileMedia src={item.mediaUrl} alt={item.title ?? ""} variant="player" />
+          <h2
+            className={cn(
+              "mt-4 leading-snug",
+              isListing ? "font-serif text-title" : "text-title font-semibold",
+            )}
+          >
+            {item.title ?? t("untitled")}
+          </h2>
+          <TileMedia
+            src={item.mediaUrl}
+            alt={item.title ?? ""}
+            variant="player"
+            transitionName={realmTransitionName(item.type, item.id)}
+          />
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-xs text-muted-foreground">{t("nextAction")}</p>
+            <p className="text-meta text-muted-foreground">{t("nextAction")}</p>
             <FeedTileAction item={item} />
           </div>
           {isPostFamily && reactions && (
@@ -158,7 +209,7 @@ export async function FeedDestinationShell({
               </div>
             )
           )}
-        </Card>
+        </Surface>
         {isListing && (
           <section className="mt-1" data-testid="listing-brand-gateway">
             <Link
@@ -181,10 +232,10 @@ export async function FeedDestinationShell({
                 </span>
               )}
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold">
+                <span className="block truncate text-ui font-semibold">
                   {item.brand?.name ?? item.author.displayName ?? item.author.username}
                 </span>
-                <span className="block text-xs text-muted-foreground">
+                <span className="block text-meta text-muted-foreground">
                   {t("visitSeller")}
                 </span>
               </span>
@@ -203,7 +254,7 @@ export async function FeedDestinationShell({
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={listing.mediaUrl} alt="" className="h-24 w-full object-cover" />
                       )}
-                      <span className="block truncate p-2 text-xs font-medium">
+                      <span className="block truncate p-2 text-meta font-medium">
                         {listing.title ?? t("untitled")}
                       </span>
                     </Link>

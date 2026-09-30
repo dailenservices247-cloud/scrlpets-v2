@@ -5,6 +5,7 @@ import { FeedCommentSection } from "@/components/social/FeedCommentSection";
 import { loginHrefFor } from "@/lib/auth/redirect";
 import { FeedCardShell } from "../FeedCardShell";
 import { TileMedia } from "../TileMedia";
+import { realmTransitionName } from "@/lib/feed/realm-transition";
 
 // punch list A2: plain posts read fully inline, FB/IG-style — no click-to-open.
 // punch list A17: commenting expands inline too; the destination page is for
@@ -31,7 +32,11 @@ export function PostTile({
           {item.title}
         </p>
       )}
-      <TileMedia src={item.mediaUrl} alt={item.title ?? ""} />
+      <TileMedia
+        src={item.mediaUrl}
+        alt={item.title ?? ""}
+        transitionName={realmTransitionName(item.type, item.id)}
+      />
       {social && (
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-2">
           <ReactionBar
