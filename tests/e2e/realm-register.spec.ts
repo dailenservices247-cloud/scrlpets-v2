@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 /**
  * Spec §3.3 and §4: the room is on the same register as the tile that opened
@@ -11,8 +11,8 @@ import { expect, test, type Page } from "@playwright/test";
  * tiles. The two tests are each other's control: the same measurement has to
  * come back opposite on the two registers, or it is measuring nothing.
  */
-const surfaceOf = (page: Page) =>
-  page.getByTestId("destination-surface").evaluate((el) => {
+const measure = (locator: Locator) =>
+  locator.evaluate((el) => {
     const style = getComputedStyle(el);
     return {
       radius: parseFloat(style.borderTopLeftRadius),
@@ -22,6 +22,8 @@ const surfaceOf = (page: Page) =>
     };
   });
 
+const surfaceOf = (page: Page) => measure(page.getByTestId("destination-surface"));
+
 /**
  * Filtering on the CARD, never the action link: the link's only text is a
  * translated label and an aria-hidden icon, so a hasNotText filter on it
@@ -30,13 +32,16 @@ const surfaceOf = (page: Page) =>
  */
 async function openTheListingRealm(page: Page) {
   await page.goto("/");
-  await page
-    .getByTestId("tile-listing")
-    .filter({ hasNotText: "E2E " })
-    .first()
-    .getByTestId("tile-destination-listing")
-    .click();
+  const tile = page.getByTestId("tile-listing").filter({ hasNotText: "E2E " }).first();
+  // Measured BEFORE the click, because "same register as the tile" is the
+  // claim: comparing the room against the tile beats comparing it against a
+  // radius written into this file. rounded-2xl is 18px here, not 16 — shadcn
+  // derives the scale from --radius — and a hard-coded 16 asserted the
+  // assumption instead of the token.
+  const tileSurface = await measure(tile);
+  await tile.getByTestId("tile-destination-listing").click();
   await expect(page.getByTestId("destination-listing")).toBeVisible({ timeout: 20_000 });
+  return tileSurface;
 }
 
 /** A post has no CTA — it reads inline (A2). Its doorway is the timestamp. */
@@ -53,9 +58,9 @@ async function openThePostRealm(page: Page) {
 
 test.describe("realm registers", () => {
   test("a listing realm is a panel, like the tile that opened it", async ({ page }) => {
-    await openTheListingRealm(page);
+    const tile = await openTheListingRealm(page);
     const surface = await surfaceOf(page);
-    expect(surface.radius, "the panel radius is rounded-2xl").toBe(16);
+    expect(surface.radius, "the room's radius is the tile's radius").toBe(tile.radius);
     expect(surface.shadow, "premium-panel carries layered light").not.toBe("none");
     expect(surface.borderWidth).toBeGreaterThan(0);
     // Wine is red-dominant, spine green-dominant. Comparing channels survives

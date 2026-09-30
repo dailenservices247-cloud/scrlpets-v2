@@ -5,16 +5,9 @@ import type { FeedItem } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { cn } from "@/lib/utils";
+import { EDITORIAL_SURFACE, PANEL_ACCENT, PANEL_SURFACE } from "@/lib/feed/registers";
 import { AttributionStack } from "./AttributionStack";
 import { ContentTypeBadge } from "./ContentTypeBadge";
-
-const accentByType: Record<FeedItem["type"], string> = {
-  post: "",
-  reel: "border-[color:var(--brand-wine-bright)]",
-  long_video: "border-secondary/45",
-  listing: "border-primary/60",
-  promo: "border-accent/45",
-};
 
 export function FeedCardShell({
   item,
@@ -88,10 +81,13 @@ export function FeedCardShell({
     return (
       <article
         className={cn(
+          EDITORIAL_SURFACE,
           // The hairline is what the border used to be: separation without
-          // enclosure. The last entry drops it so the column ends on content
-          // rather than on a rule pointing at nothing.
-          "flex flex-col gap-3 border-b border-border/45 px-1 pb-5 last:border-b-0 last:pb-0",
+          // enclosure. It belongs to the LIST, not to the register, so it lives
+          // here rather than in EDITORIAL_SURFACE — a post's own realm is one
+          // entry and has nothing to be separated from. The last entry drops it
+          // so the column ends on content rather than a rule pointing at nothing.
+          "border-b border-border/45 pb-5 last:border-b-0 last:pb-0",
           className,
         )}
         data-testid={`tile-${item.type}`}
@@ -106,11 +102,7 @@ export function FeedCardShell({
   // panel's own radius instead of poking square corners past it.
   return (
     <Card
-      className={cn(
-        "premium-panel gap-3 overflow-hidden rounded-2xl p-4",
-        accentByType[item.type],
-        className,
-      )}
+      className={cn(PANEL_SURFACE, PANEL_ACCENT[item.type], className)}
       data-testid={`tile-${item.type}`}
     >
       {header}
