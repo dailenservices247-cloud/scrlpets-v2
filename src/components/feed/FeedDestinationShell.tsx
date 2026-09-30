@@ -116,7 +116,13 @@ export async function FeedDestinationShell({
         </Link>
       </div>
 
-      <section className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4">
+      {/* 720px, not max-w-2xl's 672: §3.2 fixes the content column and AppPage
+          already caps the page there, so a second narrower cap meant the morph
+          landed in a column that had shrunk. Same arbitrary value AppPage uses. */}
+      <section
+        className="mx-auto flex w-full max-w-[720px] flex-col gap-4 p-4"
+        data-testid="destination-column"
+      >
         <div>
           <p className="eyebrow">{t("surfaceLabel")}</p>
           {/* A realm heading is an identity string (§9), so it takes the
