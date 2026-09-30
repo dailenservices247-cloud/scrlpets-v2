@@ -36,7 +36,7 @@ export function ReelTile({
   return (
     <FeedCardShell item={item} canManage={canManage}>
       {item.title && (
-        <p className="whitespace-pre-wrap text-[15px] leading-relaxed">{item.title}</p>
+        <p className="whitespace-pre-wrap text-ui leading-relaxed">{item.title}</p>
       )}
       {isVideoUrl(item.mediaUrl) ? (
         <div className="cursor-pointer" data-testid="reel-open" role="link" aria-label={t("openReel")}>

@@ -39,7 +39,7 @@ export function SideNav() {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex min-h-11 items-center gap-3 rounded-xl px-3 text-[15px] font-medium transition",
+              "flex min-h-11 items-center gap-3 rounded-xl px-3 text-ui font-medium transition",
               active ? "bg-primary/15 text-brand-link" : "text-muted-foreground hover:bg-muted/60",
             )}
           >
