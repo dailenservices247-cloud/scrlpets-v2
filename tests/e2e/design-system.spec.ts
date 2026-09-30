@@ -63,6 +63,34 @@ test.describe("editorial register", () => {
   });
 });
 
+/**
+ * The chips were changed by the micro-tier pass and the baselines did not move
+ * — not because the change was small, but because no fixture ever rendered
+ * them: every item had createdAt equal to updatedAt, no group and no pinnedAt.
+ * A screenshot gate that cannot see an element is not protecting it, so these
+ * assert the chips are actually on the page before the baselines claim to
+ * cover them.
+ */
+test.describe("the chips are in the harness at all", () => {
+  const chips = ["edited-chip", "pinned-chip", "group-chip"] as const;
+
+  for (const chip of chips) {
+    test(`${chip} renders on /design`, async ({ page }) => {
+      await page.goto("/design");
+      await expect(page.getByTestId(chip).first()).toBeVisible();
+    });
+  }
+
+  test("chip text comes from the micro role, not a raw pixel size", async ({ page }) => {
+    await page.goto("/design");
+    const size = await page
+      .getByTestId("edited-chip")
+      .first()
+      .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    expect(size).toBe(11);
+  });
+});
+
 test.describe("rhythm", () => {
   test("entries are separated by 20px of rhythm, not 16", async ({ page }) => {
     await page.goto("/design");

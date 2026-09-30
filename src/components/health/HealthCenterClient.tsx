@@ -124,21 +124,21 @@ export function HealthCenterClient({
           <p className="mt-1 text-xl font-semibold" data-testid="stat-overdue-count">
             {stats.overdue}
           </p>
-          <p className="text-[11px] text-muted-foreground">{t("overdue")}</p>
+          <p className="text-micro text-muted-foreground">{t("overdue")}</p>
         </div>
         <div className="premium-panel rounded-2xl p-3 text-center" data-testid="stat-due-today">
           <Clock className="mx-auto size-4 text-brand-link" aria-hidden />
           <p className="mt-1 text-xl font-semibold" data-testid="stat-due-today-count">
             {stats.dueToday}
           </p>
-          <p className="text-[11px] text-muted-foreground">{t("dueToday")}</p>
+          <p className="text-micro text-muted-foreground">{t("dueToday")}</p>
         </div>
         <div className="premium-panel rounded-2xl p-3 text-center" data-testid="stat-this-week">
           <CalendarDays className="mx-auto size-4 text-muted-foreground" aria-hidden />
           <p className="mt-1 text-xl font-semibold" data-testid="stat-this-week-count">
             {stats.thisWeek}
           </p>
-          <p className="text-[11px] text-muted-foreground">{t("thisWeek")}</p>
+          <p className="text-micro text-muted-foreground">{t("thisWeek")}</p>
         </div>
       </div>
 

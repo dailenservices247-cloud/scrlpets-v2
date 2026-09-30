@@ -295,7 +295,7 @@ export function ComposerTabs({
                     <Icon className="size-4" aria-hidden />
                     {mode.label}
                     {!mode.live && (
-                      <span className="rounded-md border border-border/70 px-1 py-0.5 text-[10px]">Planned</span>
+                      <span className="rounded-md border border-border/70 px-1 py-0.5 text-micro">Planned</span>
                     )}
                   </button>
                 );
@@ -329,7 +329,7 @@ export function ComposerTabs({
                     )}
                   >
                     {option.label}
-                    {empty && <span className="ml-1 text-[10px]">(none yet)</span>}
+                    {empty && <span className="ml-1 text-micro">(none yet)</span>}
                   </button>
                 );
               })}

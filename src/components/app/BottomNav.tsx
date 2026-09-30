@@ -41,7 +41,7 @@ export function BottomNav() {
               // signal of where you are.
               aria-current={active ? "page" : undefined}
               className={cn(
-                "group flex min-h-14 flex-col items-center justify-end gap-1 rounded-lg px-1 text-[11px] font-medium text-muted-foreground transition",
+                "group flex min-h-14 flex-col items-center justify-end gap-1 rounded-lg px-1 text-micro font-medium text-muted-foreground transition",
                 active && "text-brand-link",
                 item.primary && "-mt-5 text-foreground",
               )}
@@ -51,7 +51,7 @@ export function BottomNav() {
                 className={cn(
                   "grid place-items-center rounded-full transition",
                   item.primary
-                    ? "size-14 border border-[color:var(--brand-on-wine)]/25 bg-primary text-primary-foreground shadow-[0_10px_28px_rgba(126,48,58,.42)]"
+                    ? "size-14 border border-[color:var(--brand-on-wine)]/25 bg-primary text-primary-foreground shadow-[0_10px_28px_color-mix(in_oklab,var(--brand-wine),transparent_58%)]"
                     : "size-8 group-hover:bg-muted/70",
                   active && !item.primary && "bg-primary/15 ring-1 ring-primary/35",
                 )}

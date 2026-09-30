@@ -44,7 +44,7 @@ export function AppHeader({
               <Bell className="size-4" aria-hidden />
               {unreadCount > 0 && (
                 <span
-                  className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"
+                  className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-micro font-semibold text-primary-foreground"
                   data-testid="unread-badge"
                 >
                   {unreadCount > 9 ? "9+" : unreadCount}

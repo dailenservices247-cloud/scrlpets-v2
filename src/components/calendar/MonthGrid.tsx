@@ -98,7 +98,7 @@ export function MonthGrid({
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-7 gap-1 text-center text-[10px] text-muted-foreground">
+      <div className="grid grid-cols-7 gap-1 text-center text-micro text-muted-foreground">
         {Array.from({ length: 7 }, (_, i) => (
           <span key={i}>{formatWeekdayShort(i)}</span>
         ))}
@@ -132,7 +132,7 @@ export function MonthGrid({
                     />
                   ))}
                   {dots.length > 4 && (
-                    <span className="text-[9px] leading-none">+{dots.length - 4}</span>
+                    <span className="text-micro leading-none">+{dots.length - 4}</span>
                   )}
                 </span>
               )}

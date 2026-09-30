@@ -147,7 +147,7 @@ export function ReminderSheet({
                       aria-pressed={active}
                       data-testid={`reminder-type-${type}`}
                       className={cn(
-                        "flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl border p-2 text-center text-[11px] font-medium leading-tight",
+                        "flex min-h-16 flex-col items-center justify-center gap-1 rounded-xl border p-2 text-center text-micro font-medium leading-tight",
                         active
                           ? "border-primary bg-primary/10 text-foreground"
                           : "border-input text-muted-foreground",
