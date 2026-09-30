@@ -53,6 +53,10 @@ const GUARDED = [
   "src/components/health/ReminderSheet.tsx",
   "src/components/tree/TreeCard.tsx",
   "src/components/tree/RosterToggle.tsx",
+  // The immersive register, 2026-09-30. ReelRealm was already clean and joins
+  // now that it is a touched component; ReelScrim is new and born on the scale.
+  "src/components/feed/ReelScrim.tsx",
+  "src/components/feed/ReelRealm.tsx",
 ];
 
 /**

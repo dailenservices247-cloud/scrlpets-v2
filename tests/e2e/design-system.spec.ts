@@ -158,11 +158,17 @@ test.describe("immersive register", () => {
     await expect(tile.getByTestId("reel-open")).toBeVisible();
   });
 
-  test("the mute toggle stays on the video", async ({ page }) => {
+  test("a still reel carries no mute toggle — mute belongs to the video", async ({ page }) => {
+    // The harness fixture is an SVG, so this exercises the image branch. §4's
+    // "mute on the video" is asserted where a real video exists, in
+    // video-realms.spec.ts; putting a playing video in a screenshot baseline
+    // would make it nondeterministic, and the headless shell paints one black
+    // anyway. Kept here as the negative half: no video, no mute, and the
+    // immersive surface is unchanged either way.
+    const tile = page.getByTestId("tile-reel").first();
     await page.goto("/design");
-    await expect(
-      page.getByTestId("tile-reel").first().getByTestId("tile-mute-toggle"),
-    ).toBeVisible();
+    await expect(tile.getByTestId("tile-media")).toBeVisible();
+    await expect(tile.getByTestId("tile-mute-toggle")).toHaveCount(0);
   });
 
   test("an owner can still manage the reel from the feed", async ({ page }) => {

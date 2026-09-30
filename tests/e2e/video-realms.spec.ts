@@ -58,6 +58,13 @@ test("video tiles, the reel realm, and the long-video player", async ({
   await expect(
     reelTile.locator('[data-testid="tile-media-video"], [data-testid="video-unplayable"]'),
   ).toBeVisible();
+  // §4 immersive: the mute toggle rides ON the video. Conditional on the video
+  // actually rendering, because FAKE_MP4 may legitimately trip the A18
+  // unplayable fallback — and a fallback has no video to mute. Asserting it
+  // unconditionally would fail for the one reason that is not a defect.
+  if ((await reelTile.getByTestId("tile-media-video").count()) > 0) {
+    await expect(reelTile.getByTestId("tile-mute-toggle")).toBeVisible();
+  }
 
   // A4/A19: tapping the reel VIDEO lands in the swipe realm (no CTA button).
   await reelTile.getByTestId("reel-open").click();
