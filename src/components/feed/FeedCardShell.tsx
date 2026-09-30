@@ -44,7 +44,7 @@ export function FeedCardShell({
             href={`/groups/${item.group.slug}`}
             aria-label={t("inGroup", { group: item.group.name })}
             data-testid="group-chip"
-            className="max-w-40 truncate rounded-full border border-secondary/40 bg-secondary/10 px-2 py-0.5 text-[10px] font-medium text-secondary-foreground hover:bg-secondary/20"
+            className="max-w-40 truncate rounded-full border border-secondary/40 bg-secondary/10 px-2 py-0.5 text-micro font-medium text-secondary-foreground hover:bg-secondary/20"
           >
             {item.group.name}
           </Link>
@@ -53,7 +53,7 @@ export function FeedCardShell({
             surfaces the pin has no bearing on. */}
         {item.pinnedAt && (
           <span
-            className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-brand-link"
+            className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-micro font-medium text-brand-link"
             data-testid="pinned-chip"
           >
             {t("pinnedToProfile")}
@@ -61,7 +61,7 @@ export function FeedCardShell({
         )}
         {edited && (
           <span
-            className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+            className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-micro font-medium text-muted-foreground"
             data-testid="edited-chip"
           >
             {t("edited")}

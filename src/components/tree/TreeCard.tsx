@@ -73,7 +73,7 @@ export function TreeCard({
                 only be absent from their profile. */}
             {!creature.inRoster && !canManage && (
               <span
-                className="mt-1 inline-block rounded-full border border-secondary/50 bg-secondary px-2 text-[11px] font-medium text-secondary-foreground"
+                className="mt-1 inline-block rounded-full border border-secondary/50 bg-secondary px-2 text-micro font-medium text-secondary-foreground"
                 data-testid="tree-recorded-badge"
               >
                 {t("recordedBadge")}

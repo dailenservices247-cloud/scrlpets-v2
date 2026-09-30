@@ -140,7 +140,7 @@ export async function FeedDestinationShell({
               <ContentTypeBadge type={item.type} />
               {edited && (
                 <span
-                  className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+                  className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-micro font-medium text-muted-foreground"
                   data-testid="edited-chip"
                 >
                   {tc("edited")}

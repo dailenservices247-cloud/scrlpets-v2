@@ -72,7 +72,34 @@ describe("feed components use the scale, not raw values", () => {
     expect(readFileSync(file, "utf8")).not.toMatch(/text-\[\d+(\.\d+)?px\]/);
   });
 
-  it.each(GUARDED)("%s has no color literal", (file) => {
-    expect(readFileSync(file, "utf8")).not.toMatch(/#[0-9a-fA-F]{3,8}\b|oklch\(|rgba?\(/);
+/**
+ * One file is guarded for sizes but not for colour, and the reason is a real
+ * conflict in the standard rather than an oversight.
+ *
+ * `BottomNav` carries `bg-[#202124]/95`. That is not `--background` (#2a2a2d in
+ * dark) — it is the first stop of `.app-surface`'s gradient, so the bar blends
+ * into the shell it sits on. No token holds the value, and spec §3.5 says this
+ * pass "adds no palette tokens", so criterion 4 cannot be satisfied for it
+ * without breaking §3.5. Its other literal, a wine box-shadow written as
+ * `rgba(126,48,58,.42)`, HAD a token and was converted.
+ *
+ * Escalated to Dailen rather than quietly excused. Delete this set the moment
+ * §3.5 gains a surface token, and the assertion starts covering the file again.
+ */
+const COLOR_LITERAL_CONFLICT = new Set(["src/components/app/BottomNav.tsx"]);
+
+describe("guarded components use colour tokens, not literals", () => {
+  it.each(GUARDED.filter((f) => !COLOR_LITERAL_CONFLICT.has(f)))(
+    "%s has no color literal",
+    (file) => {
+      expect(readFileSync(file, "utf8")).not.toMatch(/#[0-9a-fA-F]{3,8}\b|oklch\(|rgba?\(/);
+    },
+  );
+
+  // The exclusion must stay honest: if someone tokenises that hex, this fails
+  // and the set above has to go, rather than silently covering a clean file.
+  it.each([...COLOR_LITERAL_CONFLICT])("%s still has the literal the set claims", (file) => {
+    expect(readFileSync(file, "utf8")).toMatch(/#[0-9a-fA-F]{3,8}\b/);
   });
+});
 });
