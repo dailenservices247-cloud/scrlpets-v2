@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { FeedItem } from "@/lib/feed/types";
+import type { PostSocialContext } from "@/lib/social/reactions";
 import { designHarnessEnabled } from "@/lib/design/harness";
 import { PostTile } from "@/components/feed/tiles/PostTile";
 import { ReelTile } from "@/components/feed/tiles/ReelTile";
@@ -44,6 +45,17 @@ const PERSON = {
   username: "dailenhuntley",
   displayName: "Dailen Huntley",
   avatarUrl: PORTRAIT,
+};
+
+/**
+ * The reel tile needs social context and canManage to render its rail and its
+ * owner menu. Without them the harness draws an immersive tile with neither,
+ * and the screenshot gate cannot see two of the three things §3.3 defines —
+ * the same blind spot the chips had.
+ */
+const SOCIAL: PostSocialContext = {
+  reactions: { counts: { like: 12, love: 4, laugh: 0, wow: 1, sad: 0, strong: 0 }, mine: null },
+  commentCount: 3,
 };
 
 const GROUP = {
@@ -166,7 +178,10 @@ export default function DesignHarnessPage() {
             {ITEMS.map((it) => {
               if (it.type === "post")
                 return <PostTile key={it.id} item={it} social={null} signedIn={false} />;
-              if (it.type === "reel") return <ReelTile key={it.id} item={it} social={null} signedIn={false} />;
+              if (it.type === "reel")
+                return (
+                  <ReelTile key={it.id} item={it} social={SOCIAL} signedIn canManage />
+                );
               if (it.type === "long_video") return <LongVideoTile key={it.id} item={it} />;
               if (it.type === "listing") return <ListingTile key={it.id} item={it} />;
               return <PromoTile key={it.id} item={it} />;

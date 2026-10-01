@@ -15,11 +15,20 @@ test("feed shows all 5 content types + creature awareness", async ({ page }) => 
   await expect(page.getByTestId("create-moment")).toBeVisible();
   for (const t of ["post", "reel", "long_video", "listing", "promo"]) {
     await expect(page.getByTestId(`tile-${t}`).first()).toBeVisible();
-    // Plain posts render FB-style with no type badge (punch list A2).
-    if (t !== "post") {
+    // Plain posts render FB-style with no type badge (punch list A2), and reels
+    // no longer carry one either: §3.3 moved them to the Immersive register,
+    // which sheds the shell the badge lived in. A full-bleed portrait video
+    // with a right rail and a scrim says "reel" without a chip, which is what
+    // the reel realm — the register's reference implementation — has always
+    // done. The tile is still identified below, by its surface instead.
+    if (t !== "post" && t !== "reel") {
       await expect(page.getByTestId(`content-type-${t}`).first()).toBeVisible();
     }
   }
+  // What identifies a reel now that the badge is gone: the immersive surface.
+  const reel = page.getByTestId("tile-reel").first();
+  await expect(reel.getByTestId("reel-scrim")).toBeVisible();
+  await expect(reel.getByTestId("reel-open")).toBeVisible();
   await expect(page.getByTestId("creature-name").first()).toBeVisible();
   await expect(page.getByTestId("listing-summary").first()).toBeVisible();
   await expect(page.getByTestId("product-summary").first()).toBeVisible();

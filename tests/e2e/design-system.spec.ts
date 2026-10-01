@@ -91,6 +91,96 @@ test.describe("the chips are in the harness at all", () => {
   });
 });
 
+/**
+ * §3.3's third register. Immersive is the one the spec says already exists —
+ * "already the reel realm's language (shipped F6)" — but §4 assigns it to the
+ * reel IN FEED too, and there the tile was still a panel: a card with a
+ * wine-bright border, the caption stacked above the video and the actions in a
+ * row underneath. The behaviour (inline portrait, mute on the video, no CTA)
+ * shipped; the surface did not.
+ *
+ * Measured against /design so the fixture never moves, same as the registers
+ * above. The reel fixture carries social context and canManage precisely so the
+ * rail and the owner menu render here — a gate that cannot see an element is
+ * not protecting it.
+ */
+test.describe("immersive register", () => {
+  const box = (locator: Locator) => locator.evaluate((el) => el.getBoundingClientRect());
+
+  test("a reel tile has no card under it — the media is the tile", async ({ page }) => {
+    await page.goto("/design");
+    const tile = page.getByTestId("tile-reel").first();
+    await expect(tile).toBeVisible();
+    const surface = await tile.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { border: parseFloat(s.borderTopWidth), shadow: s.boxShadow };
+    });
+    expect(surface.border, "immersive has no border").toBe(0);
+    expect(surface.shadow, "immersive has no card shadow").toBe("none");
+  });
+
+  test("the media spans the whole tile, with no inset around it", async ({ page }) => {
+    await page.goto("/design");
+    const tile = page.getByTestId("tile-reel").first();
+    const media = tile.locator('[data-testid="tile-media-video"], [data-testid="tile-media"]').first();
+    await expect(media).toBeVisible();
+    const [t, m] = [await box(tile), await box(media)];
+    expect(Math.abs(m.width - t.width), `tile ${t.width}px vs media ${m.width}px`).toBeLessThanOrEqual(1);
+  });
+
+  test("identity and caption ride a gradient scrim", async ({ page }) => {
+    await page.goto("/design");
+    const scrim = page.getByTestId("tile-reel").first().getByTestId("reel-scrim");
+    await expect(scrim).toBeVisible();
+    const bg = await scrim.evaluate((el) => getComputedStyle(el).backgroundImage);
+    expect(bg, `scrim background was ${bg}`).toContain("gradient");
+    // Both, because a scrim carrying only one of them is the panel's header in
+    // a different position rather than the immersive register.
+    await expect(scrim).toContainText("Ridgeline Ranch");
+    await expect(scrim).toContainText("losing a fight with a leaf");
+  });
+
+  test("the actions sit on a right rail, over the media", async ({ page }) => {
+    await page.goto("/design");
+    const tile = page.getByTestId("tile-reel").first();
+    const rail = tile.getByTestId("reel-rail");
+    await expect(rail).toBeVisible();
+    const [t, r] = [await box(tile), await box(rail)];
+    const railCentre = r.x + r.width / 2;
+    expect(railCentre, "the rail is on the right half").toBeGreaterThan(t.x + t.width / 2);
+  });
+
+  test("no CTA button — the media itself is the doorway", async ({ page }) => {
+    await page.goto("/design");
+    const tile = page.getByTestId("tile-reel").first();
+    await expect(tile.getByTestId("reel-open-link")).toHaveCount(0);
+    await expect(tile.getByTestId("tile-destination-reel")).toHaveCount(0);
+    await expect(tile.getByTestId("reel-open")).toBeVisible();
+  });
+
+  test("a still reel carries no mute toggle — mute belongs to the video", async ({ page }) => {
+    // The harness fixture is an SVG, so this exercises the image branch. §4's
+    // "mute on the video" is asserted where a real video exists, in
+    // video-realms.spec.ts; putting a playing video in a screenshot baseline
+    // would make it nondeterministic, and the headless shell paints one black
+    // anyway. Kept here as the negative half: no video, no mute, and the
+    // immersive surface is unchanged either way.
+    const tile = page.getByTestId("tile-reel").first();
+    await page.goto("/design");
+    await expect(tile.getByTestId("tile-media")).toBeVisible();
+    await expect(tile.getByTestId("tile-mute-toggle")).toHaveCount(0);
+  });
+
+  test("an owner can still manage the reel from the feed", async ({ page }) => {
+    // Dropping FeedCardShell drops the header that owned this control, so it
+    // has to be put back deliberately rather than noticed missing in prod.
+    await page.goto("/design");
+    await expect(
+      page.getByTestId("tile-reel").first().getByTestId("owner-menu"),
+    ).toBeVisible();
+  });
+});
+
 test.describe("rhythm", () => {
   test("entries are separated by 20px of rhythm, not 16", async ({ page }) => {
     await page.goto("/design");

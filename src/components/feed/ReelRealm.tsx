@@ -12,6 +12,7 @@ import { SaveButton } from "@/components/social/SaveButton";
 import { FollowButton } from "@/components/social/FollowButton";
 import { loginHrefFor } from "@/lib/auth/redirect";
 import { realmTransitionName } from "@/lib/feed/realm-transition";
+import { ReelScrim } from "./ReelScrim";
 import type { PostSocialContext } from "@/lib/social/reactions";
 
 // F4 / A4: vertical snap-scroll reel realm. F6 / A20: the FB/TikTok viewer
@@ -126,31 +127,22 @@ function ReelSlide({
         </div>
       )}
 
-      {/* A20: author + Follow bottom-left, caption underneath. */}
-      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/85 to-transparent p-4 pb-8 pr-16">
-        <div className="flex items-center gap-2">
-          {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt="" className="size-9 rounded-full object-cover" />
-          ) : (
-            <span className="grid size-9 place-items-center rounded-full bg-primary/40 text-sm font-semibold text-white">
-              {actorName.charAt(0).toUpperCase()}
-            </span>
-          )}
-          <Link href={actorHref} className="text-sm font-semibold text-white">
-            {actorName}
-          </Link>
-          {signedIn && viewerId !== item.author.id && !item.brand && (
-            <FollowButton
-              targetProfileId={item.author.id}
-              initialFollowing={following}
-            />
-          )}
-        </div>
-        {item.title && (
-          <p className="mt-2 line-clamp-2 text-sm text-white/85">{item.title}</p>
+      {/* A20: author + Follow bottom-left, caption underneath — the same scrim
+          the in-feed tile uses, because §3.3 makes this realm the Immersive
+          register's reference rather than a lookalike of it. */}
+      <ReelScrim
+        actorName={actorName}
+        actorHref={actorHref}
+        avatarUrl={avatarUrl}
+        caption={item.title}
+      >
+        {signedIn && viewerId !== item.author.id && !item.brand && (
+          <FollowButton
+            targetProfileId={item.author.id}
+            initialFollowing={following}
+          />
         )}
-      </div>
+      </ReelScrim>
     </div>
   );
 }
