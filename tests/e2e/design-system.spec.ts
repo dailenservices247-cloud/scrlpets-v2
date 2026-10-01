@@ -279,6 +279,38 @@ test.describe("media policy", () => {
   });
 });
 
+/**
+ * The baselines capture a page with six lazy `<img>`s on it, and the only wait
+ * before the shot is `getByTestId("tile-promo").waitFor()` — which proves an
+ * ELEMENT is attached and says nothing about whether any image has decoded.
+ *
+ * The committed desktop baseline is the evidence: the long-video tile's media
+ * is blank grey in it, while `public/design-fixtures/wide-16x9.svg` is an
+ * ordinary gradient with a circle and an ellipse, exactly like the two fixtures
+ * that do render. So that baseline encodes one particular PARTIAL render. It
+ * passes whenever that same partial state happens to reproduce and fails when a
+ * different one does, which is why it survived for weeks and then failed twice
+ * under load while the phone baseline passed.
+ *
+ * This asserts the property the screenshots actually depend on, rather than the
+ * screenshots themselves.
+ */
+test.describe("baseline determinism", () => {
+  test("every image on the harness has decoded before a screenshot is taken", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/design");
+    await page.getByTestId("tile-promo").waitFor();
+    const unloaded = await page.evaluate(() =>
+      Array.from(document.images)
+        .filter((img) => !img.complete || img.naturalWidth === 0)
+        .map((img) => new URL(img.currentSrc || img.src, location.href).pathname),
+    );
+    expect(unloaded, "lazy media that never decoded before capture").toEqual([]);
+  });
+});
+
 test.describe("baselines", () => {
   // Fixture content is fixed, so a diff here means the design moved — which is
   // the only reason a screenshot test is worth its flake budget. These are the
