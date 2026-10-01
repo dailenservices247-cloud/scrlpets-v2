@@ -181,6 +181,47 @@ test.describe("immersive register", () => {
   });
 });
 
+/**
+ * §6: "Durations: 180ms UI feedback, 320ms realm morph. One easing curve,
+ * defined once." The morph half shipped with the doorway. The UI half had not:
+ * 67 `transition` utilities across src carried zero `duration-*` and zero
+ * `ease-*`, so every one of them ran at Tailwind's defaults — 150ms on
+ * Tailwind's own curve, which also meant the app had two easing curves rather
+ * than the one the spec allows.
+ *
+ * Measured on a rendered element, not on the stylesheet, because the question
+ * is what the browser computes after the theme override resolves.
+ */
+test.describe("motion", () => {
+  const motionOf = (locator: Locator) =>
+    locator.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { duration: s.transitionDuration, easing: s.transitionTimingFunction };
+    });
+
+  test("UI feedback runs for 180ms, not Tailwind's 150", async ({ page }) => {
+    await page.goto("/design");
+    const cta = page.getByTestId("tile-destination-listing").first();
+    await expect(cta).toBeVisible();
+    const { duration } = await motionOf(cta);
+    expect(duration, `computed transition-duration was ${duration}`).toBe("0.18s");
+  });
+
+  test("it uses the one curve the spec allows, the same one the morph uses", async ({ page }) => {
+    await page.goto("/design");
+    const cta = page.getByTestId("tile-destination-listing").first();
+    const { easing } = await motionOf(cta);
+    const realm = await page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue("--ease-realm").trim(),
+    );
+    // Compared against the token rather than a literal: a test that hard-codes
+    // the curve would still pass if the token and the utility drifted apart,
+    // which is the only failure this criterion exists to catch.
+    const normalise = (v: string) => v.replace(/\s+/g, "");
+    expect(normalise(easing), `utility ${easing} vs token ${realm}`).toBe(normalise(realm));
+  });
+});
+
 test.describe("rhythm", () => {
   test("entries are separated by 20px of rhythm, not 16", async ({ page }) => {
     await page.goto("/design");
