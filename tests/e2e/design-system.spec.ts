@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 /**
@@ -279,7 +279,80 @@ test.describe("media policy", () => {
   });
 });
 
+/**
+ * The baselines capture a page with six lazy `<img>`s on it, and the only wait
+ * before the shot is `getByTestId("tile-promo").waitFor()` — which proves an
+ * ELEMENT is attached and says nothing about whether any image has decoded.
+ *
+ * The committed desktop baseline is the evidence: the long-video tile's media
+ * is blank grey in it, while `public/design-fixtures/wide-16x9.svg` is an
+ * ordinary gradient with a circle and an ellipse, exactly like the two fixtures
+ * that do render. So that baseline encodes one particular PARTIAL render. It
+ * passes whenever that same partial state happens to reproduce and fails when a
+ * different one does, which is why it survived for weeks and then failed twice
+ * under load while the phone baseline passed.
+ *
+ * This asserts the property the screenshots actually depend on, rather than the
+ * screenshots themselves.
+ */
+/**
+ * Give the page a defined render state before any screenshot.
+ *
+ * Walking the scroll height is the load-bearing half: the media is
+ * `loading="lazy"`, so an image far below the fold never even STARTS fetching
+ * until it has been near the viewport, and Playwright's fullPage capture does
+ * not reliably trigger that on its own. Waiting on `document.images` alone
+ * would therefore wait forever on an image that was never asked for.
+ */
+async function settleMedia(page: Page) {
+  await page.evaluate(async () => {
+    const step = window.innerHeight;
+    for (let y = 0; y < document.body.scrollHeight; y += step) {
+      window.scrollTo(0, y);
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    }
+    window.scrollTo(0, 0);
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+  });
+  await page.waitForFunction(
+    () => Array.from(document.images).every((img) => img.complete && img.naturalWidth > 0),
+    null,
+    { timeout: 30_000 },
+  );
+}
+
+test.describe("baseline determinism", () => {
+  test("every image on the harness has decoded before a screenshot is taken", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/design");
+    await page.getByTestId("tile-promo").waitFor();
+    await settleMedia(page);
+    const unloaded = await page.evaluate(() =>
+      Array.from(document.images)
+        .filter((img) => !img.complete || img.naturalWidth === 0)
+        .map((img) => new URL(img.currentSrc || img.src, location.href).pathname),
+    );
+    expect(unloaded, "lazy media that never decoded before capture").toEqual([]);
+  });
+});
+
 test.describe("baselines", () => {
+  /**
+   * A budget, not a relaxed criterion. The global `expect` timeout is 15s,
+   * which is right for a DOM assertion and wrong for capturing a 1440x4925
+   * fullPage screenshot and diffing it: under load that operation alone
+   * exceeded 15s, and the failure read `Timeout 15000ms exceeded` AFTER
+   * "fonts loaded" — the capture never finished, nothing was ever compared.
+   *
+   * A real visual regression still fails; it just gets long enough to be
+   * measured first. The test timeout goes up with it because settleMedia may
+   * itself wait up to 30s for lazy media, and 30 + 60 does not fit in 90.
+   */
+  test.describe.configure({ timeout: 180_000 });
+  const SHOT = { maxDiffPixelRatio: 0.02, fullPage: true, timeout: 60_000 } as const;
+
   // Fixture content is fixed, so a diff here means the design moved — which is
   // the only reason a screenshot test is worth its flake budget. These are the
   // repo's first: they are authoritative on this machine only, so regenerate
@@ -288,20 +361,16 @@ test.describe("baselines", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/design");
     await page.getByTestId("tile-promo").waitFor();
-    await expect(page).toHaveScreenshot("feed-390.png", {
-      maxDiffPixelRatio: 0.02,
-      fullPage: true,
-    });
+    await settleMedia(page);
+    await expect(page).toHaveScreenshot("feed-390.png", SHOT);
   });
 
   test("desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/design");
     await page.getByTestId("tile-promo").waitFor();
-    await expect(page).toHaveScreenshot("feed-1440.png", {
-      maxDiffPixelRatio: 0.02,
-      fullPage: true,
-    });
+    await settleMedia(page);
+    await expect(page).toHaveScreenshot("feed-1440.png", SHOT);
   });
 
   test("no serious or critical accessibility violations", async ({ page }) => {
