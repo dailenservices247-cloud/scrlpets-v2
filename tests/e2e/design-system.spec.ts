@@ -217,8 +217,14 @@ test.describe("motion", () => {
     // Compared against the token rather than a literal: a test that hard-codes
     // the curve would still pass if the token and the utility drifted apart,
     // which is the only failure this criterion exists to catch.
-    const normalise = (v: string) => v.replace(/\s+/g, "");
-    expect(normalise(easing), `utility ${easing} vs token ${realm}`).toBe(normalise(realm));
+    //
+    // Compared as NUMBERS, because the two spellings differ without the curve
+    // differing: the minifier emits the custom property as `cubic-bezier(.32,
+    // .72, 0, 1)` while the browser serialises the computed value as
+    // `cubic-bezier(0.32, 0.72, 0, 1)`. Parsing is the stricter test of "the
+    // same curve", not the looser one.
+    const points = (v: string) => (v.match(/-?[\d.]+/g) ?? []).map(Number);
+    expect(points(easing), `utility ${easing} vs token ${realm}`).toEqual(points(realm));
   });
 });
 
