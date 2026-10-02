@@ -170,6 +170,25 @@ describe("/api/csp-report", () => {
     expect(warn).not.toHaveBeenCalled();
   });
 
+  it("refuses a declared-oversize body without reading it", async () => {
+    vi.resetModules();
+    const { POST } = await import("@/app/api/csp-report/route");
+    // A valid report, but the sender claims a body far over the cap: the
+    // guard has to fire on the claim, before the body is ever buffered.
+    const response = await POST(
+      new Request("https://scrlpets.com/api/csp-report", {
+        method: "POST",
+        headers: {
+          "content-type": "application/csp-report",
+          "content-length": String(MAX_REPORT_BYTES * 10),
+        },
+        body: REPORT_URI_BODY,
+      }),
+    );
+    expect(response.status).toBe(204);
+    expect(warn).not.toHaveBeenCalled();
+  });
+
   it("answers 204 for junk and never throws", async () => {
     for (const body of ["", "not json", "[]"]) {
       const response = await post(body);

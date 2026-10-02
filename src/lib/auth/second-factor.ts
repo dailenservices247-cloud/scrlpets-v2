@@ -20,6 +20,9 @@ const EXEMPT_PATHS: ReadonlySet<string> = new Set([
   "/auth/signout",
   "/manifest.webmanifest",
   "/sw.js",
+  // A CSP report is the browser talking, not the member. Challenging it loses
+  // exactly the reports worth having — the ones from a page that just broke.
+  "/api/csp-report",
 ]);
 
 export function owesSecondFactor(

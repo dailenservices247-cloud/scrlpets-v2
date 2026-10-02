@@ -14,6 +14,10 @@ const supabaseSources = supabaseOrigin
   ? `${supabaseOrigin} ${supabaseWsOrigin}`
   : "https://*.supabase.co wss://*.supabase.co";
 
+const reportingEndpoint = process.env.NEXT_PUBLIC_SITE_URL
+  ? `${process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "")}/api/csp-report`
+  : "/api/csp-report";
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -37,6 +41,11 @@ const contentSecurityPolicy = [
   // Turnstile renders its challenge in an iframe, so script-src alone is not
   // enough — a missing frame-src is a widget that mounts and never completes.
   "frame-src https://accounts.google.com https://challenges.cloudflare.com",
+  // The policy had no way to report what it refused, which is how a missing
+  // media-src went unnoticed for months. Both channels, because no engine
+  // speaks both: report-uri is Firefox and Safari, report-to is Chrome.
+  "report-uri /api/csp-report",
+  "report-to csp-endpoint",
   "upgrade-insecure-requests",
 ]
   .join("; ")
@@ -52,7 +61,13 @@ const securityHeaders = [
     value: "camera=(), microphone=(), geolocation=()",
   },
   ...(process.env.NODE_ENV === "production"
-    ? [{ key: "Content-Security-Policy", value: contentSecurityPolicy }]
+    ? [
+        { key: "Content-Security-Policy", value: contentSecurityPolicy },
+        // Names the group `report-to` points at. Absolute when the site URL is
+        // known; relative otherwise, so a preview deploy reports to itself
+        // rather than cross-origin to production (which CORS would drop).
+        { key: "Reporting-Endpoints", value: `csp-endpoint="${reportingEndpoint}"` },
+      ]
     : []),
 ];
 
