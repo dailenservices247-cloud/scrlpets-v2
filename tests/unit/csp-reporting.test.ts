@@ -65,18 +65,22 @@ describe("production CSP reporting directives", () => {
     vi.unstubAllEnvs();
   });
 
-  it("names the endpoint on both channels, because no engine supports both", async () => {
+  it("names the endpoint on report-uri, the channel every engine delivers on", async () => {
     const { csp } = await productionCsp();
     expect(csp, "production policy").toContain("default-src 'self'");
-    // report-uri is what Firefox and Safari still use; report-to is Chrome's.
     expect(directive(csp, "report-uri")).toBe("report-uri /api/csp-report");
-    expect(directive(csp, "report-to")).toBe("report-to csp-endpoint");
   });
 
-  it("serves a Reporting-Endpoints header pointing at the same route", async () => {
-    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://scrlpets.com");
-    const { reportingEndpoints } = await productionCsp();
-    expect(reportingEndpoints).toBe('csp-endpoint="https://scrlpets.com/api/csp-report"');
+  it("does NOT carry report-to, which would shadow report-uri in Chrome", async () => {
+    // Measured 2026-10-02 on a production build, Chrome 152: with report-to
+    // present Chrome ignores report-uri and delivered nothing; removing it
+    // produced the browser's report immediately. report-to goes back only when
+    // it has been observed delivering on an HTTPS origin — until then it would
+    // silently cost us every Chrome report, which is the failure this endpoint
+    // exists to end.
+    const { csp, reportingEndpoints } = await productionCsp();
+    expect(directive(csp, "report-to")).toBeUndefined();
+    expect(reportingEndpoints).toBe("");
   });
 });
 
