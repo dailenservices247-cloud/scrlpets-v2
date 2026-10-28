@@ -16,6 +16,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostForm } from "./PostForm";
 import { ListingForm } from "./ListingForm";
+import { ProductComposeForm } from "./ProductComposeForm";
+import { ServiceComposeForm } from "./ServiceComposeForm";
+import { PromotionComposeForm } from "./PromotionComposeForm";
+import { RecommendationComposeForm } from "./RecommendationComposeForm";
 import type { BrandAccess } from "@/lib/brands/queries";
 import type { MyGroup } from "@/lib/groups/queries";
 import { cn } from "@/lib/utils";
@@ -45,11 +49,11 @@ const modeOptions: {
   live: boolean;
 }[] = [
   { value: "post", label: "Post", icon: PenSquare, live: true },
-  { value: "listing", label: "Listing", icon: BadgeDollarSign, live: true },
-  { value: "product", label: "Product", icon: Store, live: false },
-  { value: "service", label: "Service", icon: Scissors, live: false },
-  { value: "promotion", label: "Promotion", icon: Megaphone, live: false },
-  { value: "recommendation", label: "Recommendation", icon: Sparkles, live: false },
+  { value: "listing", label: "Animal Listing", icon: BadgeDollarSign, live: true },
+  { value: "product", label: "Product / Supply", icon: Store, live: true },
+  { value: "service", label: "Service", icon: Scissors, live: true },
+  { value: "recommendation", label: "Recommendation", icon: Sparkles, live: true },
+  { value: "promotion", label: "Promotion", icon: Megaphone, live: true },
   { value: "collaboration", label: "Collaboration", icon: Handshake, live: false },
 ];
 
@@ -185,7 +189,19 @@ export function ComposerTabs({
         )}
         {tab === "post" && <PostForm userId={userId} creatures={creatures} attribution={attribution} groups={groups} disabled={!brandReady} />}
         {tab === "listing" && <ListingForm userId={userId} creatures={creatures} attribution={attribution} disabled={!brandReady} />}
-        {tab !== "post" && tab !== "listing" && (
+        {tab === "product" && <ProductComposeForm userId={userId} attribution={attribution} disabled={!brandReady} />}
+        {tab === "service" && <ServiceComposeForm userId={userId} attribution={attribution} disabled={!brandReady} />}
+        {tab === "promotion" && <PromotionComposeForm userId={userId} attribution={attribution} disabled={!brandReady} />}
+        {tab === "recommendation" && (
+          <RecommendationComposeForm
+            userId={userId}
+            creatures={creatures}
+            products={subjects.products}
+            attribution={attribution}
+            disabled={!brandReady}
+          />
+        )}
+        {tab === "collaboration" && (
           <PlannedModePanel mode={modeLabels[tab]} postingLabel={postingLabel} subjectLabel={subjectLabel} />
         )}
       </section>

@@ -169,3 +169,38 @@ export async function listShopCategories(): Promise<string[]> {
   const seen = new Set(((data ?? []) as { category: string }[]).map((r) => r.category));
   return [...seen].sort();
 }
+
+/** Curated recommendations made by an owner or attached to a creature/brand. */
+export async function listRecommendationsForSubject(params: {
+  recommenderId?: string;
+  creatureId?: string;
+  brandId?: string;
+}): Promise<ShopProduct[]> {
+  const supabase = await createClient();
+  let query = supabase
+    .from("product_recommendations")
+    .select(
+      "id, note, recommender_id, brand_id, creature_id, listings:listing_id (id, title, description, category, price_cents, currency, availability, media_url, seller_source, merchant_name, external_sku, external_url, sale_mode, profiles!listings_seller_id_fkey(username), brands(id,name,slug)), profiles:recommender_id (username)",
+    );
+
+  if (params.recommenderId) query = query.eq("recommender_id", params.recommenderId);
+  if (params.creatureId) query = query.eq("creature_id", params.creatureId);
+  if (params.brandId) query = query.eq("brand_id", params.brandId);
+
+  const { data } = await query.order("created_at", { ascending: false }).limit(20);
+  if (!data) return [];
+
+  return (
+    data as unknown as {
+      id: string;
+      note: string | null;
+      listings: Row | null;
+      profiles: { username: string } | null;
+    }[]
+  )
+    .filter((r) => r.listings !== null)
+    .map((r) => ({
+      ...toProduct(r.listings!),
+      recommender: r.profiles ? { username: r.profiles.username, note: r.note } : null,
+    }));
+}

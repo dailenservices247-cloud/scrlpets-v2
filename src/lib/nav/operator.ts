@@ -31,3 +31,10 @@ export const isOperator = cache(async (userId: string): Promise<boolean> => {
   ]);
   return brands.length > 0 || breedingCreatures.length > 0 || optedIn;
 });
+
+export const isTransporter = cache(async (userId: string): Promise<boolean> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("can_transport", { target_profile: userId });
+  if (error || !data) return false;
+  return Boolean(data);
+});

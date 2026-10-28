@@ -7,16 +7,20 @@ import {
   BookOpen,
   Bookmark,
   Building2,
+  CalendarDays,
   ChevronRight,
   ClipboardList,
   Gift,
   HeartPulse,
   LayoutDashboard,
   LifeBuoy,
+  Network,
   Package,
+  PawPrint,
   Search,
   Settings,
   ShieldAlert,
+  Truck,
   Users,
 } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
@@ -26,7 +30,7 @@ import { LOCALE_COOKIE, resolveLocale } from "@/lib/i18n/locale";
 import { getSessionUser } from "@/lib/auth/session";
 import { getProfileById } from "@/lib/profiles/queries";
 import { isPlatformAdmin } from "@/lib/verification/queries";
-import { isOperator } from "@/lib/nav/operator";
+import { isOperator, isTransporter } from "@/lib/nav/operator";
 
 // R5: grouped sections, not a flat 23-row tile grid. Rows, not tiles — tile
 // grids hide labels at small sizes. Nothing here duplicates a bottom-nav
@@ -76,10 +80,11 @@ function MenuGroup({
 
 export default async function MenuPage() {
   const user = await getSessionUser();
-  const [profile, viewerIsAdmin, viewerIsOperator] = await Promise.all([
+  const [profile, viewerIsAdmin, viewerIsOperator, viewerIsTransporter] = await Promise.all([
     user ? getProfileById(user.id) : Promise.resolve(null),
     user ? isPlatformAdmin() : Promise.resolve(false),
     user ? isOperator(user.id) : Promise.resolve(false),
+    user ? isTransporter(user.id) : Promise.resolve(false),
   ]);
   const displayName = profile?.displayName ?? profile?.username ?? user?.email ?? "Guest";
 
@@ -136,6 +141,7 @@ export default async function MenuPage() {
       {/* R5: only what's NOT reachable from the bottom nav. */}
       <MenuGroup heading="Discover">
         <MenuRow href="/search" icon={Search} label="Search" />
+        <MenuRow href="/groups" icon={Users} label="Groups & Communities" />
         <MenuRow href="/guides" icon={BookOpen} label="Guides" />
       </MenuGroup>
 
@@ -148,11 +154,23 @@ export default async function MenuPage() {
         <MenuRow href="/orders" icon={Package} label="Orders & Deals" testId="menu-orders-row" />
       </MenuGroup>
 
-      {viewerIsOperator && (
-        <MenuGroup heading="Your program" testId="menu-group-your-program">
-          {/* /hub is built by another lane; linked ahead of that landing. */}
-          <MenuRow href="/hub" icon={LayoutDashboard} label="Operator Hub" />
-          <MenuRow href="/brand-os" icon={Building2} label="Brand OS" />
+      <MenuGroup heading="Breeding & Litters">
+        <MenuRow href="/litters" icon={PawPrint} label="Litters" />
+        <MenuRow href="/calendar" icon={CalendarDays} label="Breeding Calendar" />
+        <MenuRow href="/tree" icon={Network} label="Pedigree & Lineage" />
+      </MenuGroup>
+
+      {(viewerIsOperator || viewerIsTransporter) && (
+        <MenuGroup heading="Operations & Transport" testId="menu-group-your-program">
+          {viewerIsOperator && (
+            <>
+              <MenuRow href="/hub" icon={LayoutDashboard} label="Operator Hub" />
+              <MenuRow href="/brand-os" icon={Building2} label="Brand OS" />
+            </>
+          )}
+          {viewerIsTransporter && (
+            <MenuRow href="/jobs" icon={Truck} label="Transport Jobs & Quotes" testId="menu-transport-jobs-row" />
+          )}
         </MenuGroup>
       )}
 

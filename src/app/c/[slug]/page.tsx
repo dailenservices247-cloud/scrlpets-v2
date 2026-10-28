@@ -22,7 +22,7 @@ import { speciesIdentity } from "@/lib/species/identity";
 import { getFeedDestination } from "@/lib/feed/destinations";
 import { computeGoHomeTimeline } from "@/lib/creatures/go-home";
 import { listBrandServices, listProfileServices } from "@/lib/services/queries";
-import { listBrandProducts, listProfileProducts } from "@/lib/shop/queries";
+import { listBrandProducts, listProfileProducts, listRecommendationsForSubject } from "@/lib/shop/queries";
 import {
   getCreatureDetail,
   getGeneticTests,
@@ -66,13 +66,14 @@ export default async function CreaturePage({
       getCreatureAssurance(creature.id),
       getCreatureOriginAttribution(creature.id),
     ]);
-  const [establishmentServices, establishmentProducts] = await Promise.all([
+  const [establishmentServices, establishmentProducts, recommendedProducts] = await Promise.all([
     origin?.brandId
       ? listBrandServices(origin.brandId, creature.ownerId)
       : listProfileServices(creature.ownerId),
     origin?.brandId
       ? listBrandProducts(origin.brandId)
       : listProfileProducts(creature.ownerId),
+    listRecommendationsForSubject({ creatureId: creature.id }),
   ]);
   const listing = items.find((item) => item.type === "listing");
   const isOwner = user?.id === creature.ownerId;
@@ -263,6 +264,19 @@ export default async function CreaturePage({
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {establishmentProducts.slice(0, 4).map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {recommendedProducts.length > 0 && (
+              <div className="mt-4" data-testid="creature-recommended-supplies">
+                <p className="mb-2 text-xs font-medium text-muted-foreground">
+                  Recommended Go-Home Supplies &amp; Gear
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {recommendedProducts.slice(0, 4).map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>

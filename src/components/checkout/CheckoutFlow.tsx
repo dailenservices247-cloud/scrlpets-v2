@@ -90,7 +90,11 @@ export function CheckoutFlow({
       setError(key ? named[key] : t("errorGeneric"));
       return;
     }
-    router.push("/applications");
+    if (result.orderId) {
+      router.push(`/orders/${result.orderId}`);
+    } else {
+      router.push("/orders");
+    }
   }
 
   const needsRoute = fulfilment === "transported";

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendNotificationToUser } from "@/lib/support/email";
 
 export type ContractResult = { ok: true; contractId?: string; orderId?: string } | { ok: false; error: string };
 
@@ -27,6 +28,30 @@ export async function sendDealContract(
 
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/messages/${conversationId}`);
+
+  // Transactional Email notification (silent if not configured)
+  try {
+    const { data: contract } = await supabase
+      .from("deal_contracts")
+      .select("buyer_id, seller_id, agreed_price_cents, deposit_cents")
+      .eq("id", data)
+      .maybeSingle();
+
+    if (contract) {
+      await sendNotificationToUser(contract.buyer_id, {
+        subject: "New Animal Contract Offer on Scrlpets",
+        headline: "You have received a deal contract offer",
+        bodyLines: [
+          `A seller has drafted a deal contract for $${(contract.agreed_price_cents / 100).toFixed(2)}.`,
+          `Deposit required: $${(contract.deposit_cents / 100).toFixed(2)}.`,
+          "Review the contract terms, health disclosures, and sign in the Deal Room.",
+        ],
+        ctaUrl: `https://scrlpets.com/messages/${conversationId}`,
+        ctaText: "Review Contract in Deal Room",
+      });
+    }
+  } catch {}
+
   return { ok: true, contractId: data as string };
 }
 
@@ -51,6 +76,30 @@ export async function signDealContract(
   if (error) return { ok: false, error: error.message };
   revalidatePath("/messages");
   revalidatePath("/applications");
+  revalidatePath("/orders");
+
+  // Transactional Email notification (silent if not configured)
+  try {
+    const { data: contract } = await supabase
+      .from("deal_contracts")
+      .select("buyer_id, seller_id, agreed_price_cents, order_id")
+      .eq("id", contractId)
+      .maybeSingle();
+
+    if (contract) {
+      await sendNotificationToUser(contract.seller_id, {
+        subject: "Contract Signed & Deal Struck on Scrlpets",
+        headline: "Your buyer has signed the contract!",
+        bodyLines: [
+          `The deal contract has been signed by both parties for $${(contract.agreed_price_cents / 100).toFixed(2)}.`,
+          "The order has been created. The buyer has been prompted to fund their escrow deposit.",
+        ],
+        ctaUrl: `https://scrlpets.com/orders/${data}`,
+        ctaText: "View Order & Escrow Status",
+      });
+    }
+  } catch {}
+
   return { ok: true, orderId: data as string };
 }
 

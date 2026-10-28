@@ -59,3 +59,21 @@ export async function startCreatureInquiry(
     created: Boolean(result.created),
   };
 }
+
+export async function recommendProduct(
+  listingId: string,
+  brandId?: string | null,
+  creatureId?: string | null,
+  note?: string | null,
+): Promise<{ ok: boolean; recommendationId?: string; error?: string }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("recommend_product", {
+    target_listing: listingId,
+    target_brand: brandId ?? null,
+    target_creature: creatureId ?? null,
+    rec_note: note ?? null,
+  });
+
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, recommendationId: data as string };
+}

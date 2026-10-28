@@ -59,3 +59,83 @@ export async function sendSupportConfirmation(ticket: {
     return { sent: false };
   }
 }
+
+export type TransactionalEmailParams = {
+  toEmail: string;
+  subject: string;
+  headline: string;
+  bodyLines: string[];
+  ctaUrl?: string;
+  ctaText?: string;
+};
+
+/**
+ * Universal transactional email sender via Resend.
+ * Gracefully silent if RESEND_API_KEY is unset in environment.
+ */
+export async function sendTransactionalNotification({
+  toEmail,
+  subject,
+  headline,
+  bodyLines,
+  ctaUrl,
+  ctaText,
+}: TransactionalEmailParams): Promise<{ sent: boolean }> {
+  const key = process.env.RESEND_API_KEY;
+  const from = process.env.SUPPORT_FROM_EMAIL || "notifications@scrlpets.com";
+  if (!key || !toEmail) return { sent: false };
+
+  try {
+    const textLines = [
+      headline,
+      "",
+      ...bodyLines,
+      "",
+      ctaUrl && ctaText ? `${ctaText}: ${ctaUrl}` : "",
+      "",
+      "— The Scrlpets Team",
+    ].filter(Boolean);
+
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [toEmail],
+        subject,
+        text: textLines.join("\n"),
+      }),
+    });
+    return { sent: response.ok };
+  } catch {
+    return { sent: false };
+  }
+}
+
+/** Looks up user email via service-role auth admin and sends notification. */
+export async function sendNotificationToUser(
+  userId: string,
+  emailParams: Omit<TransactionalEmailParams, "toEmail">,
+): Promise<{ sent: boolean }> {
+  try {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!serviceKey || !url) return { sent: false };
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(url, serviceKey);
+    const { data: { user }, error } = await supabase.auth.admin.getUserById(userId);
+
+    if (error || !user?.email) return { sent: false };
+
+    return await sendTransactionalNotification({
+      ...emailParams,
+      toEmail: user.email,
+    });
+  } catch {
+    return { sent: false };
+  }
+}

@@ -23,6 +23,9 @@ import {
   isSellerIdentityVerified,
 } from "@/lib/listings/queries";
 import { getAttestedCreatureIds } from "@/lib/verification/queries";
+import { RecommendButton } from "@/components/marketplace/RecommendButton";
+import { getMyCreatures } from "@/lib/compose/actions";
+import { getBrandsByOwner } from "@/lib/brands/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +63,7 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
   const creatureId = item.creature?.id ?? null;
   // V2-03: adoption depth lives on THIS page, not a parallel /adopt/[id] —
   // one listing, one detail surface. Returns null for a sale listing.
-  const [photos, animalDetails, sellerVerified, animalAttested, adoption] = await Promise.all([
+  const [photos, animalDetails, sellerVerified, animalAttested, adoption, userBrands, userCreatures] = await Promise.all([
     getListingPhotos(marketplace.id),
     creatureId ? getListingAnimalDetails(creatureId) : Promise.resolve(null),
     isSellerIdentityVerified(marketplace.sellerId),
@@ -68,6 +71,8 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
       ? getAttestedCreatureIds([creatureId]).then((ids) => ids.has(creatureId))
       : Promise.resolve(false),
     getAdoptionDetail(marketplace.id),
+    user ? getBrandsByOwner(user.id) : Promise.resolve([]),
+    user ? getMyCreatures() : Promise.resolve([]),
   ]);
   const viewerIsSeller = user?.id === marketplace.sellerId;
 
@@ -78,7 +83,18 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
             appears when it has extra photos to add — otherwise the same image
             rendered twice, stacked. */}
         {photos.length > 0 && <PhotoGallery photos={photos} fallbackUrl={null} />}
-        <ProductDetails listing={marketplace} />
+        <div className="flex items-center justify-between gap-2 px-1">
+          <ProductDetails listing={marketplace} />
+        </div>
+        {user && !creatureId && (
+          <div className="px-1">
+            <RecommendButton
+              listingId={marketplace.id}
+              brands={userBrands.map((b) => ({ id: b.id, name: b.name }))}
+              creatures={userCreatures}
+            />
+          </div>
+        )}
         {animalDetails && <PetDetailsPanel creature={animalDetails} />}
         {adoption && (
           <AdoptionHealthPanel

@@ -23,7 +23,7 @@ import { getProfilePublicBrands } from "@/lib/brands/queries";
 import { getReviewsFor } from "@/lib/reviews/queries";
 import { ReviewList } from "@/components/reviews/ReviewList";
 import { listProfileServices } from "@/lib/services/queries";
-import { listProfileProducts } from "@/lib/shop/queries";
+import { listProfileProducts, listRecommendationsForSubject } from "@/lib/shop/queries";
 import { ProductCard } from "@/components/shop/ProductCard";
 
 export const dynamic = "force-dynamic";
@@ -68,7 +68,7 @@ export default async function ProfilePage({
   const active = tab === "pets" || tab === "about" ? tab : "posts";
   // Counts come from the SAME reads the list pages render, so tapping a count
   // can never land on a different number of people than the count promised.
-  const [creatures, profileFeed, ownedBrands, followers, following, reviews, services, products] =
+  const [creatures, profileFeed, ownedBrands, followers, following, reviews, services, products, recommendations] =
     await Promise.all([
       getCreaturesByOwner(profile.id),
       getProfileFeed(profile.id),
@@ -78,6 +78,7 @@ export default async function ProfilePage({
       getReviewsFor(profile.id),
       listProfileServices(profile.id),
       listProfileProducts(profile.id),
+      listRecommendationsForSubject({ recommenderId: profile.id }),
     ]);
   const followCounts = { followers: followers.length, following: following.length };
   const [viewerFollowing, viewerBlocked] =
@@ -156,6 +157,16 @@ export default async function ProfilePage({
                     <h2 className="mb-2 text-sm font-semibold">{t("suppliesTitle")}</h2>
                     <div className="grid grid-cols-2 gap-2.5">
                       {products.map((p) => (
+                        <ProductCard key={p.id} product={p} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {recommendations.length > 0 && (
+                  <div className="mt-4" data-testid="profile-recommendations-list">
+                    <h2 className="mb-2 text-sm font-semibold">Recommended Supplies &amp; Gear</h2>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {recommendations.map((p) => (
                         <ProductCard key={p.id} product={p} />
                       ))}
                     </div>

@@ -68,3 +68,70 @@ export async function getMyTransportJobs(): Promise<TransportJob[]> {
     handoverAt: r.handover_at,
   }));
 }
+
+export type InboundTransportQuote = {
+  id: string;
+  orderId: string | null;
+  conversationId: string | null;
+  serviceId: string;
+  providerId: string;
+  requesterId: string;
+  requesterUsername: string;
+  pickupRegion: string;
+  deliveryRegion: string;
+  quotedCents: number | null;
+  surchargeCents: number;
+  payoutPolicySnapshot: string;
+  targetPickupDate: string | null;
+  status: "requested" | "quoted" | "accepted" | "declined";
+  notes: string | null;
+  createdAt: string;
+};
+
+export async function getInboundTransportQuotes(): Promise<InboundTransportQuote[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("transport_quotes")
+    .select("*, profiles:requester_id (username)")
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return [];
+
+  return (
+    data as unknown as {
+      id: string;
+      order_id: string | null;
+      conversation_id: string | null;
+      service_id: string;
+      provider_id: string;
+      requester_id: string;
+      pickup_region: string;
+      delivery_region: string;
+      quoted_cents: number | null;
+      surcharge_cents: number;
+      payout_policy_snapshot: string;
+      target_pickup_date: string | null;
+      status: "requested" | "quoted" | "accepted" | "declined";
+      notes: string | null;
+      created_at: string;
+      profiles: { username: string } | null;
+    }[]
+  ).map((r) => ({
+    id: r.id,
+    orderId: r.order_id,
+    conversationId: r.conversation_id,
+    serviceId: r.service_id,
+    providerId: r.provider_id,
+    requesterId: r.requester_id,
+    requesterUsername: r.profiles?.username ?? "client",
+    pickupRegion: r.pickup_region,
+    deliveryRegion: r.delivery_region,
+    quotedCents: r.quoted_cents,
+    surchargeCents: r.surcharge_cents,
+    payoutPolicySnapshot: r.payout_policy_snapshot,
+    targetPickupDate: r.target_pickup_date,
+    status: r.status,
+    notes: r.notes,
+    createdAt: r.created_at,
+  }));
+}

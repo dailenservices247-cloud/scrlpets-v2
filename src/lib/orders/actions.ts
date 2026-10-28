@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendNotificationToUser } from "@/lib/support/email";
 
 export type OrderResult = { ok: true; orderId?: string } | { ok: false; error: string };
 
@@ -38,9 +39,8 @@ export async function createOrder(
     delivery_region: transport?.deliveryRegion ?? null,
   });
   if (error) return { ok: false, error: error.message };
-  // /orders has never existed as a route. The order lifecycle is shown on
-  // /applications, so that is what has to be refreshed.
   revalidatePath("/applications");
+  revalidatePath("/orders");
   return { ok: true, orderId: data as string };
 }
 
@@ -84,6 +84,30 @@ export async function markDispatched(orderId: string, note?: string): Promise<Or
   if (error) return { ok: false, error: error.message };
   revalidatePath("/applications");
   revalidatePath("/admin");
+  revalidatePath(`/orders/${orderId}`);
+
+  // Transactional Email: alert buyer that animal is dispatched
+  try {
+    const { data: order } = await supabase
+      .from("orders")
+      .select("buyer_id, title_snapshot")
+      .eq("id", orderId)
+      .maybeSingle();
+
+    if (order) {
+      await sendNotificationToUser(order.buyer_id, {
+        subject: `Your Animal is Dispatched! — ${order.title_snapshot ?? "Scrlpets"}`,
+        headline: "The animal is officially on the way!",
+        bodyLines: [
+          `Your order for "${order.title_snapshot}" has been marked as dispatched by the seller.`,
+          "When you meet the driver or seller, have your secure Handover Code ready to confirm receipt and inspection.",
+        ],
+        ctaUrl: `https://scrlpets.com/orders/${orderId}`,
+        ctaText: "View Your Handover Code & Live Status",
+      });
+    }
+  } catch {}
+
   return { ok: true };
 }
 
