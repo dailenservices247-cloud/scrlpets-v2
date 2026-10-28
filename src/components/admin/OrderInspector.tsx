@@ -82,7 +82,7 @@ export function OrderInspector({ recentOrderIds = [] }: { recentOrderIds?: strin
                 setOrderId(id);
                 handleInspect(id);
               }}
-              className="rounded-md border border-border/60 bg-muted/30 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+              className="rounded-md border border-border/60 bg-muted/30 px-1.5 py-0.5 font-mono text-micro text-muted-foreground hover:bg-muted/70 hover:text-foreground"
             >
               {id.slice(0, 8)}…
             </button>
@@ -128,7 +128,7 @@ export function OrderInspector({ recentOrderIds = [] }: { recentOrderIds?: strin
                           {ev.toStatus ?? "UNKNOWN"}
                         </span>
                       </div>
-                      <span className="font-mono text-[10px] text-muted-foreground">
+                      <span className="font-mono text-micro text-muted-foreground">
                         {new Date(ev.createdAt).toLocaleString()}
                       </span>
                     </div>
@@ -139,7 +139,7 @@ export function OrderInspector({ recentOrderIds = [] }: { recentOrderIds?: strin
                       </p>
                     )}
 
-                    <div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <div className="mt-2 flex items-center gap-1 text-micro text-muted-foreground">
                       <User className="size-3" aria-hidden />
                       <span>Triggered by: @{ev.actor ?? "system"}</span>
                     </div>

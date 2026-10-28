@@ -100,13 +100,13 @@ export function AdminSystemHealthPanel({ stats }: { stats: SystemHealthStats }) 
             >
               <div>
                 <p className="text-xs font-semibold text-foreground">{t.label}</p>
-                <p className="font-mono text-[10px] text-muted-foreground">{t.name}</p>
+                <p className="font-mono text-micro text-muted-foreground">{t.name}</p>
               </div>
               <div className="text-right">
                 <span className="font-mono text-sm font-bold text-foreground">
                   {t.count.toLocaleString()}
                 </span>
-                <p className="text-[10px] text-muted-foreground">rows</p>
+                <p className="text-micro text-muted-foreground">rows</p>
               </div>
             </div>
           ))}

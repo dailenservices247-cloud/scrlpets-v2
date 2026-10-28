@@ -57,6 +57,14 @@ const GUARDED = [
   // now that it is a touched component; ReelScrim is new and born on the scale.
   "src/components/feed/ReelScrim.tsx",
   "src/components/feed/ReelRealm.tsx",
+  // Admin Command Center & Deal Room, 2026-10-28. Converted all micro text to text-micro.
+  "src/components/admin/OverviewPanel.tsx",
+  "src/components/admin/OrderInspector.tsx",
+  "src/components/admin/AdminNav.tsx",
+  "src/components/admin/AdminSystemHealthPanel.tsx",
+  "src/components/admin/UserManagementPanel.tsx",
+  "src/components/admin/AdminRevenuePanel.tsx",
+  "src/components/messaging/DealRoomPanel.tsx",
 ];
 
 /**

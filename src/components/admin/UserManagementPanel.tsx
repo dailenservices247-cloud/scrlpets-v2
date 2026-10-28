@@ -172,7 +172,7 @@ export function UserManagementPanel({ initialUsers }: { initialUsers: AdminUserR
 
       {/* Users List / Table */}
       <div className="overflow-hidden rounded-2xl border border-border/80 bg-card/40">
-        <div className="hidden border-b border-border/60 bg-muted/30 px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-12 sm:gap-2">
+        <div className="hidden border-b border-border/60 bg-muted/30 px-4 py-2.5 font-mono text-micro font-semibold uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-12 sm:gap-2">
           <div className="sm:col-span-4">USER ACCOUNT</div>
           <div className="sm:col-span-3">ROLES & CREDENTIALS</div>
           <div className="sm:col-span-2">STATUS</div>
@@ -231,7 +231,7 @@ export function UserManagementPanel({ initialUsers }: { initialUsers: AdminUserR
                         </p>
                         <button
                           onClick={() => copyId(u.id)}
-                          className="mt-0.5 inline-flex items-center gap-1 font-mono text-[10px] text-muted-foreground hover:text-foreground"
+                          className="mt-0.5 inline-flex items-center gap-1 font-mono text-micro text-muted-foreground hover:text-foreground"
                           title="Click to copy UUID"
                         >
                           <span className="truncate max-w-[120px]">{u.id}</span>
@@ -249,13 +249,13 @@ export function UserManagementPanel({ initialUsers }: { initialUsers: AdminUserR
                   <div className="sm:col-span-3">
                     <div className="flex flex-wrap gap-1">
                       {isAdmin && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/15 px-2 py-0.5 font-mono text-[10px] font-semibold text-brand-link">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/15 px-2 py-0.5 font-mono text-micro font-semibold text-brand-link">
                           <Shield className="size-2.5" aria-hidden />
                           ADMIN
                         </span>
                       )}
                       {isModerator && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 font-mono text-[10px] font-semibold text-purple-600 dark:text-purple-400">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 font-mono text-micro font-semibold text-purple-600 dark:text-purple-400">
                           MOD
                         </span>
                       )}
@@ -278,12 +278,12 @@ export function UserManagementPanel({ initialUsers }: { initialUsers: AdminUserR
                   {/* Account Status */}
                   <div className="sm:col-span-2">
                     {isSuspended ? (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-destructive">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 font-mono text-micro font-semibold text-destructive">
                         <UserX className="size-3" aria-hidden />
                         SUSPENDED
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-micro font-semibold text-emerald-600 dark:text-emerald-400">
                         <CheckCircle2 className="size-3" aria-hidden />
                         ACTIVE
                       </span>

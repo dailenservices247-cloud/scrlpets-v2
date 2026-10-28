@@ -146,7 +146,7 @@ export function AdminNav({
               {badge > 0 && (
                 <span
                   className={cn(
-                    "ml-0.5 inline-flex size-4.5 items-center justify-center rounded-full text-[10px] font-bold leading-none",
+                    "ml-0.5 inline-flex size-4.5 items-center justify-center rounded-full text-micro font-bold leading-none",
                     isActive
                       ? "bg-background text-foreground"
                       : "bg-destructive text-destructive-foreground",

@@ -24,14 +24,14 @@ export function OverviewPanel({ stats }: { stats: AdminOverviewStats }) {
         <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card/40 p-3">
           <Cpu className="size-4 text-emerald-500" aria-hidden />
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">ENGINE</p>
+            <p className="text-micro font-semibold uppercase tracking-wider text-muted-foreground">ENGINE</p>
             <p className="font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400">NEXTJS_ACTIVE</p>
           </div>
         </div>
         <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card/40 p-3">
           <Shield className="size-4 text-emerald-500" aria-hidden />
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">DATABASE</p>
+            <p className="text-micro font-semibold uppercase tracking-wider text-muted-foreground">DATABASE</p>
             <p className="font-mono text-xs font-semibold text-emerald-600 dark:text-emerald-400">
               {stats.systemStatus.dbOk ? "PG_CONNECTED" : "DB_DEGRADED"}
             </p>
@@ -40,14 +40,14 @@ export function OverviewPanel({ stats }: { stats: AdminOverviewStats }) {
         <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card/40 p-3">
           <Lock className="size-4 text-brand-link" aria-hidden />
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">AUTH & RLS</p>
+            <p className="text-micro font-semibold uppercase tracking-wider text-muted-foreground">AUTH & RLS</p>
             <p className="font-mono text-xs font-semibold text-foreground">ENFORCED</p>
           </div>
         </div>
         <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card/40 p-3">
           <HeartPulse className="size-4 text-emerald-500" aria-hidden />
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">ESCROW RAILS</p>
+            <p className="text-micro font-semibold uppercase tracking-wider text-muted-foreground">ESCROW RAILS</p>
             <p className="font-mono text-xs font-semibold text-foreground">2-STAGE_SECURE</p>
           </div>
         </div>

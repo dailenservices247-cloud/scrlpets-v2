@@ -179,7 +179,7 @@ export function AdminRevenuePanel({ stats }: { stats: AdminFinancialStats }) {
 
       {/* Transactions Table */}
       <div className="overflow-hidden rounded-2xl border border-border/80 bg-card/40">
-        <div className="hidden border-b border-border/60 bg-muted/30 px-4 py-2.5 font-mono text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-12 sm:gap-2">
+        <div className="hidden border-b border-border/60 bg-muted/30 px-4 py-2.5 font-mono text-micro font-semibold uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-12 sm:gap-2">
           <div className="sm:col-span-4">ORDER & LISTING</div>
           <div className="sm:col-span-3">PARTIES</div>
           <div className="sm:col-span-2">AMOUNTS</div>
@@ -232,10 +232,10 @@ export function AdminRevenuePanel({ stats }: { stats: AdminFinancialStats }) {
                 </div>
 
                 <div className="sm:col-span-3 sm:text-right">
-                  <span className="inline-flex rounded-full border border-border/80 bg-background/80 px-2 py-0.5 font-mono text-[10px] font-medium uppercase text-muted-foreground">
+                  <span className="inline-flex rounded-full border border-border/80 bg-background/80 px-2 py-0.5 font-mono text-micro font-medium uppercase text-muted-foreground">
                     {tx.status}
                   </span>
-                  <p className="mt-1 font-mono text-[10px] text-muted-foreground">
+                  <p className="mt-1 font-mono text-micro text-muted-foreground">
                     {new Date(tx.createdAt).toLocaleDateString()}
                   </p>
                 </div>

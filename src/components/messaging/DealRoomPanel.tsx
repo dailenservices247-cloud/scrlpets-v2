@@ -163,7 +163,7 @@ export function DealRoomPanel({
 
       {quotes.length > 0 && (
         <div className="mt-3 space-y-2 border-t border-primary/20 pt-2">
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="flex items-center gap-1.5 text-micro font-semibold uppercase tracking-wider text-muted-foreground">
             <Truck className="size-3 text-brand-link" aria-hidden />
             Transporter Quotes
           </p>
@@ -198,12 +198,12 @@ export function DealRoomPanel({
                     Accept Quote
                   </Button>
                 ) : q.status === "accepted" ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-micro font-semibold text-emerald-600 dark:text-emerald-400">
                     <CheckCircle2 className="size-2.5" aria-hidden />
                     ACCEPTED
                   </span>
                 ) : (
-                  <span className="font-mono text-[10px] uppercase text-muted-foreground">{q.status}</span>
+                  <span className="font-mono text-micro uppercase text-muted-foreground">{q.status}</span>
                 )}
               </div>
             </div>
