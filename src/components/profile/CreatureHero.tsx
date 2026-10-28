@@ -1,15 +1,19 @@
 import Link from "next/link";
+import { Building2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { FeedItem } from "@/lib/feed/types";
 import type { CreatureProfile } from "@/lib/profiles/queries";
+import type { CreatureOriginAttribution } from "@/lib/creatures/queries";
 import { getFeedDestination } from "@/lib/feed/destinations";
 
 export async function CreatureHero({
   creature,
   listing,
+  origin,
 }: {
   creature: CreatureProfile;
   listing: FeedItem | undefined;
+  origin?: CreatureOriginAttribution | null;
 }) {
   const t = await getTranslations("detail");
 
@@ -51,6 +55,30 @@ export async function CreatureHero({
             <Link href={`/u/${creature.owner.username}`} className="text-brand-link underline">
               @{creature.owner.username}
             </Link>
+            {origin?.brandSlug && origin?.brandName && (
+              <Link
+                href={`/b/${origin.brandSlug}`}
+                data-testid="creature-establishment-link"
+                className="inline-flex items-center gap-1 rounded-md border border-accent/40 bg-accent/15 px-2 py-1 text-xs font-medium text-brand-link hover:underline"
+              >
+                <Building2 className="size-3.5" aria-hidden />
+                {origin.brandName}
+              </Link>
+            )}
+            {origin?.isAlumni && origin.breederUsername && (
+              <span
+                className="text-xs text-muted-foreground"
+                data-testid="creature-alumni-breeder"
+              >
+                {t("bredBy")}{" "}
+                <Link
+                  href={`/u/${origin.breederUsername}`}
+                  className="text-brand-link underline"
+                >
+                  @{origin.breederUsername}
+                </Link>
+              </span>
+            )}
           </div>
           {listing && (
             <Link

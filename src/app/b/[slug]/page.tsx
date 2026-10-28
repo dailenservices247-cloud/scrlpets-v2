@@ -1,14 +1,23 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { FeedList } from "@/components/feed/FeedList";
 import { BrandProfileHeader } from "@/components/profile/BrandProfileHeader";
 import { BrandGalleryStrip } from "./BrandGalleryStrip";
 import { getSessionUser } from "@/lib/auth/session";
-import { getBrandBySlug, getBrandRole } from "@/lib/brands/queries";
+import {
+  getBrandBySlug,
+  getBrandRole,
+  getPublicBrandTeam,
+  listBrandCreatures,
+  listBrandLitters,
+} from "@/lib/brands/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 import { getBrandFeed } from "@/lib/feed/query";
 import { listBrandProducts } from "@/lib/shop/queries";
+import { listBrandServices } from "@/lib/services/queries";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { getProfileById } from "@/lib/profiles/queries";
 import { getBrandKit, getBrandGallery } from "@/lib/brand-kit/queries";
@@ -45,14 +54,19 @@ export default async function BrandPage({
   if (!brand) notFound();
 
   const user = await getSessionUser();
-  const [owner, feed, role, products, kit, gallery] = await Promise.all([
-    getProfileById(brand.ownerId),
-    getBrandFeed(brand.id),
-    user ? getBrandRole(user.id, brand.id) : Promise.resolve(null),
-    listBrandProducts(brand.id),
-    getBrandKit(brand.id),
-    getBrandGallery(brand.id),
-  ]);
+  const [owner, feed, role, products, kit, gallery, team, creatures, litters, services] =
+    await Promise.all([
+      getProfileById(brand.ownerId),
+      getBrandFeed(brand.id),
+      user ? getBrandRole(user.id, brand.id) : Promise.resolve(null),
+      listBrandProducts(brand.id),
+      getBrandKit(brand.id),
+      getBrandGallery(brand.id),
+      getPublicBrandTeam(brand.id),
+      listBrandCreatures(brand.ownerId),
+      listBrandLitters(brand.id, brand.ownerId),
+      listBrandServices(brand.id, brand.ownerId),
+    ]);
   if (!owner) notFound();
 
   const metrics = [
@@ -62,6 +76,19 @@ export default async function BrandPage({
   const t = await getTranslations("brandKit");
   const foundedYear = kit.foundedOn ? new Date(kit.foundedOn).getFullYear() : null;
   const hasAbout = !!(kit.tagline || foundedYear || kit.philosophy || kit.yearsExperience !== null || kit.specialties.length > 0);
+  const peopleRunning =
+    team.length > 0
+      ? team
+      : [
+          {
+            profileId: owner.id,
+            username: owner.username,
+            displayName: owner.displayName,
+            avatarUrl: owner.avatarUrl,
+            role: "owner" as const,
+            isVerified: false,
+          },
+        ];
 
   return (
     <AppPage>
@@ -116,7 +143,185 @@ export default async function BrandPage({
         </section>
       )}
 
+      {/* People running this establishment — clickable cards to each person's /u/[username] */}
+      <section className="px-3 pt-3" data-testid="brand-team-section">
+        <div className="premium-panel rounded-2xl p-4">
+          <p className="eyebrow">{t("peopleEyebrow")}</p>
+          <h2 className="mt-1 font-serif text-title">{t("peopleTitle")}</h2>
+          <p className="mt-1 text-meta text-muted-foreground">{t("peopleSubtitle")}</p>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2" data-testid="brand-team-list">
+            {peopleRunning.map((person) => (
+              <li key={person.profileId}>
+                <Link
+                  href={`/u/${person.username}`}
+                  data-testid={`brand-team-member-${person.username}`}
+                  className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-primary/40 hover:bg-muted/45"
+                >
+                  {person.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={person.avatarUrl}
+                      alt=""
+                      width={44}
+                      height={44}
+                      className="size-11 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary/20 text-ui font-semibold text-secondary-foreground"
+                      aria-hidden
+                    >
+                      {(person.displayName ?? person.username).slice(0, 1).toUpperCase()}
+                    </span>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate text-ui font-semibold">
+                        {person.displayName ?? person.username}
+                      </span>
+                      {person.isVerified && (
+                        <ShieldCheck
+                          className="size-4 shrink-0 text-secondary-foreground"
+                          aria-label={t("verifiedMember")}
+                        />
+                      )}
+                    </div>
+                    <span className="block truncate text-meta text-brand-link">
+                      @{person.username}
+                    </span>
+                  </div>
+                  <span className="shrink-0 rounded-full border border-border/70 bg-muted/45 px-2.5 py-0.5 text-micro capitalize text-muted-foreground">
+                    {t(`role.${person.role}`)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       <BrandGalleryStrip photos={gallery} />
+
+      {/* Establishment Animals & Litters + Family Tree link */}
+      {(creatures.length > 0 || litters.length > 0) && (
+        <section className="px-3 pt-3" data-testid="brand-animals-section">
+          <div className="premium-panel rounded-2xl p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="eyebrow">{t("animalsEyebrow")}</p>
+                <h2 className="mt-1 font-serif text-title">{t("animalsTitle")}</h2>
+              </div>
+              <Link
+                href={`/u/${owner.username}/tree`}
+                data-testid="brand-family-tree-link"
+                className="inline-flex min-h-10 items-center rounded-xl border border-input px-3 text-meta font-medium text-brand-link hover:underline"
+              >
+                {t("viewFamilyTree")}
+              </Link>
+            </div>
+
+            {creatures.length > 0 && (
+              <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3" data-testid="brand-creatures-grid">
+                {creatures.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/c/${c.slug}`}
+                    className="rounded-xl border border-border/70 bg-muted/30 p-2.5 transition hover:border-primary/40"
+                  >
+                    {c.avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={c.avatarUrl}
+                        alt=""
+                        width={160}
+                        height={128}
+                        className="aspect-[5/4] w-full rounded-lg object-cover"
+                      />
+                    ) : (
+                      <span
+                        className="grid aspect-[5/4] w-full place-items-center rounded-lg bg-secondary/20 text-title font-semibold text-secondary-foreground"
+                        aria-hidden
+                      >
+                        {c.name.slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
+                    <span className="mt-2 block truncate text-ui font-semibold">{c.name}</span>
+                    <span className="block truncate text-meta text-muted-foreground">
+                      {c.breed ?? c.species ?? ""}
+                    </span>
+                    {c.deceasedAt && (
+                      <span
+                        className="mt-1 inline-block rounded-full border border-accent/40 bg-accent/15 px-2 py-0.5 text-micro font-medium text-foreground"
+                        data-testid={`brand-creature-memorial-${c.slug}`}
+                      >
+                        {t("memorialBadge")}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {litters.length > 0 && (
+              <div className="mt-4" data-testid="brand-litters-list">
+                <p className="text-meta font-medium text-muted-foreground">{t("littersSubtitle")}</p>
+                <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {litters.map((litter) => (
+                    <li key={litter.id}>
+                      <Link
+                        href={`/litters/${litter.id}`}
+                        className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-primary/40"
+                      >
+                        <span className="min-w-0">
+                          <span className="block truncate text-ui font-semibold">{litter.name}</span>
+                          <span className="block truncate text-meta text-muted-foreground">
+                            {[litter.species, litter.breed].filter(Boolean).join(" · ")}
+                          </span>
+                        </span>
+                        <span className="shrink-0 rounded-full border border-border/70 px-2.5 py-0.5 text-micro capitalize text-muted-foreground">
+                          {litter.status}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Establishment Services */}
+      {services.length > 0 && (
+        <section className="px-3 pt-3" data-testid="brand-services-section">
+          <div className="premium-panel rounded-2xl p-4">
+            <p className="eyebrow">{t("servicesEyebrow")}</p>
+            <h2 className="mt-1 font-serif text-title">{t("servicesTitle")}</h2>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+              {services.map((svc) => (
+                <li key={svc.id}>
+                  <Link
+                    href={`/services/${svc.id}`}
+                    className="block rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-primary/40"
+                  >
+                    <span className="block truncate text-ui font-semibold">{svc.name}</span>
+                    {svc.category && (
+                      <span className="mt-0.5 block text-meta capitalize text-muted-foreground">
+                        {svc.category}
+                      </span>
+                    )}
+                    {svc.area && (
+                      <span className="mt-1 block truncate text-micro text-muted-foreground">
+                        {svc.area}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {products.length > 0 && (
         <section className="px-4 py-5" data-testid="brand-shop">

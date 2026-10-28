@@ -13,6 +13,7 @@ import {
   HeartPulse,
   LayoutDashboard,
   LifeBuoy,
+  Package,
   Search,
   Settings,
   ShieldAlert,
@@ -144,6 +145,7 @@ export default async function MenuPage() {
         <MenuRow href="/rewards" icon={Gift} label="Rewards" />
         <MenuRow href="/health" icon={HeartPulse} label="Health" />
         <MenuRow href="/applications" icon={ClipboardList} label="Applications" />
+        <MenuRow href="/orders" icon={Package} label="Orders & Deals" testId="menu-orders-row" />
       </MenuGroup>
 
       {viewerIsOperator && (

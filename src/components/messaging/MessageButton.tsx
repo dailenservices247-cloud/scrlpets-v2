@@ -2,11 +2,25 @@
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { startConversation } from "@/lib/messaging/actions";
+import { startCreatureInquiry } from "@/lib/marketplace/actions";
 
-export function MessageButton({ profileId }: { profileId: string }) {
+export function MessageButton({
+  profileId,
+  creatureId,
+}: {
+  profileId: string;
+  creatureId?: string;
+}) {
   const t = useTranslations("messages");
   const router = useRouter();
   async function go() {
+    if (creatureId) {
+      const inq = await startCreatureInquiry(creatureId);
+      if (inq.ok) {
+        router.push(`/messages/${inq.conversationId}`);
+        return;
+      }
+    }
     // "direct": a DM opened off someone's profile is the cold knock the
     // request gate exists for. Packmates are exempted inside the action.
     const res = await startConversation(profileId);

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Building2 } from "lucide-react";
-import type { MyBrand } from "@/lib/brands/queries";
+import type { ProfilePublicBrand } from "@/lib/brands/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 import { Card } from "@/components/ui/card";
 
@@ -8,8 +8,8 @@ function typeLabel(value: string): string {
   return BRAND_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? "Brand";
 }
 
-/** Real managed brands owned by this profile — renders nothing when there are none. */
-export function ProfileIdentityPanel({ brands }: { brands: MyBrand[] }) {
+/** Real managed brands owned or operated by this profile — renders nothing when there are none. */
+export function ProfileIdentityPanel({ brands }: { brands: ProfilePublicBrand[] }) {
   if (brands.length === 0) return null;
 
   return (
@@ -26,10 +26,17 @@ export function ProfileIdentityPanel({ brands }: { brands: MyBrand[] }) {
                 <Link
                   key={brand.id}
                   href={`/b/${brand.slug}`}
-                  className="group rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-accent/60 hover:bg-muted/45 focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="group flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-accent/60 hover:bg-muted/45 focus:outline-none focus:ring-2 focus:ring-ring"
                 >
-                  <h2 className="truncate text-base font-semibold">{brand.name}</h2>
-                  <p className="mt-1 truncate text-xs text-muted-foreground">{typeLabel(brand.brandType)}</p>
+                  <div className="min-w-0">
+                    <h2 className="truncate text-base font-semibold">{brand.name}</h2>
+                    <p className="mt-1 truncate text-xs text-muted-foreground">{typeLabel(brand.brandType)}</p>
+                  </div>
+                  {brand.role && (
+                    <span className="shrink-0 rounded-full border border-border/70 bg-muted/45 px-2.5 py-0.5 text-xs capitalize text-muted-foreground">
+                      {brand.role}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>

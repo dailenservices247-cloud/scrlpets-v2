@@ -314,10 +314,14 @@
       "username_length": "Between 3 and 30 characters.",
       "username_leading": "Start with a letter.",
       "generic": "That didn't save. Try again."
-    }
+    },
+    "offeringsEyebrow": "Offerings",
+    "servicesTitle": "Services offered",
+    "suppliesTitle": "Supplies & shop"
   },
   "detail": {
     "backToFeed": "Back to feed",
+    "bredBy": "Bred by",
     "surfaceLabel": "Destination surface",
     "untitled": "Untitled",
     "postDetail": "Post detail",
@@ -374,6 +378,7 @@
     "you": "You",
     "back": "Back",
     "listingContexts": "Listing inquiry context",
+    "creatureContext": "Animal inquiry",
     "listingContext": "Listing inquiry · {price}",
     "listingContextUnavailable": "Past listing · {price} · unavailable",
     "acceptRequest": "Accept",
@@ -1502,6 +1507,18 @@
       "verifyMatch": "Match — this is the number registered for this animal.",
       "verifyNoMatch": "No match. Either that is not this animal's number, or this animal has no marker on record — this check cannot tell you which.",
       "verifyHint": "Scan the animal in front of you and type what the scanner reads. Scrlpets answers yes or no; it never shows you the stored number."
+    },
+    "goHome": {
+      "eyebrow": "Go-home readiness",
+      "readyNow": "Eligible to go home now ({weeks} weeks old)",
+      "eligibleOn": "Eligible to go home on {date} ({days} days remaining)",
+      "ruleHint": "Standard minimum go-home age for this species: {minWeeks} weeks."
+    },
+    "establishment": {
+      "eyebrow": "Establishment & offerings",
+      "visitCta": "Visit establishment",
+      "servicesLabel": "Services from this establishment",
+      "suppliesLabel": "Supplies & products"
     }
   },
   "brandKit": {
@@ -1534,7 +1551,23 @@
     "galleryEmpty": "No photos yet.",
     "galleryClose": "Close",
     "establishedLabel": "Est. {year}",
-    "yearsExperiencePublic": "{years, plural, =0 {New this year} one {# year of experience} other {# years of experience}}"
+    "yearsExperiencePublic": "{years, plural, =0 {New this year} one {# year of experience} other {# years of experience}}",
+    "peopleEyebrow": "Establishment team",
+    "peopleTitle": "People running this establishment",
+    "peopleSubtitle": "Select a person to view their profile, animals, and offerings.",
+    "verifiedMember": "Verified operator",
+    "role": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "contributor": "Contributor"
+    },
+    "animalsEyebrow": "Program & lineage",
+    "animalsTitle": "Animals & litters",
+    "viewFamilyTree": "View family tree",
+    "memorialBadge": "In loving memory",
+    "littersSubtitle": "Recorded litters & groups",
+    "servicesEyebrow": "Services",
+    "servicesTitle": "Services offered"
   },
   "litters": {
     "eyebrow": "Litters",

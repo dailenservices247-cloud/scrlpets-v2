@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Building2, CalendarClock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { FeedList } from "@/components/feed/FeedList";
@@ -13,13 +14,16 @@ import { HighlightsSection } from "@/components/highlights/HighlightsSection";
 import { LineageSection } from "@/components/creature/LineageSection";
 import { AssuranceBadge } from "@/components/anchor/AssuranceBadge";
 import { AnchorSection } from "@/components/anchor/AnchorSection";
+import { ProductCard } from "@/components/shop/ProductCard";
 import { getCreatureBySlug, getCreatureFeed } from "@/lib/profiles/queries";
 import { getAnimalRecord } from "@/lib/records/queries";
 import { getSessionUser } from "@/lib/auth/session";
 import { speciesIdentity } from "@/lib/species/identity";
 import { getFeedDestination } from "@/lib/feed/destinations";
+import { computeGoHomeTimeline } from "@/lib/creatures/go-home";
+import { listBrandServices, listProfileServices } from "@/lib/services/queries";
+import { listBrandProducts, listProfileProducts } from "@/lib/shop/queries";
 import {
-
   getCreatureDetail,
   getGeneticTests,
   getCreatureParents,
@@ -27,6 +31,7 @@ import {
   getLitterName,
   getCreatureAssurance,
   getMyCreatureAnchor,
+  getCreatureOriginAttribution,
 } from "@/lib/creatures/queries";
 
 export const dynamic = "force-dynamic";
@@ -49,15 +54,25 @@ export default async function CreaturePage({
   const { slug } = await params;
   const creature = await getCreatureBySlug(slug);
   if (!creature) notFound();
-  const [items, user, record, detail, tests, parents, offspring, assurance] = await Promise.all([
-    getCreatureFeed(creature.id),
-    getSessionUser(),
-    getAnimalRecord(creature.id),
-    getCreatureDetail(creature.id),
-    getGeneticTests(creature.id),
-    getCreatureParents(creature.id),
-    getCreatureOffspring(creature.id),
-    getCreatureAssurance(creature.id),
+  const [items, user, record, detail, tests, parents, offspring, assurance, origin] =
+    await Promise.all([
+      getCreatureFeed(creature.id),
+      getSessionUser(),
+      getAnimalRecord(creature.id),
+      getCreatureDetail(creature.id),
+      getGeneticTests(creature.id),
+      getCreatureParents(creature.id),
+      getCreatureOffspring(creature.id),
+      getCreatureAssurance(creature.id),
+      getCreatureOriginAttribution(creature.id),
+    ]);
+  const [establishmentServices, establishmentProducts] = await Promise.all([
+    origin?.brandId
+      ? listBrandServices(origin.brandId, creature.ownerId)
+      : listProfileServices(creature.ownerId),
+    origin?.brandId
+      ? listBrandProducts(origin.brandId)
+      : listProfileProducts(creature.ownerId),
   ]);
   const listing = items.find((item) => item.type === "listing");
   const isOwner = user?.id === creature.ownerId;
@@ -68,6 +83,9 @@ export default async function CreaturePage({
   // fold it in if this page ever gets latency-sensitive.
   const anchorValue = isOwner ? await getMyCreatureAnchor(creature.id) : null;
   const isDeceased = !!detail?.deceasedAt;
+  const goHome = !isDeceased
+    ? computeGoHomeTimeline(creature.species, detail?.birthDate)
+    : null;
   const litter = detail?.litterId ? await getLitterName(detail.litterId) : null;
   const t = await getTranslations("creature");
   const tSpecies = await getTranslations("species");
@@ -77,7 +95,7 @@ export default async function CreaturePage({
 
   return (
     <AppPage>
-      <CreatureHero creature={creature} listing={listing} />
+      <CreatureHero creature={creature} listing={listing} origin={origin} />
 
       {detail && (
         <MemorialSection
@@ -99,6 +117,33 @@ export default async function CreaturePage({
           isOwner={isOwner}
           isDeceased={isDeceased}
         />
+      )}
+
+      {goHome && goHome.minAgeWeeks > 0 && (
+        <section
+          className="mx-auto max-w-2xl px-4 pt-3"
+          data-testid="creature-go-home-timeline"
+        >
+          <div className="premium-panel flex items-start gap-3 rounded-2xl border p-4">
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-secondary/40 bg-secondary/15 text-secondary-foreground">
+              <CalendarClock className="size-4" aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="eyebrow">{t("goHome.eyebrow")}</p>
+              <p className="mt-1 text-sm font-medium">
+                {goHome.isReadyToGoHome
+                  ? t("goHome.readyNow", { weeks: goHome.ageWeeks })
+                  : t("goHome.eligibleOn", {
+                      date: goHome.eligibleGoHomeDate,
+                      days: goHome.daysUntilReady,
+                    })}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("goHome.ruleHint", { minWeeks: goHome.minAgeWeeks })}
+              </p>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* The identity anchor. The LEVEL is public — it is the honest answer to
@@ -141,7 +186,7 @@ export default async function CreaturePage({
               {t("visitor.messageOwnerHint", { username: creature.owner.username })}
             </p>
             <div className="mt-3">
-              <MessageButton profileId={creature.ownerId} />
+              <MessageButton profileId={creature.ownerId} creatureId={creature.id} />
             </div>
             {listing && (
               <Link
@@ -156,6 +201,72 @@ export default async function CreaturePage({
                   {t("visitor.listingCta")}
                 </span>
               </Link>
+            )}
+          </div>
+        </section>
+      )}
+
+      {(origin?.brandSlug || establishmentServices.length > 0 || establishmentProducts.length > 0) && (
+        <section
+          className="mx-auto max-w-2xl px-4 pt-4"
+          data-testid="creature-establishment-panel"
+        >
+          <div className="premium-panel rounded-2xl border p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="eyebrow">{t("establishment.eyebrow")}</p>
+                <h2 className="mt-1 truncate text-base font-semibold">
+                  {origin?.brandName ?? `@${creature.owner.username}`}
+                </h2>
+              </div>
+              {origin?.brandSlug && (
+                <Link
+                  href={`/b/${origin.brandSlug}`}
+                  className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl border border-input px-3 text-xs font-medium text-brand-link hover:underline"
+                  data-testid="creature-visit-establishment"
+                >
+                  <Building2 className="size-3.5" aria-hidden />
+                  {t("establishment.visitCta")}
+                </Link>
+              )}
+            </div>
+
+            {establishmentServices.length > 0 && (
+              <div className="mt-4" data-testid="creature-establishment-services">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {t("establishment.servicesLabel")}
+                </p>
+                <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {establishmentServices.slice(0, 4).map((svc) => (
+                    <li key={svc.id}>
+                      <Link
+                        href={`/services/${svc.id}`}
+                        className="block rounded-xl border border-border/70 bg-muted/30 p-2.5 text-sm transition hover:border-primary/40"
+                      >
+                        <span className="block truncate font-medium">{svc.name}</span>
+                        {svc.category && (
+                          <span className="mt-0.5 block text-xs text-muted-foreground capitalize">
+                            {svc.category}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {establishmentProducts.length > 0 && (
+              <div className="mt-4" data-testid="creature-establishment-supplies">
+                <p className="mb-2 text-xs font-medium text-muted-foreground">
+                  {t("establishment.suppliesLabel")}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {establishmentProducts.slice(0, 4).map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </section>

@@ -11,6 +11,8 @@ import {
 import { getListingInquiryContexts } from "@/lib/marketplace/queries";
 import type { MessageContext } from "@/lib/messaging/context";
 import { MessageThread } from "@/components/messaging/MessageThread";
+import { DealRoomPanel } from "@/components/messaging/DealRoomPanel";
+import { getDealContractsForConversation } from "@/lib/contracts/queries";
 import { AppPage } from "@/components/app/AppPage";
 
 export default async function ThreadPage({ params }: { params: Promise<{ id: string }> }) {
@@ -18,11 +20,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   const user = (await getSessionUser())!; // middleware gates /messages
   const conv = await getConversationParticipants(id);
   if (!conv || (conv.userA !== user.id && conv.userB !== user.id)) notFound();
-  const [initial, other, listingContexts, receipts, locale, t] = await Promise.all([
+  const [initial, other, listingContexts, receipts, contracts, locale, t] = await Promise.all([
     getThread(id, user.id),
     getOtherParticipantProfile(id, user.id),
     getListingInquiryContexts(id),
     getReceiptState(id, user.id),
+    getDealContractsForConversation(id),
     getLocale(),
     getTranslations("messages"),
   ]);
@@ -30,23 +33,33 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
     style: "currency",
     currency: "USD",
   });
-  const contexts: MessageContext[] = listingContexts.map((context) => ({
-    kind: "listing",
-    id: context.id,
-    label: context.title,
-    eyebrow: t(
-      context.listingId
-        ? "listingContext"
-        : "listingContextUnavailable",
-      {
-        price: money.format(context.priceCents / 100),
-      },
-    ),
-    description:
-      [context.brandName, context.creatureName].filter(Boolean).join(" · ") ||
-      null,
-    href: context.listingId ? `/listing/${context.listingId}` : null,
-  }));
+  const contexts: MessageContext[] = listingContexts.map((context) => {
+    const isDirectCreatureInquiry =
+      !context.listingId && context.priceCents === 0 && Boolean(context.creatureId);
+    return {
+      kind: isDirectCreatureInquiry ? "creature" : "listing",
+      id: context.id,
+      label: context.title,
+      eyebrow: isDirectCreatureInquiry
+        ? t("creatureContext")
+        : t(
+            context.listingId
+              ? "listingContext"
+              : "listingContextUnavailable",
+            {
+              price: money.format(context.priceCents / 100),
+            },
+          ),
+      description:
+        [context.brandName, context.creatureName].filter(Boolean).join(" · ") ||
+        null,
+      href: context.listingId
+        ? `/listing/${context.listingId}`
+        : context.creatureSlug
+          ? `/c/${context.creatureSlug}`
+          : null,
+    };
+  });
   const otherName = other?.display_name ?? `@${other?.username ?? "unknown"}`;
 
   return (
@@ -58,6 +71,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
         <h1 className="text-base font-bold">{otherName}</h1>
       </header>
       <div className="p-3">
+        <DealRoomPanel
+          conversationId={id}
+          viewerId={user.id}
+          contracts={contracts}
+          inquiries={listingContexts}
+        />
         <MessageThread
           conversationId={id}
           meId={user.id}

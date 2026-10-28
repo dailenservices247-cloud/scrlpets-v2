@@ -75,6 +75,11 @@ export function ListingForm(props: ListingFormProps) {
   const [depositPercent, setDepositPercent] = useState(edit?.depositPercent ?? "");
   const [inspectionHours, setInspectionHours] = useState(edit?.inspectionHours ?? "");
   const [guarantee, setGuarantee] = useState<GuaranteeChoice>(edit?.guarantee ?? EMPTY_GUARANTEE);
+  const [sellerSource, setSellerSource] = useState<"distributor" | "merchant">("distributor");
+  const [merchantName, setMerchantName] = useState("");
+  const [externalSku, setExternalSku] = useState("");
+  const [externalUrl, setExternalUrl] = useState("");
+  const [saleMode, setSaleMode] = useState<"direct_checkout" | "contract_escrow">("direct_checkout");
   const [pendingGalleryPhotos, setPendingGalleryPhotos] = useState<
     { url: string; caption: string }[]
   >([]);
@@ -89,6 +94,11 @@ export function ListingForm(props: ListingFormProps) {
     fd.set("title", title);
     fd.set("price", price);
     fd.set("mediaUrl", mediaUrl ?? "");
+    fd.set("sellerSource", sellerSource);
+    if (merchantName) fd.set("merchantName", merchantName);
+    if (externalSku) fd.set("externalSku", externalSku);
+    if (externalUrl) fd.set("externalUrl", externalUrl);
+    fd.set("saleMode", creatureId ? "contract_escrow" : saleMode);
     let res;
     let createdId: string | undefined;
     if (edit) {
@@ -231,6 +241,67 @@ export function ListingForm(props: ListingFormProps) {
       />
       {!isEditing && (
         <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
+      )}
+      {!creatureId && !isEditing && (
+        <div className="space-y-3 rounded-xl border border-input p-3" data-testid="merchant-options">
+          <p className="eyebrow">Seller Channel</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setSellerSource("distributor")}
+              className={`rounded-xl border p-2.5 text-left text-xs transition ${
+                sellerSource === "distributor" ? "border-primary/70 bg-primary/15 font-semibold text-brand-link" : "border-border/70 bg-muted/30 text-muted-foreground"
+              }`}
+            >
+              Independent Seller
+            </button>
+            <button
+              type="button"
+              onClick={() => setSellerSource("merchant")}
+              className={`rounded-xl border p-2.5 text-left text-xs transition ${
+                sellerSource === "merchant" ? "border-primary/70 bg-primary/15 font-semibold text-brand-link" : "border-border/70 bg-muted/30 text-muted-foreground"
+              }`}
+            >
+              Store / Merchant
+            </button>
+          </div>
+
+          {sellerSource === "merchant" && (
+            <div className="grid gap-2 pt-1 sm:grid-cols-2">
+              <input
+                className="rounded border border-input bg-transparent p-2 text-sm"
+                placeholder="Merchant name (e.g. Chewy, Petco, Local Store)"
+                value={merchantName}
+                onChange={(e) => setMerchantName(e.target.value)}
+              />
+              <input
+                className="rounded border border-input bg-transparent p-2 text-sm"
+                placeholder="Product SKU / Barcode"
+                value={externalSku}
+                onChange={(e) => setExternalSku(e.target.value)}
+              />
+              <input
+                className="rounded border border-input bg-transparent p-2 text-sm sm:col-span-2"
+                placeholder="External Catalog / Purchase URL (optional)"
+                type="url"
+                value={externalUrl}
+                onChange={(e) => setExternalUrl(e.target.value)}
+              />
+            </div>
+          )}
+
+          <div className="pt-1">
+            <label className="mb-1 block text-xs text-muted-foreground">Checkout Flow</label>
+            <select
+              value={saleMode}
+              onChange={(e) => setSaleMode(e.target.value as "direct_checkout" | "contract_escrow")}
+              className="w-full rounded border border-input bg-transparent p-2 text-xs"
+            >
+              <option value="direct_checkout">Direct Checkout (Instant Purchase)</option>
+              <option value="contract_escrow">Escrow &amp; Contract Agreement</option>
+            </select>
+          </div>
+        </div>
       )}
       {!isEditing && creatureId && (
         <label className="flex items-start gap-3 rounded-xl border border-input p-3">

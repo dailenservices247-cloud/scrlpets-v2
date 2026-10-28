@@ -7,6 +7,8 @@ import { getOrderThread } from "@/lib/orders/thread";
 import { createClient } from "@/lib/supabase/server";
 import { OrderThread } from "@/components/orders/OrderThread";
 import { OrderActions } from "@/components/orders/OrderActions";
+import { OrderDossierPanel } from "@/components/orders/OrderDossierPanel";
+import { getOrderCounterpartyDossier } from "@/lib/contracts/queries";
 
 /**
  * One order, and the people involved in it.
@@ -28,7 +30,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
   const { data } = await supabase
     .from("orders")
     .select(
-      "id,title_snapshot,status,fulfilment,buyer_id,seller_id,transporter_id,picked_up_at,animal_returned_at",
+      "id,title_snapshot,status,fulfilment,buyer_id,seller_id,transporter_id,transport_payout_policy,transport_surcharge_cents,picked_up_at,animal_returned_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -40,12 +42,17 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     buyer_id: string;
     seller_id: string;
     transporter_id: string | null;
+    transport_payout_policy: string | null;
+    transport_surcharge_cents: number | null;
     picked_up_at: string | null;
     animal_returned_at: string | null;
   } | null;
   if (!order) notFound();
 
-  const messages = await getOrderThread(id);
+  const [messages, dossier] = await Promise.all([
+    getOrderThread(id),
+    getOrderCounterpartyDossier(id),
+  ]);
 
   return (
     <AppPage showBottomNav={false}>
@@ -56,6 +63,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
         </p>
       </header>
       <div className="flex flex-col gap-4 px-3 pb-10">
+        <OrderDossierPanel
+          dossier={dossier}
+          transportPayoutPolicy={order.transport_payout_policy ?? undefined}
+          transportSurchargeCents={order.transport_surcharge_cents ?? undefined}
+        />
         <OrderActions
           order={{
             id: order.id,

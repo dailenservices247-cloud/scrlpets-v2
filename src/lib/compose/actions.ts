@@ -143,6 +143,14 @@ export async function createListing(
   // Returns the new row's id (like createCreature already does) so the caller
   // can attach gallery photos to THIS listing rather than re-finding it by
   // title, which misfires when a seller publishes two identical titles at once.
+  const rawSellerSource = String(formData.get("sellerSource") ?? "distributor");
+  const sellerSource = rawSellerSource === "merchant" ? "merchant" : "distributor";
+  const merchantName = (formData.get("merchantName") as string)?.trim() || null;
+  const externalSku = (formData.get("externalSku") as string)?.trim() || null;
+  const externalUrl = (formData.get("externalUrl") as string)?.trim() || null;
+  const rawSaleMode = String(formData.get("saleMode") ?? "");
+  const saleMode = rawSaleMode === "contract_escrow" || Boolean(creatureId) ? "contract_escrow" : "direct_checkout";
+
   const { data, error } = await supabase
     .from("listings")
     .insert({
@@ -156,6 +164,11 @@ export async function createListing(
       listing_kind: listingKind,
       deposit_bps: terms.terms.depositBps,
       inspection_hours: terms.terms.inspectionHours,
+      seller_source: sellerSource,
+      merchant_name: merchantName,
+      external_sku: externalSku,
+      external_url: externalUrl,
+      sale_mode: saleMode,
       ...attribution,
     })
     .select("id")
@@ -271,6 +284,13 @@ export async function editListing(listingId: string, formData: FormData): Promis
     : null;
   if (guarantee && !guarantee.ok) return { ok: false, error: guarantee.error };
 
+  const editsMerchant = formData.has("sellerSource");
+  const rawSellerSource = formData.get("sellerSource");
+  const sellerSource = rawSellerSource === "merchant" ? "merchant" : "distributor";
+  const merchantName = (formData.get("merchantName") as string)?.trim() || null;
+  const externalSku = (formData.get("externalSku") as string)?.trim() || null;
+  const externalUrl = (formData.get("externalUrl") as string)?.trim() || null;
+
   const { count, error } = await supabase
     .from("listings")
     .update({
@@ -281,6 +301,14 @@ export async function editListing(listingId: string, formData: FormData): Promis
         ? {
             deposit_bps: terms.terms.depositBps,
             inspection_hours: terms.terms.inspectionHours,
+          }
+        : {}),
+      ...(editsMerchant
+        ? {
+            seller_source: sellerSource,
+            merchant_name: merchantName,
+            external_sku: externalSku,
+            external_url: externalUrl,
           }
         : {}),
     }, { count: "exact" })

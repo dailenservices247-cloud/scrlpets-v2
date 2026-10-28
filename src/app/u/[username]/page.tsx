@@ -19,9 +19,12 @@ import { FeedList } from "@/components/feed/FeedList";
 import { AppPage } from "@/components/app/AppPage";
 import { Card } from "@/components/ui/card";
 import type { FeedItem } from "@/lib/feed/types";
-import { getBrandsByOwner } from "@/lib/brands/queries";
+import { getProfilePublicBrands } from "@/lib/brands/queries";
 import { getReviewsFor } from "@/lib/reviews/queries";
 import { ReviewList } from "@/components/reviews/ReviewList";
+import { listProfileServices } from "@/lib/services/queries";
+import { listProfileProducts } from "@/lib/shop/queries";
+import { ProductCard } from "@/components/shop/ProductCard";
 
 export const dynamic = "force-dynamic";
 
@@ -65,14 +68,16 @@ export default async function ProfilePage({
   const active = tab === "pets" || tab === "about" ? tab : "posts";
   // Counts come from the SAME reads the list pages render, so tapping a count
   // can never land on a different number of people than the count promised.
-  const [creatures, profileFeed, ownedBrands, followers, following, reviews] =
+  const [creatures, profileFeed, ownedBrands, followers, following, reviews, services, products] =
     await Promise.all([
       getCreaturesByOwner(profile.id),
       getProfileFeed(profile.id),
-      getBrandsByOwner(profile.id),
+      getProfilePublicBrands(profile.id),
       getFollowList(profile.id, "followers"),
       getFollowList(profile.id, "following"),
       getReviewsFor(profile.id),
+      listProfileServices(profile.id),
+      listProfileProducts(profile.id),
     ]);
   const followCounts = { followers: followers.length, following: following.length };
   const [viewerFollowing, viewerBlocked] =
@@ -120,6 +125,45 @@ export default async function ProfilePage({
             </div>
           )}
           <FeedList items={profileFeed} showTabs={false} viewerId={user?.id} />
+          {(services.length > 0 || products.length > 0) && (
+            <section className="px-3 pt-3" data-testid="profile-offerings-section">
+              <div className="premium-panel rounded-2xl p-4">
+                <p className="eyebrow">{t("offeringsEyebrow")}</p>
+                {services.length > 0 && (
+                  <div className="mt-2" data-testid="profile-services-list">
+                    <h2 className="text-sm font-semibold">{t("servicesTitle")}</h2>
+                    <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                      {services.map((svc) => (
+                        <li key={svc.id}>
+                          <Link
+                            href={`/services/${svc.id}`}
+                            className="block rounded-xl border border-border/70 bg-muted/30 p-3 text-sm transition hover:border-primary/40"
+                          >
+                            <span className="block truncate font-semibold">{svc.name}</span>
+                            {svc.category && (
+                              <span className="mt-0.5 block text-xs capitalize text-muted-foreground">
+                                {svc.category}
+                              </span>
+                            )}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {products.length > 0 && (
+                  <div className="mt-4" data-testid="profile-supplies-list">
+                    <h2 className="mb-2 text-sm font-semibold">{t("suppliesTitle")}</h2>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      {products.map((p) => (
+                        <ProductCard key={p.id} product={p} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
           {/* The trust surface that replaced the deleted score: real reviews
               from confirmed handovers, or an honest empty state. */}
           <ReviewList reviews={reviews} />

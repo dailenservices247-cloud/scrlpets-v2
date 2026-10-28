@@ -28,6 +28,7 @@ type SearchParams = {
   minPrice?: string;
   maxPrice?: string;
   category?: string;
+  source?: string;
 };
 
 function parseTab(raw?: string): MarketTab {
@@ -53,7 +54,7 @@ export default async function MarketPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { tab: rawTab, intent: rawIntent, species, minPrice, maxPrice, category } =
+  const { tab: rawTab, intent: rawIntent, species, minPrice, maxPrice, category, source } =
     await searchParams;
   const tab = parseTab(rawTab);
   const t = await getTranslations("market");
@@ -86,7 +87,12 @@ export default async function MarketPage({
           maxPrice={maxPrice}
         />
       )}
-      {tab === "supplies" && <SuppliesTab category={category} />}
+      {tab === "supplies" && (
+        <SuppliesTab
+          category={category}
+          source={source as "all" | "merchant" | "distributor" | "recommended" | undefined}
+        />
+      )}
       {tab === "services" && <ServicesTab category={category} />}
     </AppPage>
   );
@@ -208,13 +214,35 @@ async function AnimalsTab({
   );
 }
 
-async function SuppliesTab({ category }: { category?: string }) {
+async function SuppliesTab({
+  category,
+  source = "all",
+}: {
+  category?: string;
+  source?: "all" | "merchant" | "distributor" | "recommended";
+}) {
   const t = await getTranslations("shop");
   const [products, categories, paymentsOn] = await Promise.all([
-    listShopProducts(category),
+    listShopProducts({ category, source }),
     listShopCategories(),
     isPaymentsEnabled(),
   ]);
+
+  // Deduplicate catalog SKUs (group identical SKUs or normalized title + seller source)
+  const seenSkus = new Set<string>();
+  const deduplicatedProducts = products.filter((p) => {
+    const key = p.externalSku ? `sku:${p.externalSku}` : `title:${p.title.trim().toLowerCase()}`;
+    if (seenSkus.has(key)) return false;
+    seenSkus.add(key);
+    return true;
+  });
+
+  const sourceTabs = [
+    { key: "all", label: "All Supplies" },
+    { key: "merchant", label: "Merchants & Stores" },
+    { key: "distributor", label: "Independent Sellers" },
+    { key: "recommended", label: "Curated Recommendations" },
+  ] as const;
 
   return (
     <>
@@ -224,21 +252,41 @@ async function SuppliesTab({ category }: { category?: string }) {
         </p>
       )}
 
+      {/* Source filter tabs */}
+      <div className="flex gap-2 overflow-x-auto px-4 pt-2" role="tablist" aria-label="Supply Source">
+        {sourceTabs.map((s) => {
+          const active = (source || "all") === s.key;
+          const href = `/market?tab=supplies${category ? `&category=${encodeURIComponent(category)}` : ""}${s.key !== "all" ? `&source=${s.key}` : ""}`;
+          return (
+            <Link
+              key={s.key}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                active ? "border-primary bg-primary/15 text-brand-link" : "border-input text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {s.label}
+            </Link>
+          );
+        })}
+      </div>
+
       {categories.length > 0 && (
-        <nav className="flex gap-2 overflow-x-auto px-4 pb-4 pt-4" aria-label={t("categories")}>
+        <nav className="flex gap-2 overflow-x-auto px-4 pb-2 pt-3" aria-label={t("categories")}>
           <Link
-            href="/market?tab=supplies"
+            href={`/market?tab=supplies${source && source !== "all" ? `&source=${source}` : ""}`}
             aria-current={!category ? "page" : undefined}
-            className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-sm ${!category ? "border-primary bg-primary/10" : "border-input"}`}
+            className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-xs ${!category ? "border-primary bg-primary/10" : "border-input text-muted-foreground"}`}
           >
             {t("allCategories")}
           </Link>
           {categories.map((c) => (
             <Link
               key={c}
-              href={`/market?tab=supplies&category=${encodeURIComponent(c)}`}
+              href={`/market?tab=supplies&category=${encodeURIComponent(c)}${source && source !== "all" ? `&source=${source}` : ""}`}
               aria-current={category === c ? "page" : undefined}
-              className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-sm ${category === c ? "border-primary bg-primary/10" : "border-input"}`}
+              className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-xs ${category === c ? "border-primary bg-primary/10" : "border-input text-muted-foreground"}`}
             >
               {c}
             </Link>
@@ -247,13 +295,13 @@ async function SuppliesTab({ category }: { category?: string }) {
       )}
 
       <div className="px-4 pb-8 pt-4">
-        {products.length === 0 ? (
+        {deduplicatedProducts.length === 0 ? (
           <p className="py-12 text-center text-sm text-muted-foreground" data-testid="shop-empty">
             {t("empty")}
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" data-testid="shop-grid">
-            {products.map((p) => (
+            {deduplicatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>

@@ -190,3 +190,154 @@ export async function getBrandContentCounts(brandId: string): Promise<{ posts: n
   ]);
   return { posts: posts.count ?? 0, listings: listings.count ?? 0 };
 }
+
+export type PublicBrandTeamMember = {
+  profileId: string;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  role: BrandRole;
+  isVerified: boolean;
+};
+
+type PublicBrandTeamRow = {
+  profile_id: string;
+  username: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  role: BrandRole;
+  is_verified: boolean;
+};
+
+/**
+ * The people running an establishment (`owner`, `admin`, `contributor`) for
+ * public display on `/b/[slug]`. Uses the security-definer RPC so visitors can
+ * see and click through to the team without opening raw `brand_memberships` RLS.
+ */
+export async function getPublicBrandTeam(brandId: string): Promise<PublicBrandTeamMember[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("public_brand_team", { target_brand: brandId });
+  return ((data ?? []) as PublicBrandTeamRow[]).map((r) => ({
+    profileId: r.profile_id,
+    username: r.username,
+    displayName: r.display_name,
+    avatarUrl: r.avatar_url,
+    role: r.role,
+    isVerified: Boolean(r.is_verified),
+  }));
+}
+
+export type ProfilePublicBrand = MyBrand & { role?: BrandRole };
+
+type ProfilePublicBrandRow = BrandRow & { role: BrandRole };
+
+/**
+ * All active establishments a profile helps operate (`owner`, `admin`, or
+ * `contributor`) for `/u/[username]`. Falls back to `getBrandsByOwner` if the
+ * RPC returns nothing.
+ */
+export async function getProfilePublicBrands(profileId: string): Promise<ProfilePublicBrand[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("profile_public_brands", {
+    target_profile: profileId,
+  });
+  if (!error && Array.isArray(data) && data.length > 0) {
+    return (data as ProfilePublicBrandRow[]).map((b) => ({
+      ...toMyBrand(b),
+      role: b.role,
+    }));
+  }
+  return getBrandsByOwner(profileId);
+}
+
+export type BrandRosterCreature = {
+  id: string;
+  name: string;
+  slug: string;
+  species: string | null;
+  breed: string | null;
+  avatarUrl: string | null;
+  creatureRole: string;
+  deceasedAt: string | null;
+};
+
+/**
+ * Public animals belonging to an establishment's operator roster (visible,
+ * non-archived, in_roster=true), including memorialized foundation animals.
+ */
+export async function listBrandCreatures(ownerId: string): Promise<BrandRosterCreature[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("creatures")
+    .select("id,name,slug,species,breed,avatar_url,creature_role,deceased_at")
+    .eq("owner_id", ownerId)
+    .eq("in_roster", true)
+    .eq("page_visible", true)
+    .is("archived_at", null)
+    .order("created_at", { ascending: true })
+    .limit(24);
+  return (
+    (data ?? []) as {
+      id: string;
+      name: string;
+      slug: string;
+      species: string | null;
+      breed: string | null;
+      avatar_url: string | null;
+      creature_role: string;
+      deceased_at: string | null;
+    }[]
+  ).map((c) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    species: c.species,
+    breed: c.breed,
+    avatarUrl: c.avatar_url,
+    creatureRole: c.creature_role,
+    deceasedAt: c.deceased_at,
+  }));
+}
+
+export type BrandPublicLitter = {
+  id: string;
+  name: string;
+  species: string | null;
+  breed: string | null;
+  status: string;
+  expectedDate: string | null;
+  birthDate: string | null;
+};
+
+/** Litters attributed to this brand or its primary operator. */
+export async function listBrandLitters(
+  brandId: string,
+  ownerId: string,
+): Promise<BrandPublicLitter[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("litters")
+    .select("id,name,species,breed,status,expected_date,birth_date")
+    .or(`brand_id.eq.${brandId},owner_id.eq.${ownerId}`)
+    .order("created_at", { ascending: false })
+    .limit(12);
+  return (
+    (data ?? []) as {
+      id: string;
+      name: string;
+      species: string | null;
+      breed: string | null;
+      status: string;
+      expected_date: string | null;
+      birth_date: string | null;
+    }[]
+  ).map((l) => ({
+    id: l.id,
+    name: l.name,
+    species: l.species,
+    breed: l.breed,
+    status: l.status,
+    expectedDate: l.expected_date,
+    birthDate: l.birth_date,
+  }));
+}

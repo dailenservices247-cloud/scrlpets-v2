@@ -314,10 +314,14 @@
       "username_length": "Entre 3 y 30 caracteres.",
       "username_leading": "Debe empezar con una letra.",
       "generic": "No se pudo guardar. Inténtalo de nuevo."
-    }
+    },
+    "offeringsEyebrow": "Ofertas",
+    "servicesTitle": "Servicios ofrecidos",
+    "suppliesTitle": "Suministros y tienda"
   },
   "detail": {
     "backToFeed": "Volver al feed",
+    "bredBy": "Criado por",
     "surfaceLabel": "Superficie de destino",
     "untitled": "Sin título",
     "postDetail": "Detalle de publicación",
@@ -374,6 +378,7 @@
     "you": "Tú",
     "back": "Atrás",
     "listingContexts": "Contexto de consulta del anuncio",
+    "creatureContext": "Consulta sobre el animal",
     "listingContext": "Consulta del anuncio · {price}",
     "listingContextUnavailable": "Anuncio anterior · {price} · no disponible",
     "acceptRequest": "Aceptar",
@@ -1502,6 +1507,18 @@
       "verifyMatch": "Coincide — es el número registrado para este animal.",
       "verifyNoMatch": "No coincide. O ese no es el número de este animal, o este animal no tiene ningún marcador registrado — esta comprobación no puede decirte cuál de las dos.",
       "verifyHint": "Escanea al animal que tienes delante y escribe lo que lea el lector. Scrlpets responde sí o no; nunca te muestra el número guardado."
+    },
+    "goHome": {
+      "eyebrow": "Preparación para entrega",
+      "readyNow": "Listo para ir a casa ahora ({weeks} semanas de edad)",
+      "eligibleOn": "Elegible para ir a casa el {date} (faltan {days} días)",
+      "ruleHint": "Edad mínima estándar para esta especie: {minWeeks} semanas."
+    },
+    "establishment": {
+      "eyebrow": "Establecimiento y ofertas",
+      "visitCta": "Visitar establecimiento",
+      "servicesLabel": "Servicios de este establecimiento",
+      "suppliesLabel": "Suministros y productos"
     }
   },
   "brandKit": {
@@ -1534,7 +1551,23 @@
     "galleryEmpty": "Aún no hay fotos.",
     "galleryClose": "Cerrar",
     "establishedLabel": "Fundada en {year}",
-    "yearsExperiencePublic": "{years, plural, =0 {Nueva este año} one {# año de experiencia} other {# años de experiencia}}"
+    "yearsExperiencePublic": "{years, plural, =0 {Nueva este año} one {# año de experiencia} other {# años de experiencia}}",
+    "peopleEyebrow": "Equipo del establecimiento",
+    "peopleTitle": "Personas que dirigen este establecimiento",
+    "peopleSubtitle": "Selecciona a una persona para ver su perfil, animales y ofertas.",
+    "verifiedMember": "Operador verificado",
+    "role": {
+      "owner": "Propietario",
+      "admin": "Administrador",
+      "contributor": "Colaborador"
+    },
+    "animalsEyebrow": "Programa y linaje",
+    "animalsTitle": "Animales y grupos",
+    "viewFamilyTree": "Ver árbol genealógico",
+    "memorialBadge": "En memoria",
+    "littersSubtitle": "Grupos y camadas registrados",
+    "servicesEyebrow": "Servicios",
+    "servicesTitle": "Servicios ofrecidos"
   },
   "litters": {
     "eyebrow": "Camadas",

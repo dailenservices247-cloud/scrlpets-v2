@@ -145,3 +145,76 @@ export async function listServiceCategories(): Promise<string[]> {
     .limit(200);
   return [...new Set(((data ?? []) as { category: string }[]).map((r) => r.category))].sort();
 }
+
+/** Active services offered by an establishment (`/b/[slug]`) or its operator. */
+export async function listBrandServices(
+  brandId: string,
+  ownerId: string,
+): Promise<ProviderService[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("services")
+    .select(SELECT)
+    .eq("active", true)
+    .or(`brand_id.eq.${brandId},owner_id.eq.${ownerId}`)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  const rows = (data ?? []) as unknown as Row[];
+  if (rows.length === 0) return [];
+  const { data: verified } = await supabase.rpc("verified_profile_ids", {
+    profile_ids: [...new Set(rows.map((r) => r.owner_id))],
+  });
+  const verifiedIds = new Set(
+    ((verified ?? []) as { profile_id: string }[]).map((v) => v.profile_id),
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    description: r.description,
+    category: r.category,
+    priceCents: r.price_cents,
+    currency: r.currency,
+    area: r.area,
+    contactNote: r.contact_note,
+    mediaUrl: r.media_url,
+    ownerId: r.owner_id,
+    ownerUsername: r.profiles?.username ?? null,
+    brand: r.brands ?? null,
+    ownerVerified: verifiedIds.has(r.owner_id),
+  }));
+}
+
+/** Active services offered by a specific profile (`/u/[username]`). */
+export async function listProfileServices(profileId: string): Promise<ProviderService[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("services")
+    .select(SELECT)
+    .eq("active", true)
+    .eq("owner_id", profileId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  const rows = (data ?? []) as unknown as Row[];
+  if (rows.length === 0) return [];
+  const { data: verified } = await supabase.rpc("verified_profile_ids", {
+    profile_ids: [profileId],
+  });
+  const verifiedIds = new Set(
+    ((verified ?? []) as { profile_id: string }[]).map((v) => v.profile_id),
+  );
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    description: r.description,
+    category: r.category,
+    priceCents: r.price_cents,
+    currency: r.currency,
+    area: r.area,
+    contactNote: r.contact_note,
+    mediaUrl: r.media_url,
+    ownerId: r.owner_id,
+    ownerUsername: r.profiles?.username ?? null,
+    brand: r.brands ?? null,
+    ownerVerified: verifiedIds.has(r.owner_id),
+  }));
+}

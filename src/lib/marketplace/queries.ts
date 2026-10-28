@@ -15,6 +15,8 @@ export type ListingInquiryContext = {
   listingId: string | null;
   title: string;
   priceCents: number;
+  creatureId: string | null;
+  creatureSlug: string | null;
   creatureName: string | null;
   brandName: string | null;
   createdAt: string;
@@ -49,7 +51,7 @@ export async function getListingInquiryContexts(
   const { data, error } = await supabase
     .from("listing_inquiries")
     .select(
-      "id,listing_id,listing_title_snapshot,price_cents_snapshot,creature_name_snapshot,brand_name_snapshot,created_at",
+      "id,listing_id,listing_title_snapshot,price_cents_snapshot,creature_id_snapshot,creature_name_snapshot,brand_name_snapshot,created_at",
     )
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: false });
@@ -74,6 +76,24 @@ export async function getListingInquiryContexts(
     }
   }
 
+  const creatureIds = [
+    ...new Set(
+      (data ?? [])
+        .map((row) => row.creature_id_snapshot)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+  const creatureSlugById = new Map<string, string>();
+  if (creatureIds.length > 0) {
+    const { data: creatures } = await supabase
+      .from("creatures")
+      .select("id,slug")
+      .in("id", creatureIds);
+    for (const c of (creatures ?? []) as { id: string; slug: string }[]) {
+      creatureSlugById.set(c.id, c.slug);
+    }
+  }
+
   return (data ?? []).map((row) => ({
     id: row.id,
     listingId:
@@ -82,6 +102,10 @@ export async function getListingInquiryContexts(
         : null,
     title: row.listing_title_snapshot,
     priceCents: row.price_cents_snapshot,
+    creatureId: row.creature_id_snapshot ?? null,
+    creatureSlug: row.creature_id_snapshot
+      ? (creatureSlugById.get(row.creature_id_snapshot) ?? null)
+      : null,
     creatureName: row.creature_name_snapshot,
     brandName: row.brand_name_snapshot,
     createdAt: row.created_at,

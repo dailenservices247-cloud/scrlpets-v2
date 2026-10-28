@@ -137,7 +137,21 @@ async function fetchTree(ownerId: string, onlyVisible: boolean): Promise<TreeDat
     .is("archived_at", null);
   if (onlyVisible) query = query.eq("page_visible", true);
   const { data: rows } = await query.order("created_at");
-  const creatures = (rows ?? []) as RawCreatureRow[];
+  const ownedCreatures = (rows ?? []) as RawCreatureRow[];
+
+  // Also include extended lineage animals (alumni offspring bred by this
+  // operator that changed hands to a buyer + visible parent animals for a
+  // buyer's tree) so handovers and memorials stay connected on both trees.
+  const { data: extendedRows } = await supabase.rpc("tree_extended_creatures", {
+    target_owner: ownerId,
+    only_visible: onlyVisible,
+  });
+  const byId = new Map<string, RawCreatureRow>();
+  for (const r of ownedCreatures) byId.set(r.id, r);
+  for (const r of (extendedRows ?? []) as RawCreatureRow[]) {
+    if (!byId.has(r.id)) byId.set(r.id, r);
+  }
+  const creatures = [...byId.values()];
   if (creatures.length === 0) return { creatures: [], generations: [] };
 
   /**

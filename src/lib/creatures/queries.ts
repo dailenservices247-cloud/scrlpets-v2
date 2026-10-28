@@ -252,3 +252,51 @@ export async function getLitterName(litterId: string): Promise<{ id: string; nam
   const { data } = await supabase.from("litters").select("id,name").eq("id", litterId).maybeSingle();
   return data ?? null;
 }
+
+export type CreatureOriginAttribution = {
+  breederId: string;
+  breederUsername: string;
+  breederDisplayName: string | null;
+  brandId: string | null;
+  brandName: string | null;
+  brandSlug: string | null;
+  brandType: string | null;
+  isAlumni: boolean;
+};
+
+type CreatureOriginRow = {
+  breeder_id: string;
+  breeder_username: string;
+  breeder_display_name: string | null;
+  brand_id: string | null;
+  brand_name: string | null;
+  brand_slug: string | null;
+  brand_type: string | null;
+  is_alumni: boolean;
+};
+
+/**
+ * Resolves the establishment (`/b/[slug]`) and breeder (`@username`) behind an
+ * animal so `/c/[slug]` links directly to the kennel/store/establishment and
+ * preserves alumni provenance after ownership transfers.
+ */
+export async function getCreatureOriginAttribution(
+  creatureId: string,
+): Promise<CreatureOriginAttribution | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("creature_origin_attribution", {
+    target_creature: creatureId,
+  });
+  const row = (Array.isArray(data) ? data[0] : data) as CreatureOriginRow | null | undefined;
+  if (!row) return null;
+  return {
+    breederId: row.breeder_id,
+    breederUsername: row.breeder_username,
+    breederDisplayName: row.breeder_display_name,
+    brandId: row.brand_id,
+    brandName: row.brand_name,
+    brandSlug: row.brand_slug,
+    brandType: row.brand_type,
+    isAlumni: Boolean(row.is_alumni),
+  };
+}

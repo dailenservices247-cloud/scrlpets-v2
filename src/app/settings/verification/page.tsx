@@ -6,12 +6,18 @@ import { getMyCreatures } from "@/lib/compose/actions";
 import { VerificationPanel } from "@/components/verification/VerificationPanel";
 import { getAttestedCreatureIds, getMyTrustState } from "@/lib/verification/queries";
 import { isIdentityConfigured } from "@/lib/verification/stripe-identity";
+import { getStandingPolicy, getSellerComplianceProfile } from "@/lib/contracts/queries";
 
 // Phase 2: the person's own trust surface.
 export default async function VerificationPage() {
   const t = await getTranslations("verification");
-  await getSessionUser(); // proxy gates /settings
-  const [state, creatures] = await Promise.all([getMyTrustState(), getMyCreatures()]);
+  const user = await getSessionUser(); // proxy gates /settings
+  const [state, creatures, standingPolicy, complianceProfile] = await Promise.all([
+    getMyTrustState(),
+    getMyCreatures(),
+    user ? getStandingPolicy(user.id) : null,
+    user ? getSellerComplianceProfile(user.id) : null,
+  ]);
   const attested = await getAttestedCreatureIds(creatures.map((c) => c.id));
 
   return (
@@ -28,6 +34,8 @@ export default async function VerificationPage() {
           creatures={creatures}
           attestedIds={[...attested]}
           identityConfigured={isIdentityConfigured()}
+          standingPolicy={standingPolicy}
+          complianceProfile={complianceProfile}
         />
       </div>
     </AppPage>

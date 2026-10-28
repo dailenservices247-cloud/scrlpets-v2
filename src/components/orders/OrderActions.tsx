@@ -18,6 +18,7 @@ import {
   setOrderAddresses,
   type OrderResult,
 } from "@/lib/orders/actions";
+import { startOrderPayment } from "@/lib/payments/actions";
 
 /**
  * The order's controls.
@@ -322,6 +323,54 @@ export function OrderActions({
         >
           {busy ? t("working") : t("cancel")}
         </Button>
+      )}
+
+      {viewerId === order.buyerId && (order.status === "awaiting_payment" || order.status === "deposit_held") && (
+        <div className="flex flex-col gap-2 rounded-xl border border-primary/40 bg-primary/10 p-3" data-testid="order-payment-box">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {order.status === "deposit_held" ? "Stage 2 Escrow Payment" : "Escrow Payment"}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {order.status === "deposit_held"
+              ? "Animal is verified on the way or ready for handover. Relinquish the remaining balance to hold in escrow."
+              : "Pay the required deposit to reserve the animal, or pay in full."}
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {order.status === "awaiting_payment" && (
+              <Button
+                type="button"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  setError(null);
+                  const res = await startOrderPayment(order.id, "deposit");
+                  setBusy(false);
+                  if (!res.ok) setError(res.error);
+                  else router.refresh();
+                }}
+                data-testid="pay-deposit-btn"
+              >
+                {busy ? "Processing..." : "Pay Deposit (Stage 1)"}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant={order.status === "deposit_held" ? "default" : "outline"}
+              disabled={busy}
+              onClick={async () => {
+                setBusy(true);
+                setError(null);
+                const res = await startOrderPayment(order.id, order.status === "deposit_held" ? "balance" : "full");
+                setBusy(false);
+                if (!res.ok) setError(res.error);
+                else router.refresh();
+              }}
+              data-testid="pay-balance-btn"
+            >
+              {busy ? "Processing..." : order.status === "deposit_held" ? "Pay Remaining Balance (Stage 2)" : "Pay in Full"}
+            </Button>
+          </div>
+        </div>
       )}
 
       {error && (
