@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Truck } from "lucide-react";
 import { formatPrice } from "@/lib/shop/format";
 import { respondTransportQuote } from "@/lib/contracts/actions";
 import type { InboundTransportQuote } from "@/lib/jobs/queries";
@@ -10,8 +11,14 @@ import { Button } from "@/components/ui/button";
 export function QuoteRequestsList({ quotes }: { quotes: InboundTransportQuote[] }) {
   if (quotes.length === 0) {
     return (
-      <div className="premium-panel rounded-2xl p-6 text-center text-sm text-muted-foreground">
-        No pending transport quote requests right now.
+      <div className="premium-panel flex flex-col items-center justify-center rounded-2xl p-10 text-center">
+        <span className="grid size-12 place-items-center rounded-full bg-muted/40 text-muted-foreground">
+          <Truck className="size-6" aria-hidden />
+        </span>
+        <p className="mt-3 text-sm font-semibold text-foreground">No Pending Quote Requests</p>
+        <p className="mt-1 max-w-sm text-micro text-muted-foreground">
+          When buyers or sellers request carrier transport for an animal deal, route quote requests will appear here.
+        </p>
       </div>
     );
   }

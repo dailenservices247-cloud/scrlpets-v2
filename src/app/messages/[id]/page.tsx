@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getSessionUser } from "@/lib/auth/session";
 import {
@@ -66,8 +67,12 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   return (
     <AppPage>
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b bg-background/80 p-3 backdrop-blur">
-        <Link href="/messages" className="text-sm text-brand-link underline" aria-label="Back to messages">
-          ←
+        <Link
+          href="/messages"
+          className="grid size-8 place-items-center rounded-xl border border-border/70 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-muted/60 hover:text-foreground"
+          aria-label="Back to messages"
+        >
+          <ArrowLeft className="size-4" aria-hidden />
         </Link>
         <h1 className="text-base font-bold">{otherName}</h1>
       </header>

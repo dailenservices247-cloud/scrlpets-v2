@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth/session";
@@ -21,8 +22,12 @@ export default async function ProfileSettingsPage() {
       <div className="p-4">
         <header className="mb-4 flex items-center justify-between">
           <h1 className="text-lg font-bold">{t("edit")}</h1>
-          <Link href={`/u/${data!.username}`} className="text-sm text-brand-link underline" aria-label="Back to profile">
-            ←
+          <Link
+            href={`/u/${data!.username}`}
+            className="grid size-8 place-items-center rounded-xl border border-border/70 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-muted/60 hover:text-foreground"
+            aria-label="Back to profile"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
           </Link>
         </header>
         <UsernameForm current={data!.username as string} />

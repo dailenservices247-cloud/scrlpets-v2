@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getSessionUser } from "@/lib/auth/session";
 import {
@@ -24,8 +25,12 @@ export default async function MessagesPage() {
     <AppPage>
       <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 p-3 backdrop-blur">
         <h1 className="text-lg font-bold">{t("title")}</h1>
-        <Link href="/" className="text-sm text-brand-link underline" aria-label="Back to feed">
-          ←
+        <Link
+          href="/"
+          className="grid size-8 place-items-center rounded-xl border border-border/70 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-muted/60 hover:text-foreground"
+          aria-label="Back to feed"
+        >
+          <ArrowLeft className="size-4" aria-hidden />
         </Link>
       </header>
 

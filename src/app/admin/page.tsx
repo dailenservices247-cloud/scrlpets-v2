@@ -91,7 +91,7 @@ export default async function AdminPage({
   };
 
   return (
-    <AppPage>
+    <AppPage wide>
       <div className="px-3 pb-12 pt-4">
         <AdminNav activeTab={activeTab} badges={badges} />
 
