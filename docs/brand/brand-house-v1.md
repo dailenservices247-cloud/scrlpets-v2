@@ -26,14 +26,13 @@ The full portfolio Brand House lives in private project docs. Do not copy privat
 | `border-subtle` | `#4a4b4d` | default border |
 | `border-strong` | `#5c5d5f` | emphasized border |
 
-## Typography
+## Typography (Updated 2026-10-28 — Unified Modern Sans)
 
-- Sans: Geist Sans
-- Mono: Geist Mono
-- Display serif: Instrument Serif — identity only (brand names, animal names, realm and section headings). Never on controls, buttons, form labels, metadata or body copy.
-- Use two weights by default: regular and medium. The display serif ships one weight (400) plus italic.
-- Eyebrows use mono, uppercase, 11px, `wine-text`.
-- If it is unclear which face a string belongs to, it is Geist Sans. The serif is the exception, never the default.
+- Primary Face: Inter (Modern Neo-Grotesque) — unified across identity, headlines, animal names, body reading, controls, and eyebrows.
+- Mono: Geist Mono — technical data and hashes only (UUIDs, transaction IDs, commit SHAs).
+- Identity & Display: Clean, powerful modern sans (bold/extrabold weights). Instrument Serif retired per founder decision (eliminated clashing letter shapes and awkward contrast).
+- Eyebrows: Inter semibold, uppercase, 11px, `letter-spacing: 0.06em`, `wine-text` (#e09aa4).
+- Color Palette: 100% preserved (Wine primary, Spine verification reserve, Gold loyalty reserve, Shell dark surfaces).
 
 ## Accessibility Notes
 

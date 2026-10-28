@@ -16,9 +16,9 @@ describe("type scale tokens", () => {
     expect(css).toContain("--font-serif:");
   });
 
-  it("loads the display serif and exposes it as a CSS variable", () => {
-    expect(layout).toContain("Instrument_Serif");
-    expect(layout).toContain("--font-instrument-serif");
+  it("loads the primary modern sans and exposes it as a CSS variable", () => {
+    expect(layout).toContain("Inter");
+    expect(layout).toContain("--font-inter");
   });
 });
 

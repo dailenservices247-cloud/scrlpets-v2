@@ -94,10 +94,10 @@ test.describe("realm registers", () => {
     expect(width).toBeLessThanOrEqual(720);
   });
 
-  test("a realm heading is display-size, in the identity serif", async ({ page }) => {
+  test("a realm heading is display-size, in the clean modern sans", async ({ page }) => {
     // Spec §3.1 sizes it and §9 assigns the face: a realm heading is an
-    // identity string, so it takes Instrument Serif. Measured on the listing
-    // realm because that is the one an existing spec proves is reachable.
+    // identity string, rendering in the unified modern sans (Inter). Measured
+    // on the listing realm because that is the one an existing spec proves is reachable.
     await openTheListingRealm(page);
     const heading = page.getByTestId("destination-heading");
     const type = await heading.evaluate((el) => {
@@ -105,6 +105,6 @@ test.describe("realm registers", () => {
       return { size: parseFloat(style.fontSize), family: style.fontFamily };
     });
     expect(type.size, "display is 24px").toBe(24);
-    expect(type.family).toContain("Instrument");
+    expect(type.family).toContain("Inter");
   });
 });

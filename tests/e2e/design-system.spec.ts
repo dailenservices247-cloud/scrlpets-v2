@@ -13,18 +13,18 @@ const fontOf = (locator: Locator) =>
   locator.evaluate((el) => getComputedStyle(el).fontFamily);
 
 test.describe("identity typography", () => {
-  test("a brand name renders in the display serif", async ({ page }) => {
+  test("a brand name renders in the clean modern sans", async ({ page }) => {
     await page.goto("/design");
     const brand = page.getByTestId("brand-attribution").first();
     await expect(brand).toBeVisible();
-    expect(await fontOf(brand)).toContain("Instrument");
+    expect(await fontOf(brand)).toContain("Inter");
   });
 
-  test("the timestamp beside it does NOT — the serif is identity only", async ({ page }) => {
+  test("the timestamp beside it renders cleanly in the modern sans", async ({ page }) => {
     await page.goto("/design");
     const time = page.getByTestId("post-permalink").first();
     await expect(time).toBeVisible();
-    expect(await fontOf(time)).not.toContain("Instrument");
+    expect(await fontOf(time)).toContain("Inter");
   });
 });
 
