@@ -60,13 +60,16 @@ export function AttributionStack({
       <div className={cn("flex min-w-0 items-start gap-2.5", className)} data-testid="attribution-stack">
         <Avatar src={item.brand.avatarUrl} name={item.brand.name} size="lg" />
         <div className="min-w-0">
-          <Link
-            href={`/b/${item.brand.slug}`}
-            className="block max-w-full truncate font-serif text-title leading-tight text-foreground transition hover:text-brand-link hover:underline"
-            data-testid="brand-attribution"
-          >
-            {item.brand.name}
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/b/${item.brand.slug}`}
+              className="truncate font-bold text-title leading-tight text-foreground transition hover:text-brand-link hover:underline"
+              data-testid="brand-attribution"
+            >
+              {item.brand.name}
+            </Link>
+            {item.creature ? <AnimalIdentityChip creature={item.creature} /> : null}
+          </div>
           <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
             <Avatar src={item.author.avatarUrl} name={personName} size="sm" />
             <Link
@@ -84,7 +87,6 @@ export function AttributionStack({
               <time dateTime={item.createdAt}>{time}</time>
             </Link>
           </div>
-          {item.creature ? <AnimalIdentityChip creature={item.creature} className="mt-1" /> : null}
         </div>
       </div>
     );
@@ -94,12 +96,15 @@ export function AttributionStack({
     <div className={cn("flex min-w-0 items-start gap-2.5", className)} data-testid="attribution-stack">
       <Avatar src={item.author.avatarUrl} name={personName} size="lg" />
       <div className="min-w-0">
-        <Link
-          href={`/u/${item.author.username}`}
-          className="block max-w-full truncate font-serif text-title leading-tight text-foreground transition hover:text-brand-link hover:underline"
-        >
-          {personName}
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href={`/u/${item.author.username}`}
+            className="truncate font-bold text-title leading-tight text-foreground transition hover:text-brand-link hover:underline"
+          >
+            {personName}
+          </Link>
+          {item.creature ? <AnimalIdentityChip creature={item.creature} /> : null}
+        </div>
         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
           <Link
             href={getFeedDestination(item).href}
@@ -109,7 +114,6 @@ export function AttributionStack({
             <time dateTime={item.createdAt}>{time}</time>
           </Link>
         </div>
-        {item.creature ? <AnimalIdentityChip creature={item.creature} className="mt-1" /> : null}
       </div>
     </div>
   );
