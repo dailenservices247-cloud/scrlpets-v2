@@ -75,7 +75,6 @@ export async function FeedDestinationShell({
   // comment state itself rather than trusting the caller to have done it.
   const [item] = await attachPostFlags([rawItem]);
   const t = await getTranslations("detail");
-  const tc = await getTranslations("content");
   const copy = copyByType[item.type];
   const isListing = item.type === "listing";
   const isProduct = item.type === "promo";
@@ -83,8 +82,6 @@ export async function FeedDestinationShell({
   // something someone said, so its realm is an entry in a column with no
   // surface under it; everything else here carries price or state.
   const register = registerFor(item.type);
-  const edited =
-    new Date(item.updatedAt).getTime() > new Date(item.createdAt).getTime();
   const manageableBrandIds = new Set(
     viewerId ? await getManageableBrandIds(viewerId) : [],
   );
@@ -138,14 +135,6 @@ export async function FeedDestinationShell({
             <AttributionStack item={item} />
             <div className="flex flex-col items-end gap-2">
               <ContentTypeBadge type={item.type} />
-              {edited && (
-                <span
-                  className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-micro font-medium text-muted-foreground"
-                  data-testid="edited-chip"
-                >
-                  {tc("edited")}
-                </span>
-              )}
             </div>
           </header>
 

@@ -80,7 +80,7 @@ test.describe("content edit/delete", () => {
     await expect(
       page.getByRole("heading", { name: edited, exact: true }),
     ).toBeVisible();
-    await expect(page.getByTestId("edited-chip")).toBeVisible();
+    await expect(page.getByTestId("edited-chip")).toBeHidden();
 
     await page.getByTestId("owner-menu").click();
     await page.getByTestId("delete-content").click();
@@ -141,7 +141,7 @@ test.describe("content edit/delete", () => {
     await expect(
       page.getByRole("heading", { name: edited, exact: true }),
     ).toBeVisible();
-    await expect(page.getByTestId("edited-chip")).toBeVisible();
+    await expect(page.getByTestId("edited-chip")).toBeHidden();
 
     const db = databaseClient();
     await db.auth.signInWithPassword({

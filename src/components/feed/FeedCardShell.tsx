@@ -28,8 +28,6 @@ export function FeedCardShell({
   register?: "editorial" | "panel";
 }) {
   const t = useTranslations("content");
-  const edited =
-    new Date(item.updatedAt).getTime() > new Date(item.createdAt).getTime();
 
   const header = (
     <header className="flex items-start justify-between gap-3">
@@ -57,14 +55,6 @@ export function FeedCardShell({
             data-testid="pinned-chip"
           >
             {t("pinnedToProfile")}
-          </span>
-        )}
-        {edited && (
-          <span
-            className="rounded-full border border-border/70 bg-muted/45 px-2 py-0.5 text-micro font-medium text-muted-foreground"
-            data-testid="edited-chip"
-          >
-            {t("edited")}
           </span>
         )}
         {/* Plain posts read FB-style — no type badge (punch list A2). */}

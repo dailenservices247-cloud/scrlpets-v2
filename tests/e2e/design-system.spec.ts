@@ -72,7 +72,7 @@ test.describe("editorial register", () => {
  * cover them.
  */
 test.describe("the chips are in the harness at all", () => {
-  const chips = ["edited-chip", "pinned-chip", "group-chip"] as const;
+  const chips = ["pinned-chip", "group-chip"] as const;
 
   for (const chip of chips) {
     test(`${chip} renders on /design`, async ({ page }) => {
@@ -84,7 +84,7 @@ test.describe("the chips are in the harness at all", () => {
   test("chip text comes from the micro role, not a raw pixel size", async ({ page }) => {
     await page.goto("/design");
     const size = await page
-      .getByTestId("edited-chip")
+      .getByTestId("pinned-chip")
       .first()
       .evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
     expect(size).toBe(11);
