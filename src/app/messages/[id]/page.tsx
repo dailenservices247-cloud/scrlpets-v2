@@ -12,7 +12,7 @@ import { getListingInquiryContexts } from "@/lib/marketplace/queries";
 import type { MessageContext } from "@/lib/messaging/context";
 import { MessageThread } from "@/components/messaging/MessageThread";
 import { DealRoomPanel } from "@/components/messaging/DealRoomPanel";
-import { getDealContractsForConversation } from "@/lib/contracts/queries";
+import { getDealContractsForConversation, getTransportQuotesForConversation } from "@/lib/contracts/queries";
 import { AppPage } from "@/components/app/AppPage";
 
 export default async function ThreadPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,12 +20,13 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   const user = (await getSessionUser())!; // middleware gates /messages
   const conv = await getConversationParticipants(id);
   if (!conv || (conv.userA !== user.id && conv.userB !== user.id)) notFound();
-  const [initial, other, listingContexts, receipts, contracts, locale, t] = await Promise.all([
+  const [initial, other, listingContexts, receipts, contracts, quotes, locale, t] = await Promise.all([
     getThread(id, user.id),
     getOtherParticipantProfile(id, user.id),
     getListingInquiryContexts(id),
     getReceiptState(id, user.id),
     getDealContractsForConversation(id),
+    getTransportQuotesForConversation(id),
     getLocale(),
     getTranslations("messages"),
   ]);
@@ -76,6 +77,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
           viewerId={user.id}
           contracts={contracts}
           inquiries={listingContexts}
+          quotes={quotes}
         />
         <MessageThread
           conversationId={id}

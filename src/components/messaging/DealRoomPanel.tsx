@@ -3,10 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FileSignature } from "lucide-react";
+import { CheckCircle2, FileSignature, Truck } from "lucide-react";
 import { formatPrice } from "@/lib/shop/format";
-import { sendDealContract, signDealContract } from "@/lib/contracts/actions";
-import type { DealContract } from "@/lib/contracts/queries";
+import { sendDealContract, signDealContract, acceptTransportQuote } from "@/lib/contracts/actions";
+import type { DealContract, TransportQuoteItem } from "@/lib/contracts/queries";
 import type { ListingInquiryContext } from "@/lib/marketplace/queries";
 import { Button } from "@/components/ui/button";
 
@@ -15,11 +15,13 @@ export function DealRoomPanel({
   viewerId,
   contracts,
   inquiries,
+  quotes = [],
 }: {
   conversationId: string;
   viewerId: string;
   contracts: DealContract[];
   inquiries: ListingInquiryContext[];
+  quotes?: TransportQuoteItem[];
 }) {
   const router = useRouter();
   const [showSendModal, setShowSendModal] = useState(false);
@@ -156,6 +158,56 @@ export function DealRoomPanel({
           <span>Deposit: <strong className="text-foreground">{formatPrice(latestContract.depositCents, "USD")}</strong></span>
           {latestContract.goHomeDate && <span>Go-Home: <strong className="text-foreground">{latestContract.goHomeDate}</strong></span>}
           <span>Guarantee: <strong className="text-foreground">{latestContract.guaranteeHeadlineSnapshot}</strong></span>
+        </div>
+      )}
+
+      {quotes.length > 0 && (
+        <div className="mt-3 space-y-2 border-t border-primary/20 pt-2">
+          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <Truck className="size-3 text-brand-link" aria-hidden />
+            Transporter Quotes
+          </p>
+          {quotes.map((q) => (
+            <div
+              key={q.id}
+              className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-background/60 p-2.5 text-xs"
+            >
+              <div>
+                <p className="font-semibold text-foreground">
+                  @{q.providerUsername ?? "carrier"} &bull; {q.pickupRegion} → {q.deliveryRegion}
+                </p>
+                <p className="font-mono text-micro text-muted-foreground">
+                  {q.quotedCents ? formatPrice(q.quotedCents, "USD") : "Pending quote"} ({q.payoutPolicySnapshot})
+                </p>
+                {q.notes && <p className="text-micro italic text-muted-foreground">&ldquo;{q.notes}&rdquo;</p>}
+              </div>
+
+              <div>
+                {q.status === "quoted" && (isBuyer || isSeller) ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={async () => {
+                      setBusy(true);
+                      await acceptTransportQuote(q.id);
+                      setBusy(false);
+                      router.refresh();
+                    }}
+                  >
+                    Accept Quote
+                  </Button>
+                ) : q.status === "accepted" ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="size-2.5" aria-hidden />
+                    ACCEPTED
+                  </span>
+                ) : (
+                  <span className="font-mono text-[10px] uppercase text-muted-foreground">{q.status}</span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

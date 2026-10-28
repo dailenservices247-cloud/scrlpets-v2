@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { isPlatformAdmin } from "@/lib/verification/queries";
 
 /**
@@ -177,4 +178,70 @@ export async function reactivateAccount(
   }
   revalidatePath("/admin");
   return { ok: true };
+}
+
+/**
+ * Grant or revoke platform administrative / moderation privileges.
+ */
+export async function togglePlatformRole(
+  targetProfileId: string,
+  role: "admin" | "moderator",
+  grant: boolean,
+): Promise<AdminResult> {
+  if (!(await isPlatformAdmin())) return { ok: false, error: "admin_required" };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "auth_required" };
+
+  if (!grant && targetProfileId === user.id && role === "admin") {
+    return { ok: false, error: "self" };
+  }
+
+  const service = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+
+  if (grant) {
+    const { error } = await service
+      .from("platform_roles")
+      .upsert({ profile_id: targetProfileId, role }, { onConflict: "profile_id,role" });
+    if (error) return { ok: false, error: "failed" };
+  } else {
+    const { error } = await service
+      .from("platform_roles")
+      .delete()
+      .match({ profile_id: targetProfileId, role });
+    if (error) return { ok: false, error: "failed" };
+  }
+
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export type OrderAuditEvent = {
+  createdAt: string;
+  fromStatus: string | null;
+  toStatus: string | null;
+  note: string | null;
+  actor: string | null;
+};
+
+/**
+ * Historical order event timeline calling the Postgres RPC admin_order_events.
+ */
+export async function getOrderAuditEvents(orderId: string): Promise<OrderAuditEvent[]> {
+  if (!(await isPlatformAdmin())) return [];
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_order_events", { target_order: orderId });
+  if (error || !data) return [];
+  return (data as { created_at: string; from_status: string | null; to_status: string | null; note: string | null; actor: string | null }[]).map((r) => ({
+    createdAt: r.created_at,
+    fromStatus: r.from_status,
+    toStatus: r.to_status,
+    note: r.note,
+    actor: r.actor,
+  }));
 }

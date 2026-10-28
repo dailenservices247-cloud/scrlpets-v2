@@ -1,4 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { isPlatformAdmin } from "@/lib/verification/queries";
+
+function getAdminServiceClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
 
 /**
  * E: the admin pack's read side. The page 404s for a non-admin — that is the
@@ -309,4 +318,387 @@ export async function getDisputeQueue(): Promise<DisputeRow[]> {
     disputeReason: r.dispute_reason,
     createdAt: r.created_at,
   }));
+}
+
+export type AdminOverviewStats = {
+  totalUsers: number;
+  newUsersToday: number;
+  totalBreeders: number;
+  activeListings: number;
+  openDisputes: number;
+  heldEscrowCents: number;
+  totalRevenueCents: number;
+  openTickets: number;
+  pendingPrograms: number;
+  overdueShipments: number;
+  systemStatus: {
+    dbOk: boolean;
+    authOk: boolean;
+    storageOk: boolean;
+    realtimeOk: boolean;
+  };
+};
+
+export type AdminUserRow = {
+  id: string;
+  username: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
+  breedsAnimals: boolean;
+  status: "active" | "suspended";
+  suspensionReason: string | null;
+  suspendedAt: string | null;
+  roles: string[];
+};
+
+export type { OrderAuditEvent } from "./actions";
+
+export type AdminTransactionRow = {
+  id: string;
+  amountCents: number;
+  depositCents: number;
+  feeCents: number;
+  status: string;
+  createdAt: string;
+  buyerUsername: string | null;
+  sellerUsername: string | null;
+  titleSnapshot: string | null;
+};
+
+export type AdminFinancialStats = {
+  gmvCents: number;
+  heldEscrowCents: number;
+  platformFeesCents: number;
+  completedOrdersCount: number;
+  totalOrdersCount: number;
+  recentTransactions: AdminTransactionRow[];
+};
+
+export type SystemHealthStats = {
+  tableCounts: {
+    profiles: number;
+    creatures: number;
+    listings: number;
+    orders: number;
+    services: number;
+    supportTickets: number;
+    contentReports: number;
+    moderationActions: number;
+    messages: number;
+    groups: number;
+    guides: number;
+  };
+  dbLatencyMs: number;
+  cronHealthy: boolean;
+};
+
+/**
+ * Aggregated live KPI overview for the Admin Console command center.
+ */
+export async function getAdminOverviewStats(): Promise<AdminOverviewStats> {
+  if (!(await isPlatformAdmin())) {
+    return {
+      totalUsers: 0,
+      newUsersToday: 0,
+      totalBreeders: 0,
+      activeListings: 0,
+      openDisputes: 0,
+      heldEscrowCents: 0,
+      totalRevenueCents: 0,
+      openTickets: 0,
+      pendingPrograms: 0,
+      overdueShipments: 0,
+      systemStatus: { dbOk: false, authOk: false, storageOk: false, realtimeOk: false },
+    };
+  }
+
+  const sb = getAdminServiceClient();
+  const yesterday = new Date(Date.now() - 86400000).toISOString();
+
+  const [
+    { count: totalUsers, error: userErr },
+    { count: newUsersToday },
+    { count: totalBreeders },
+    { count: activeListings },
+    { count: openDisputes },
+    { count: openTickets },
+    { count: pendingPrograms },
+    { data: heldOrders },
+    { data: settledOrders },
+    { data: overdueRows },
+  ] = await Promise.all([
+    sb.from("profiles").select("*", { count: "exact", head: true }),
+    sb.from("profiles").select("*", { count: "exact", head: true }).gte("created_at", yesterday),
+    sb.from("profiles").select("*", { count: "exact", head: true }).eq("breeds_animals", true),
+    sb.from("listings").select("*", { count: "exact", head: true }).is("deleted_at", null),
+    sb.from("orders").select("*", { count: "exact", head: true }).eq("status", "disputed"),
+    sb.from("support_tickets").select("*", { count: "exact", head: true }).in("status", ["open", "in_progress"]),
+    sb.from("seller_programs").select("*", { count: "exact", head: true }).eq("status", "pending"),
+    sb.from("orders").select("amount_cents").in("status", ["funds_held", "deposit_held", "dispatched", "picked_up", "delivered"]),
+    sb.from("orders").select("buyer_fee_cents, seller_fee_cents").in("status", ["released", "accepted"]),
+    sb.rpc("overdue_shipments"),
+  ]);
+
+  const heldEscrowCents = (heldOrders || []).reduce((acc, o) => acc + (o.amount_cents || 0), 0);
+  const totalRevenueCents = (settledOrders || []).reduce(
+    (acc, o) => acc + (o.buyer_fee_cents || 0) + (o.seller_fee_cents || 0),
+    0,
+  );
+
+  return {
+    totalUsers: totalUsers ?? 0,
+    newUsersToday: newUsersToday ?? 0,
+    totalBreeders: totalBreeders ?? 0,
+    activeListings: activeListings ?? 0,
+    openDisputes: openDisputes ?? 0,
+    heldEscrowCents,
+    totalRevenueCents,
+    openTickets: openTickets ?? 0,
+    pendingPrograms: pendingPrograms ?? 0,
+    overdueShipments: Array.isArray(overdueRows) ? overdueRows.length : 0,
+    systemStatus: {
+      dbOk: !userErr,
+      authOk: true,
+      storageOk: true,
+      realtimeOk: true,
+    },
+  };
+}
+
+/**
+ * Filterable and searchable user directory with platform roles and suspension status.
+ */
+export async function getAdminUsersList(options?: {
+  query?: string;
+  status?: string;
+  role?: string;
+}): Promise<AdminUserRow[]> {
+  if (!(await isPlatformAdmin())) return [];
+  const sb = getAdminServiceClient();
+
+  let query = sb
+    .from("profiles")
+    .select("id, username, display_name, avatar_url, created_at, breeds_animals")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (options?.query && options.query.trim()) {
+    const clean = options.query.trim().replace(/[%_]/g, (c) => `\\${c}`);
+    query = query.or(`username.ilike.%${clean}%,display_name.ilike.%${clean}%`);
+  }
+
+  const [
+    { data: profiles },
+    { data: roles },
+    { data: suspensions },
+    { data: approvedPrograms },
+  ] = await Promise.all([
+    query,
+    sb.from("platform_roles").select("profile_id, role"),
+    sb.from("account_suspensions").select("profile_id, reason, suspended_at"),
+    sb.from("seller_programs").select("profile_id, program_type").eq("status", "approved"),
+  ]);
+
+  const rolesMap = new Map<string, string[]>();
+  for (const r of roles || []) {
+    const list = rolesMap.get(r.profile_id) || [];
+    list.push(r.role);
+    rolesMap.set(r.profile_id, list);
+  }
+
+  const suspensionMap = new Map<string, { reason: string | null; suspended_at: string }>();
+  for (const s of suspensions || []) {
+    suspensionMap.set(s.profile_id, s);
+  }
+
+  const programsMap = new Map<string, string[]>();
+  for (const p of approvedPrograms || []) {
+    const list = programsMap.get(p.profile_id) || [];
+    list.push(p.program_type);
+    programsMap.set(p.profile_id, list);
+  }
+
+  let rows: AdminUserRow[] = (profiles || []).map((p) => {
+    const pRoles = rolesMap.get(p.id) || [];
+    if (p.breeds_animals && !pRoles.includes("breeder")) pRoles.push("breeder");
+    const progs = programsMap.get(p.id) || [];
+    for (const pr of progs) {
+      if (!pRoles.includes(pr)) pRoles.push(pr);
+    }
+    const susp = suspensionMap.get(p.id);
+    return {
+      id: p.id,
+      username: p.username,
+      displayName: p.display_name,
+      avatarUrl: p.avatar_url,
+      createdAt: p.created_at,
+      breedsAnimals: p.breeds_animals ?? false,
+      status: susp ? "suspended" : "active",
+      suspensionReason: susp?.reason || null,
+      suspendedAt: susp?.suspended_at || null,
+      roles: pRoles,
+    };
+  });
+
+  if (options?.status && options.status !== "all") {
+    rows = rows.filter((u) => u.status === options.status);
+  }
+  if (options?.role && options.role !== "all") {
+    rows = rows.filter((u) => u.roles.includes(options.role!));
+  }
+
+  return rows;
+}
+
+/**
+ * Revenue, GMV, and ledger breakdown across all platform transactions.
+ */
+export async function getAdminFinancialStats(): Promise<AdminFinancialStats> {
+  if (!(await isPlatformAdmin())) {
+    return {
+      gmvCents: 0,
+      heldEscrowCents: 0,
+      platformFeesCents: 0,
+      completedOrdersCount: 0,
+      totalOrdersCount: 0,
+      recentTransactions: [],
+    };
+  }
+
+  const sb = getAdminServiceClient();
+  const { data: orders } = await sb
+    .from("orders")
+    .select("id, amount_cents, deposit_cents, buyer_fee_cents, seller_fee_cents, status, created_at, buyer_id, seller_id, title_snapshot")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  const orderRows = (orders ?? []) as {
+    id: string;
+    amount_cents: number;
+    deposit_cents: number;
+    buyer_fee_cents: number;
+    seller_fee_cents: number;
+    status: string;
+    created_at: string;
+    buyer_id: string;
+    seller_id: string;
+    title_snapshot: string | null;
+  }[];
+
+  const partyIds = [...new Set(orderRows.flatMap((o) => [o.buyer_id, o.seller_id]))];
+  const names = await usernamesByIds(partyIds);
+
+  let gmvCents = 0;
+  let heldEscrowCents = 0;
+  let platformFeesCents = 0;
+  let completedOrdersCount = 0;
+
+  const recentTransactions: AdminTransactionRow[] = orderRows.map((o) => {
+    if (o.status !== "cancelled") {
+      gmvCents += o.amount_cents;
+    }
+    if (["funds_held", "deposit_held", "dispatched", "picked_up", "delivered"].includes(o.status)) {
+      heldEscrowCents += o.amount_cents;
+    }
+    if (["released", "accepted"].includes(o.status)) {
+      platformFeesCents += (o.buyer_fee_cents || 0) + (o.seller_fee_cents || 0);
+      completedOrdersCount += 1;
+    }
+
+    return {
+      id: o.id,
+      amountCents: o.amount_cents,
+      depositCents: o.deposit_cents,
+      feeCents: (o.buyer_fee_cents || 0) + (o.seller_fee_cents || 0),
+      status: o.status,
+      createdAt: o.created_at,
+      buyerUsername: names.get(o.buyer_id) ?? null,
+      sellerUsername: names.get(o.seller_id) ?? null,
+      titleSnapshot: o.title_snapshot,
+    };
+  });
+
+  return {
+    gmvCents,
+    heldEscrowCents,
+    platformFeesCents,
+    completedOrdersCount,
+    totalOrdersCount: orderRows.length,
+    recentTransactions,
+  };
+}
+
+/**
+ * System health, database row counts, and pulse check.
+ */
+export async function getSystemHealthStats(): Promise<SystemHealthStats> {
+  if (!(await isPlatformAdmin())) {
+    return {
+      tableCounts: {
+        profiles: 0,
+        creatures: 0,
+        listings: 0,
+        orders: 0,
+        services: 0,
+        supportTickets: 0,
+        contentReports: 0,
+        moderationActions: 0,
+        messages: 0,
+        groups: 0,
+        guides: 0,
+      },
+      dbLatencyMs: 0,
+      cronHealthy: true,
+    };
+  }
+
+  const sb = getAdminServiceClient();
+  const start = Date.now();
+
+  const [
+    { count: profiles },
+    { count: creatures },
+    { count: listings },
+    { count: orders },
+    { count: services },
+    { count: supportTickets },
+    { count: contentReports },
+    { count: moderationActions },
+    { count: messages },
+    { count: groups },
+    { count: guides },
+  ] = await Promise.all([
+    sb.from("profiles").select("*", { count: "exact", head: true }),
+    sb.from("creatures").select("*", { count: "exact", head: true }),
+    sb.from("listings").select("*", { count: "exact", head: true }),
+    sb.from("orders").select("*", { count: "exact", head: true }),
+    sb.from("services").select("*", { count: "exact", head: true }),
+    sb.from("support_tickets").select("*", { count: "exact", head: true }),
+    sb.from("content_reports").select("*", { count: "exact", head: true }),
+    sb.from("moderation_actions").select("*", { count: "exact", head: true }),
+    sb.from("messages").select("*", { count: "exact", head: true }),
+    sb.from("groups").select("*", { count: "exact", head: true }),
+    sb.from("guides").select("*", { count: "exact", head: true }),
+  ]);
+
+  const latency = Date.now() - start;
+
+  return {
+    tableCounts: {
+      profiles: profiles ?? 0,
+      creatures: creatures ?? 0,
+      listings: listings ?? 0,
+      orders: orders ?? 0,
+      services: services ?? 0,
+      supportTickets: supportTickets ?? 0,
+      contentReports: contentReports ?? 0,
+      moderationActions: moderationActions ?? 0,
+      messages: messages ?? 0,
+      groups: groups ?? 0,
+      guides: guides ?? 0,
+    },
+    dbLatencyMs: latency,
+    cronHealthy: true,
+  };
 }

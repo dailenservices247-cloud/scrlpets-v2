@@ -172,6 +172,77 @@ export async function getDealContractsForConversation(conversationId: string): P
   }));
 }
 
+export type TransportQuoteItem = {
+  id: string;
+  conversationId: string | null;
+  serviceId: string;
+  providerId: string;
+  providerUsername: string | null;
+  requesterId: string;
+  pickupRegion: string;
+  deliveryRegion: string;
+  quotedCents: number | null;
+  surchargeCents: number;
+  payoutPolicySnapshot: string;
+  targetPickupDate: string | null;
+  status: "requested" | "quoted" | "accepted" | "declined";
+  notes: string | null;
+  createdAt: string;
+};
+
+export async function getTransportQuotesForConversation(
+  conversationId: string,
+): Promise<TransportQuoteItem[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("transport_quotes")
+    .select(
+      "id,conversation_id,service_id,provider_id,requester_id,pickup_region,delivery_region,quoted_cents,surcharge_cents,payout_policy_snapshot,target_pickup_date,status,notes,created_at",
+    )
+    .eq("conversation_id", conversationId)
+    .order("created_at", { ascending: false });
+
+  const rows = (data ?? []) as {
+    id: string;
+    conversation_id: string | null;
+    service_id: string;
+    provider_id: string;
+    requester_id: string;
+    pickup_region: string;
+    delivery_region: string;
+    quoted_cents: number | null;
+    surcharge_cents: number;
+    payout_policy_snapshot: string;
+    target_pickup_date: string | null;
+    status: TransportQuoteItem["status"];
+    notes: string | null;
+    created_at: string;
+  }[];
+
+  if (rows.length === 0) return [];
+  const providerIds = [...new Set(rows.map((r) => r.provider_id))];
+  const { data: profiles } = await supabase.from("profiles").select("id,username").in("id", providerIds);
+  const nameMap = new Map(((profiles ?? []) as { id: string; username: string }[]).map((p) => [p.id, p.username]));
+
+  return rows.map((r) => ({
+    id: r.id,
+    conversationId: r.conversation_id,
+    serviceId: r.service_id,
+    providerId: r.provider_id,
+    providerUsername: nameMap.get(r.provider_id) ?? null,
+    requesterId: r.requester_id,
+    pickupRegion: r.pickup_region,
+    deliveryRegion: r.delivery_region,
+    quotedCents: r.quoted_cents,
+    surchargeCents: r.surcharge_cents,
+    payoutPolicySnapshot: r.payout_policy_snapshot,
+    targetPickupDate: r.target_pickup_date,
+    status: r.status,
+    notes: r.notes,
+    createdAt: r.created_at,
+  }));
+}
+
 export async function getStandingPolicy(profileId: string): Promise<StandingPolicy | null> {
   const supabase = await createClient();
   const { data } = await supabase
