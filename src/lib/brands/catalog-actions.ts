@@ -55,11 +55,12 @@ export async function bulkImportCatalog(
   const rowsToInsert = validRows.map((r: ParsedCatalogRow) => ({
     seller_id: user.id,
     brand_id: brandId,
-    attribution_type: "brand",
+    posting_as_type: "brand",
+    about_type: "none",
     title: r.title,
     price_cents: r.priceCents,
     category: r.category,
-    listing_kind: "product",
+    listing_kind: "sale",
     creature_id: null,
     seller_source: r.sellerSource,
     merchant_name: r.merchantName,
@@ -71,7 +72,9 @@ export async function bulkImportCatalog(
     stock_quantity: r.stockQuantity,
     shipping_fee_cents: r.shippingFeeCents,
     deposit_bps: 0,
-    inspection_hours: 0,
+    inspection_hours: 48,
+    availability: "available",
+    currency: "usd",
   }));
 
   // Batch insert in chunks of 50
