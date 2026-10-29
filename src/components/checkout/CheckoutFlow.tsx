@@ -104,7 +104,7 @@ export function CheckoutFlow({
     <div className="flex flex-col gap-4">
       {/* ---------------------------------------------------------- fulfilment */}
       <section className="premium-panel rounded-2xl p-4" data-testid="checkout-fulfilment">
-        <p className="eyebrow">{t("fulfilmentTitle")}</p>
+        <p className="eyebrow">{listing.hasAnimal ? t("fulfilmentTitle") : "Fulfillment Method"}</p>
         <div className="mt-2 flex flex-col gap-2">
           {(["in_person", "transported", "shipped"] as Fulfilment[]).map((mode) => (
             <label key={mode} className="flex items-start gap-2 text-sm">
@@ -120,9 +120,25 @@ export function CheckoutFlow({
                 className="mt-1"
               />
               <span>
-                <span className="font-medium">{t(`fulfilment.${mode}`)}</span>
+                <span className="font-medium">
+                  {!listing.hasAnimal && mode === "shipped"
+                    ? "Direct Carrier Shipping"
+                    : !listing.hasAnimal && mode === "in_person"
+                      ? "Local In-Person Pickup"
+                      : !listing.hasAnimal && mode === "transported"
+                        ? "Pet Transporter (Live Animals)"
+                        : t(`fulfilment.${mode}`)}
+                </span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">
-                  {t(`fulfilmentHelp.${mode}`)}
+                  {!listing.hasAnimal && mode === "shipped"
+                    ? listing.shippingFeeCents === 0
+                      ? "Standard delivery with carrier tracking — Free shipping included."
+                      : `Standard delivery with tracking (${price(listing.shippingFeeCents)} flat-rate).`
+                    : !listing.hasAnimal && mode === "in_person"
+                      ? "Meet the seller or collect at facility. Code verified upon physical receipt."
+                      : !listing.hasAnimal && mode === "transported"
+                        ? "Specialized door-to-door ground driver (reserved for live animals)."
+                        : t(`fulfilmentHelp.${mode}`)}
                 </span>
               </span>
             </label>
@@ -213,9 +229,15 @@ export function CheckoutFlow({
         <p className="eyebrow">{t("summaryTitle")}</p>
         <dl className="mt-2 flex flex-col gap-1 text-sm">
           <div className="flex justify-between">
-            <dt>{t("linePrice")}</dt>
+            <dt>{listing.hasAnimal ? t("linePrice") : "Item Price"}</dt>
             <dd>{price(listing.priceCents)}</dd>
           </div>
+          {fulfilment === "shipped" && listing.shippingFeeCents > 0 && (
+            <div className="flex justify-between text-muted-foreground" data-testid="line-shipping">
+              <dt>Shipping</dt>
+              <dd>{price(listing.shippingFeeCents)}</dd>
+            </div>
+          )}
           {transportCost > 0 && (
             <div className="flex justify-between" data-testid="line-transport">
               <dt>{t("lineTransport")}</dt>
@@ -234,7 +256,9 @@ export function CheckoutFlow({
             second figure that could disagree with the charge. */}
         <p className="mt-2 text-xs text-muted-foreground">{t("feeNote")}</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          {t("holdNote", { hours: listing.inspectionHours })}
+          {listing.hasAnimal
+            ? t("holdNote", { hours: listing.inspectionHours })
+            : `Purchase protection: Funds held safely for ${listing.inspectionHours} hours after delivery.`}
         </p>
         {listing.guaranteeHeadline && (
           <p className="mt-1 text-xs text-muted-foreground" data-testid="checkout-guarantee">

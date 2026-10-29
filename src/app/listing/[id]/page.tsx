@@ -136,6 +136,8 @@ export default async function ListingDetailPage({ params }: { params: Promise<{ 
             viewerIsSeller={viewerIsSeller}
             hasOpenApplication={Boolean(openApplication)}
             paymentsEnabled={paymentsEnabled}
+            isAnimal={Boolean(creatureId)}
+            stockQuantity={marketplace.stockQuantity}
           />
         )}
       </FeedDestinationShell>

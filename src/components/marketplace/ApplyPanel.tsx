@@ -18,6 +18,8 @@ export function ApplyPanel({
   viewerIsSeller,
   hasOpenApplication,
   paymentsEnabled,
+  isAnimal = true,
+  stockQuantity = null,
 }: {
   sellerId: string;
   listingId: string | null;
@@ -25,6 +27,8 @@ export function ApplyPanel({
   viewerIsSeller: boolean;
   hasOpenApplication: boolean;
   paymentsEnabled: boolean;
+  isAnimal?: boolean;
+  stockQuantity?: number | null;
 }) {
   const t = useTranslations("applications");
   const router = useRouter();
@@ -48,11 +52,27 @@ export function ApplyPanel({
     router.refresh();
   }
 
+  const isOutOfStock = !isAnimal && stockQuantity === 0;
+
   return (
     <section className="rounded-2xl border bg-card p-4" data-testid="apply-panel">
-      <h2 className="text-sm font-semibold">{listingId ? t("applyTitle") : t("waitlistTitle")}</h2>
+      <h2 className="text-sm font-semibold">
+        {!isAnimal
+          ? isOutOfStock
+            ? "Out of Stock — Inquire or Backorder"
+            : "Product Inquiry & Direct Message"
+          : listingId
+            ? t("applyTitle")
+            : t("waitlistTitle")}
+      </h2>
       <p className="mt-1 text-xs text-muted-foreground">
-        {listingId ? t("applyHelp") : t("waitlistHelp")}
+        {!isAnimal
+          ? isOutOfStock
+            ? "This item is currently sold out. Message the seller to reserve from the next restock."
+            : "Ask questions about specifications, sizing, custom crafts, or shipping options."
+          : listingId
+            ? t("applyHelp")
+            : t("waitlistHelp")}
       </p>
 
       {/* Only a listing can be checked out. On a waitlist there is nothing to
@@ -67,10 +87,10 @@ export function ApplyPanel({
       {/* The buy route only appears when it can actually be walked. Offering a
           button that leads to "buying is not switched on" is a worse answer than
           the sentence already above. */}
-      {paymentsEnabled && listingId && viewerId && !viewerIsSeller && (
+      {paymentsEnabled && listingId && viewerId && !viewerIsSeller && !isOutOfStock && (
         <Link
           href={`/checkout/${listingId}`}
-          className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground"
+          className="mt-3 flex min-h-11 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-95"
           data-testid="apply-buy"
         >
           {t("buyNow")}
@@ -96,8 +116,16 @@ export function ApplyPanel({
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder={t("messagePlaceholder")}
-            aria-label={t("messagePlaceholder")}
+            placeholder={
+              !isAnimal
+                ? "Send a message or question to the seller..."
+                : t("messagePlaceholder")
+            }
+            aria-label={
+              !isAnimal
+                ? "Send a message or question to the seller..."
+                : t("messagePlaceholder")
+            }
             data-testid="application-message"
             className="mt-3 min-h-24 w-full rounded-xl border border-input bg-transparent p-3 text-sm"
           />
@@ -111,9 +139,15 @@ export function ApplyPanel({
             onClick={submit}
             disabled={busy}
             data-testid="application-submit"
-            className="mt-2 min-h-11 w-full rounded-xl bg-secondary/25 px-4 text-sm font-medium text-secondary-foreground disabled:opacity-50"
+            className="mt-2 min-h-11 w-full rounded-xl bg-secondary/25 px-4 text-sm font-medium text-secondary-foreground transition hover:bg-secondary/35 disabled:opacity-50"
           >
-            {listingId ? t("submitApplication") : t("joinWaitlist")}
+            {!isAnimal
+              ? isOutOfStock
+                ? "Join Restock Waitlist"
+                : "Send Inquiry"
+              : listingId
+                ? t("submitApplication")
+                : t("joinWaitlist")}
           </button>
         </>
       )}

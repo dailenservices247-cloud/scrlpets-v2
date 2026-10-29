@@ -8,6 +8,10 @@ export type ListingMarketplaceDetail = {
   description: string | null;
   category: string | null;
   availability: string;
+  hasAnimal: boolean;
+  stockQuantity: number | null;
+  shippingFeeCents: number;
+  fulfillmentOptions: string[];
 };
 
 export type ListingInquiryContext = {
@@ -28,7 +32,7 @@ export async function getListingMarketplaceDetail(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("listings")
-    .select("id,seller_id,price_cents,currency,description,category,availability")
+    .select("id,seller_id,price_cents,currency,description,category,availability,creature_id,stock_quantity,shipping_fee_cents,fulfillment_options")
     .eq("id", listingId)
     .maybeSingle();
   if (error) throw error;
@@ -41,6 +45,10 @@ export async function getListingMarketplaceDetail(
     description: data.description,
     category: data.category,
     availability: data.availability,
+    hasAnimal: Boolean(data.creature_id),
+    stockQuantity: data.stock_quantity ?? null,
+    shippingFeeCents: data.shipping_fee_cents ?? 0,
+    fulfillmentOptions: (data.fulfillment_options as string[] | null) ?? ["shipping"],
   };
 }
 

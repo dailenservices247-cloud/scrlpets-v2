@@ -22,6 +22,9 @@ export type CheckoutListing = {
   /** Null when the seller published none — the UI states that rather than hiding it. */
   guaranteeHeadline: string | null;
   recommendedTransportServiceId: string | null;
+  stockQuantity: number | null;
+  shippingFeeCents: number;
+  fulfillmentOptions: string[];
 };
 
 /**
@@ -37,7 +40,7 @@ export async function getCheckoutListing(listingId: string): Promise<CheckoutLis
   const { data } = await supabase
     .from("listings")
     .select(
-      "id,title,price_cents,currency,seller_id,creature_id,deposit_bps,inspection_hours,recommended_transport_service_id,availability",
+      "id,title,price_cents,currency,seller_id,creature_id,deposit_bps,inspection_hours,recommended_transport_service_id,availability,stock_quantity,shipping_fee_cents,fulfillment_options",
     )
     .eq("id", listingId)
     .is("deleted_at", null)
@@ -53,6 +56,9 @@ export async function getCheckoutListing(listingId: string): Promise<CheckoutLis
     inspection_hours: number;
     recommended_transport_service_id: string | null;
     availability: string;
+    stock_quantity: number | null;
+    shipping_fee_cents: number | null;
+    fulfillment_options: string[] | null;
   } | null;
   if (!row || row.availability !== "available") return null;
 
@@ -75,6 +81,9 @@ export async function getCheckoutListing(listingId: string): Promise<CheckoutLis
     inspectionHours: row.inspection_hours,
     guaranteeHeadline: g ? g.headline : null,
     recommendedTransportServiceId: row.recommended_transport_service_id,
+    stockQuantity: row.stock_quantity ?? null,
+    shippingFeeCents: row.shipping_fee_cents ?? 0,
+    fulfillmentOptions: row.fulfillment_options ?? ["shipping", "in_person"],
   };
 }
 
