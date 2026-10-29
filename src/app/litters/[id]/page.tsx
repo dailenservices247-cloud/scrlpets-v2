@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Network, ExternalLink } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { ApplyPanel } from "@/components/marketplace/ApplyPanel";
 import { getOpenApplication } from "@/lib/applications/queries";
@@ -50,6 +51,19 @@ export default async function LitterPublicPage({ params }: { params: Promise<{ i
 
   return (
     <AppPage>
+      {litter.coverUrl && (
+        <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted/30">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={litter.coverUrl}
+            alt={litter.name}
+            className="size-full object-cover"
+            loading="eager"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+        </div>
+      )}
+
       <section className="px-4 pb-4 pt-6">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
@@ -118,6 +132,7 @@ export default async function LitterPublicPage({ params }: { params: Promise<{ i
           viewerIsSeller={viewerIsSeller}
           hasOpenApplication={Boolean(openApplication)}
           paymentsEnabled={false}
+          isAnimal={true}
         />
       </section>
 
@@ -128,24 +143,63 @@ export default async function LitterPublicPage({ params }: { params: Promise<{ i
             {litter.dam && (
               <Link
                 href={`/c/${litter.dam.slug}`}
-                className="premium-panel rounded-xl p-3 hover:border-primary/40"
+                className="premium-panel flex flex-col justify-between rounded-xl p-3 transition hover:border-primary/40"
                 data-testid="litter-dam-card"
               >
-                <p className="text-xs text-muted-foreground">{t("dam")}</p>
-                <p className="mt-1 truncate text-sm font-semibold">{litter.dam.name}</p>
+                <div>
+                  <p className="text-micro font-medium uppercase tracking-wider text-muted-foreground">{t("dam")}</p>
+                  <p className="mt-1 truncate text-sm font-semibold">{litter.dam.name}</p>
+                  {litter.dam.breed && (
+                    <p className="mt-0.5 truncate text-micro text-muted-foreground">{litter.dam.breed}</p>
+                  )}
+                </div>
+                {litter.owner?.username && (
+                  <span className="mt-2 inline-flex items-center gap-1 text-micro text-brand-link">
+                    View profile &rarr;
+                  </span>
+                )}
               </Link>
             )}
             {litter.sire && (
               <Link
                 href={`/c/${litter.sire.slug}`}
-                className="premium-panel rounded-xl p-3 hover:border-primary/40"
+                className="premium-panel flex flex-col justify-between rounded-xl p-3 transition hover:border-primary/40"
                 data-testid="litter-sire-card"
               >
-                <p className="text-xs text-muted-foreground">{t("sire")}</p>
-                <p className="mt-1 truncate text-sm font-semibold">{litter.sire.name}</p>
+                <div>
+                  <p className="text-micro font-medium uppercase tracking-wider text-muted-foreground">{t("sire")}</p>
+                  <p className="mt-1 truncate text-sm font-semibold">{litter.sire.name}</p>
+                  {litter.sire.breed && (
+                    <p className="mt-0.5 truncate text-micro text-muted-foreground">{litter.sire.breed}</p>
+                  )}
+                </div>
+                {litter.owner?.username && (
+                  <span className="mt-2 inline-flex items-center gap-1 text-micro text-brand-link">
+                    View profile &rarr;
+                  </span>
+                )}
               </Link>
             )}
           </div>
+
+          {/* Direct Lineage Tree Link for Litter */}
+          {litter.owner?.username && (
+            <div className="mt-3">
+              <Link
+                href={`/u/${litter.owner.username}/tree`}
+                className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm transition hover:bg-primary/10"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Network className="size-4 text-brand-link" aria-hidden />
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Verified Pedigree Pack Tree</p>
+                    <p className="text-micro text-muted-foreground">Trace multi-generation ancestors and health records</p>
+                  </div>
+                </div>
+                <ExternalLink className="size-3.5 text-muted-foreground" aria-hidden />
+              </Link>
+            </div>
+          )}
         </section>
       )}
 

@@ -129,6 +129,8 @@ export type PublicLitterParent = {
   id: string;
   name: string;
   slug: string;
+  avatarUrl?: string | null;
+  breed?: string | null;
 } | null;
 
 export type PublicLitter = {
@@ -143,6 +145,7 @@ export type PublicLitter = {
   ownerId: string;
   owner: { username: string } | null;
   brand: { name: string; slug: string } | null;
+  coverUrl: string | null;
   dam: PublicLitterParent;
   sire: PublicLitterParent;
 };
@@ -157,10 +160,11 @@ type PublicLitterRow = {
   birth_date: string | null;
   status: string;
   owner_id: string;
+  cover_url: string | null;
   profiles: { username: string } | { username: string }[] | null;
   brands: { name: string; slug: string } | { name: string; slug: string }[] | null;
-  dam: { id: string; name: string; slug: string } | { id: string; name: string; slug: string }[] | null;
-  sire: { id: string; name: string; slug: string } | { id: string; name: string; slug: string }[] | null;
+  dam: { id: string; name: string; slug: string; avatar_url?: string | null; breed?: string | null } | { id: string; name: string; slug: string; avatar_url?: string | null; breed?: string | null }[] | null;
+  sire: { id: string; name: string; slug: string; avatar_url?: string | null; breed?: string | null } | { id: string; name: string; slug: string; avatar_url?: string | null; breed?: string | null }[] | null;
 };
 
 /**
@@ -175,11 +179,11 @@ export async function getPublicLitter(id: string): Promise<PublicLitter | null> 
   const { data } = await supabase
     .from("litters")
     .select(
-      "id,name,species,breed,description,expected_date,birth_date,status,owner_id," +
+      "id,name,species,breed,description,expected_date,birth_date,status,owner_id,cover_url," +
         "profiles!litters_owner_id_fkey(username)," +
         "brands!litters_brand_id_fkey(name,slug)," +
-        "dam:creatures!litters_dam_id_fkey(id,name,slug)," +
-        "sire:creatures!litters_sire_id_fkey(id,name,slug)",
+        "dam:creatures!litters_dam_id_fkey(id,name,slug,avatar_url,breed)," +
+        "sire:creatures!litters_sire_id_fkey(id,name,slug,avatar_url,breed)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -202,8 +206,9 @@ export async function getPublicLitter(id: string): Promise<PublicLitter | null> 
     ownerId: row.owner_id,
     owner: owner ? { username: owner.username } : null,
     brand: brand ? { name: brand.name, slug: brand.slug } : null,
-    dam: dam ? { id: dam.id, name: dam.name, slug: dam.slug } : null,
-    sire: sire ? { id: sire.id, name: sire.name, slug: sire.slug } : null,
+    coverUrl: row.cover_url ?? null,
+    dam: dam ? { id: dam.id, name: dam.name, slug: dam.slug, avatarUrl: dam.avatar_url ?? null, breed: dam.breed ?? null } : null,
+    sire: sire ? { id: sire.id, name: sire.name, slug: sire.slug, avatarUrl: sire.avatar_url ?? null, breed: sire.breed ?? null } : null,
   };
 }
 
