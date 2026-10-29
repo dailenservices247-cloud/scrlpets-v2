@@ -14,7 +14,7 @@ import {
   setServiceActive,
   updateProviderService,
 } from "@/lib/services/actions";
-import type { MyService } from "@/lib/services/queries";
+import type { MyService, ServiceTierRate } from "@/lib/services/queries";
 
 // R16 operator-scoped module: the services YOU own, personal or brand-attached.
 // Edit rights follow ownership (RLS "owner updates services"), so everything
@@ -29,6 +29,11 @@ type ServiceFormValues = {
   contactNote: string;
   mediaUrl: string;
   brandId: string;
+  bookingEnabled: boolean;
+  depositRequired: boolean;
+  depositAmount: string;
+  bookingNotice: string;
+  serviceTierRates: ServiceTierRate[];
 };
 
 const EMPTY_FORM: ServiceFormValues = {
@@ -40,6 +45,11 @@ const EMPTY_FORM: ServiceFormValues = {
   contactNote: "",
   mediaUrl: "",
   brandId: "",
+  bookingEnabled: true,
+  depositRequired: false,
+  depositAmount: "",
+  bookingNotice: "",
+  serviceTierRates: [],
 };
 
 function toForm(service: MyService): ServiceFormValues {
@@ -52,6 +62,11 @@ function toForm(service: MyService): ServiceFormValues {
     contactNote: service.contactNote ?? "",
     mediaUrl: service.mediaUrl ?? "",
     brandId: service.brand?.id ?? "",
+    bookingEnabled: service.bookingEnabled,
+    depositRequired: service.depositRequired,
+    depositAmount: service.depositAmountCents !== null ? (service.depositAmountCents / 100).toFixed(2) : "",
+    bookingNotice: service.bookingNotice ?? "",
+    serviceTierRates: service.serviceTierRates ?? [],
   };
 }
 
@@ -193,6 +208,53 @@ function ServiceForm({
           </select>
         </label>
       )}
+
+      {/* Booking and Deposit Controls */}
+      <div className="rounded-xl border border-input p-3 space-y-3">
+        <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+          <input
+            type="checkbox"
+            checked={values.bookingEnabled}
+            onChange={(e) => onChange({ ...values, bookingEnabled: e.target.checked })}
+            className="rounded border-input text-primary"
+          />
+          <span>Accept Appointment Booking Requests</span>
+        </label>
+
+        <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+          <input
+            type="checkbox"
+            checked={values.depositRequired}
+            onChange={(e) => onChange({ ...values, depositRequired: e.target.checked })}
+            className="rounded border-input text-primary"
+          />
+          <span>Require Booking Deposit</span>
+        </label>
+
+        {values.depositRequired && (
+          <label className="flex flex-col gap-1 text-xs font-medium">
+            Deposit Amount ($ USD)
+            <input
+              value={values.depositAmount}
+              inputMode="decimal"
+              placeholder="e.g. 25.00"
+              onChange={(e) => set("depositAmount")(e.target.value)}
+              className={field}
+            />
+          </label>
+        )}
+
+        <label className="flex flex-col gap-1 text-xs font-medium">
+          Booking Notice / Requirements (Optional)
+          <input
+            value={values.bookingNotice}
+            maxLength={500}
+            placeholder="e.g. Requires 24h advance notice. Must be current on rabies vaccination."
+            onChange={(e) => set("bookingNotice")(e.target.value)}
+            className={field}
+          />
+        </label>
+      </div>
     </div>
   );
 }
@@ -207,6 +269,11 @@ function serviceFormData(values: ServiceFormValues): FormData {
   fd.set("contactNote", values.contactNote);
   fd.set("mediaUrl", values.mediaUrl);
   fd.set("brandId", values.brandId);
+  fd.set("bookingEnabled", values.bookingEnabled ? "true" : "false");
+  fd.set("depositRequired", values.depositRequired ? "true" : "false");
+  fd.set("depositAmount", values.depositAmount);
+  fd.set("bookingNotice", values.bookingNotice);
+  fd.set("serviceTierRates", JSON.stringify(values.serviceTierRates));
   return fd;
 }
 

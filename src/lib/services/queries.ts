@@ -1,5 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 
+export type ServiceTierRate = {
+  id: string;
+  name: string;
+  priceCents: number;
+  description?: string;
+};
+
 export type ProviderService = {
   id: string;
   name: string;
@@ -14,6 +21,11 @@ export type ProviderService = {
   ownerUsername: string | null;
   brand: { name: string; slug: string } | null;
   ownerVerified: boolean;
+  bookingEnabled: boolean;
+  depositRequired: boolean;
+  depositAmountCents: number | null;
+  serviceTierRates: ServiceTierRate[];
+  bookingNotice: string | null;
 };
 
 type Row = {
@@ -27,13 +39,42 @@ type Row = {
   contact_note: string | null;
   media_url: string | null;
   owner_id: string;
+  booking_enabled?: boolean | null;
+  deposit_required?: boolean | null;
+  deposit_amount_cents?: number | null;
+  service_tier_rates?: ServiceTierRate[] | null;
+  booking_notice?: string | null;
   profiles: { username: string } | null;
   brands: { name: string; slug: string } | null;
 };
 
 const SELECT =
   "id,name,description,category,price_cents,currency,area,contact_note,media_url,owner_id," +
+  "booking_enabled,deposit_required,deposit_amount_cents,service_tier_rates,booking_notice," +
   "profiles!services_owner_id_fkey(username),brands(name,slug)";
+
+function toProviderService(r: Row, verifiedIds: Set<string>): ProviderService {
+  return {
+    id: r.id,
+    name: r.name,
+    description: r.description,
+    category: r.category,
+    priceCents: r.price_cents,
+    currency: r.currency,
+    area: r.area,
+    contactNote: r.contact_note,
+    mediaUrl: r.media_url,
+    ownerId: r.owner_id,
+    ownerUsername: r.profiles?.username ?? null,
+    brand: r.brands ?? null,
+    ownerVerified: verifiedIds.has(r.owner_id),
+    bookingEnabled: r.booking_enabled ?? true,
+    depositRequired: r.deposit_required ?? false,
+    depositAmountCents: r.deposit_amount_cents ?? null,
+    serviceTierRates: (r.service_tier_rates as ServiceTierRate[]) ?? [],
+    bookingNotice: r.booking_notice ?? null,
+  };
+}
 
 /**
  * R17: providers are listed while UNVERIFIED, and each card shows the
@@ -64,21 +105,7 @@ export async function listServices(category?: string): Promise<ProviderService[]
     ((verified ?? []) as { profile_id: string }[]).map((v) => v.profile_id),
   );
 
-  return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    description: r.description,
-    category: r.category,
-    priceCents: r.price_cents,
-    currency: r.currency,
-    area: r.area,
-    contactNote: r.contact_note,
-    mediaUrl: r.media_url,
-    ownerId: r.owner_id,
-    ownerUsername: r.profiles?.username ?? null,
-    brand: r.brands ?? null,
-    ownerVerified: verifiedIds.has(r.owner_id),
-  }));
+  return rows.map((r) => toProviderService(r, verifiedIds));
 }
 
 export type MyService = {
@@ -92,6 +119,11 @@ export type MyService = {
   mediaUrl: string | null;
   active: boolean;
   brand: { id: string; name: string } | null;
+  bookingEnabled: boolean;
+  depositRequired: boolean;
+  depositAmountCents: number | null;
+  serviceTierRates: ServiceTierRate[];
+  bookingNotice: string | null;
 };
 
 /**
@@ -104,7 +136,7 @@ export async function listMyServices(userId: string): Promise<MyService[]> {
   const { data } = await supabase
     .from("services")
     .select(
-      "id,name,description,category,price_cents,area,contact_note,media_url,active,brands(id,name)",
+      "id,name,description,category,price_cents,area,contact_note,media_url,active,booking_enabled,deposit_required,deposit_amount_cents,service_tier_rates,booking_notice,brands(id,name)",
     )
     .eq("owner_id", userId)
     .order("created_at", { ascending: false });
@@ -119,6 +151,11 @@ export async function listMyServices(userId: string): Promise<MyService[]> {
       contact_note: string | null;
       media_url: string | null;
       active: boolean;
+      booking_enabled?: boolean | null;
+      deposit_required?: boolean | null;
+      deposit_amount_cents?: number | null;
+      service_tier_rates?: ServiceTierRate[] | null;
+      booking_notice?: string | null;
       brands: { id: string; name: string } | null;
     }[]
   ).map((r) => ({
@@ -132,6 +169,11 @@ export async function listMyServices(userId: string): Promise<MyService[]> {
     mediaUrl: r.media_url,
     active: r.active,
     brand: r.brands ?? null,
+    bookingEnabled: r.booking_enabled ?? true,
+    depositRequired: r.deposit_required ?? false,
+    depositAmountCents: r.deposit_amount_cents ?? null,
+    serviceTierRates: (r.service_tier_rates as ServiceTierRate[]) ?? [],
+    bookingNotice: r.booking_notice ?? null,
   }));
 }
 
@@ -167,21 +209,7 @@ export async function listBrandServices(
   const verifiedIds = new Set(
     ((verified ?? []) as { profile_id: string }[]).map((v) => v.profile_id),
   );
-  return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    description: r.description,
-    category: r.category,
-    priceCents: r.price_cents,
-    currency: r.currency,
-    area: r.area,
-    contactNote: r.contact_note,
-    mediaUrl: r.media_url,
-    ownerId: r.owner_id,
-    ownerUsername: r.profiles?.username ?? null,
-    brand: r.brands ?? null,
-    ownerVerified: verifiedIds.has(r.owner_id),
-  }));
+  return rows.map((r) => toProviderService(r, verifiedIds));
 }
 
 /** Active services offered by a specific profile (`/u/[username]`). */
@@ -202,19 +230,5 @@ export async function listProfileServices(profileId: string): Promise<ProviderSe
   const verifiedIds = new Set(
     ((verified ?? []) as { profile_id: string }[]).map((v) => v.profile_id),
   );
-  return rows.map((r) => ({
-    id: r.id,
-    name: r.name,
-    description: r.description,
-    category: r.category,
-    priceCents: r.price_cents,
-    currency: r.currency,
-    area: r.area,
-    contactNote: r.contact_note,
-    mediaUrl: r.media_url,
-    ownerId: r.owner_id,
-    ownerUsername: r.profiles?.username ?? null,
-    brand: r.brands ?? null,
-    ownerVerified: verifiedIds.has(r.owner_id),
-  }));
+  return rows.map((r) => toProviderService(r, verifiedIds));
 }

@@ -17,6 +17,11 @@ type ServiceFields = {
   area: string | null;
   contact_note: string | null;
   media_url: string | null;
+  booking_enabled: boolean;
+  deposit_required: boolean;
+  deposit_amount_cents: number | null;
+  service_tier_rates: unknown[];
+  booking_notice: string | null;
 };
 
 /**
@@ -41,6 +46,28 @@ function parseServiceFields(formData: FormData): ServiceFields | { error: string
     const value = String(formData.get(key) ?? "").trim();
     return value ? value.slice(0, max) : null;
   };
+
+  const bookingEnabled = formData.get("bookingEnabled") !== "false";
+  const depositRequired = formData.get("depositRequired") === "true";
+  const rawDeposit = String(formData.get("depositAmount") ?? "").trim();
+  let depositAmountCents: number | null = null;
+  if (rawDeposit !== "") {
+    depositAmountCents = parsePriceCents(rawDeposit);
+  }
+
+  let serviceTierRates: unknown[] = [];
+  const rawTiers = String(formData.get("serviceTierRates") ?? "").trim();
+  if (rawTiers) {
+    try {
+      const parsed = JSON.parse(rawTiers);
+      if (Array.isArray(parsed)) {
+        serviceTierRates = parsed;
+      }
+    } catch {
+      // ignore JSON parse error
+    }
+  }
+
   return {
     name,
     description: bounded("description", 1000),
@@ -49,6 +76,11 @@ function parseServiceFields(formData: FormData): ServiceFields | { error: string
     area: bounded("area", 120),
     contact_note: bounded("contactNote", 300),
     media_url: bounded("mediaUrl", 500),
+    booking_enabled: bookingEnabled,
+    deposit_required: depositRequired,
+    deposit_amount_cents: depositAmountCents,
+    service_tier_rates: serviceTierRates,
+    booking_notice: bounded("bookingNotice", 500),
   };
 }
 
@@ -170,6 +202,64 @@ export async function startServiceInquiry(serviceId: string): Promise<ServiceInq
   // there's no service_inquiries snapshot table to dedupe against without a
   // migration, so a second click resends rather than silently no-op-ing.
   const sent = await sendMessage(conversation.id, body);
+  if (!sent.ok) return { ok: false, error: sent.error };
+
+  return { ok: true, conversationId: conversation.id };
+}
+
+export type BookingRequestInput = {
+  tierName?: string | null;
+  tierPriceCents?: number | null;
+  preferredDate: string;
+  preferredTimeWindow?: string | null;
+  creatureName?: string | null;
+  clientNotes?: string | null;
+};
+
+export async function requestServiceBooking(
+  serviceId: string,
+  input: BookingRequestInput,
+): Promise<ServiceInquiryResult> {
+  const ctx = await requireUser();
+  if (!ctx) return { ok: false, error: "auth_required" };
+  const { supabase, user } = ctx;
+
+  const { data: service, error: serviceError } = await supabase
+    .from("services")
+    .select("id,name,category,price_cents,currency,owner_id,deposit_required,deposit_amount_cents,brands(name)")
+    .eq("id", serviceId)
+    .eq("active", true)
+    .maybeSingle();
+
+  if (serviceError) return { ok: false, error: serviceError.message };
+  if (!service) return { ok: false, error: "service_unavailable" };
+  if (service.owner_id === user.id) return { ok: false, error: "self_booking" };
+
+  const conversation = await startConversation(service.owner_id);
+  if ("error" in conversation) return { ok: false, error: conversation.error };
+
+  const providerName = (service.brands as unknown as { name: string } | null)?.name ?? "Provider";
+  const selectedPrice = input.tierPriceCents ?? service.price_cents;
+  const priceDisplay =
+    selectedPrice && selectedPrice > 0 ? formatPrice(selectedPrice, service.currency) : "Custom quote";
+  const depositDisplay =
+    service.deposit_required && service.deposit_amount_cents && service.deposit_amount_cents > 0
+      ? `• Deposit Required: ${formatPrice(service.deposit_amount_cents, service.currency)}`
+      : null;
+
+  const lines = [
+    `📅 BOOKING REQUEST — ${service.name}`,
+    input.tierName ? `• Package: ${input.tierName} (${priceDisplay})` : `• Rate: ${priceDisplay}`,
+    `• Preferred Date: ${input.preferredDate}${input.preferredTimeWindow ? ` (${input.preferredTimeWindow})` : ""}`,
+    input.creatureName ? `• Animal / Subject: ${input.creatureName}` : null,
+    depositDisplay,
+    input.clientNotes ? `• Notes: "${input.clientNotes.trim()}"` : null,
+    `\nHi ${providerName}, I would like to book this service. Please confirm availability and send a quote or deposit request.`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const sent = await sendMessage(conversation.id, lines);
   if (!sent.ok) return { ok: false, error: sent.error };
 
   return { ok: true, conversationId: conversation.id };
