@@ -216,6 +216,24 @@ export function MessageThread({
 
       {canWrite && (
         <form onSubmit={submit} className="flex flex-col gap-2">
+          {mediaUrl && (
+            <div className="relative inline-block w-fit">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mediaUrl}
+                alt="Attachment preview"
+                className="h-16 w-16 rounded-xl object-cover border border-primary/40 shadow-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setMediaUrl(null)}
+                className="absolute -top-1.5 -right-1.5 grid size-5 place-items-center rounded-full bg-destructive text-destructive-foreground text-xs font-bold shadow hover:opacity-90"
+                aria-label="Remove attachment"
+              >
+                &times;
+              </button>
+            </div>
+          )}
           <div className="flex gap-2">
             <input
               value={body}

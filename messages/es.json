@@ -1199,7 +1199,16 @@
     "qrAlt": "Código QR de tu enlace de invitación",
     "qrUnavailable": "No se pudo generar el código QR para este enlace.",
     "copyMessage": "Copiar mensaje",
-    "shareButton": "Compartir"
+    "shareButton": "Compartir",
+    "claimTitle": "Reclamar código de invitación",
+    "claimBody": "Si un amigo te invitó a Scrlpets, ingresa su código de invitación a continuación para vincular tu cuenta.",
+    "claimPlaceholder": "Ingresar código",
+    "claimButton": "Reclamar invitación",
+    "claimSuccess": "¡Código de invitación reclamado con éxito!",
+    "claimAlreadyReferred": "Ya has reclamado un código de invitación.",
+    "claimSelf": "No puedes reclamar tu propio código de invitación.",
+    "claimUnknown": "Código inválido. Verifica la ortografía e inténtalo de nuevo.",
+    "claimActive": "Los códigos solo pueden ser reclamados por cuentas nuevas."
   },
   "groups": {
     "eyebrow": "Razas y especies",

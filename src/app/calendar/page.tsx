@@ -3,7 +3,9 @@ import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { loginHrefFor } from "@/lib/auth/redirect";
-import { getBreedingEvents, getGestationDays, getMyCreatures } from "@/lib/breeding/queries";
+import { getBreedingEvents, getGestationDays, getMyCreatures, type BreedingEvent } from "@/lib/breeding/queries";
+import { type BreedingEventType } from "@/lib/breeding/constants";
+import { listMyLitters } from "@/lib/litters/queries";
 import { BreedingCalendarClient } from "@/components/calendar/BreedingCalendarClient";
 
 export const dynamic = "force-dynamic";
@@ -19,11 +21,26 @@ export default async function CalendarPage() {
   if (!user) redirect(loginHrefFor("/calendar"));
 
   const t = await getTranslations("calendar");
-  const [events, creatures, gestationDays] = await Promise.all([
+  const [events, creatures, gestationDays, litters] = await Promise.all([
     getBreedingEvents(),
     getMyCreatures(),
     getGestationDays(),
+    listMyLitters(user.id),
   ]);
+
+  const litterEvents: BreedingEvent[] = litters
+    .filter((l) => l.expectedDate || l.birthDate)
+    .map((l) => ({
+      id: `litter-${l.id}`,
+      creatureId: l.damId ?? l.sireId ?? (creatures[0]?.id ?? ""),
+      partnerCreatureId: l.sireId ?? null,
+      eventType: (l.status === "born" ? "birth" : "ultrasound") as BreedingEventType,
+      eventDate: (l.birthDate || l.expectedDate)!,
+      expectedDueDate: l.expectedDate,
+      notes: `${l.name} (${l.breed ?? "Litter"})`,
+    }));
+
+  const allEvents = [...events, ...litterEvents];
 
   return (
     <AppPage>
@@ -32,7 +49,7 @@ export default async function CalendarPage() {
         <h1 className="text-xl font-semibold">{t("title")}</h1>
         <p className="mt-1 text-xs text-muted-foreground">{t("subtitle")}</p>
       </header>
-      <BreedingCalendarClient events={events} creatures={creatures} gestationDays={gestationDays} />
+      <BreedingCalendarClient events={allEvents} creatures={creatures} gestationDays={gestationDays} />
     </AppPage>
   );
 }

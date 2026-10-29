@@ -39,3 +39,19 @@ export async function getMyReferralStats(): Promise<ReferralStats> {
 
   return { total: total.count ?? 0, converted: converted.count ?? 0 };
 }
+
+export async function getMyReferrerCode(): Promise<string | null> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data } = await supabase
+    .from("referrals")
+    .select("code")
+    .eq("referred_id", user.id)
+    .maybeSingle();
+
+  return data?.code ?? null;
+}

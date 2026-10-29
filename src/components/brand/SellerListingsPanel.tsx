@@ -4,9 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { setListingAvailability } from "@/lib/breeder-os/actions";
+import { setListingAvailability, updateListingStock } from "@/lib/breeder-os/actions";
 import { formatPrice } from "@/lib/shop/format";
 import type { SellerListing } from "@/lib/breeder-os/queries";
+import { Edit2, Minus, Plus } from "lucide-react";
 
 const STATES = ["available", "pending", "sold"] as const;
 
@@ -32,10 +33,34 @@ export function SellerListingsPanel({ listings }: { listings: SellerListing[] })
     router.refresh();
   }
 
+  async function adjustStock(id: string, currentStock: number | null, delta: number) {
+    setBusy(id);
+    setError(null);
+    const current = currentStock ?? 0;
+    const next = Math.max(0, current + delta);
+    const result = await updateListingStock(id, next);
+    setBusy(null);
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
+    router.refresh();
+  }
+
   return (
     <div className="premium-panel rounded-2xl p-4" data-testid="seller-listings-panel">
-      <p className="eyebrow">{t("listingsEyebrow")}</p>
-      <h2 className="mt-1 text-lg font-semibold">{t("listingsTitle")}</h2>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="eyebrow">{t("listingsEyebrow")}</p>
+          <h2 className="mt-1 text-lg font-semibold">{t("listingsTitle")}</h2>
+        </div>
+        <Link
+          href="/compose?kind=listing"
+          className="rounded-lg border border-primary/50 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-brand-link hover:bg-primary/20"
+        >
+          + New Listing
+        </Link>
+      </div>
 
       {listings.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground" data-testid="seller-listings-empty">
@@ -44,14 +69,53 @@ export function SellerListingsPanel({ listings }: { listings: SellerListing[] })
       ) : (
         <ul className="mt-4 flex flex-col gap-4">
           {listings.map((l) => (
-            <li key={l.id} data-testid="seller-listing-row">
+            <li key={l.id} className="rounded-xl border border-border/70 bg-card/40 p-3" data-testid="seller-listing-row">
               <div className="flex items-baseline justify-between gap-3">
                 <Link href={`/listing/${l.id}`} className="truncate text-sm font-semibold hover:underline">
                   {l.title}
                 </Link>
-                <span className="shrink-0 text-sm">{formatPrice(l.priceCents, l.currency)}</span>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 text-sm font-semibold">{formatPrice(l.priceCents, l.currency)}</span>
+                  <Link
+                    href={`/listing/${l.id}/edit`}
+                    className="grid size-7 place-items-center rounded-lg border border-border/80 bg-background text-muted-foreground hover:text-foreground"
+                    title="Edit listing details"
+                  >
+                    <Edit2 className="size-3" aria-hidden />
+                  </Link>
+                </div>
               </div>
-              <div className="mt-2 flex gap-2" role="group" aria-label={t("availabilityLabel")}>
+
+              {/* Stock Quantity Controls for tracked supplies/merch */}
+              {l.stockQuantity !== null && (
+                <div className="mt-2.5 flex items-center justify-between rounded-lg border border-border/50 bg-background/50 px-2.5 py-1 text-xs">
+                  <span className="text-muted-foreground">
+                    Stock Inventory: <strong className="font-mono text-foreground">{l.stockQuantity}</strong>
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      disabled={busy === l.id || l.stockQuantity <= 0}
+                      onClick={() => adjustStock(l.id, l.stockQuantity, -1)}
+                      className="grid size-6 place-items-center rounded border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-40"
+                      title="Decrease stock by 1"
+                    >
+                      <Minus className="size-3" aria-hidden />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={busy === l.id}
+                      onClick={() => adjustStock(l.id, l.stockQuantity, 1)}
+                      className="grid size-6 place-items-center rounded border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-40"
+                      title="Increase stock by 1"
+                    >
+                      <Plus className="size-3" aria-hidden />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-2.5 flex gap-2" role="group" aria-label={t("availabilityLabel")}>
                 {STATES.map((state) => (
                   <button
                     key={state}

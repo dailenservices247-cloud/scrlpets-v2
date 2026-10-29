@@ -315,3 +315,38 @@ export async function getOrderCounterpartyDossier(orderId: string): Promise<Coun
   if (error || !data) return null;
   return data as CounterpartyDossier;
 }
+
+export type TransportServiceOption = {
+  id: string;
+  name: string;
+  priceCents: number | null;
+  area: string | null;
+  providerUsername: string | null;
+};
+
+export async function getAvailableTransportServices(): Promise<TransportServiceOption[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("services")
+    .select("id,name,price_cents,area,profiles!services_owner_id_fkey(username)")
+    .eq("active", true)
+    .eq("category", "transport")
+    .limit(20);
+
+  if (!data) return [];
+  const rows = data as unknown as Array<{
+    id: string;
+    name: string;
+    price_cents: number | null;
+    area: string | null;
+    profiles: { username: string } | null;
+  }>;
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    priceCents: r.price_cents,
+    area: r.area,
+    providerUsername: r.profiles?.username ?? null,
+  }));
+}
+

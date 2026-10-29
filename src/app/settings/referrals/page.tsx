@@ -4,7 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { ReferralPanel } from "@/components/referral/ReferralPanel";
 import { ReferralShare } from "@/components/referral/ReferralShare";
-import { getMyReferralCode, getMyReferralStats } from "@/lib/referrals/queries";
+import { ClaimReferralForm } from "@/components/referral/ClaimReferralForm";
+import { getMyReferralCode, getMyReferralStats, getMyReferrerCode } from "@/lib/referrals/queries";
 import { getSessionUser } from "@/lib/auth/session";
 
 // Same fallback as robots.ts / sitemap.ts — the link is pasted into other
@@ -19,10 +20,11 @@ export default async function ReferralsPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [t, code, stats] = await Promise.all([
+  const [t, code, stats, referrerCode] = await Promise.all([
     getTranslations("referrals"),
     getMyReferralCode(),
     getMyReferralStats(),
+    getMyReferrerCode(),
   ]);
   const link = code ? `${BASE_URL}/signup?ref=${encodeURIComponent(code)}` : null;
 
@@ -35,6 +37,7 @@ export default async function ReferralsPage() {
         </Link>
       </header>
       <div className="flex flex-col gap-4 px-3 pb-6">
+        <ClaimReferralForm claimedCode={referrerCode} />
         <ReferralPanel link={link} stats={stats} />
         <ReferralShare link={link} />
       </div>

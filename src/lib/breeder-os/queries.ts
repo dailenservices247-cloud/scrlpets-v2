@@ -20,6 +20,7 @@ export type SellerListing = {
   availability: string;
   creatureId: string | null;
   brandId: string | null;
+  stockQuantity: number | null;
   createdAt: string;
 };
 
@@ -112,7 +113,7 @@ export async function getSellerListings(sellerId: string): Promise<SellerListing
   const supabase = await createClient();
   const { data } = await supabase
     .from("listings")
-    .select("id,title,price_cents,currency,availability,creature_id,brand_id,created_at")
+    .select("id,title,price_cents,currency,availability,creature_id,brand_id,stock_quantity,created_at")
     .eq("seller_id", sellerId)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
@@ -125,6 +126,7 @@ export async function getSellerListings(sellerId: string): Promise<SellerListing
     availability: string;
     creature_id: string | null;
     brand_id: string | null;
+    stock_quantity: number | null;
     created_at: string;
   }[]).map((l) => ({
     id: l.id,
@@ -134,6 +136,7 @@ export async function getSellerListings(sellerId: string): Promise<SellerListing
     availability: l.availability,
     creatureId: l.creature_id,
     brandId: l.brand_id,
+    stockQuantity: l.stock_quantity ?? null,
     createdAt: l.created_at,
   }));
 }

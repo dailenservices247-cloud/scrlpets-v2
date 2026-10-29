@@ -8,6 +8,7 @@ import { CheckCircle2, MessageCircle } from "lucide-react";
 import { setApplicationStatus } from "@/lib/applications/actions";
 import { confirmHandover } from "@/lib/reviews/actions";
 import { startConversation } from "@/lib/messaging/actions";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
 import type { BuyerApplication } from "@/lib/applications/queries";
 
 type FilterTab = "all" | "pending" | "accepted" | "closed";
@@ -163,13 +164,25 @@ export function ApplicationList({
                 {a.status === "accepted" && (
                   <div className="mt-3">
                     {(viewerIsSeller ? a.sellerConfirmedAt : a.buyerConfirmedAt) ? (
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground" data-testid={`handover-confirmed-${a.id}`}>
-                        <CheckCircle2 className="size-4 text-emerald-400" />
-                        <span>
-                          {a.buyerConfirmedAt && a.sellerConfirmedAt
-                            ? t("handoverComplete")
-                            : t("handoverAwaitingOther")}
-                        </span>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground" data-testid={`handover-confirmed-${a.id}`}>
+                          <CheckCircle2 className="size-4 text-emerald-400" />
+                          <span>
+                            {a.buyerConfirmedAt && a.sellerConfirmedAt
+                              ? t("handoverComplete")
+                              : t("handoverAwaitingOther")}
+                          </span>
+                        </div>
+                        {a.buyerConfirmedAt && a.sellerConfirmedAt && (
+                          <div className="mt-1">
+                            <ReviewForm
+                              applicationId={a.id}
+                              subjectId={viewerIsSeller ? a.buyerId : a.sellerId}
+                              sellerUsername={counterparty}
+                              listingTitle={a.listingTitle}
+                            />
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <button

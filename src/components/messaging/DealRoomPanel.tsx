@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, FileSignature, Truck } from "lucide-react";
 import { formatPrice } from "@/lib/shop/format";
-import { sendDealContract, signDealContract, acceptTransportQuote } from "@/lib/contracts/actions";
-import type { DealContract, TransportQuoteItem } from "@/lib/contracts/queries";
+import { sendDealContract, signDealContract, acceptTransportQuote, requestTransportQuote } from "@/lib/contracts/actions";
+import type { DealContract, TransportQuoteItem, TransportServiceOption } from "@/lib/contracts/queries";
 import type { ListingInquiryContext } from "@/lib/marketplace/queries";
 import { Button } from "@/components/ui/button";
 
@@ -16,18 +16,28 @@ export function DealRoomPanel({
   contracts,
   inquiries,
   quotes = [],
+  transportServices = [],
 }: {
   conversationId: string;
   viewerId: string;
   contracts: DealContract[];
   inquiries: ListingInquiryContext[];
   quotes?: TransportQuoteItem[];
+  transportServices?: TransportServiceOption[];
 }) {
   const router = useRouter();
   const [showSendModal, setShowSendModal] = useState(false);
   const [showSignModal, setShowSignModal] = useState(false);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Quote form states
+  const [selectedServiceId, setSelectedServiceId] = useState(transportServices[0]?.id ?? "");
+  const [pickupRegion, setPickupRegion] = useState("");
+  const [deliveryRegion, setDeliveryRegion] = useState("");
+  const [targetDate, setTargetDate] = useState("");
+  const [quoteNotes, setQuoteNotes] = useState("");
 
   // Send form states
   const targetInquiry = inquiries[0];
@@ -97,6 +107,32 @@ export function DealRoomPanel({
     }
   }
 
+  async function handleRequestQuote(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedServiceId) {
+      setError("Please select a transport carrier");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    const res = await requestTransportQuote(
+      selectedServiceId,
+      pickupRegion,
+      deliveryRegion,
+      targetDate || undefined,
+      quoteNotes || undefined,
+      latestContract?.orderId ?? undefined,
+      conversationId,
+    );
+    setBusy(false);
+    if (!res.ok) {
+      setError(res.error ?? "Failed to request transport quote");
+      return;
+    }
+    setShowQuoteModal(false);
+    router.refresh();
+  }
+
   return (
     <div className="mb-3 rounded-2xl border border-primary/30 bg-primary/5 p-3" data-testid="deal-room-panel">
       <div className="flex items-center justify-between gap-2">
@@ -161,12 +197,25 @@ export function DealRoomPanel({
         </div>
       )}
 
-      {quotes.length > 0 && (
+      {(quotes.length > 0 || transportServices.length > 0) && (
         <div className="mt-3 space-y-2 border-t border-primary/20 pt-2">
-          <p className="flex items-center gap-1.5 text-micro font-semibold uppercase tracking-wider text-muted-foreground">
-            <Truck className="size-3 text-brand-link" aria-hidden />
-            Transporter Quotes
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="flex items-center gap-1.5 text-micro font-semibold uppercase tracking-wider text-muted-foreground">
+              <Truck className="size-3 text-brand-link" aria-hidden />
+              Transporter Quotes
+            </p>
+            {transportServices.length > 0 && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-6 text-micro"
+                onClick={() => setShowQuoteModal(true)}
+                data-testid="open-request-quote-btn"
+              >
+                + Request Carrier Quote
+              </Button>
+            )}
+          </div>
           {quotes.map((q) => (
             <div
               key={q.id}
@@ -336,6 +385,92 @@ export function DealRoomPanel({
                 </Button>
                 <Button type="submit" disabled={busy || !buyerSig.trim()}>
                   {busy ? "Signing..." : "Sign & Create Order"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Request Carrier Quote */}
+      {showQuoteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border bg-card p-5 shadow-2xl">
+            <h3 className="text-lg font-bold">Request Transporter Quote</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Solicit an animal transport delivery quote from a registered carrier.
+            </p>
+
+            <form onSubmit={handleRequestQuote} className="mt-4 space-y-3">
+              <label className="block text-sm">
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">Select Carrier Service</span>
+                <select
+                  required
+                  className="w-full rounded-xl border border-input bg-transparent p-2 text-xs"
+                  value={selectedServiceId}
+                  onChange={(e) => setSelectedServiceId(e.target.value)}
+                >
+                  {transportServices.map((svc) => (
+                    <option key={svc.id} value={svc.id} className="bg-background text-foreground">
+                      {svc.name} — @{svc.providerUsername ?? "carrier"} ({svc.area ?? "All US"})
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="grid grid-cols-2 gap-2">
+                <label className="block text-sm">
+                  <span className="mb-1 block text-xs font-medium text-muted-foreground">Pickup Region (State / City)</span>
+                  <input
+                    required
+                    placeholder="e.g. OH or Cleveland"
+                    className="w-full rounded-xl border border-input bg-transparent p-2 text-xs"
+                    value={pickupRegion}
+                    onChange={(e) => setPickupRegion(e.target.value)}
+                  />
+                </label>
+
+                <label className="block text-sm">
+                  <span className="mb-1 block text-xs font-medium text-muted-foreground">Delivery Region (State / City)</span>
+                  <input
+                    required
+                    placeholder="e.g. FL or Miami"
+                    className="w-full rounded-xl border border-input bg-transparent p-2 text-xs"
+                    value={deliveryRegion}
+                    onChange={(e) => setDeliveryRegion(e.target.value)}
+                  />
+                </label>
+              </div>
+
+              <label className="block text-sm">
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">Estimated Target Date (Optional)</span>
+                <input
+                  type="date"
+                  className="w-full rounded-xl border border-input bg-transparent p-2 text-xs"
+                  value={targetDate}
+                  onChange={(e) => setTargetDate(e.target.value)}
+                />
+              </label>
+
+              <label className="block text-sm">
+                <span className="mb-1 block text-xs font-medium text-muted-foreground">Pet Details & Handling Notes</span>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. 10-week Presa Canario puppy, ~20 lbs, crate provided"
+                  className="w-full rounded-xl border border-input bg-transparent p-2 text-xs"
+                  value={quoteNotes}
+                  onChange={(e) => setQuoteNotes(e.target.value)}
+                />
+              </label>
+
+              {error && <p className="text-xs text-destructive">{error}</p>}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="outline" onClick={() => setShowQuoteModal(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={busy || !pickupRegion.trim() || !deliveryRegion.trim()}>
+                  {busy ? "Submitting..." : "Send Quote Request"}
                 </Button>
               </div>
             </form>

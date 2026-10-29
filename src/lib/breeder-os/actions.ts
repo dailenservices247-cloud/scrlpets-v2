@@ -26,3 +26,21 @@ export async function setListingAvailability(
   revalidatePath("/market");
   return { ok: true };
 }
+
+export async function updateListingStock(
+  listingId: string,
+  stockQuantity: number | null,
+): Promise<BreederOsResult> {
+  const supabase = await createClient();
+  const qty = stockQuantity !== null ? Math.max(0, Math.round(stockQuantity)) : null;
+  const { error, count } = await supabase
+    .from("listings")
+    .update({ stock_quantity: qty }, { count: "exact" })
+    .eq("id", listingId);
+  if (error) return { ok: false, error: error.message };
+  if ((count ?? 0) === 0) return { ok: false, error: "not_permitted" };
+  revalidatePath("/brand-os");
+  revalidatePath(`/listing/${listingId}`);
+  revalidatePath("/market");
+  return { ok: true };
+}

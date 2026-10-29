@@ -23,8 +23,12 @@ import { BreederStatsPanel } from "@/components/brand/BreederStatsPanel";
 import { ServicesManagerPanel } from "@/components/brand/ServicesManagerPanel";
 import { BrandKitPanel } from "@/components/brand/BrandKitPanel";
 import { CatalogImportPanel } from "@/components/brand/CatalogImportPanel";
+import { LittersManagerPanel } from "@/components/brand/LittersManagerPanel";
+import { BrandOrdersPanel } from "@/components/brand/BrandOrdersPanel";
 import { getBrandKit, getBrandGallery } from "@/lib/brand-kit/queries";
 import { listMyServices } from "@/lib/services/queries";
+import { listMyLitters } from "@/lib/litters/queries";
+import { getMyOrders } from "@/lib/orders/queries";
 import { BRAND_TYPE_OPTIONS, canManageBrandContent } from "@/lib/brands/types";
 import { getBrandCapabilities } from "@/lib/hub/queries";
 import { hasCapability } from "@/lib/hub/capabilities";
@@ -52,10 +56,12 @@ export default async function BrandOSPage({
 
   // R16: the operating modules are scoped to the OPERATOR, not the brand —
   // animals belong to a profile. A solo breeder with no brand still needs them.
-  const [roster, sellerListings, myServices] = await Promise.all([
+  const [roster, sellerListings, myServices, myLitters, myOrders] = await Promise.all([
     getRoster(user.id),
     getSellerListings(user.id),
     listMyServices(user.id),
+    listMyLitters(user.id),
+    getMyOrders(),
   ]);
   // Brand attach on a new service needs manager rights (RLS is_brand_manager).
   const attachableBrands = brands
@@ -100,6 +106,12 @@ export default async function BrandOSPage({
         </section>
         <section className="px-3 py-3">
           <SellerListingsPanel listings={sellerListings} />
+        </section>
+        <section className="px-3 py-3">
+          <LittersManagerPanel litters={myLitters} />
+        </section>
+        <section className="px-3 py-3">
+          <BrandOrdersPanel orders={myOrders} sellerId={user.id} />
         </section>
         <section className="px-3 py-3">
           <ServicesManagerPanel services={myServices} brands={[]} userId={user.id} />
@@ -219,11 +231,21 @@ export default async function BrandOSPage({
         </section>
       )}
 
+      {canBreeding && (
+        <section className="px-3 py-3">
+          <LittersManagerPanel litters={myLitters} brandId={brand.id} />
+        </section>
+      )}
+
       {canSellOrAdopt && (
         <section className="px-3 py-3">
           <SellerListingsPanel listings={sellerListings} />
         </section>
       )}
+
+      <section className="px-3 py-3">
+        <BrandOrdersPanel orders={myOrders} sellerId={user.id} />
+      </section>
 
       {canServices && (
         <section className="px-3 py-3">

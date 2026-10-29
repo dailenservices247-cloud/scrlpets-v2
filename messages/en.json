@@ -1199,7 +1199,16 @@
     "qrAlt": "QR code for your invite link",
     "qrUnavailable": "The QR code could not be generated for this link.",
     "copyMessage": "Copy message",
-    "shareButton": "Share"
+    "shareButton": "Share",
+    "claimTitle": "Claim an invite code",
+    "claimBody": "If a friend invited you to Scrlpets, enter their invite code below to link your account to theirs.",
+    "claimPlaceholder": "Enter invite code",
+    "claimButton": "Claim invite",
+    "claimSuccess": "Invite code claimed successfully!",
+    "claimAlreadyReferred": "You have already claimed an invite code.",
+    "claimSelf": "You cannot claim your own invite code.",
+    "claimUnknown": "Invalid invite code. Check the spelling and try again.",
+    "claimActive": "Invite codes can only be claimed by new accounts."
   },
   "groups": {
     "eyebrow": "Breeds & species",
