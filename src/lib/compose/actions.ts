@@ -150,6 +150,10 @@ export async function createListing(
   const externalUrl = (formData.get("externalUrl") as string)?.trim() || null;
   const rawSaleMode = String(formData.get("saleMode") ?? "");
   const saleMode = rawSaleMode === "contract_escrow" || Boolean(creatureId) ? "contract_escrow" : "direct_checkout";
+  const rawStock = (formData.get("stockQuantity") as string)?.trim();
+  const stockQuantity = rawStock && !isNaN(parseInt(rawStock, 10)) && parseInt(rawStock, 10) >= 0 ? parseInt(rawStock, 10) : null;
+  const rawShipping = (formData.get("shippingFee") as string)?.trim();
+  const shippingFeeCents = rawShipping ? (parsePriceCents(rawShipping) ?? 0) : 0;
 
   const { data, error } = await supabase
     .from("listings")
@@ -169,6 +173,8 @@ export async function createListing(
       external_sku: externalSku,
       external_url: externalUrl,
       sale_mode: saleMode,
+      stock_quantity: stockQuantity,
+      shipping_fee_cents: shippingFeeCents,
       ...attribution,
     })
     .select("id")

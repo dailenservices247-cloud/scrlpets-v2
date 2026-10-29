@@ -22,6 +22,7 @@ import { ReadinessPanel } from "@/components/brand/ReadinessPanel";
 import { BreederStatsPanel } from "@/components/brand/BreederStatsPanel";
 import { ServicesManagerPanel } from "@/components/brand/ServicesManagerPanel";
 import { BrandKitPanel } from "@/components/brand/BrandKitPanel";
+import { CatalogImportPanel } from "@/components/brand/CatalogImportPanel";
 import { getBrandKit, getBrandGallery } from "@/lib/brand-kit/queries";
 import { listMyServices } from "@/lib/services/queries";
 import { BRAND_TYPE_OPTIONS, canManageBrandContent } from "@/lib/brands/types";
@@ -227,6 +228,12 @@ export default async function BrandOSPage({
       {canServices && (
         <section className="px-3 py-3">
           <ServicesManagerPanel services={myServices} brands={attachableBrands} userId={user.id} />
+        </section>
+      )}
+
+      {isManager && (
+        <section className="px-3 py-3">
+          <CatalogImportPanel brandId={brand.id} brandName={brand.name} />
         </section>
       )}
 

@@ -21,6 +21,8 @@ export function ProductComposeForm({
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("supplies");
   const [description, setDescription] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("");
+  const [shippingFee, setShippingFee] = useState("");
   const [sellerSource, setSellerSource] = useState<"distributor" | "merchant">("distributor");
   const [merchantName, setMerchantName] = useState("");
   const [externalSku, setExternalSku] = useState("");
@@ -39,6 +41,8 @@ export function ProductComposeForm({
     fd.set("price", price.trim());
     fd.set("category", category.trim());
     fd.set("description", description.trim());
+    if (stockQuantity) fd.set("stockQuantity", stockQuantity.trim());
+    if (shippingFee) fd.set("shippingFee", shippingFee.trim());
     fd.set("sellerSource", sellerSource);
     if (merchantName) fd.set("merchantName", merchantName.trim());
     if (externalSku) fd.set("externalSku", externalSku.trim());
@@ -89,6 +93,32 @@ export function ProductComposeForm({
             placeholder="e.g. Food, Crates, Grooming, Toys"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            className="min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">Inventory Units (Stock)</label>
+          <input
+            type="number"
+            min="0"
+            placeholder="Blank = made to order"
+            value={stockQuantity}
+            onChange={(e) => setStockQuantity(e.target.value)}
+            className="min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm"
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground">Shipping Fee ($ USD)</label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00 = Free shipping"
+            value={shippingFee}
+            onChange={(e) => setShippingFee(e.target.value)}
             className="min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm"
           />
         </div>

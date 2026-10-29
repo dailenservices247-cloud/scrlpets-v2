@@ -67,12 +67,30 @@ export function ProductCard({ product }: { product: ShopProduct }) {
         )}
 
         <div className="mt-auto pt-2">
-          <p className="text-sm font-semibold">
-            {formatPrice(product.priceCents, product.currency)}
-          </p>
-          <p className="truncate text-xs text-muted-foreground">
-            {product.recommender ? `Sold by ${sellerDisplayName}` : sellerDisplayName}
-          </p>
+          <div className="flex items-baseline justify-between gap-1">
+            <p className="text-sm font-semibold">
+              {formatPrice(product.priceCents, product.currency)}
+            </p>
+            {product.stockQuantity !== null ? (
+              product.stockQuantity === 0 ? (
+                <span className="text-micro font-medium text-destructive">Out of stock</span>
+              ) : product.stockQuantity <= 3 ? (
+                <span className="text-micro font-medium text-amber-400">Only {product.stockQuantity} left</span>
+              ) : (
+                <span className="text-micro text-emerald-400">{product.stockQuantity} in stock</span>
+              )
+            ) : (
+              <span className="text-micro text-muted-foreground">Made to order</span>
+            )}
+          </div>
+          <div className="mt-0.5 flex items-center justify-between gap-1 text-xs text-muted-foreground">
+            <p className="truncate">
+              {product.recommender ? `Sold by ${sellerDisplayName}` : sellerDisplayName}
+            </p>
+            <span className="shrink-0 text-micro">
+              {product.shippingFeeCents > 0 ? `+${formatPrice(product.shippingFeeCents, product.currency)} ship` : "Free ship"}
+            </span>
+          </div>
         </div>
       </div>
     </Link>

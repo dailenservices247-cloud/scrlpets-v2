@@ -16,6 +16,9 @@ export type ShopProduct = {
   externalSku: string | null;
   externalUrl: string | null;
   saleMode: "direct_checkout" | "contract_escrow";
+  stockQuantity: number | null;
+  shippingFeeCents: number;
+  fulfillmentOptions: string[];
   recommender?: { username: string; note: string | null } | null;
 };
 
@@ -33,12 +36,15 @@ type Row = {
   external_sku?: string | null;
   external_url?: string | null;
   sale_mode?: string | null;
+  stock_quantity?: number | null;
+  shipping_fee_cents?: number | null;
+  fulfillment_options?: string[] | null;
   profiles: { username: string } | null;
   brands: { id: string; name: string; slug: string } | null;
 };
 
 const SELECT =
-  "id,title,description,category,price_cents,currency,availability,media_url,seller_source,merchant_name,external_sku,external_url,sale_mode,profiles!listings_seller_id_fkey(username),brands(id,name,slug)";
+  "id,title,description,category,price_cents,currency,availability,media_url,seller_source,merchant_name,external_sku,external_url,sale_mode,stock_quantity,shipping_fee_cents,fulfillment_options,profiles!listings_seller_id_fkey(username),brands(id,name,slug)";
 
 function toProduct(r: Row): ShopProduct {
   return {
@@ -57,6 +63,9 @@ function toProduct(r: Row): ShopProduct {
     externalSku: r.external_sku ?? null,
     externalUrl: r.external_url ?? null,
     saleMode: (r.sale_mode as "direct_checkout" | "contract_escrow") || "direct_checkout",
+    stockQuantity: r.stock_quantity ?? null,
+    shippingFeeCents: r.shipping_fee_cents ?? 0,
+    fulfillmentOptions: r.fulfillment_options ?? ["shipping"],
   };
 }
 
