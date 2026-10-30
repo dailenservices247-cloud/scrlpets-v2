@@ -6,6 +6,7 @@ import type { CreatureProfile } from "@/lib/profiles/queries";
 import type { CreatureOriginAttribution } from "@/lib/creatures/queries";
 import { getFeedDestination } from "@/lib/feed/destinations";
 import { ProfilePhotoTrigger } from "@/components/profile/ProfilePhotoTrigger";
+import { ShareButton } from "@/components/share/ShareButton";
 import type { PhotoAlbum } from "@/components/profile/PhotoGalleryModal";
 
 export async function CreatureHero({
@@ -81,15 +82,23 @@ export async function CreatureHero({
               </span>
             )}
           </div>
-          {listing && (
-            <Link
-              href={getFeedDestination(listing).href}
-              className="mt-4 inline-flex min-h-10 items-center rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-medium text-foreground transition hover:bg-primary/15 focus:outline-none focus:ring-2 focus:ring-ring"
-              data-testid="creature-listing-cue"
-            >
-              {t("listingActivity")}
-            </Link>
-          )}
+          <div className="mt-4 flex flex-wrap items-center gap-2.5">
+            <ShareButton
+              url={`https://scrlpets.com/c/${creature.id}`}
+              title={`${creature.name} on Scrlpets`}
+              mediaUrl={creature.avatarUrl}
+              variant="outline"
+            />
+            {listing && (
+              <Link
+                href={getFeedDestination(listing).href}
+                className="inline-flex min-h-10 items-center rounded-md border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-medium text-foreground transition hover:bg-primary/15 focus:outline-none focus:ring-2 focus:ring-ring"
+                data-testid="creature-listing-cue"
+              >
+                {t("listingActivity")}
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </section>

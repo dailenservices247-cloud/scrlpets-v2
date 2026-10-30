@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { validatePost, validateListing, parsePriceCents, parseSaleTerms, parseGuarantee } from "./validation";
+import { dispatchSyndication } from "@/lib/syndication/dispatcher";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -90,16 +91,32 @@ export async function createPost(formData: FormData): Promise<ActionResult> {
     (requestedType === "reel" || requestedType === "long_video") && mediaUrl
       ? requestedType
       : "post";
-  const { error } = await supabase.from("posts").insert({
-    author_id: user.id,
-    content_type: contentType,
-    body: body.trim() || null,
-    media_url: mediaUrl,
-    tagged_creature_id: creatureId,
-    group_id: groupId,
-    ...attribution,
-  });
+  const { data: createdPost, error } = await supabase
+    .from("posts")
+    .insert({
+      author_id: user.id,
+      content_type: contentType,
+      body: body.trim() || null,
+      media_url: mediaUrl,
+      tagged_creature_id: creatureId,
+      group_id: groupId,
+      ...attribution,
+    })
+    .select("id")
+    .maybeSingle();
+
   if (error) return { ok: false, error: error.message };
+
+  if (formData.get("syndicate") === "true" && createdPost?.id) {
+    void dispatchSyndication({
+      postId: createdPost.id,
+      authorId: user.id,
+      body: body.trim() || null,
+      mediaUrl,
+      contentType,
+    });
+  }
+
   revalidatePath("/");
   return { ok: true };
 }

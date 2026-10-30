@@ -2,6 +2,7 @@ import type { FeedItem } from "@/lib/feed/types";
 import type { PostSocialContext } from "@/lib/social/reactions";
 import { ReactionBar } from "@/components/social/ReactionBar";
 import { FeedCommentSection } from "@/components/social/FeedCommentSection";
+import { ShareButton } from "@/components/share/ShareButton";
 import { loginHrefFor } from "@/lib/auth/redirect";
 import { FeedCardShell } from "../FeedCardShell";
 import { TileMedia } from "../TileMedia";
@@ -45,12 +46,21 @@ export function PostTile({
             initialMine={social.reactions.mine}
             signedIn={signedIn}
           />
-          <FeedCommentSection
-            postId={item.id}
-            initialCount={social.commentCount}
-            signedIn={signedIn}
-            loginHref={loginHrefFor(`/post/${item.id}`)}
-          />
+          <div className="flex items-center gap-1.5">
+            <ShareButton
+              url={`https://scrlpets.com/post/${item.id}`}
+              title={item.title ?? "Scrlpets Post"}
+              mediaUrl={item.mediaUrl}
+              variant="ghost"
+              showLabel={false}
+            />
+            <FeedCommentSection
+              postId={item.id}
+              initialCount={social.commentCount}
+              signedIn={signedIn}
+              loginHref={loginHrefFor(`/post/${item.id}`)}
+            />
+          </div>
         </div>
       )}
     </FeedCardShell>

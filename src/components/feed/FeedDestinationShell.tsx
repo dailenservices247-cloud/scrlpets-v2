@@ -14,6 +14,7 @@ import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { ReportButton } from "@/components/social/ReportButton";
 import { ReactionBar } from "@/components/social/ReactionBar";
 import { SaveButton } from "@/components/social/SaveButton";
+import { ShareButton } from "@/components/share/ShareButton";
 import { CommentThread } from "@/components/social/CommentThread";
 import { getManageableBrandIds } from "@/lib/brands/queries";
 import { getReactionSummary, isSaved } from "@/lib/social/reactions";
@@ -180,7 +181,15 @@ export async function FeedDestinationShell({
                 initialMine={reactions.mine}
                 signedIn={Boolean(viewerId)}
               />
-              {viewerId && <SaveButton postId={item.id} initialSaved={saved} />}
+              <div className="flex items-center gap-2">
+                <ShareButton
+                  url={`https://scrlpets.com/post/${item.id}`}
+                  title={item.title ?? "Scrlpets Post"}
+                  mediaUrl={item.mediaUrl}
+                  variant="outline"
+                />
+                {viewerId && <SaveButton postId={item.id} initialSaved={saved} />}
+              </div>
             </div>
           )}
           {canManage ? (

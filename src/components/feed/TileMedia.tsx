@@ -1,6 +1,8 @@
 import { ViewTransition } from "react";
 import { isVideoUrl } from "@/lib/media/media-kind";
+import { isEmbedUrl } from "@/lib/media/embeds";
 import { FeedVideo } from "./FeedVideo";
+import { EmbedPlayer } from "./EmbedPlayer";
 
 /* Plain <img> on purpose — next/image needs remotePatterns per host; media hosts
    are dev placeholders until real storage matures. Width/height REQUIRED: at 0px
@@ -45,6 +47,16 @@ function renderMedia({
   alt: string;
   variant: "feed" | "player";
 }) {
+  if (isEmbedUrl(src)) {
+    return (
+      <EmbedPlayer
+        src={src}
+        className="mt-1"
+        aspectRatio={variant === "player" ? "auto" : undefined}
+      />
+    );
+  }
+
   // F4: video media — feed tiles autoplay muted (A3); destination pages get a
   // real player with controls (A5).
   if (isVideoUrl(src)) {

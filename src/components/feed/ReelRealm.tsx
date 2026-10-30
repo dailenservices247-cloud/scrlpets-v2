@@ -6,10 +6,13 @@ import { ArrowLeft, VideoOff, Volume2, VolumeX } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { FeedItem } from "@/lib/feed/types";
 import { isVideoUrl } from "@/lib/media/media-kind";
+import { isEmbedUrl } from "@/lib/media/embeds";
+import { EmbedPlayer } from "./EmbedPlayer";
 import { ReactionBar } from "@/components/social/ReactionBar";
 import { FeedCommentSection } from "@/components/social/FeedCommentSection";
 import { SaveButton } from "@/components/social/SaveButton";
 import { FollowButton } from "@/components/social/FollowButton";
+import { ShareButton } from "@/components/share/ShareButton";
 import { loginHrefFor } from "@/lib/auth/redirect";
 import { realmTransitionName } from "@/lib/feed/realm-transition";
 import { ReelScrim } from "./ReelScrim";
@@ -83,7 +86,11 @@ function ReelSlide({
       data-testid="reel-slide"
       data-reel-id={item.id}
     >
-      {isVideoUrl(item.mediaUrl) && !failed ? (
+      {isEmbedUrl(item.mediaUrl) ? (
+        <div className="flex h-full w-full items-center justify-center p-4">
+          <EmbedPlayer src={item.mediaUrl!} aspectRatio="reel" className="max-h-[85vh] w-full" />
+        </div>
+      ) : isVideoUrl(item.mediaUrl) && !failed ? (
         /* The realm side of the doorway (spec §5): the tapped tile's video
            grows into this one. Every slide in the queue is named, so the queue
            still morphs when the reel it opened on is not the first slide. */
@@ -132,6 +139,13 @@ function ReelSlide({
             initialCount={social.commentCount}
             signedIn={signedIn}
             loginHref={loginHrefFor(`/watch/reel/${item.id}`)}
+          />
+          <ShareButton
+            url={`https://scrlpets.com/watch/reel/${item.id}`}
+            title={item.title ?? "Scrlpets Reel"}
+            mediaUrl={item.mediaUrl}
+            variant="icon"
+            showLabel={false}
           />
           {signedIn && <SaveButton postId={item.id} initialSaved={saved} />}
         </div>

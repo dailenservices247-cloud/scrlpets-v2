@@ -7,10 +7,13 @@ import { applyAttribution } from "./attribution";
 import type { ComposeAttribution } from "./ComposerTabs";
 import { MediaInput } from "./MediaInput";
 import { isVideoUrl } from "@/lib/media/media-kind";
+import { isEmbedUrl, parseEmbedUrl } from "@/lib/media/embeds";
+import { EmbedPlayer } from "@/components/feed/EmbedPlayer";
 import { CreaturePicker } from "./CreaturePicker";
 import { Button } from "@/components/ui/button";
 import { capture } from "@/lib/analytics";
 import type { MyGroup } from "@/lib/groups/queries";
+import { Link2, Upload, Share2, X } from "lucide-react";
 
 type PostFormProps =
   | {
@@ -48,8 +51,12 @@ export function PostForm(props: PostFormProps) {
   const router = useRouter();
   const [body, setBody] = useState(edit?.body ?? "");
   const [mediaUrl, setMediaUrl] = useState<string | null>(edit?.mediaUrl ?? null);
-  // F4: a video upload turns the post into a reel or long video.
+  // F4: a video upload or social embed turns the post into a reel or long video.
   const [videoKind, setVideoKind] = useState<"reel" | "long_video">("reel");
+  const [mediaMode, setMediaMode] = useState<"upload" | "link">("upload");
+  const [socialLinkInput, setSocialLinkInput] = useState("");
+  const [socialLinkError, setSocialLinkError] = useState<string | null>(null);
+  const [syndicate, setSyndicate] = useState(false);
   const [creatureId, setCreatureId] = useState<string | null>(null);
   const [groupId, setGroupId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -60,6 +67,23 @@ export function PostForm(props: PostFormProps) {
     !isEditing && groups.length > 0 && attribution?.postingAsType === "person";
   const chosenGroup = groupChoiceVisible ? groups.find((g) => g.id === groupId) ?? null : null;
 
+  function handleSocialLinkChange(url: string) {
+    setSocialLinkInput(url);
+    setSocialLinkError(null);
+    const trimmed = url.trim();
+    if (!trimmed) {
+      setMediaUrl(null);
+      return;
+    }
+    const parsed = parseEmbedUrl(trimmed);
+    if (parsed) {
+      setMediaUrl(trimmed);
+      setVideoKind(parsed.kind === "reel" ? "reel" : "long_video");
+    } else {
+      setSocialLinkError("Please enter a valid YouTube, Instagram, Facebook, or TikTok link.");
+    }
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -67,7 +91,12 @@ export function PostForm(props: PostFormProps) {
     const fd = new FormData();
     fd.set("body", body);
     fd.set("mediaUrl", mediaUrl ?? "");
-    if (!edit && isVideoUrl(mediaUrl)) fd.set("contentType", videoKind);
+    if (!edit && (isVideoUrl(mediaUrl) || isEmbedUrl(mediaUrl))) {
+      fd.set("contentType", videoKind);
+    }
+    if (syndicate) {
+      fd.set("syndicate", "true");
+    }
     let res;
     if (edit) {
       res = await editPost(edit.id, fd);
@@ -124,8 +153,94 @@ export function PostForm(props: PostFormProps) {
           </Button>
         </div>
       )}
-      <MediaInput userId={userId} onUploaded={(url) => setMediaUrl(url)} />
-      {!isEditing && isVideoUrl(mediaUrl) && (
+
+      {!isEditing && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-1.5 border-b border-border/60 pb-2">
+            <button
+              type="button"
+              onClick={() => {
+                setMediaMode("upload");
+                if (isEmbedUrl(mediaUrl)) setMediaUrl(null);
+              }}
+              className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                mediaMode === "upload"
+                  ? "bg-primary/15 text-brand-link"
+                  : "text-muted-foreground hover:bg-muted/40"
+              }`}
+              data-testid="tab-media-upload"
+            >
+              <Upload className="size-3.5" />
+              <span>Upload File</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMediaMode("link");
+                if (!isEmbedUrl(mediaUrl)) setMediaUrl(null);
+              }}
+              className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                mediaMode === "link"
+                  ? "bg-primary/15 text-brand-link"
+                  : "text-muted-foreground hover:bg-muted/40"
+              }`}
+              data-testid="tab-media-link"
+            >
+              <Link2 className="size-3.5" />
+              <span>Paste Video Link (YouTube, IG, FB, TikTok)</span>
+            </button>
+          </div>
+
+          {mediaMode === "upload" ? (
+            <MediaInput userId={userId} onUploaded={(url) => setMediaUrl(url)} />
+          ) : (
+            <div className="space-y-2">
+              <label className="text-xs text-muted-foreground block">
+                Paste YouTube, Instagram Reel, Facebook Video, or TikTok link:
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="url"
+                  placeholder="https://www.youtube.com/watch?v=... or https://instagram.com/reel/..."
+                  value={socialLinkInput}
+                  onChange={(e) => handleSocialLinkChange(e.target.value)}
+                  className="flex-1 min-h-10 rounded-lg border border-input bg-transparent px-3 py-2 text-xs"
+                  data-testid="social-link-input"
+                />
+                {socialLinkInput && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 rounded-full"
+                    onClick={() => handleSocialLinkChange("")}
+                    aria-label="Clear link"
+                  >
+                    <X className="size-3.5" />
+                  </Button>
+                )}
+              </div>
+              {socialLinkError && (
+                <p className="text-xs text-destructive" role="alert">
+                  {socialLinkError}
+                </p>
+              )}
+              {mediaUrl && isEmbedUrl(mediaUrl) && (
+                <div className="rounded-xl border border-border/70 p-3 bg-muted/20">
+                  <p className="text-micro text-muted-foreground mb-2 font-medium">Embed Preview</p>
+                  <EmbedPlayer src={mediaUrl} />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {isEditing && (
+        <MediaInput userId={userId} onUploaded={(url) => setMediaUrl(url)} />
+      )}
+
+      {!isEditing && (isVideoUrl(mediaUrl) || isEmbedUrl(mediaUrl)) && (
         <div className="flex gap-1 rounded-full bg-muted/45 p-1 self-start" role="group" aria-label={t("videoKindLabel")}>
           {(["reel", "long_video"] as const).map((kind) => (
             <button
@@ -172,6 +287,29 @@ export function PostForm(props: PostFormProps) {
           </span>
         </label>
       )}
+      {!isEditing && (
+        <div className="rounded-xl border border-border/60 bg-muted/15 p-3" data-testid="post-syndication-panel">
+          <label className="flex items-center gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={syndicate}
+              onChange={(e) => setSyndicate(e.target.checked)}
+              className="size-4 rounded border-border accent-primary cursor-pointer"
+              data-testid="post-syndicate-checkbox"
+            />
+            <div className="flex items-center gap-2">
+              <Share2 className="size-3.5 text-brand-link" />
+              <span className="text-xs font-semibold">
+                Auto-syndicate to connected channels (YouTube, IG, FB)
+              </span>
+            </div>
+          </label>
+          <p className="mt-1 text-micro text-muted-foreground pl-6.5">
+            Broadcasts this post directly to your configured syndication pipeline and connected social accounts upon publishing.
+          </p>
+        </div>
+      )}
+
       {err && <p className="text-destructive text-sm">{err}</p>}
       <Button type="submit" disabled={busy || disabled} data-testid="post-submit">
         {isEditing ? tc("saveChanges") : t("submitPost")}

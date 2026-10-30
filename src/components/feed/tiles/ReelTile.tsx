@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import type { FeedItem } from "@/lib/feed/types";
 import type { PostSocialContext } from "@/lib/social/reactions";
 import { isVideoUrl } from "@/lib/media/media-kind";
+import { isEmbedUrl } from "@/lib/media/embeds";
+import { EmbedPlayer } from "../EmbedPlayer";
 import { ReactionBar } from "@/components/social/ReactionBar";
 import { FeedCommentSection } from "@/components/social/FeedCommentSection";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
@@ -54,7 +56,11 @@ export function ReelTile({
 
   return (
     <article className="relative -mx-3 overflow-hidden bg-black" data-testid="tile-reel">
-      {isVideoUrl(item.mediaUrl) ? (
+      {isEmbedUrl(item.mediaUrl) ? (
+        <div className="py-2" data-testid="reel-embed">
+          <EmbedPlayer src={item.mediaUrl!} aspectRatio="reel" />
+        </div>
+      ) : isVideoUrl(item.mediaUrl) ? (
         <div className="cursor-pointer" data-testid="reel-open" role="link" aria-label={t("openReel")}>
           <ViewTransition name={realmTransitionName("reel", item.id)} share="morph" default="none">
             <FeedVideo
