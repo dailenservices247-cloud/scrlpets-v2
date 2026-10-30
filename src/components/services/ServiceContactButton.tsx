@@ -44,7 +44,7 @@ export function ServiceContactButton({
     return (
       <Link
         href={`/login?next=${encodeURIComponent(returnPath)}`}
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-input px-3 text-sm font-medium text-brand-link"
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-input px-4 text-xs sm:text-sm font-semibold text-brand-link hover:bg-muted/50"
         data-testid={`service-contact-signin-${serviceId}`}
       >
         <MessageCircle className="size-4" aria-hidden />

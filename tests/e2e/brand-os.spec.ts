@@ -6,6 +6,11 @@ test("signed-out /brand-os redirects to login", async ({ page }) => {
   await expect(page).toHaveURL(/\/login/);
 });
 
+test("signed-out /breeder-os redirects to login", async ({ page }) => {
+  await page.goto("/breeder-os");
+  await expect(page).toHaveURL(/\/login/);
+});
+
 test.describe("signed in", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/login");
@@ -32,6 +37,11 @@ test.describe("signed in", () => {
     await expect(page.getByTestId("brand-os-header").getByRole("heading", { level: 1 })).toHaveText(/E2E Brand/);
     await expect(page.getByTestId("brand-os-overview")).toBeVisible();
     await expect(page.getByTestId("brand-os-quick-actions")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Applications" })).toHaveAttribute("href", "/applications");
+
+    // /breeder-os routes to /brand-os
+    await page.goto("/breeder-os");
+    await expect(page).toHaveURL(/\/brand-os/);
 
     // Public link lands on the real public brand page.
     await page.getByTestId("brand-os-public-link").click();

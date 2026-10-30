@@ -262,7 +262,7 @@ async function SuppliesTab({
               key={s.key}
               href={href}
               aria-current={active ? "page" : undefined}
-              className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+              className={`inline-flex min-h-10 items-center shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
                 active ? "border-primary bg-primary/15 text-brand-link" : "border-input text-muted-foreground hover:bg-muted"
               }`}
             >
@@ -277,7 +277,7 @@ async function SuppliesTab({
           <Link
             href={`/market?tab=supplies${source && source !== "all" ? `&source=${source}` : ""}`}
             aria-current={!category ? "page" : undefined}
-            className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-xs ${!category ? "border-primary bg-primary/10" : "border-input text-muted-foreground"}`}
+            className={`inline-flex min-h-10 items-center shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium ${!category ? "border-primary bg-primary/10 text-brand-link font-semibold" : "border-input text-muted-foreground hover:bg-muted"}`}
           >
             {t("allCategories")}
           </Link>
@@ -286,7 +286,7 @@ async function SuppliesTab({
               key={c}
               href={`/market?tab=supplies&category=${encodeURIComponent(c)}${source && source !== "all" ? `&source=${source}` : ""}`}
               aria-current={category === c ? "page" : undefined}
-              className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-xs ${category === c ? "border-primary bg-primary/10" : "border-input text-muted-foreground"}`}
+              className={`inline-flex min-h-10 items-center shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium ${category === c ? "border-primary bg-primary/10 text-brand-link font-semibold" : "border-input text-muted-foreground hover:bg-muted"}`}
             >
               {c}
             </Link>
@@ -331,7 +331,7 @@ async function ServicesTab({ category }: { category?: string }) {
           <Link
             href="/market?tab=services"
             aria-current={!category ? "page" : undefined}
-            className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-sm ${!category ? "border-primary bg-primary/10" : "border-input"}`}
+            className={`inline-flex min-h-10 items-center shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium ${!category ? "border-primary bg-primary/10 text-brand-link font-semibold" : "border-input text-muted-foreground hover:bg-muted"}`}
           >
             {t("allCategories")}
           </Link>
@@ -340,7 +340,7 @@ async function ServicesTab({ category }: { category?: string }) {
               key={c}
               href={`/market?tab=services&category=${encodeURIComponent(c)}`}
               aria-current={category === c ? "page" : undefined}
-              className={`min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-sm ${category === c ? "border-primary bg-primary/10" : "border-input"}`}
+              className={`inline-flex min-h-10 items-center shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium ${category === c ? "border-primary bg-primary/10 text-brand-link font-semibold" : "border-input text-muted-foreground hover:bg-muted"}`}
             >
               {t(`category.${c}`)}
             </Link>

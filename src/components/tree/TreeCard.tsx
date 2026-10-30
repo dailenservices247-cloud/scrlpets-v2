@@ -24,14 +24,14 @@ export function TreeCard({
   const subtitle = creature.breed || creature.species || t(`role.${creature.creatureRole}`);
 
   return (
-    <div className="relative min-w-32 shrink-0" data-testid="tree-card">
+    <div className="relative min-w-36 sm:min-w-40 shrink-0" data-testid="tree-card">
       <Link
         ref={(el) => registerRef(creature.id, el)}
         href={`/c/${creature.slug}`}
         className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-ring"
         data-testid={`tree-card-link-${creature.id}`}
       >
-        <Card className={`premium-panel h-full gap-2 rounded-2xl p-2 ${deceased ? "opacity-70" : ""}`}>
+        <Card className={`premium-panel h-full gap-2.5 rounded-2xl p-2.5 sm:p-3 transition hover:border-primary/50 ${deceased ? "opacity-70" : ""}`}>
           <div className="relative">
             {creature.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element

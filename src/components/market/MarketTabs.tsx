@@ -24,8 +24,8 @@ export function MarketTabs({ tab, label }: { tab: MarketTab; label: string }) {
             aria-current={active ? "page" : undefined}
             data-testid={`market-tab-${value}`}
             className={cn(
-              "min-h-9 shrink-0 rounded-full border px-3 py-1.5 text-sm",
-              active ? "border-primary bg-primary/10 font-medium" : "border-input",
+              "inline-flex min-h-11 items-center shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition",
+              active ? "border-primary bg-primary/10 font-bold text-brand-link" : "border-input text-muted-foreground hover:bg-muted/50",
             )}
           >
             {t(`tab.${value}`)}

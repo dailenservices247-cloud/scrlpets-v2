@@ -11,11 +11,11 @@ export function FeedTabs({ broadened = false }: { broadened?: boolean }) {
   return (
     <>
       <Tabs value={tab} onValueChange={(v) => router.push(`/?tab=${v}`)}>
-        <TabsList className="h-11 w-full rounded-xl border border-border/80 bg-muted/70 p-1 shadow-inner">
-          <TabsTrigger value="following" className="h-9 flex-1 rounded-lg text-sm font-semibold" data-testid="tab-following">
+        <TabsList className="h-12 w-full rounded-xl border border-border/80 bg-muted/70 p-1 shadow-inner">
+          <TabsTrigger value="following" className="h-10 flex-1 rounded-lg text-sm font-semibold transition active:scale-[0.99]" data-testid="tab-following">
             {t("following")}
           </TabsTrigger>
-          <TabsTrigger value="for_you" className="h-9 flex-1 rounded-lg text-sm font-semibold" data-testid="tab-for-you">
+          <TabsTrigger value="for_you" className="h-10 flex-1 rounded-lg text-sm font-semibold transition active:scale-[0.99]" data-testid="tab-for-you">
             {t("forYou")}
           </TabsTrigger>
         </TabsList>

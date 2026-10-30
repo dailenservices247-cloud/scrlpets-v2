@@ -152,15 +152,15 @@ export function ServiceCard({
       </div>
 
       {/* Action buttons: Request Booking (primary) & Message / Contact */}
-      <div className="mt-3.5 flex items-center gap-2">
+      <div className="mt-4 flex items-center gap-2.5">
         {s.bookingEnabled ? (
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="inline-flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-3 text-xs font-semibold text-primary-foreground transition hover:opacity-90"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs sm:text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.99]"
             data-testid={`service-request-booking-${s.id}`}
           >
-            <Calendar className="size-3.5" aria-hidden />
+            <Calendar className="size-4" aria-hidden />
             Request Booking
           </button>
         ) : null}
