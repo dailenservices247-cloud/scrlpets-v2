@@ -23,6 +23,7 @@ import { getFeedDestination } from "@/lib/feed/destinations";
 import { computeGoHomeTimeline } from "@/lib/creatures/go-home";
 import { listBrandServices, listProfileServices } from "@/lib/services/queries";
 import { listBrandProducts, listProfileProducts, listRecommendationsForSubject } from "@/lib/shop/queries";
+import type { PhotoItem } from "@/components/profile/PhotoGalleryModal";
 import {
   getCreatureDetail,
   getGeneticTests,
@@ -94,9 +95,26 @@ export default async function CreaturePage({
   // species rather than the sentence, so this link never calls a clutch a litter.
   const youngGroup = tSpecies(`youngGroup.${speciesIdentity(creature.species).youngGroup}`);
 
+  const creaturePhotos: PhotoItem[] = [];
+  for (const item of items) {
+    if (item.mediaUrl && !creaturePhotos.some((p) => p.url === item.mediaUrl)) {
+      creaturePhotos.push({
+        url: item.mediaUrl,
+        title: item.title ?? `${creature.name}'s photo`,
+        subtitle: item.type.charAt(0).toUpperCase() + item.type.slice(1),
+      });
+    }
+  }
+
   return (
     <AppPage>
-      <CreatureHero creature={creature} listing={listing} origin={origin} />
+      <CreatureHero
+        creature={creature}
+        listing={listing}
+        origin={origin}
+        isOwner={isOwner}
+        otherPhotos={creaturePhotos}
+      />
 
       {detail && (
         <MemorialSection

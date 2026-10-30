@@ -96,29 +96,62 @@ export default async function MenuPage() {
       </section>
 
       <section className="px-4">
-        <div className="premium-panel rounded-2xl p-4" data-testid="menu-profile-card">
-          <div className="flex items-center gap-4">
-            {profile?.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.avatarUrl} alt="" width={80} height={80} className="size-20 rounded-2xl object-cover ring-1 ring-white/15" />
-            ) : (
-              <div className="grid size-20 place-items-center rounded-2xl bg-primary/25 text-2xl font-semibold text-brand-link">
-                {displayName.slice(0, 1).toUpperCase()}
+        {profile ? (
+          <Link
+            href={`/u/${profile.username}`}
+            className="group block premium-panel rounded-2xl p-4 transition hover:border-primary/50 hover:bg-muted/20 active:scale-[0.99]"
+            data-testid="menu-profile-card"
+          >
+            <div className="flex items-center gap-4">
+              {profile.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatarUrl}
+                  alt=""
+                  width={80}
+                  height={80}
+                  className="size-20 rounded-2xl object-cover ring-1 ring-white/15 transition group-hover:ring-primary/40"
+                />
+              ) : (
+                <div className="grid size-20 place-items-center rounded-2xl bg-primary/25 text-2xl font-semibold text-brand-link transition group-hover:bg-primary/35">
+                  {displayName.slice(0, 1).toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <h2 className="truncate text-xl font-semibold tracking-tight transition group-hover:text-brand-link">
+                  {displayName}
+                </h2>
+                <p className="mt-1 truncate text-sm text-muted-foreground">
+                  @{profile.username}
+                </p>
               </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate text-xl font-semibold tracking-tight">{displayName}</h2>
-              <p className="mt-1 truncate text-sm text-muted-foreground">
-                {profile ? `@${profile.username}` : "Guest mode"}
-              </p>
+              <ChevronRight
+                className="size-5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"
+                aria-hidden
+              />
             </div>
-            {profile ? (
-              <Link href={`/u/${profile.username}`} className="text-muted-foreground" aria-label="View profile">
-                <ChevronRight className="size-5" aria-hidden />
-              </Link>
-            ) : null}
-          </div>
-        </div>
+          </Link>
+        ) : (
+          <Link
+            href="/login?next=/menu"
+            className="group block premium-panel rounded-2xl p-4 transition hover:border-primary/50 hover:bg-muted/20 active:scale-[0.99]"
+            data-testid="menu-profile-card"
+          >
+            <div className="flex items-center gap-4">
+              <div className="grid size-20 place-items-center rounded-2xl bg-primary/25 text-2xl font-semibold text-brand-link">
+                G
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="truncate text-xl font-semibold tracking-tight">{displayName}</h2>
+                <p className="mt-1 truncate text-sm text-muted-foreground">Guest mode · Tap to sign in</p>
+              </div>
+              <ChevronRight
+                className="size-5 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground"
+                aria-hidden
+              />
+            </div>
+          </Link>
+        )}
       </section>
 
       <section className="mt-5 px-4">

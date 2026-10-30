@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Building2 } from "lucide-react";
 import type { PublicBrand } from "@/lib/brands/queries";
 import type { Profile } from "@/lib/profiles/queries";
+import { CoverPhoto } from "@/components/profile/CoverPhoto";
+import { ProfilePhotoTrigger } from "@/components/profile/ProfilePhotoTrigger";
 
 export function BrandProfileHeader({
   brand,
@@ -21,24 +22,26 @@ export function BrandProfileHeader({
       <div className="premium-panel overflow-hidden rounded-2xl">
         {/* F3 / punch list A12: brand banner. */}
         {brand.bannerUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={brand.bannerUrl}
-            alt=""
-            className="h-32 w-full object-cover"
-            data-testid="brand-banner"
+          <CoverPhoto
+            url={brand.bannerUrl}
+            name={brand.name}
+            isOwner={canOperate}
+            editHref={`/brand-os?brand=${brand.id}`}
           />
         )}
         <div className="p-4">
         <header className="flex items-start gap-3">
-          <div className="grid size-18 shrink-0 place-items-center overflow-hidden rounded-2xl border border-accent/35 bg-accent/15 text-accent">
-            {brand.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={brand.avatarUrl} alt={brand.name} width={72} height={72} className="size-full object-cover" />
-            ) : (
-              <Building2 className="size-8" aria-hidden />
-            )}
-          </div>
+          <ProfilePhotoTrigger
+            avatarUrl={brand.avatarUrl}
+            name={brand.name}
+            isOwner={canOperate}
+            editHref={`/brand-os?brand=${brand.id}`}
+            className="size-18 shrink-0 rounded-2xl"
+            imgClassName="size-18 rounded-2xl object-cover border border-accent/35"
+            fallbackClassName="grid size-18 place-items-center rounded-2xl border border-accent/35 bg-accent/15 text-accent text-2xl font-bold"
+            testId="brand-avatar-trigger"
+            typeLabel="brand logo"
+          />
           <div className="min-w-0 flex-1">
             <p className="eyebrow">{typeLabel}</p>
             <h1 className="mt-1 text-2xl font-semibold leading-tight">{brand.name}</h1>

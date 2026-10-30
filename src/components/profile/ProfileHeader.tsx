@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { Profile } from "@/lib/profiles/queries";
 import { CoverPhoto } from "@/components/profile/CoverPhoto";
+import { ProfilePhotoTrigger } from "@/components/profile/ProfilePhotoTrigger";
+import type { PhotoItem } from "@/components/profile/PhotoGalleryModal";
 import { MessageButton } from "@/components/messaging/MessageButton";
 import { AddToPackButton } from "@/components/pack/AddToPackButton";
 import { FollowButton } from "@/components/social/FollowButton";
@@ -16,6 +18,7 @@ export async function ProfileHeader({
   viewerBlocked,
   followCounts,
   metrics,
+  otherPhotos = [],
 }: {
   profile: Profile;
   isOwn: boolean;
@@ -24,28 +27,30 @@ export async function ProfileHeader({
   viewerBlocked: boolean;
   followCounts: { followers: number; following: number };
   metrics: { label: string; value: string | number; testId: string }[];
+  otherPhotos?: PhotoItem[];
 }) {
   const t = await getTranslations("profile");
   return (
     <section className="px-3 pt-4" data-testid="profile-header">
       <div className="premium-panel overflow-hidden rounded-2xl">
-        <CoverPhoto url={profile.coverUrl} />
+        <CoverPhoto
+          url={profile.coverUrl}
+          name={profile.displayName ?? profile.username}
+          isOwner={isOwn}
+          editHref="/settings/profile"
+          otherPhotos={otherPhotos}
+        />
         <div className="p-4">
         <header className="flex items-start gap-3">
-          {profile.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={profile.avatarUrl}
-              alt=""
-              width={72}
-              height={72}
-              className="size-18 rounded-2xl object-cover ring-1 ring-border/80"
-            />
-          ) : (
-            <div className="grid size-18 place-items-center rounded-2xl bg-primary text-2xl font-semibold text-primary-foreground ring-1 ring-border/80">
-              {(profile.displayName ?? profile.username).slice(0, 1).toUpperCase()}
-            </div>
-          )}
+          <ProfilePhotoTrigger
+            avatarUrl={profile.avatarUrl}
+            name={profile.displayName ?? profile.username}
+            isOwner={isOwn}
+            editHref="/settings/profile"
+            otherPhotos={otherPhotos}
+            testId="profile-avatar-trigger"
+            typeLabel="profile picture"
+          />
           <div className="min-w-0 flex-1">
             <p className="eyebrow">{t("profileLabel")}</p>
             <h1 className="mt-1 truncate text-2xl font-semibold leading-tight">{profile.displayName ?? profile.username}</h1>

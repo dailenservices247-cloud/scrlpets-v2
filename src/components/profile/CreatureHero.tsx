@@ -5,15 +5,21 @@ import type { FeedItem } from "@/lib/feed/types";
 import type { CreatureProfile } from "@/lib/profiles/queries";
 import type { CreatureOriginAttribution } from "@/lib/creatures/queries";
 import { getFeedDestination } from "@/lib/feed/destinations";
+import { ProfilePhotoTrigger } from "@/components/profile/ProfilePhotoTrigger";
+import type { PhotoItem } from "@/components/profile/PhotoGalleryModal";
 
 export async function CreatureHero({
   creature,
   listing,
   origin,
+  isOwner = false,
+  otherPhotos = [],
 }: {
   creature: CreatureProfile;
   listing: FeedItem | undefined;
   origin?: CreatureOriginAttribution | null;
+  isOwner?: boolean;
+  otherPhotos?: PhotoItem[];
 }) {
   const t = await getTranslations("detail");
 
@@ -24,23 +30,18 @@ export async function CreatureHero({
       aria-labelledby="creature-hero-title"
     >
       <div className="mx-auto flex max-w-2xl gap-4">
-        {creature.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={creature.avatarUrl}
-            alt=""
-            width={88}
-            height={88}
-            className="h-20 w-20 shrink-0 rounded-xl object-cover ring-1 ring-border"
-          />
-        ) : (
-          <span
-            className="grid h-20 w-20 shrink-0 place-items-center rounded-xl bg-secondary text-3xl text-secondary-foreground"
-            aria-hidden
-          >
-            {creature.name.slice(0, 1).toUpperCase()}
-          </span>
-        )}
+        <ProfilePhotoTrigger
+          avatarUrl={creature.avatarUrl}
+          name={creature.name}
+          isOwner={isOwner}
+          editHref={isOwner ? `/c/${creature.slug}` : undefined}
+          otherPhotos={otherPhotos}
+          className="size-20 shrink-0 rounded-xl"
+          imgClassName="size-20 shrink-0 rounded-xl object-cover ring-1 ring-border"
+          fallbackClassName="grid size-20 shrink-0 place-items-center rounded-xl bg-secondary text-3xl text-secondary-foreground"
+          testId="creature-avatar-trigger"
+          typeLabel="animal profile picture"
+        />
         <div className="min-w-0 flex-1">
           <p className="eyebrow">{t("animalProfile")}</p>
           <h1 id="creature-hero-title" className="truncate text-2xl font-bold">

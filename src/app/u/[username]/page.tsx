@@ -25,6 +25,7 @@ import { ReviewList } from "@/components/reviews/ReviewList";
 import { listProfileServices } from "@/lib/services/queries";
 import { listProfileProducts, listRecommendationsForSubject } from "@/lib/shop/queries";
 import { ProductCard } from "@/components/shop/ProductCard";
+import type { PhotoItem } from "@/components/profile/PhotoGalleryModal";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +95,34 @@ export default async function ProfilePage({
     { label: t("metricListings"), value: countType(profileFeed, ["listing"]), testId: "metric-listings" },
   ];
 
+  // Facebook-style profile photo gallery: profile picture, cover photo, post media, animal photos
+  const userPhotos: PhotoItem[] = [];
+  if (profile.coverUrl) {
+    userPhotos.push({
+      url: profile.coverUrl,
+      title: `${profile.displayName ?? profile.username}'s cover photo`,
+      subtitle: "Cover Photo",
+    });
+  }
+  for (const item of profileFeed) {
+    if (item.mediaUrl && !userPhotos.some((p) => p.url === item.mediaUrl)) {
+      userPhotos.push({
+        url: item.mediaUrl,
+        title: item.title ?? "Photo from post",
+        subtitle: item.type.charAt(0).toUpperCase() + item.type.slice(1),
+      });
+    }
+  }
+  for (const c of creatures) {
+    if (c.avatar_url && !userPhotos.some((p) => p.url === c.avatar_url)) {
+      userPhotos.push({
+        url: c.avatar_url,
+        title: c.name,
+        subtitle: c.species ?? "Animal",
+      });
+    }
+  }
+
   return (
     <AppPage>
       <div className="border-b border-border/80 bg-background/55 pb-3">
@@ -105,6 +134,7 @@ export default async function ProfilePage({
           viewerBlocked={viewerBlocked}
           followCounts={followCounts}
           metrics={metrics}
+          otherPhotos={userPhotos}
         />
         <ProfileIdentityPanel brands={ownedBrands} />
         <AnimalRail creatures={creatures} />
