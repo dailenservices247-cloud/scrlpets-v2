@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import type { Profile } from "@/lib/profiles/queries";
 import { CoverPhoto } from "@/components/profile/CoverPhoto";
 import { ProfilePhotoTrigger } from "@/components/profile/ProfilePhotoTrigger";
-import type { PhotoItem } from "@/components/profile/PhotoGalleryModal";
+import type { PhotoAlbum, PhotoItem } from "@/components/profile/PhotoGalleryModal";
 import { MessageButton } from "@/components/messaging/MessageButton";
 import { AddToPackButton } from "@/components/pack/AddToPackButton";
 import { FollowButton } from "@/components/social/FollowButton";
@@ -18,6 +18,7 @@ export async function ProfileHeader({
   viewerBlocked,
   followCounts,
   metrics,
+  albums = [],
   otherPhotos = [],
 }: {
   profile: Profile;
@@ -27,6 +28,7 @@ export async function ProfileHeader({
   viewerBlocked: boolean;
   followCounts: { followers: number; following: number };
   metrics: { label: string; value: string | number; testId: string }[];
+  albums?: PhotoAlbum[];
   otherPhotos?: PhotoItem[];
 }) {
   const t = await getTranslations("profile");
@@ -38,6 +40,7 @@ export async function ProfileHeader({
           name={profile.displayName ?? profile.username}
           isOwner={isOwn}
           editHref="/settings/profile"
+          albums={albums}
           otherPhotos={otherPhotos}
         />
         <div className="p-4">
@@ -47,7 +50,7 @@ export async function ProfileHeader({
             name={profile.displayName ?? profile.username}
             isOwner={isOwn}
             editHref="/settings/profile"
-            otherPhotos={otherPhotos}
+            albums={albums}
             testId="profile-avatar-trigger"
             typeLabel="profile picture"
           />

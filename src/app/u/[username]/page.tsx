@@ -25,7 +25,7 @@ import { ReviewList } from "@/components/reviews/ReviewList";
 import { listProfileServices } from "@/lib/services/queries";
 import { listProfileProducts, listRecommendationsForSubject } from "@/lib/shop/queries";
 import { ProductCard } from "@/components/shop/ProductCard";
-import type { PhotoItem } from "@/components/profile/PhotoGalleryModal";
+import type { PhotoAlbum, PhotoItem } from "@/components/profile/PhotoGalleryModal";
 
 export const dynamic = "force-dynamic";
 
@@ -95,32 +95,67 @@ export default async function ProfilePage({
     { label: t("metricListings"), value: countType(profileFeed, ["listing"]), testId: "metric-listings" },
   ];
 
-  // Facebook-style profile photo gallery: profile picture, cover photo, post media, animal photos
-  const userPhotos: PhotoItem[] = [];
-  if (profile.coverUrl) {
-    userPhotos.push({
-      url: profile.coverUrl,
-      title: `${profile.displayName ?? profile.username}'s cover photo`,
-      subtitle: "Cover Photo",
+  // User Photo Albums: Profile Pictures, Cover Photos, and Personal Timeline Posts
+  // (Animals and Brands have their own separate, dedicated albums on their respective profiles).
+  const userAlbums: PhotoAlbum[] = [];
+
+  if (profile.avatarUrl) {
+    userAlbums.push({
+      id: "profile_pictures",
+      title: "Profile Pictures",
+      description: "Personal profile photos",
+      photos: [
+        {
+          url: profile.avatarUrl,
+          title: `${profile.displayName ?? profile.username}'s profile picture`,
+          subtitle: "Profile Picture",
+          albumId: "profile_pictures",
+          albumTitle: "Profile Pictures",
+        },
+      ],
     });
   }
+
+  if (profile.coverUrl) {
+    userAlbums.push({
+      id: "cover_photos",
+      title: "Cover Photos",
+      description: "Profile banner and header photos",
+      photos: [
+        {
+          url: profile.coverUrl,
+          title: `${profile.displayName ?? profile.username}'s cover photo`,
+          subtitle: "Cover Photo",
+          albumId: "cover_photos",
+          albumTitle: "Cover Photos",
+        },
+      ],
+    });
+  }
+
+  // Personal timeline posts only (posts without an attached animal or brand)
+  const personalPostsPhotos: PhotoItem[] = [];
   for (const item of profileFeed) {
-    if (item.mediaUrl && !userPhotos.some((p) => p.url === item.mediaUrl)) {
-      userPhotos.push({
-        url: item.mediaUrl,
-        title: item.title ?? "Photo from post",
-        subtitle: item.type.charAt(0).toUpperCase() + item.type.slice(1),
-      });
+    if (!item.creature && !item.brand && item.mediaUrl) {
+      if (!personalPostsPhotos.some((p) => p.url === item.mediaUrl)) {
+        personalPostsPhotos.push({
+          url: item.mediaUrl,
+          title: item.title ?? "Personal update photo",
+          subtitle: item.type.charAt(0).toUpperCase() + item.type.slice(1),
+          albumId: "timeline",
+          albumTitle: "Personal Posts",
+        });
+      }
     }
   }
-  for (const c of creatures) {
-    if (c.avatar_url && !userPhotos.some((p) => p.url === c.avatar_url)) {
-      userPhotos.push({
-        url: c.avatar_url,
-        title: c.name,
-        subtitle: c.species ?? "Animal",
-      });
-    }
+
+  if (personalPostsPhotos.length > 0) {
+    userAlbums.push({
+      id: "timeline",
+      title: "Personal Posts",
+      description: "Photos from personal posts and updates",
+      photos: personalPostsPhotos,
+    });
   }
 
   return (
@@ -134,7 +169,7 @@ export default async function ProfilePage({
           viewerBlocked={viewerBlocked}
           followCounts={followCounts}
           metrics={metrics}
-          otherPhotos={userPhotos}
+          albums={userAlbums}
         />
         <ProfileIdentityPanel brands={ownedBrands} />
         <AnimalRail creatures={creatures} />

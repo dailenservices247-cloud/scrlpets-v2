@@ -22,6 +22,7 @@ import { ProductCard } from "@/components/shop/ProductCard";
 import { getProfileById } from "@/lib/profiles/queries";
 import { getBrandKit, getBrandGallery } from "@/lib/brand-kit/queries";
 import type { FeedItem } from "@/lib/feed/types";
+import type { PhotoAlbum, PhotoItem } from "@/components/profile/PhotoGalleryModal";
 
 export const dynamic = "force-dynamic";
 
@@ -90,6 +91,80 @@ export default async function BrandPage({
           },
         ];
 
+  // Brand Photo Albums: Logos, Banners, Facility Gallery, and Brand Posts
+  const brandAlbums: PhotoAlbum[] = [];
+
+  if (brand.avatarUrl) {
+    brandAlbums.push({
+      id: "brand_logos",
+      title: "Logos & Emblems",
+      description: `${brand.name}'s logos`,
+      photos: [
+        {
+          url: brand.avatarUrl,
+          title: `${brand.name} Logo`,
+          subtitle: "Brand Logo",
+          albumId: "brand_logos",
+          albumTitle: "Logos & Emblems",
+        },
+      ],
+    });
+  }
+
+  if (brand.bannerUrl) {
+    brandAlbums.push({
+      id: "brand_banners",
+      title: "Banners & Headers",
+      description: `${brand.name}'s banner photos`,
+      photos: [
+        {
+          url: brand.bannerUrl,
+          title: `${brand.name} Banner`,
+          subtitle: "Brand Banner",
+          albumId: "brand_banners",
+          albumTitle: "Banners & Headers",
+        },
+      ],
+    });
+  }
+
+  if (gallery.length > 0) {
+    brandAlbums.push({
+      id: "facility_gallery",
+      title: "Facility Gallery",
+      description: "Facility photos, grounds, and premises",
+      photos: gallery.map((g) => ({
+        url: g.photoUrl,
+        title: g.caption ?? `${brand.name} facility photo`,
+        subtitle: "Facility Gallery",
+        albumId: "facility_gallery",
+        albumTitle: "Facility Gallery",
+      })),
+    });
+  }
+
+  const brandPostPhotos: PhotoItem[] = [];
+  for (const item of feed) {
+    if (item.mediaUrl && !brandPostPhotos.some((p) => p.url === item.mediaUrl)) {
+      brandPostPhotos.push({
+        url: item.mediaUrl,
+        title: item.title ?? `${brand.name} update photo`,
+        subtitle: item.type.charAt(0).toUpperCase() + item.type.slice(1),
+        albumId: "brand_posts",
+        albumTitle: "Brand Updates",
+      });
+    }
+  }
+
+  if (brandPostPhotos.length > 0) {
+    brandAlbums.push({
+      id: "brand_posts",
+      title: "Brand Updates",
+      description: `Official posts from ${brand.name}`,
+      photos: brandPostPhotos,
+    });
+  }
+
   return (
     <AppPage>
       <div className="border-b border-border/80 bg-background/55 pb-3">
@@ -99,6 +174,7 @@ export default async function BrandPage({
           owner={owner}
           canOperate={role !== null}
           metrics={metrics}
+          albums={brandAlbums}
         />
       </div>
 

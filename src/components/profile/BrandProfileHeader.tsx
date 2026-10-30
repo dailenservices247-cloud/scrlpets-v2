@@ -3,6 +3,7 @@ import type { PublicBrand } from "@/lib/brands/queries";
 import type { Profile } from "@/lib/profiles/queries";
 import { CoverPhoto } from "@/components/profile/CoverPhoto";
 import { ProfilePhotoTrigger } from "@/components/profile/ProfilePhotoTrigger";
+import type { PhotoAlbum } from "@/components/profile/PhotoGalleryModal";
 
 export function BrandProfileHeader({
   brand,
@@ -10,12 +11,14 @@ export function BrandProfileHeader({
   owner,
   canOperate,
   metrics,
+  albums = [],
 }: {
   brand: PublicBrand;
   typeLabel: string;
   owner: Profile;
   canOperate: boolean;
   metrics: { label: string; value: string | number; testId: string }[];
+  albums?: PhotoAlbum[];
 }) {
   return (
     <section className="px-3 pt-4" data-testid="brand-profile-header">
@@ -27,6 +30,7 @@ export function BrandProfileHeader({
             name={brand.name}
             isOwner={canOperate}
             editHref={`/brand-os?brand=${brand.id}`}
+            albums={albums}
           />
         )}
         <div className="p-4">
@@ -36,6 +40,7 @@ export function BrandProfileHeader({
             name={brand.name}
             isOwner={canOperate}
             editHref={`/brand-os?brand=${brand.id}`}
+            albums={albums}
             className="size-18 shrink-0 rounded-2xl"
             imgClassName="size-18 rounded-2xl object-cover border border-accent/35"
             fallbackClassName="grid size-18 place-items-center rounded-2xl border border-accent/35 bg-accent/15 text-accent text-2xl font-bold"

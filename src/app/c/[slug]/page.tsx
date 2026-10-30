@@ -23,7 +23,7 @@ import { getFeedDestination } from "@/lib/feed/destinations";
 import { computeGoHomeTimeline } from "@/lib/creatures/go-home";
 import { listBrandServices, listProfileServices } from "@/lib/services/queries";
 import { listBrandProducts, listProfileProducts, listRecommendationsForSubject } from "@/lib/shop/queries";
-import type { PhotoItem } from "@/components/profile/PhotoGalleryModal";
+import type { PhotoAlbum, PhotoItem } from "@/components/profile/PhotoGalleryModal";
 import {
   getCreatureDetail,
   getGeneticTests,
@@ -95,15 +95,47 @@ export default async function CreaturePage({
   // species rather than the sentence, so this link never calls a clutch a litter.
   const youngGroup = tSpecies(`youngGroup.${speciesIdentity(creature.species).youngGroup}`);
 
-  const creaturePhotos: PhotoItem[] = [];
+  // Animal Photo Albums: Profile Pictures and Animal Updates
+  // (Strictly isolated to THIS animal — no human owner photos, no other animals)
+  const creatureAlbums: PhotoAlbum[] = [];
+
+  if (creature.avatarUrl) {
+    creatureAlbums.push({
+      id: "profile_pictures",
+      title: "Profile Pictures",
+      description: `${creature.name}'s profile photo`,
+      photos: [
+        {
+          url: creature.avatarUrl,
+          title: `${creature.name}'s profile picture`,
+          subtitle: "Profile Picture",
+          albumId: "profile_pictures",
+          albumTitle: "Profile Pictures",
+        },
+      ],
+    });
+  }
+
+  const creatureUpdatesPhotos: PhotoItem[] = [];
   for (const item of items) {
-    if (item.mediaUrl && !creaturePhotos.some((p) => p.url === item.mediaUrl)) {
-      creaturePhotos.push({
+    if (item.mediaUrl && !creatureUpdatesPhotos.some((p) => p.url === item.mediaUrl)) {
+      creatureUpdatesPhotos.push({
         url: item.mediaUrl,
-        title: item.title ?? `${creature.name}'s photo`,
+        title: item.title ?? `${creature.name}'s update photo`,
         subtitle: item.type.charAt(0).toUpperCase() + item.type.slice(1),
+        albumId: "creature_updates",
+        albumTitle: `${creature.name}'s Updates`,
       });
     }
+  }
+
+  if (creatureUpdatesPhotos.length > 0) {
+    creatureAlbums.push({
+      id: "creature_updates",
+      title: `${creature.name}'s Updates`,
+      description: `Photos and media for ${creature.name}`,
+      photos: creatureUpdatesPhotos,
+    });
   }
 
   return (
@@ -113,7 +145,7 @@ export default async function CreaturePage({
         listing={listing}
         origin={origin}
         isOwner={isOwner}
-        otherPhotos={creaturePhotos}
+        albums={creatureAlbums}
       />
 
       {detail && (

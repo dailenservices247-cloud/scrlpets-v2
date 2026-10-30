@@ -3,25 +3,27 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Camera, Eye, X } from "lucide-react";
-import { PhotoGalleryModal, type PhotoItem } from "./PhotoGalleryModal";
+import { PhotoGalleryModal, type PhotoAlbum, type PhotoItem } from "./PhotoGalleryModal";
 
 /**
  * Person cover photo. Deliberately identical to the brand banner in
  * BrandProfileHeader (same height, same crop, same panel it sits inside) so a
  * person and a brand read as the same kind of page.
- * Enhanced with Facebook-style click actions: view enlarged or edit if owner.
+ * Enhanced with Facebook-style click actions and album viewer.
  */
 export function CoverPhoto({
   url,
   name,
   isOwner = false,
   editHref = "/settings/profile",
+  albums = [],
   otherPhotos = [],
 }: {
   url: string | null | undefined;
   name?: string;
   isOwner?: boolean;
   editHref?: string;
+  albums?: PhotoAlbum[];
   otherPhotos?: PhotoItem[];
 }) {
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -30,7 +32,13 @@ export function CoverPhoto({
   if (!url) return null;
 
   const photos: PhotoItem[] = [
-    { url, title: name ? `${name}'s cover photo` : "Cover photo", subtitle: "Cover Photo" },
+    {
+      url,
+      title: name ? `${name}'s cover photo` : "Cover photo",
+      subtitle: "Cover Photo",
+      albumId: "cover_photos",
+      albumTitle: "Cover Photos",
+    },
     ...otherPhotos.filter((p) => p.url !== url),
   ];
 
@@ -142,6 +150,8 @@ export function CoverPhoto({
       {lightboxOpen && (
         <PhotoGalleryModal
           photos={photos}
+          albums={albums}
+          initialAlbumId="cover_photos"
           initialIndex={0}
           onClose={() => setLightboxOpen(false)}
           isOwner={isOwner}

@@ -6,20 +6,20 @@ import type { CreatureProfile } from "@/lib/profiles/queries";
 import type { CreatureOriginAttribution } from "@/lib/creatures/queries";
 import { getFeedDestination } from "@/lib/feed/destinations";
 import { ProfilePhotoTrigger } from "@/components/profile/ProfilePhotoTrigger";
-import type { PhotoItem } from "@/components/profile/PhotoGalleryModal";
+import type { PhotoAlbum } from "@/components/profile/PhotoGalleryModal";
 
 export async function CreatureHero({
   creature,
   listing,
   origin,
   isOwner = false,
-  otherPhotos = [],
+  albums = [],
 }: {
   creature: CreatureProfile;
   listing: FeedItem | undefined;
   origin?: CreatureOriginAttribution | null;
   isOwner?: boolean;
-  otherPhotos?: PhotoItem[];
+  albums?: PhotoAlbum[];
 }) {
   const t = await getTranslations("detail");
 
@@ -35,7 +35,7 @@ export async function CreatureHero({
           name={creature.name}
           isOwner={isOwner}
           editHref={isOwner ? `/c/${creature.slug}` : undefined}
-          otherPhotos={otherPhotos}
+          albums={albums}
           className="size-20 shrink-0 rounded-xl"
           imgClassName="size-20 shrink-0 rounded-xl object-cover ring-1 ring-border"
           fallbackClassName="grid size-20 shrink-0 place-items-center rounded-xl bg-secondary text-3xl text-secondary-foreground"
