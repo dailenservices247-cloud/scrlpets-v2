@@ -7,6 +7,7 @@ import { SideNav } from "./SideNav";
 import { NotificationAnnouncer } from "@/components/notifications/NotificationAnnouncer";
 import { getSessionUser } from "@/lib/auth/session";
 import { getUnreadCount } from "@/lib/notifications/queries";
+import { getUnreadConversationCount } from "@/lib/messaging/queries";
 
 // F7: responsive web shell. Desktop (lg+) = left SideNav + a centered readable
 // content column; mobile = full-width column + fixed BottomNav (unchanged).
@@ -30,10 +31,13 @@ export async function AppPage({
 }) {
   // Only read for the chrome that displays it — a full-screen task pays nothing.
   const user = showBottomNav ? await getSessionUser() : null;
-  const unreadCount = user ? await getUnreadCount() : 0;
+  const [unreadCount, unreadMessages] = await Promise.all([
+    user ? getUnreadCount() : 0,
+    user ? getUnreadConversationCount(user.id) : 0,
+  ]);
   return (
     <div className={cn("lg:mx-auto lg:flex", wide ? "lg:max-w-7xl" : "lg:max-w-5xl")}>
-      {showBottomNav && <SideNav />}
+      {showBottomNav && <SideNav unreadCount={unreadCount} unreadMessages={unreadMessages} />}
       {/* Header, content and footer stack in one column so the header is a
           sibling of <main> — a <header> nested inside main is not a banner
           landmark, and `app-shell` stays scoped to the page's own content. */}
@@ -59,7 +63,7 @@ export async function AppPage({
           It seeds its own baseline from the first poll, so no server read is
           added to every page render. */}
       {showBottomNav && <NotificationAnnouncer />}
-      {showBottomNav && <BottomNav />}
+      {showBottomNav && <BottomNav unreadMessages={unreadMessages} />}
     </div>
   );
 }

@@ -249,3 +249,45 @@ export async function getMyReceiptSetting(meId: string): Promise<boolean> {
     .maybeSingle();
   return data?.show_read_receipts ?? true;
 }
+
+/**
+ * Total active conversations where the other party sent a message after the viewer's last read timestamp.
+ */
+export async function getUnreadConversationCount(userId: string): Promise<number> {
+  const supabase = await createClient();
+  const { data: convs } = await supabase
+    .from("conversations")
+    .select("id")
+    .or(`user_a.eq.${userId},user_b.eq.${userId}`)
+    .eq("status", "active");
+
+  if (!convs || convs.length === 0) return 0;
+
+  const convIds = convs.map((c) => c.id);
+  const { data: reads } = await supabase
+    .from("conversation_reads")
+    .select("conversation_id,last_read_at")
+    .eq("profile_id", userId)
+    .in("conversation_id", convIds);
+
+  const readMap = new Map((reads ?? []).map((r) => [r.conversation_id, r.last_read_at]));
+
+  let unreadCount = 0;
+  for (const cid of convIds) {
+    const lastReadAt = readMap.get(cid);
+    let q = supabase
+      .from("messages")
+      .select("id", { count: "exact", head: true })
+      .eq("conversation_id", cid)
+      .neq("sender_id", userId);
+    if (lastReadAt) {
+      q = q.gt("created_at", lastReadAt);
+    }
+    const { count } = await q;
+    if (count && count > 0) {
+      unreadCount += 1;
+    }
+  }
+
+  return unreadCount;
+}

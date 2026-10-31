@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { screenMessage } from "@/lib/moderation/shield";
 import { isMessageReactionEmoji } from "./reaction-emoji";
 
 async function requireUser() {
@@ -93,6 +94,16 @@ export async function sendMessage(
   const trimmed = body.trim();
   if (!trimmed && !mediaUrl) return { ok: false, error: "empty" };
   if (trimmed.length > 2000) return { ok: false, error: "too_long" };
+
+  // Deal Room & Escrow Shield: Intercept off-platform payment steering & welfare violations
+  const shield = await screenMessage(trimmed);
+  if (!shield.allowed) {
+    return {
+      ok: false,
+      error: shield.warningMessage ?? "Message blocked by safety shield",
+    };
+  }
+
   const { data, error } = await supabase
     .from("messages")
     .insert({

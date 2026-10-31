@@ -18,7 +18,7 @@ const items = [
   { href: "/menu", labelKey: "menu", icon: Menu, match: (path: string) => path === "/menu" },
 ];
 
-export function BottomNav() {
+export function BottomNav({ unreadMessages = 0 }: { unreadMessages?: number }) {
   const pathname = usePathname();
   const t = useTranslations("nav");
 
@@ -49,7 +49,7 @@ export function BottomNav() {
             >
               <span
                 className={cn(
-                  "grid place-items-center rounded-full transition",
+                  "relative grid place-items-center rounded-full transition",
                   item.primary
                     ? "size-14 border border-[color:var(--brand-on-wine)]/25 bg-primary text-primary-foreground shadow-[0_10px_28px_color-mix(in_oklab,var(--brand-wine),transparent_58%)]"
                     : "size-8 group-hover:bg-muted/70",
@@ -57,6 +57,14 @@ export function BottomNav() {
                 )}
               >
                 <Icon className={item.primary ? "size-6" : "size-5"} aria-hidden />
+                {item.href === "/messages" && unreadMessages > 0 && (
+                  <span
+                    className="absolute -right-1 -top-1 grid min-w-4 h-4 place-items-center rounded-full bg-primary px-1 text-micro font-bold text-primary-foreground leading-none"
+                    data-testid="unread-messages-badge"
+                  >
+                    {unreadMessages > 9 ? "9+" : unreadMessages}
+                  </span>
+                )}
               </span>
               <span>{t(item.labelKey)}</span>
             </Link>

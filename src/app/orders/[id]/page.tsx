@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { CheckCircle2, Star } from "lucide-react";
+import { CheckCircle2, Star, Truck } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { getSessionUser } from "@/lib/auth/session";
 import { loginHrefFor } from "@/lib/auth/redirect";
@@ -149,6 +150,37 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 </div>
               </div>
             ) : null}
+          </section>
+        )}
+
+        {/* Transport Carrier Coordination Banner */}
+        {order.fulfilment === "transported" && !order.transporter_id && order.status !== "refunded" && (
+          <section className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4" data-testid="order-transport-coordination">
+            <div className="flex items-start gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                <Truck className="size-5" aria-hidden />
+              </span>
+              <div className="flex-1 min-w-0">
+                <h2 className="font-semibold text-sm text-foreground">Transport Carrier Coordination Needed</h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  This order specifies carrier transportation, but an authorized driver has not been assigned yet. Parties can coordinate details in Deal Room or book an authorized USDA/USDOT ground or flight transport carrier.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link
+                    href="/market?tab=services&category=transport"
+                    className="inline-flex min-h-9 items-center justify-center rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:opacity-90 transition"
+                  >
+                    Find Verified Transporters
+                  </Link>
+                  <Link
+                    href="/messages"
+                    className="inline-flex min-h-9 items-center justify-center rounded-lg border border-border bg-card px-3 text-xs font-medium text-foreground hover:bg-muted transition"
+                  >
+                    Open Deal Room Chat
+                  </Link>
+                </div>
+              </div>
+            </div>
           </section>
         )}
 

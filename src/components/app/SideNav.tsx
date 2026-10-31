@@ -18,7 +18,13 @@ const items = [
   { href: "/menu", label: "Menu", icon: Menu, match: (p: string) => p === "/menu" },
 ];
 
-export function SideNav() {
+export function SideNav({
+  unreadCount = 0,
+  unreadMessages = 0,
+}: {
+  unreadCount?: number;
+  unreadMessages?: number;
+}) {
   const pathname = usePathname();
   return (
     <aside
@@ -39,12 +45,30 @@ export function SideNav() {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex min-h-11 items-center gap-3 rounded-xl px-3 text-ui font-medium transition",
+              "flex min-h-11 items-center justify-between rounded-xl px-3 text-ui font-medium transition",
               active ? "bg-primary/15 text-brand-link" : "text-muted-foreground hover:bg-muted/60",
             )}
           >
-            <Icon className="size-5" aria-hidden />
-            {item.label}
+            <div className="flex items-center gap-3">
+              <Icon className="size-5 shrink-0" aria-hidden />
+              <span>{item.label}</span>
+            </div>
+            {item.href === "/notifications" && unreadCount > 0 && (
+              <span
+                className="grid min-w-5 h-5 place-items-center rounded-full bg-primary px-1.5 text-micro font-bold text-primary-foreground"
+                data-testid="side-nav-notifications-badge"
+              >
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+            {item.href === "/messages" && unreadMessages > 0 && (
+              <span
+                className="grid min-w-5 h-5 place-items-center rounded-full bg-primary px-1.5 text-micro font-bold text-primary-foreground"
+                data-testid="side-nav-messages-badge"
+              >
+                {unreadMessages > 9 ? "9+" : unreadMessages}
+              </span>
+            )}
           </Link>
         );
       })}
