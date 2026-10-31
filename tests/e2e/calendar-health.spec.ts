@@ -97,7 +97,9 @@ test.describe("signed in", () => {
     const stamp = Date.now();
     const animalName = `E2E Health Animal ${stamp}`;
     const title = `E2E Monthly Reminder ${stamp}`;
-    const dueDate = new Date().toISOString().slice(0, 10);
+    // Anchor to mid-month (15th) so JS Date and Postgres interval '1 month' agree without 31st end-of-month rollover discrepancies
+    const now = new Date();
+    const dueDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 15)).toISOString().slice(0, 10);
 
     const animal = await db
       .from("creatures")
