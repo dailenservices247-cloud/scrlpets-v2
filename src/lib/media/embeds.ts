@@ -1,6 +1,6 @@
-export type EmbedProvider = "youtube" | "instagram" | "facebook" | "tiktok";
+export type EmbedProvider = "youtube" | "instagram" | "facebook" | "tiktok" | "twitch";
 
-export type EmbedKind = "reel" | "video";
+export type EmbedKind = "reel" | "video" | "stream";
 
 export interface EmbedInfo {
   provider: EmbedProvider;
@@ -38,6 +38,20 @@ export function parseEmbedUrl(url: string | null | undefined): EmbedInfo | null 
     trimmed.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/i);
 
   const ytShortsMatch = trimmed.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/i);
+  const ytLiveMatch = trimmed.match(/(?:https?:\/\/)?(?:www\.)?youtube\.com\/live\/([a-zA-Z0-9_-]{11})/i);
+
+  if (ytLiveMatch) {
+    const videoId = ytLiveMatch[1];
+    return {
+      provider: "youtube",
+      originalUrl: trimmed,
+      embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?rel=0`,
+      videoId,
+      kind: "stream",
+      thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+      platformName: "YouTube Live Stream",
+    };
+  }
 
   if (ytShortsMatch) {
     const videoId = ytShortsMatch[1];
@@ -124,6 +138,20 @@ export function parseEmbedUrl(url: string | null | undefined): EmbedInfo | null 
       videoId,
       kind: "reel",
       platformName: "TikTok",
+    };
+  }
+
+  // 5. Twitch Live Streams & Clips
+  const twitchMatch = trimmed.match(/(?:https?:\/\/)?(?:www\.)?twitch\.tv\/([a-zA-Z0-9_]{3,25})/i);
+  if (twitchMatch) {
+    const channel = twitchMatch[1];
+    return {
+      provider: "twitch",
+      originalUrl: trimmed,
+      embedUrl: `https://player.twitch.tv/?channel=${channel}&parent=scrlpets.com&parent=localhost&autoplay=false`,
+      videoId: channel,
+      kind: "stream",
+      platformName: "Twitch Live Stream",
     };
   }
 

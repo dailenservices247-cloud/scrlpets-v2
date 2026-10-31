@@ -6,14 +6,17 @@
  * Make, Ayrshare, n8n, Buffer) or direct platform APIs.
  */
 
+export type SyndicatedContentType = "post" | "reel" | "long_video" | "stream";
+
 export interface SyndicationOptions {
   postId: string;
   authorId: string;
   body: string | null;
   mediaUrl: string | null;
-  contentType: "post" | "reel" | "long_video";
+  contentType: SyndicatedContentType;
   platforms?: string[];
   webhookUrl?: string;
+  isLiveStream?: boolean;
 }
 
 export interface SyndicationResult {
@@ -32,10 +35,10 @@ export async function dispatchSyndication(
     process.env.SYNDICATION_WEBHOOK_URL ||
     process.env.NEXT_PUBLIC_SYNDICATION_WEBHOOK_URL;
 
-  const canonicalUrl = `https://scrlpets.com/${contentType === "reel" ? "watch/reel" : contentType === "long_video" ? "watch" : "post"}/${postId}`;
+  const canonicalUrl = `https://scrlpets.com/${contentType === "reel" ? "watch/reel" : contentType === "long_video" || contentType === "stream" ? "watch" : "post"}/${postId}`;
 
   const payload = {
-    event: "post.published",
+    event: options.isLiveStream || contentType === "stream" ? "stream.broadcast" : "post.published",
     timestamp: new Date().toISOString(),
     post: {
       id: postId,
@@ -43,6 +46,8 @@ export async function dispatchSyndication(
       body,
       mediaUrl,
       contentType,
+      mediaFormat: contentType === "reel" ? "vertical_short" : contentType === "stream" ? "live_stream" : "horizontal_video",
+      isLiveStream: options.isLiveStream || contentType === "stream",
       canonicalUrl,
       platforms: platforms && platforms.length > 0 ? platforms : ["all"],
     },

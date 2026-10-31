@@ -53,6 +53,32 @@ describe("social syndication dispatcher", () => {
     );
   });
 
+  it("formats full videos and live streams with correct event and media format", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const res = await dispatchSyndication({
+      postId: "p-stream-1",
+      authorId: "u-456",
+      body: "Live Whelping Cam: Presa Canario Litter A",
+      mediaUrl: "https://www.youtube.com/live/AbCdEf12345",
+      contentType: "stream",
+      webhookUrl: "https://api.zapier.com/hooks/catch/stream",
+    });
+
+    expect(res.dispatched).toBe(true);
+    expect(res.webhookSuccess).toBe(true);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://api.zapier.com/hooks/catch/stream",
+      expect.objectContaining({
+        body: expect.stringContaining('"isLiveStream":true'),
+      }),
+    );
+  });
+
   it("handles webhook network failure gracefully without throwing", async () => {
     const mockFetch = vi.fn().mockRejectedValue(new Error("Network timeout"));
     vi.stubGlobal("fetch", mockFetch);

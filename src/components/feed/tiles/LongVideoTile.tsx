@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { FeedCardShell } from "../FeedCardShell";
 import { FeedTileAction } from "../FeedTileAction";
 import { TileMedia } from "../TileMedia";
+import { ShareButton } from "@/components/share/ShareButton";
 import { realmTransitionName } from "@/lib/feed/realm-transition";
 
 export function LongVideoTile({ item, canManage }: { item: FeedItem; canManage?: boolean }) {
@@ -16,7 +17,15 @@ export function LongVideoTile({ item, canManage }: { item: FeedItem; canManage?:
         alt={item.title ?? ""}
         transitionName={realmTransitionName(item.type, item.id)}
       />
-      <FeedTileAction item={item} />
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/50 pt-2.5">
+        <ShareButton
+          url={`https://scrlpets.com/watch/${item.id}`}
+          title={item.title ?? "Full Video on Scrlpets"}
+          mediaUrl={item.mediaUrl}
+          variant="outline"
+        />
+        <FeedTileAction item={item} />
+      </div>
     </FeedCardShell>
   );
 }

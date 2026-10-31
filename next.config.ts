@@ -36,8 +36,8 @@ const contentSecurityPolicy = [
   `connect-src 'self' ${supabaseSources} https://*.sentry.io https://us.i.posthog.com https://*.posthog.com https://challenges.cloudflare.com`,
   // Turnstile renders its challenge in an iframe, so script-src alone is not
   // enough — a missing frame-src is a widget that mounts and never completes.
-  // We also permit trusted video platforms (YouTube, Instagram, Facebook, TikTok) for embeds.
-  "frame-src https://accounts.google.com https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.facebook.com https://web.facebook.com https://www.tiktok.com",
+  // We also permit trusted video platforms (YouTube, Instagram, Facebook, TikTok, Twitch) for embeds.
+  "frame-src https://accounts.google.com https://challenges.cloudflare.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.facebook.com https://web.facebook.com https://www.tiktok.com https://player.twitch.tv",
   // The policy had no way to report what it refused, which is how a missing
   // media-src went unnoticed for months. report-uri only: Chrome ignores it
   // whenever report-to is also present, and report-to was never observed

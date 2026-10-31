@@ -58,6 +58,24 @@ describe("embeds parser", () => {
     expect(parsed?.kind).toBe("reel");
   });
 
+  it("detects YouTube Live streams", () => {
+    const url = "https://www.youtube.com/live/LIVE_STREAM_1";
+    expect(isEmbedUrl(url)).toBe(true);
+    const parsed = parseEmbedUrl(url);
+    expect(parsed?.provider).toBe("youtube");
+    expect(parsed?.kind).toBe("stream");
+    expect(parsed?.platformName).toBe("YouTube Live Stream");
+  });
+
+  it("detects Twitch live streams", () => {
+    const url = "https://www.twitch.tv/canecorsokennel";
+    expect(isEmbedUrl(url)).toBe(true);
+    const parsed = parseEmbedUrl(url);
+    expect(parsed?.provider).toBe("twitch");
+    expect(parsed?.kind).toBe("stream");
+    expect(parsed?.videoId).toBe("canecorsokennel");
+  });
+
   it("returns null for non-embed URLs", () => {
     expect(isEmbedUrl("https://example.com/image.jpg")).toBe(false);
     expect(parseEmbedUrl("https://example.com/image.jpg")).toBeNull();

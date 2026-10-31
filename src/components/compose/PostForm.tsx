@@ -80,7 +80,7 @@ export function PostForm(props: PostFormProps) {
       setMediaUrl(trimmed);
       setVideoKind(parsed.kind === "reel" ? "reel" : "long_video");
     } else {
-      setSocialLinkError("Please enter a valid YouTube, Instagram, Facebook, or TikTok link.");
+      setSocialLinkError("Please enter a valid YouTube, Instagram, Facebook, TikTok, or Twitch link.");
     }
   }
 
@@ -241,22 +241,36 @@ export function PostForm(props: PostFormProps) {
       )}
 
       {!isEditing && (isVideoUrl(mediaUrl) || isEmbedUrl(mediaUrl)) && (
-        <div className="flex gap-1 rounded-full bg-muted/45 p-1 self-start" role="group" aria-label={t("videoKindLabel")}>
-          {(["reel", "long_video"] as const).map((kind) => (
+        <div className="flex flex-col gap-1.5 self-start">
+          <p className="text-micro font-medium text-muted-foreground">Select Format:</p>
+          <div className="flex gap-1 rounded-full bg-muted/45 p-1" role="group" aria-label={t("videoKindLabel")}>
             <button
-              key={kind}
+              key="reel"
               type="button"
-              onClick={() => setVideoKind(kind)}
-              aria-pressed={videoKind === kind}
-              data-testid={`video-kind-${kind}`}
+              onClick={() => setVideoKind("reel")}
+              aria-pressed={videoKind === "reel"}
+              data-testid="video-kind-reel"
               className={
-                "min-h-9 rounded-full px-4 text-sm font-medium transition " +
-                (videoKind === kind ? "bg-primary/15 text-brand-link" : "text-muted-foreground hover:bg-muted")
+                "min-h-9 rounded-full px-4 text-xs font-semibold transition " +
+                (videoKind === "reel" ? "bg-primary/15 text-brand-link" : "text-muted-foreground hover:bg-muted")
               }
             >
-              {kind === "reel" ? t("videoKindReel") : t("videoKindLong")}
+              Reel / Short (Vertical)
             </button>
-          ))}
+            <button
+              key="long_video"
+              type="button"
+              onClick={() => setVideoKind("long_video")}
+              aria-pressed={videoKind === "long_video"}
+              data-testid="video-kind-long_video"
+              className={
+                "min-h-9 rounded-full px-4 text-xs font-semibold transition " +
+                (videoKind === "long_video" ? "bg-primary/15 text-brand-link" : "text-muted-foreground hover:bg-muted")
+              }
+            >
+              Full Video / Stream (16:9)
+            </button>
+          </div>
         </div>
       )}
       {!isEditing && (
@@ -305,7 +319,7 @@ export function PostForm(props: PostFormProps) {
             </div>
           </label>
           <p className="mt-1 text-micro text-muted-foreground pl-6.5">
-            Broadcasts this post directly to your configured syndication pipeline and connected social accounts upon publishing.
+            Broadcasts this post, reel, full video, or live stream announcement directly to your connected channels upon publishing.
           </p>
         </div>
       )}
