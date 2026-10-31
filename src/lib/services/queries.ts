@@ -108,6 +108,27 @@ export async function listServices(category?: string): Promise<ProviderService[]
   return rows.map((r) => toProviderService(r, verifiedIds));
 }
 
+export async function getServiceById(id: string): Promise<ProviderService | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("services")
+    .select(SELECT)
+    .eq("id", id)
+    .single();
+
+  if (error || !data) return null;
+  const row = data as unknown as Row;
+
+  const { data: verified } = await supabase.rpc("verified_profile_ids", {
+    profile_ids: [row.owner_id],
+  });
+  const verifiedIds = new Set(
+    ((verified ?? []) as { profile_id: string }[]).map((v) => v.profile_id),
+  );
+
+  return toProviderService(row, verifiedIds);
+}
+
 export type MyService = {
   id: string;
   name: string;

@@ -108,12 +108,15 @@ export async function createPost(formData: FormData): Promise<ActionResult> {
   if (error) return { ok: false, error: error.message };
 
   if (formData.get("syndicate") === "true" && createdPost?.id) {
+    const rawPlatforms = String(formData.get("syndicatePlatforms") ?? "");
+    const platforms = rawPlatforms ? rawPlatforms.split(",").map((p) => p.trim()).filter(Boolean) : undefined;
     void dispatchSyndication({
       postId: createdPost.id,
       authorId: user.id,
       body: body.trim() || null,
       mediaUrl,
       contentType,
+      platforms,
     });
   }
 

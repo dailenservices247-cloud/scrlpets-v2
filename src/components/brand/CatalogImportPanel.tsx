@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Download, FileSpreadsheet, PackagePlus, AlertCircle, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { Download, FileSpreadsheet, PackagePlus, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { parseCatalogCsv, SAMPLE_CATALOG_CSV, type ParsedCatalogRow, type RowValidationError } from "@/lib/brands/catalog-importer";
 import { bulkImportCatalog } from "@/lib/brands/catalog-actions";
 import { formatPrice } from "@/lib/shop/format";
@@ -86,15 +86,29 @@ export function CatalogImportPanel({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleDownloadTemplate}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-input px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted"
-          data-testid="download-template-btn"
-        >
-          <Download className="size-3.5" aria-hidden />
-          Download Sample CSV
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setCsvText(SAMPLE_CATALOG_CSV);
+              processCsv(SAMPLE_CATALOG_CSV);
+            }}
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-brand-link transition hover:bg-primary/20"
+            data-testid="load-sample-btn"
+          >
+            <Sparkles className="size-3.5" aria-hidden />
+            Load Sample Starter Inventory
+          </button>
+          <button
+            type="button"
+            onClick={handleDownloadTemplate}
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-input px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted"
+            data-testid="download-template-btn"
+          >
+            <Download className="size-3.5" aria-hidden />
+            Download Sample CSV
+          </button>
+        </div>
       </div>
 
       {successCount !== null && (

@@ -78,9 +78,10 @@ test("Option A: interactive service booking flow from service card to deal room 
     await expect(page).toHaveURL(/\/messages\/[a-f0-9-]+/, { timeout: 25_000 });
 
     // 7. Verify the structured booking request message rendered in the thread
-    await expect(page.getByText(serviceName)).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText("Full Conditioning Camp")).toBeVisible();
-    await expect(page.getByText("Thor (Presa Canario, 2 yrs)")).toBeVisible();
+    const bookingMessage = page.getByText(serviceName);
+    await expect(bookingMessage).toBeVisible({ timeout: 10_000 });
+    await expect(bookingMessage).toContainText("Full Conditioning Camp");
+    await expect(page.getByText("Thor (Presa Canario, 2 yrs)").last()).toBeVisible();
   } finally {
     // Cleanup service
     await sellerDb.from("services").delete().eq("id", serviceId);

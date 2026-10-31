@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeDollarSign, Building2, ClipboardList, MessageCircle, PawPrint, PenSquare, UsersRound } from "lucide-react";
+import { BadgeDollarSign, Building2, ClipboardList, MessageCircle, PawPrint, PenSquare, Scissors, Store, UsersRound } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { BrandIdentityPanel } from "@/components/brand/BrandIdentityPanel";
 import { BrandMembersPanel } from "@/components/brand/BrandMembersPanel";
@@ -37,6 +37,8 @@ import { CapabilityEditor } from "@/components/hub/CapabilityEditor";
 const quickActions = [
   { label: "Post update", icon: PenSquare, href: "/compose" },
   { label: "New listing", icon: BadgeDollarSign, href: "/compose?mode=listing" },
+  { label: "Add product", icon: Store, href: "/compose?mode=product" },
+  { label: "Offer service", icon: Scissors, href: "/compose?mode=service" },
   { label: "Applications", icon: ClipboardList, href: "/applications" },
   { label: "Messages", icon: MessageCircle, href: "/messages" },
   { label: "New brand", icon: UsersRound, href: "/brands/new" },

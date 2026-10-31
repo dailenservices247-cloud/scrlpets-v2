@@ -371,26 +371,55 @@ export default async function BrandPage({
       {services.length > 0 && (
         <section className="px-3 pt-3" data-testid="brand-services-section">
           <div className="premium-panel rounded-2xl p-4">
-            <p className="eyebrow">{t("servicesEyebrow")}</p>
-            <h2 className="mt-1 font-serif text-title">{t("servicesTitle")}</h2>
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="eyebrow">{t("servicesEyebrow")}</p>
+                <h2 className="mt-1 font-serif text-title">{t("servicesTitle")}</h2>
+              </div>
+              <Link
+                href="/market?tab=services"
+                className="text-meta font-medium text-brand-link hover:underline"
+              >
+                Browse All Services →
+              </Link>
+            </div>
+            <ul className="mt-3 grid gap-3 sm:grid-cols-2">
               {services.map((svc) => (
                 <li key={svc.id}>
                   <Link
                     href={`/services/${svc.id}`}
-                    className="block rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-primary/40"
+                    className="flex gap-3 rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-primary/40 hover:bg-muted/45"
                   >
-                    <span className="block truncate text-ui font-semibold">{svc.name}</span>
-                    {svc.category && (
-                      <span className="mt-0.5 block text-meta capitalize text-muted-foreground">
-                        {svc.category}
-                      </span>
+                    {svc.mediaUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={svc.mediaUrl}
+                        alt=""
+                        width={80}
+                        height={80}
+                        className="size-20 shrink-0 rounded-lg object-cover"
+                      />
                     )}
-                    {svc.area && (
-                      <span className="mt-1 block truncate text-micro text-muted-foreground">
-                        {svc.area}
-                      </span>
-                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="block truncate text-ui font-semibold text-foreground">{svc.name}</span>
+                        {svc.priceCents !== null && (
+                          <span className="shrink-0 font-mono text-meta font-bold text-foreground">
+                            ${Math.round(svc.priceCents / 100).toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                      {svc.category && (
+                        <span className="mt-0.5 block text-meta capitalize text-muted-foreground">
+                          {svc.category}
+                        </span>
+                      )}
+                      {svc.area && (
+                        <span className="mt-1 block truncate text-micro text-muted-foreground">
+                          📍 {svc.area}
+                        </span>
+                      )}
+                    </div>
                   </Link>
                 </li>
               ))}

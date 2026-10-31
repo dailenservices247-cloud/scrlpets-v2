@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { capture } from "@/lib/analytics";
 import type { MyGroup } from "@/lib/groups/queries";
 import { Link2, Upload, Share2, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type PostFormProps =
   | {
@@ -57,6 +58,7 @@ export function PostForm(props: PostFormProps) {
   const [socialLinkInput, setSocialLinkInput] = useState("");
   const [socialLinkError, setSocialLinkError] = useState<string | null>(null);
   const [syndicate, setSyndicate] = useState(false);
+  const [platforms, setPlatforms] = useState<string[]>(["youtube", "instagram", "facebook"]);
   const [creatureId, setCreatureId] = useState<string | null>(null);
   const [groupId, setGroupId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -96,6 +98,7 @@ export function PostForm(props: PostFormProps) {
     }
     if (syndicate) {
       fd.set("syndicate", "true");
+      fd.set("syndicatePlatforms", platforms.join(","));
     }
     let res;
     if (edit) {
@@ -314,13 +317,46 @@ export function PostForm(props: PostFormProps) {
             <div className="flex items-center gap-2">
               <Share2 className="size-3.5 text-brand-link" />
               <span className="text-xs font-semibold">
-                Auto-syndicate to connected channels (YouTube, IG, FB)
+                Auto-syndicate to connected channels
               </span>
             </div>
           </label>
           <p className="mt-1 text-micro text-muted-foreground pl-6.5">
             Broadcasts this post, reel, full video, or live stream announcement directly to your connected channels upon publishing.
           </p>
+          {syndicate && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 pl-6.5" data-testid="syndication-platform-toggles">
+              {[
+                { id: "youtube", label: "YouTube" },
+                { id: "instagram", label: "Instagram" },
+                { id: "facebook", label: "Facebook" },
+                { id: "tiktok", label: "TikTok" },
+              ].map((plat) => {
+                const active = platforms.includes(plat.id);
+                return (
+                  <button
+                    key={plat.id}
+                    type="button"
+                    onClick={() => {
+                      setPlatforms((prev) =>
+                        prev.includes(plat.id)
+                          ? prev.filter((p) => p !== plat.id)
+                          : [...prev, plat.id]
+                      );
+                    }}
+                    className={cn(
+                      "rounded-lg border px-2.5 py-1 text-micro font-medium transition",
+                      active
+                        ? "border-primary/40 bg-primary/15 text-primary"
+                        : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    {active ? `✓ ${plat.label}` : `+ ${plat.label}`}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

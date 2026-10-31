@@ -66,6 +66,7 @@ describe("social syndication dispatcher", () => {
       body: "Live Whelping Cam: Presa Canario Litter A",
       mediaUrl: "https://www.youtube.com/live/AbCdEf12345",
       contentType: "stream",
+      platforms: ["youtube", "facebook"],
       webhookUrl: "https://api.zapier.com/hooks/catch/stream",
     });
 
@@ -74,7 +75,7 @@ describe("social syndication dispatcher", () => {
     expect(mockFetch).toHaveBeenCalledWith(
       "https://api.zapier.com/hooks/catch/stream",
       expect.objectContaining({
-        body: expect.stringContaining('"isLiveStream":true'),
+        body: expect.stringContaining('"platforms":["youtube","facebook"]'),
       }),
     );
   });
