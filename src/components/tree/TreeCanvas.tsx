@@ -121,7 +121,16 @@ export function TreeCanvas({
         data-testid="tree-connectors"
       >
         {lines.map((line, i) => (
-          <line key={i} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} stroke="var(--border)" strokeWidth={2} />
+          <line
+            key={i}
+            x1={line.x1}
+            y1={line.y1}
+            x2={line.x2}
+            y2={line.y2}
+            className="stroke-primary/45 dark:stroke-primary/65"
+            strokeWidth={2}
+            strokeDasharray="4 2"
+          />
         ))}
       </svg>
 

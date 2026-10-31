@@ -63,11 +63,11 @@ export function LinkParentsSheet({
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger
-        className="grid size-7 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow hover:text-foreground"
+        className="grid size-8 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow touch-manipulation hover:text-foreground"
         aria-label={t("linkParentsCta")}
         data-testid={`tree-link-parents-trigger-${creature.id}`}
       >
-        <Link2 className="size-3.5" aria-hidden />
+        <Link2 className="size-4" aria-hidden />
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm" />

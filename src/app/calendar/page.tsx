@@ -7,13 +7,13 @@ import { getBreedingEvents, getGestationDays, getMyCreatures, type BreedingEvent
 import { type BreedingEventType } from "@/lib/breeding/constants";
 import { listMyLitters } from "@/lib/litters/queries";
 import { BreedingCalendarClient } from "@/components/calendar/BreedingCalendarClient";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-
 export const metadata = {
-  title: "Breeding Calendar",
-  description: "Track heats, matings, and expected due dates for your animals.",
+  title: "Breeding & Operations Calendar",
+  description: "Track heats, matings, due dates, scheduled handovers, and transport on Scrlpets.",
 };
 
 export default async function CalendarPage() {
@@ -21,11 +21,23 @@ export default async function CalendarPage() {
   if (!user) redirect(loginHrefFor("/calendar"));
 
   const t = await getTranslations("calendar");
-  const [events, creatures, gestationDays, litters] = await Promise.all([
+  const supabase = await createClient();
+
+  const [events, creatures, gestationDays, litters, contractsRes, quotesRes] = await Promise.all([
     getBreedingEvents(),
     getMyCreatures(),
     getGestationDays(),
     listMyLitters(user.id),
+    supabase
+      .from("deal_contracts")
+      .select("id,creature_id,go_home_date,status,listings(title)")
+      .not("go_home_date", "is", null)
+      .in("status", ["sent", "signed"]),
+    supabase
+      .from("transport_quotes")
+      .select("id,target_pickup_date,pickup_region,delivery_region,status")
+      .not("target_pickup_date", "is", null)
+      .in("status", ["requested", "quoted", "accepted"]),
   ]);
 
   const litterEvents: BreedingEvent[] = litters
@@ -40,7 +52,43 @@ export default async function CalendarPage() {
       notes: `${l.name} (${l.breed ?? "Litter"})`,
     }));
 
-  const allEvents = [...events, ...litterEvents];
+  const contractEvents: BreedingEvent[] = (
+    (contractsRes.data ?? []) as unknown as {
+      id: string;
+      creature_id: string | null;
+      go_home_date: string;
+      status: string;
+      listings: { title: string } | null;
+    }[]
+  ).map((c) => ({
+    id: `contract-${c.id}`,
+    creatureId: c.creature_id ?? (creatures[0]?.id ?? ""),
+    partnerCreatureId: null,
+    eventType: "show" as BreedingEventType,
+    eventDate: c.go_home_date,
+    expectedDueDate: null,
+    notes: `🏡 Go-Home Handover (${c.status}): ${c.listings?.title ?? "Deal Contract"}`,
+  }));
+
+  const transportEvents: BreedingEvent[] = (
+    (quotesRes.data ?? []) as {
+      id: string;
+      target_pickup_date: string;
+      pickup_region: string;
+      delivery_region: string;
+      status: string;
+    }[]
+  ).map((q) => ({
+    id: `transport-${q.id}`,
+    creatureId: creatures[0]?.id ?? "",
+    partnerCreatureId: null,
+    eventType: "training" as BreedingEventType,
+    eventDate: q.target_pickup_date,
+    expectedDueDate: null,
+    notes: `🚗 Transport (${q.status}): ${q.pickup_region} ➔ ${q.delivery_region}`,
+  }));
+
+  const allEvents = [...events, ...litterEvents, ...contractEvents, ...transportEvents];
 
   return (
     <AppPage>

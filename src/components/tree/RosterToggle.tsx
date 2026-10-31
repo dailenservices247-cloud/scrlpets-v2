@@ -50,7 +50,7 @@ export function RosterToggle({ creature }: { creature: TreeCreature }) {
       title={error ? t("rosterError") : undefined}
       data-testid={`tree-roster-toggle-${creature.id}`}
       data-in-roster={creature.inRoster ? "true" : "false"}
-      className={`min-h-7 rounded-full border px-2 text-micro font-medium shadow disabled:opacity-60 ${
+      className={`min-h-8 rounded-full border px-2.5 text-xs font-medium shadow touch-manipulation disabled:opacity-60 ${
         error
           ? "border-destructive bg-card text-destructive"
           : creature.inRoster
