@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Eye, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { availableActions, type OrderView } from "@/lib/orders/available-actions";
 import {
@@ -49,6 +50,10 @@ export function OrderActions({
   const [anchor, setAnchor] = useState("");
   const [handoverCode, setHandoverCode] = useState("");
   const [reason, setReason] = useState("");
+  const [inspectedPresent, setInspectedPresent] = useState(false);
+  const [inspectedCondition, setInspectedCondition] = useState(false);
+  const [inspectedHealthRecord, setInspectedHealthRecord] = useState(false);
+  const allInPersonInspected = inspectedPresent && inspectedCondition && inspectedHealthRecord;
 
   const kinds = availableActions(order, viewerId);
 
@@ -237,29 +242,107 @@ export function OrderActions({
       )}
 
       {kinds.includes("show_handover_code") && (
-        <div className="flex flex-col gap-2" data-testid="order-action-code">
+        <div className="flex flex-col gap-3 rounded-2xl border border-primary/30 bg-primary/5 p-4" data-testid="order-action-code">
           {code === null ? (
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={busy}
-              data-testid="order-show-code"
-              onClick={async () => {
-                setBusy(true);
-                setCode((await getHandoverCode(order.id)) ?? "");
-                setBusy(false);
-              }}
-            >
-              {busy ? t("working") : t("showHandoverCode")}
-            </Button>
+            order.fulfilment === "in_person" ? (
+              <div className="space-y-3" data-testid="in-person-inspection-protocol">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="size-4.5 text-brand-link" aria-hidden />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Mandatory In-Person Physical Verification Protocol
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  To eliminate liability and protect animal welfare, Scrlpets requires buyers picking up in person to physically meet the breeder and inspect the animal before unlocking the handover code.
+                </p>
+
+                <div className="space-y-2 rounded-xl border border-border/70 bg-background/70 p-3 text-xs">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={inspectedPresent}
+                      onChange={(e) => setInspectedPresent(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-border accent-primary cursor-pointer"
+                      data-testid="inspect-present-check"
+                    />
+                    <span className="text-foreground">
+                      <strong>Physical Attendance:</strong> I am physically present with the breeder/seller at the kennel or designated handover meeting.
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={inspectedCondition}
+                      onChange={(e) => setInspectedCondition(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-border accent-primary cursor-pointer"
+                      data-testid="inspect-condition-check"
+                    />
+                    <span className="text-foreground">
+                      <strong>Physical Inspection:</strong> I have observed the animal in person and confirmed its alertness, clear eyes, healthy coat, and physical demeanor.
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={inspectedHealthRecord}
+                      onChange={(e) => setInspectedHealthRecord(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-border accent-primary cursor-pointer"
+                      data-testid="inspect-health-check"
+                    />
+                    <span className="text-foreground">
+                      <strong>Identity &amp; Health Records:</strong> I have verified the animal&apos;s identity/microchip and reviewed the veterinary vaccination and health certificate records.
+                    </span>
+                  </label>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="default"
+                  disabled={busy || !allInPersonInspected}
+                  data-testid="order-show-code"
+                  onClick={async () => {
+                    setBusy(true);
+                    setCode((await getHandoverCode(order.id)) ?? "");
+                    setBusy(false);
+                  }}
+                  className="w-full"
+                >
+                  <Eye className="mr-2 size-4" aria-hidden />
+                  {busy ? t("working") : "Confirm In-Person Inspection & Reveal Code"}
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={busy}
+                data-testid="order-show-code"
+                onClick={async () => {
+                  setBusy(true);
+                  setCode((await getHandoverCode(order.id)) ?? "");
+                  setBusy(false);
+                }}
+              >
+                {busy ? t("working") : t("showHandoverCode")}
+              </Button>
+            )
           ) : (
-            <>
-              <p className="text-xs text-muted-foreground">{t("yourCode")}</p>
-              <p className="font-mono text-lg" data-testid="order-handover-code">
-                {code}
-              </p>
-              <p className="text-xs text-muted-foreground">{t("codeHelp")}</p>
-            </>
+            <div className="space-y-2 text-center sm:text-left">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("yourCode")}</p>
+              <div className="rounded-xl border border-primary/40 bg-background/80 py-3 text-center">
+                <span className="font-mono text-3xl font-extrabold tracking-widest text-brand-link" data-testid="order-handover-code">
+                  {code}
+                </span>
+              </div>
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-500">
+                <p className="font-medium">⚠️ Important Custody Transfer Rule</p>
+                <p className="mt-0.5 text-micro text-muted-foreground">
+                  Do NOT give this code to the seller or driver until you have the animal in hand. Once entered, physical custody is officially transferred and your 48-hour veterinary inspection window begins.
+                </p>
+              </div>
+            </div>
           )}
         </div>
       )}

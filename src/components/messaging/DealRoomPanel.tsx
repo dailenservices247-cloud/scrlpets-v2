@@ -9,6 +9,7 @@ import { sendDealContract, signDealContract, acceptTransportQuote, requestTransp
 import type { DealContract, TransportQuoteItem, TransportServiceOption } from "@/lib/contracts/queries";
 import type { ListingInquiryContext } from "@/lib/marketplace/queries";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function DealRoomPanel({
   conversationId,
@@ -54,6 +55,10 @@ export function DealRoomPanel({
   // Sign form states
   const latestContract = contracts[0] ?? null;
   const [buyerSig, setBuyerSig] = useState("");
+  const [signFulfillmentMode, setSignFulfillmentMode] = useState<"in_person" | "transported">("in_person");
+  const [signTransportServiceId, setSignTransportServiceId] = useState(transportServices[0]?.id ?? "");
+  const [signPickupState, setSignPickupState] = useState("");
+  const [signDeliveryState, setSignDeliveryState] = useState("");
 
   if (!targetInquiry && !latestContract) return null;
 
@@ -93,7 +98,15 @@ export function DealRoomPanel({
     if (!latestContract) return;
     setBusy(true);
     setError(null);
-    const res = await signDealContract(latestContract.id, buyerSig);
+    const transportChoice =
+      signFulfillmentMode === "transported" && signTransportServiceId
+        ? {
+            serviceId: signTransportServiceId,
+            pickupRegion: signPickupState.trim().toUpperCase(),
+            deliveryRegion: signDeliveryState.trim().toUpperCase(),
+          }
+        : undefined;
+    const res = await signDealContract(latestContract.id, buyerSig, transportChoice);
     setBusy(false);
     if (!res.ok) {
       setError(res.error);
@@ -366,6 +379,102 @@ export function DealRoomPanel({
             </div>
 
             <form onSubmit={handleSignContract} className="space-y-3">
+              {/* Travel & Fulfillment Selection Gate */}
+              <div className="space-y-2 rounded-xl border border-primary/20 bg-primary/5 p-3" data-testid="deal-travel-selection">
+                <p className="text-xs font-semibold text-foreground">Travel &amp; Handover Method</p>
+                <p className="text-micro text-muted-foreground">
+                  Choose how the animal will travel home. This determines whether an in-person physical inspection or a licensed courier inspection is required.
+                </p>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setSignFulfillmentMode("in_person")}
+                    className={cn(
+                      "rounded-xl border p-2.5 text-left transition text-xs",
+                      signFulfillmentMode === "in_person"
+                        ? "border-primary bg-primary/15 text-primary font-semibold"
+                        : "border-border/70 bg-card text-muted-foreground hover:bg-muted/40"
+                    )}
+                    data-testid="travel-select-in-person"
+                  >
+                    <span className="block font-semibold">📍 In-Person Pickup</span>
+                    <span className="block text-micro text-muted-foreground mt-0.5">Meet at kennel &amp; physically inspect animal</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSignFulfillmentMode("transported")}
+                    className={cn(
+                      "rounded-xl border p-2.5 text-left transition text-xs",
+                      signFulfillmentMode === "transported"
+                        ? "border-primary bg-primary/15 text-primary font-semibold"
+                        : "border-border/70 bg-card text-muted-foreground hover:bg-muted/40"
+                    )}
+                    data-testid="travel-select-transport"
+                  >
+                    <span className="block font-semibold">🚐 3rd-Party Transport</span>
+                    <span className="block text-micro text-muted-foreground mt-0.5">Licensed courier handles physical transfer</span>
+                  </button>
+                </div>
+
+                {signFulfillmentMode === "in_person" ? (
+                  <div className="rounded-lg border border-border/70 bg-background/60 p-2.5 text-micro text-muted-foreground">
+                    <p className="font-medium text-foreground">🛡️ Physical Inspection Guarantee</p>
+                    <p className="mt-0.5">
+                      You will meet the breeder in person to inspect the animal before handover. The 6-digit handover code is unlocked only after completing your in-person physical wellness verification.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 pt-1" data-testid="travel-transport-inputs">
+                    {transportServices.length > 0 && (
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-muted-foreground">Select Licensed Carrier Service</span>
+                        <select
+                          value={signTransportServiceId}
+                          onChange={(e) => setSignTransportServiceId(e.target.value)}
+                          className="w-full rounded-xl border border-input bg-transparent p-2 text-xs"
+                          data-testid="travel-carrier-select"
+                        >
+                          {transportServices.map((svc) => (
+                            <option key={svc.id} value={svc.id} className="bg-background text-foreground">
+                              {svc.name} {svc.priceCents ? `(${formatPrice(svc.priceCents, "USD")})` : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-muted-foreground">Pickup State</span>
+                        <input
+                          placeholder="e.g. OH"
+                          maxLength={2}
+                          className="w-full rounded-xl border border-input bg-transparent p-2 uppercase text-xs font-mono"
+                          value={signPickupState}
+                          onChange={(e) => setSignPickupState(e.target.value.toUpperCase())}
+                          required={signFulfillmentMode === "transported"}
+                          data-testid="travel-pickup-state"
+                        />
+                      </label>
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-muted-foreground">Delivery State</span>
+                        <input
+                          placeholder="e.g. FL"
+                          maxLength={2}
+                          className="w-full rounded-xl border border-input bg-transparent p-2 uppercase text-xs font-mono"
+                          value={signDeliveryState}
+                          onChange={(e) => setSignDeliveryState(e.target.value.toUpperCase())}
+                          required={signFulfillmentMode === "transported"}
+                          data-testid="travel-delivery-state"
+                        />
+                      </label>
+                    </div>
+                    <p className="text-micro text-muted-foreground">
+                      A licensed USDA Class T courier will inspect the animal, verify health certificate records at pickup, and deliver to your door.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <label className="block text-sm">
                 <span className="mb-1 block text-xs font-medium text-muted-foreground">Buyer E-Signature (Full Legal Name)</span>
                 <input
