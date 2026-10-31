@@ -12,19 +12,41 @@ import type { MetadataRoute } from "next";
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Scrlpets",
+    name: "Scrlpets — The Trusted Home for Animals",
     short_name: "Scrlpets",
-    // Same sentence as the site metadata, so the two cannot drift.
-    description: "The trusted home for animals.",
+    description: "The trusted home for animals. Verified breeders, escrow protection, deal room contracts, and pet care.",
     start_url: "/",
     scope: "/",
     display: "standalone",
-    // Matches the forced-dark app shell in globals.css.
-    background_color: "#2a2a2d",
-    theme_color: "#2a2a2d",
+    orientation: "portrait",
+    background_color: "#18181b",
+    theme_color: "#18181b",
+    categories: ["pets", "lifestyle", "shopping", "social"],
     icons: [
       { src: "/brand/scrlpets-icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/brand/scrlpets-icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcuts: [
+      {
+        name: "Marketplace",
+        url: "/market",
+        description: "Browse verified animals, supplies, and services",
+      },
+      {
+        name: "Deal Room",
+        url: "/messages",
+        description: "View negotiations, contracts, and escrow status",
+      },
+      {
+        name: "Brand OS",
+        url: "/brand-os",
+        description: "Manage kennel, roster, litters, and catalog",
+      },
+      {
+        name: "Post Update",
+        url: "/compose",
+        description: "Share a reel, video, or animal update",
+      },
     ],
   };
 }

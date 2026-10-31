@@ -20,6 +20,7 @@ import {
   Search,
   Settings,
   ShieldAlert,
+  Smartphone,
   Truck,
   Users,
 } from "lucide-react";
@@ -207,7 +208,8 @@ export default async function MenuPage() {
         </MenuGroup>
       )}
 
-      <MenuGroup heading="Help">
+      <MenuGroup heading="Help & App">
+        <MenuRow href="/install" icon={Smartphone} label="Install App" testId="menu-install-app-row" />
         <MenuRow href="/support" icon={LifeBuoy} label="Support" />
       </MenuGroup>
 
