@@ -157,4 +157,49 @@ test.describe("order actions", () => {
     await expect(page.getByTestId("order-mark-dispatched")).toHaveCount(0);
 
   });
+
+  test("an order in inspection renders the inspection countdown banner and accept delivery button", async ({ page }) => {
+    test.skip(!process.env.SUPABASE_SERVICE_ROLE_KEY, "needs SUPABASE_SERVICE_ROLE_KEY");
+    const asService = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+    const seller = await signInCached(SELLER_EMAIL);
+    const buyer = await signInCached(MEMBER_EMAIL);
+    const stamp = Date.now();
+
+    const listing = await seller.db
+      .from("listings")
+      .insert({ seller_id: seller.userId, title: `E2E inspect ${stamp}`, price_cents: 35000 })
+      .select("id")
+      .single();
+    expect(listing.error, "fixture listing must exist").toBeNull();
+    created.listings.push(listing.data!.id as string);
+
+    const order = await asService
+      .from("orders")
+      .insert({
+        buyer_id: buyer.userId,
+        seller_id: seller.userId,
+        listing_id: listing.data!.id,
+        title_snapshot: `E2E inspect ${stamp}`,
+        amount_cents: 35000,
+        status: "inspection",
+        fulfilment: "in_person",
+        inspection_hours: 48,
+        inspection_ends_at: new Date(Date.now() + 48 * 3600 * 1000).toISOString(),
+      })
+      .select("id")
+      .single();
+    expect(order.error, "fixture order must exist").toBeNull();
+    const orderId = order.data!.id as string;
+    created.orders.push(orderId);
+
+    await loginViaUi(page, MEMBER_EMAIL);
+    await page.goto(`/orders/${orderId}`);
+
+    await expect(page.getByTestId("order-inspection-banner")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId("inspection-countdown-timer")).toBeVisible();
+    await expect(page.getByTestId("accept-delivery-from-banner")).toBeVisible();
+  });
 });

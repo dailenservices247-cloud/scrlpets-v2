@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Package } from "lucide-react";
+import { ArrowRight, Package, Star } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
+import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { getSessionUser } from "@/lib/auth/session";
 import { loginHrefFor } from "@/lib/auth/redirect";
 import { getMyOrders } from "@/lib/orders/queries";
+import { getReviewableHandovers } from "@/lib/reviews/queries";
 import { formatPrice } from "@/lib/shop/format";
 
 export const metadata = {
@@ -29,7 +31,10 @@ export default async function OrdersHubPage() {
   const user = await getSessionUser();
   if (!user) redirect(loginHrefFor("/orders"));
 
-  const orders = await getMyOrders();
+  const [orders, reviewableHandovers] = await Promise.all([
+    getMyOrders(),
+    getReviewableHandovers(),
+  ]);
 
   return (
     <AppPage>
@@ -40,6 +45,47 @@ export default async function OrdersHubPage() {
           Track signed agreements, held deposits, live transit anchors, and verified releases.
         </p>
       </header>
+
+      {/* Pending Verified Reviews Banner */}
+      {reviewableHandovers.length > 0 && (
+        <section className="mb-4 px-4" data-testid="orders-pending-reviews">
+          <div className="premium-panel flex flex-col gap-3 rounded-2xl border-2 border-primary/40 bg-primary/10 p-4">
+            <div className="flex items-center gap-2">
+              <span className="grid size-7 place-items-center rounded-lg bg-primary/20 text-brand-link">
+                <Star className="size-4" aria-hidden />
+              </span>
+              <h2 className="text-sm font-semibold">
+                Pending Verified Reviews ({reviewableHandovers.length})
+              </h2>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Your handover was confirmed. Rate your verified experience to update the seller&apos;s
+              standing on their public profile.
+            </p>
+            <div className="flex flex-col gap-3 pt-1">
+              {reviewableHandovers.map((h) => (
+                <div
+                  key={h.applicationId}
+                  className="rounded-xl border border-input/60 bg-background/70 p-3"
+                  data-testid={`pending-review-${h.applicationId}`}
+                >
+                  <p className="text-xs font-semibold text-foreground">
+                    {h.listingTitle ?? "Completed Transaction"} · Seller: @{h.sellerUsername ?? "breeder"}
+                  </p>
+                  <div className="mt-2">
+                    <ReviewForm
+                      applicationId={h.applicationId}
+                      subjectId={h.sellerId}
+                      sellerUsername={h.sellerUsername}
+                      listingTitle={h.listingTitle}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="px-4 pb-12">
         {orders.length === 0 ? (
@@ -100,10 +146,12 @@ export default async function OrdersHubPage() {
                           {formatPrice(o.amountCents, o.currency)}
                         </p>
                         <p className="text-micro text-muted-foreground">
-                          {isBuyer ? "Total amount" : "Deal value"}
+                          {o.status === "released" ? "Funds released" : "Escrow protected"}
                         </p>
                       </div>
-                      <ArrowRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-muted/30 text-muted-foreground transition group-hover:bg-primary/20 group-hover:text-brand-link">
+                        <ArrowRight className="size-4" aria-hidden />
+                      </span>
                     </div>
                   </Link>
                 </li>
