@@ -8,6 +8,7 @@ import type { MessageContext } from "@/lib/messaging/context";
 import { isVideoUrl } from "@/lib/media/media-kind";
 import { Button } from "@/components/ui/button";
 import { MediaInput } from "@/components/compose/MediaInput";
+import { X } from "lucide-react";
 import { MessageContextPill } from "./MessageContextPill";
 import { MessageReactions } from "./MessageReactions";
 import { MessageRequestActions } from "./MessageRequestActions";
@@ -40,6 +41,7 @@ export function MessageThread({
   const [items, setItems] = useState<ThreadMessage[]>(initial);
   const [body, setBody] = useState("");
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const bottom = useRef<HTMLDivElement>(null);
 
@@ -186,7 +188,8 @@ export function MessageThread({
                   <img
                     src={m.mediaUrl}
                     alt={t("attachmentAlt")}
-                    className="mt-2 max-h-60 w-full rounded-md object-cover"
+                    onClick={() => setLightboxUrl(m.mediaUrl)}
+                    className="mt-2 max-h-60 w-full cursor-pointer rounded-md object-cover transition hover:opacity-95"
                     data-testid="message-media"
                   />
                 ))}
@@ -261,6 +264,31 @@ export function MessageThread({
             </p>
           )}
         </form>
+      )}
+
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+          onClick={() => setLightboxUrl(null)}
+          data-testid="message-media-lightbox"
+        >
+          <div className="relative max-h-[90vh] max-w-4xl" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setLightboxUrl(null)}
+              className="absolute -top-3 -right-3 grid size-8 place-items-center rounded-full bg-background text-foreground border border-border shadow-lg hover:bg-muted"
+              aria-label="Close full view"
+            >
+              <X className="size-4" />
+            </button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={lightboxUrl}
+              alt="Full size media preview"
+              className="max-h-[85vh] max-w-full rounded-2xl object-contain shadow-2xl"
+            />
+          </div>
+        </div>
       )}
     </div>
   );

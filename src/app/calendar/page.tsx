@@ -23,7 +23,7 @@ export default async function CalendarPage() {
   const t = await getTranslations("calendar");
   const supabase = await createClient();
 
-  const [events, creatures, gestationDays, litters, contractsRes, quotesRes] = await Promise.all([
+  const [events, creatures, gestationDays, litters, contractsRes, quotesRes, bookingMsgsRes] = await Promise.all([
     getBreedingEvents(),
     getMyCreatures(),
     getGestationDays(),
@@ -38,6 +38,11 @@ export default async function CalendarPage() {
       .select("id,target_pickup_date,pickup_region,delivery_region,status")
       .not("target_pickup_date", "is", null)
       .in("status", ["requested", "quoted", "accepted"]),
+    supabase
+      .from("messages")
+      .select("id,body")
+      .ilike("body", "%BOOKING REQUEST%")
+      .limit(30),
   ]);
 
   const litterEvents: BreedingEvent[] = litters
@@ -88,7 +93,24 @@ export default async function CalendarPage() {
     notes: `🚗 Transport (${q.status}): ${q.pickup_region} ➔ ${q.delivery_region}`,
   }));
 
-  const allEvents = [...events, ...litterEvents, ...contractEvents, ...transportEvents];
+  const serviceBookingEvents: BreedingEvent[] = [];
+  for (const m of (bookingMsgsRes.data ?? []) as { id: string; body: string }[]) {
+    const titleMatch = m.body.match(/📅 BOOKING REQUEST — ([^\n\r•]+)/);
+    const dateMatch = m.body.match(/• Preferred Date:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})/);
+    if (dateMatch) {
+      serviceBookingEvents.push({
+        id: `service-${m.id}`,
+        creatureId: creatures[0]?.id ?? "",
+        partnerCreatureId: null,
+        eventType: "vet_visit" as BreedingEventType,
+        eventDate: dateMatch[1],
+        expectedDueDate: null,
+        notes: `✨ Booking: ${titleMatch ? titleMatch[1].trim() : "Service Appointment"}`,
+      });
+    }
+  }
+
+  const allEvents = [...events, ...litterEvents, ...contractEvents, ...transportEvents, ...serviceBookingEvents];
 
   return (
     <AppPage>

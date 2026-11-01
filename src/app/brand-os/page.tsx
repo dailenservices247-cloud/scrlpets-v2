@@ -44,6 +44,15 @@ const quickActions = [
   { label: "New brand", icon: UsersRound, href: "/brands/new" },
 ];
 
+const BRAND_OS_TABS = [
+  { id: "all", label: "All Modules" },
+  { id: "litters", label: "Breeding & Litters" },
+  { id: "inventory", label: "Products & Stock" },
+  { id: "orders", label: "Orders & Sales" },
+  { id: "services", label: "Services" },
+  { id: "brand_kit", label: "Brand Kit & Identity" },
+] as const;
+
 function typeLabel(value: string): string {
   return BRAND_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? "Brand";
 }
@@ -51,11 +60,12 @@ function typeLabel(value: string): string {
 export default async function BrandOSPage({
   searchParams,
 }: {
-  searchParams: Promise<{ brand?: string }>;
+  searchParams: Promise<{ brand?: string; tab?: string }>;
 }) {
   const user = (await getSessionUser())!; // middleware guarantees auth on /brand-os
   const brands = await getMyBrands(user.id);
-  const { brand: requestedBrandId } = await searchParams;
+  const { brand: requestedBrandId, tab: rawTab } = await searchParams;
+  const activeTab = rawTab || "all";
 
   // R16: the operating modules are scoped to the OPERATOR, not the brand —
   // animals belong to a profile. A solo breeder with no brand still needs them.
@@ -203,133 +213,168 @@ export default async function BrandOSPage({
         </div>
       </section>
 
-      <section className="px-3 py-3" data-testid="brand-os-quick-actions">
-        <p className="eyebrow mb-3">Quick actions</p>
-        <div className="grid grid-cols-2 gap-3">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
+      {/* Brand OS Module Navigation Tabs */}
+      <section className="px-3 pb-2 pt-1" data-testid="brand-os-tabs">
+        <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Brand OS modules">
+          {BRAND_OS_TABS.map((t) => {
+            const active = activeTab === t.id;
             return (
-              <Link key={action.label} href={action.href} className="premium-panel rounded-2xl p-3 transition hover:border-primary/40">
-                <span className="mb-4 grid size-9 place-items-center rounded-full bg-background/65 text-brand-link">
-                  <Icon className="size-5" aria-hidden />
-                </span>
-                <span className="text-base font-semibold">{action.label}</span>
+              <Link
+                key={t.id}
+                href={`/brand-os?brand=${brand.id}&tab=${t.id}`}
+                aria-current={active ? "page" : undefined}
+                className={`inline-flex min-h-10 items-center shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition ${
+                  active
+                    ? "border-primary bg-primary/15 text-brand-link"
+                    : "border-input text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {t.label}
               </Link>
             );
           })}
-        </div>
+        </nav>
       </section>
 
-      <section className="px-3 py-3">
-        <ReadinessPanel steps={readiness} />
-      </section>
+      {(activeTab === "all" || activeTab === "overview") && (
+        <>
+          <section className="px-3 py-3" data-testid="brand-os-quick-actions">
+            <p className="eyebrow mb-3">Quick actions</p>
+            <div className="grid grid-cols-2 gap-3">
+              {quickActions.map((action) => {
+                const Icon = action.icon;
+                return (
+                  <Link key={action.label} href={action.href} className="premium-panel rounded-2xl p-3 transition hover:border-primary/40">
+                    <span className="mb-4 grid size-9 place-items-center rounded-full bg-background/65 text-brand-link">
+                      <Icon className="size-5" aria-hidden />
+                    </span>
+                    <span className="text-base font-semibold">{action.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
 
-      <section className="px-3 py-3">
-        <BreederStatsPanel stats={stats} />
-      </section>
+          <section className="px-3 py-3">
+            <ReadinessPanel steps={readiness} />
+          </section>
 
-      {canBreeding && (
+          <section className="px-3 py-3">
+            <BreederStatsPanel stats={stats} />
+          </section>
+        </>
+      )}
+
+      {(activeTab === "all" || activeTab === "litters") && canBreeding && (
+        <>
+          <section className="px-3 py-3">
+            <RosterPanel animals={roster} />
+          </section>
+          <section className="px-3 py-3">
+            <LittersManagerPanel litters={myLitters} brandId={brand.id} />
+          </section>
+        </>
+      )}
+
+      {(activeTab === "all" || activeTab === "inventory") && (
+        <>
+          {canSellOrAdopt && (
+            <section className="px-3 py-3">
+              <SellerListingsPanel listings={sellerListings} />
+            </section>
+          )}
+          {isManager && (
+            <section className="px-3 py-3">
+              <CatalogImportPanel brandId={brand.id} brandName={brand.name} />
+            </section>
+          )}
+        </>
+      )}
+
+      {(activeTab === "all" || activeTab === "orders") && (
         <section className="px-3 py-3">
-          <RosterPanel animals={roster} />
+          <BrandOrdersPanel orders={myOrders} sellerId={user.id} />
         </section>
       )}
 
-      {canBreeding && (
-        <section className="px-3 py-3">
-          <LittersManagerPanel litters={myLitters} brandId={brand.id} />
-        </section>
-      )}
-
-      {canSellOrAdopt && (
-        <section className="px-3 py-3">
-          <SellerListingsPanel listings={sellerListings} />
-        </section>
-      )}
-
-      <section className="px-3 py-3">
-        <BrandOrdersPanel orders={myOrders} sellerId={user.id} />
-      </section>
-
-      {canServices && (
+      {(activeTab === "all" || activeTab === "services") && canServices && (
         <section className="px-3 py-3">
           <ServicesManagerPanel services={myServices} brands={attachableBrands} userId={user.id} />
         </section>
       )}
 
-      {isManager && (
-        <section className="px-3 py-3">
-          <CatalogImportPanel brandId={brand.id} brandName={brand.name} />
-        </section>
-      )}
+      {(activeTab === "all" || activeTab === "brand_kit") && (
+        <>
+          <section className="px-3 py-3">
+            <BrandIdentityPanel
+              brandId={brand.id}
+              viewerId={user.id}
+              viewerRole={brand.role}
+              bannerUrl={brand.bannerUrl}
+              avatarUrl={brand.avatarUrl}
+            />
+          </section>
 
-      <section className="px-3 py-3">
-        <BrandIdentityPanel
-          brandId={brand.id}
-          viewerId={user.id}
-          viewerRole={brand.role}
-          bannerUrl={brand.bannerUrl}
-          avatarUrl={brand.avatarUrl}
-        />
-      </section>
+          <section className="px-3 py-3">
+            <BrandKitPanel
+              brandId={brand.id}
+              brandSlug={brand.slug}
+              viewerId={user.id}
+              viewerRole={brand.role}
+              kit={kit}
+              gallery={gallery}
+            />
+          </section>
 
-      <section className="px-3 py-3">
-        <BrandKitPanel
-          brandId={brand.id}
-          brandSlug={brand.slug}
-          viewerId={user.id}
-          viewerRole={brand.role}
-          kit={kit}
-          gallery={gallery}
-        />
-      </section>
+          {isManager && (
+            <section className="px-3 py-3">
+              <CapabilityEditor brandId={brand.id} capabilities={capabilities} />
+            </section>
+          )}
 
-      {isManager && (
-        <section className="px-3 py-3">
-          <CapabilityEditor brandId={brand.id} capabilities={capabilities} />
-        </section>
-      )}
+          <section className="px-3 py-3">
+            <BrandPostingSetting
+              brandId={brand.id}
+              viewerRole={brand.role}
+              initialRestrict={brand.restrictPostingToManagers}
+            />
+          </section>
 
-      <section className="px-3 py-3">
-        <BrandPostingSetting
-          brandId={brand.id}
-          viewerRole={brand.role}
-          initialRestrict={brand.restrictPostingToManagers}
-        />
-      </section>
+          <section className="px-3 py-3">
+            <BrandMembersPanel
+              brandId={brand.id}
+              viewerId={user.id}
+              viewerRole={brand.role}
+              members={members}
+            />
+          </section>
 
-      <section className="px-3 py-3">
-        <BrandMembersPanel
-          brandId={brand.id}
-          viewerId={user.id}
-          viewerRole={brand.role}
-          members={members}
-        />
-      </section>
-
-      <section className="px-3 py-3">
-        <div className="premium-panel rounded-2xl p-4">
-          <div className="mb-2 flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-xl border border-secondary/35 bg-primary/15 hover:bg-primary/25/20 text-secondary-foreground">
-              <PawPrint className="size-5" aria-hidden />
-            </span>
-            <div>
-              <p className="eyebrow">Post as this brand</p>
-              <h2 className="text-lg font-semibold">Composer is wired</h2>
+          <section className="px-3 py-3">
+            <div className="premium-panel rounded-2xl p-4">
+              <div className="mb-2 flex items-center gap-3">
+                <span className="grid size-10 place-items-center rounded-xl border border-secondary/35 bg-primary/15 hover:bg-primary/25/20 text-secondary-foreground">
+                  <PawPrint className="size-5" aria-hidden />
+                </span>
+                <div>
+                  <p className="eyebrow">Post as this brand</p>
+                  <h2 className="text-lg font-semibold">Composer is wired</h2>
+                </div>
+              </div>
+              <p className="text-sm leading-6 text-muted-foreground">
+                In the composer, choose <span className="font-semibold text-foreground">Posting as → Brand</span> and pick{" "}
+                <span className="font-semibold text-foreground">{brand.name}</span>. Brand posts and listings are attributed to
+                the brand publicly, with you as the operator behind it.
+              </p>
+              <Link
+                href={`/compose?brand=${brand.id}`}
+                className="mt-4 flex min-h-12 items-center justify-center rounded-xl bg-primary/15 hover:bg-primary/25 px-4 font-semibold text-brand-link"
+              >
+                Open composer
+              </Link>
             </div>
-          </div>
-          <p className="text-sm leading-6 text-muted-foreground">
-            In the composer, choose <span className="font-semibold text-foreground">Posting as → Brand</span> and pick{" "}
-            <span className="font-semibold text-foreground">{brand.name}</span>. Brand posts and listings are attributed to
-            the brand publicly, with you as the operator behind it.
-          </p>
-          <Link
-            href={`/compose?brand=${brand.id}`}
-            className="mt-4 flex min-h-12 items-center justify-center rounded-xl bg-primary/15 hover:bg-primary/25 px-4 font-semibold text-brand-link"
-          >
-            Open composer
-          </Link>
-        </div>
-      </section>
+          </section>
+        </>
+      )}
     </AppPage>
   );
 }
