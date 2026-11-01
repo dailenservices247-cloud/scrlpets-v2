@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { startPayoutOnboarding, type PayoutStatus } from "@/lib/payments/actions";
+import { openPayoutDashboard, startPayoutOnboarding, type PayoutStatus } from "@/lib/payments/actions";
 
 /**
  * Four states, told apart on purpose.
@@ -33,6 +33,18 @@ export function PayoutSettings({ status }: { status: PayoutStatus }) {
     }
     // Stripe's onboarding link is single-use and short-lived by design, so it is
     // followed immediately rather than stored or rendered as a link.
+    window.location.href = result.url;
+  }
+
+  async function openDashboard() {
+    setBusy(true);
+    setError(null);
+    const result = await openPayoutDashboard();
+    if (!result.ok) {
+      setBusy(false);
+      setError(result.error === "not_configured" ? t("notConfigured") : t("couldNotStart"));
+      return;
+    }
     window.location.href = result.url;
   }
 
@@ -68,9 +80,13 @@ export function PayoutSettings({ status }: { status: PayoutStatus }) {
         </ul>
       )}
 
-      {state !== "ready" && (
+      {state !== "ready" ? (
         <Button type="button" className="mt-3" onClick={start} disabled={busy} data-testid="payout-start">
           {busy ? t("opening") : t(state === "none" ? "startCta" : "continueCta")}
+        </Button>
+      ) : (
+        <Button type="button" variant="outline" className="mt-3" onClick={openDashboard} disabled={busy} data-testid="payout-dashboard">
+          {busy ? t("openingDashboard") : t("viewDashboard")}
         </Button>
       )}
 

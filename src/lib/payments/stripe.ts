@@ -89,6 +89,11 @@ export async function createAccountLink(accountId: string, refreshUrl: string, r
   );
 }
 
+export async function createLoginLink(accountId: string): Promise<ConnectResult<{ url: string }>> {
+  const body = new URLSearchParams();
+  return post<{ url: string }>(`/accounts/${accountId}/login_links`, body);
+}
+
 export async function fetchAccount(accountId: string): Promise<ConnectResult<StripeAccount>> {
   const k = stripeKey();
   if (!k.ok) return k;

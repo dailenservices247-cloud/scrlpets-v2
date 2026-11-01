@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth/session";
 import {
   createAccountLink,
   createConnectAccount,
+  createLoginLink,
   createPaymentIntent,
   isStripeConfigured,
 } from "./stripe";
@@ -93,6 +94,27 @@ export async function startPayoutOnboarding(returnPath = "/settings/payouts"): P
   if (!link.ok) return { ok: false, error: link.reason };
 
   revalidatePath(returnPath);
+  return { ok: true, url: link.data.url };
+}
+
+export type DashboardLinkResult = { ok: true; url: string } | { ok: false; error: string };
+
+/**
+ * Generates a one-time Stripe Express Dashboard login link for sellers who have
+ * an active connected account, allowing them to view bank transfers and payouts.
+ */
+export async function openPayoutDashboard(): Promise<DashboardLinkResult> {
+  const user = await getSessionUser();
+  if (!user) return { ok: false, error: "auth_required" };
+  if (!isStripeConfigured()) return { ok: false, error: "not_configured" };
+
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("my_payout_account");
+  const accountId = (data as { stripe_account_id: string }[] | null)?.[0]?.stripe_account_id;
+  if (!accountId) return { ok: false, error: "no_account" };
+
+  const link = await createLoginLink(accountId);
+  if (!link.ok) return { ok: false, error: link.reason };
   return { ok: true, url: link.data.url };
 }
 
