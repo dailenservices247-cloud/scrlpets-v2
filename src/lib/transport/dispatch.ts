@@ -34,7 +34,7 @@ export interface DispatchResult {
  * Dispatches an animal transportation job to an external 3rd-party courier network
  * (CitizenShipper, uShip, certified airline flight nanny dispatch, or custom webhook).
  *
- * Neither Scrlpets nor Danu's Ark operates vans or carries transport liability;
+ * Neither Scrlpets nor individual sellers operate transport vans or carry transport liability;
  * all transport routes directly to licensed, insured independent couriers.
  */
 export async function dispatchTransportJob(
