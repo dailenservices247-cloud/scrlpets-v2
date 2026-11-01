@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { parsePriceCents } from "@/lib/compose/validation";
 import { sendMessage, startConversation } from "@/lib/messaging/actions";
 import { formatPrice } from "@/lib/shop/format";
+import { sendNotificationToUser } from "@/lib/support/email";
 import { SERVICE_CATEGORIES } from "./categories";
 
 export type ServiceActionResult = { ok: true } | { ok: false; error: string };
@@ -204,6 +205,18 @@ export async function startServiceInquiry(serviceId: string): Promise<ServiceInq
   const sent = await sendMessage(conversation.id, body);
   if (!sent.ok) return { ok: false, error: sent.error };
 
+  // Transactional email notification to provider (silent if not configured)
+  void sendNotificationToUser(service.owner_id, {
+    subject: `New inquiry for ${service.name}`,
+    headline: `Inquiry received for ${service.name}`,
+    bodyLines: [
+      `A prospective client sent an inquiry regarding "${service.name}".`,
+      `Message: "${body}"`,
+    ],
+    ctaUrl: `https://scrlpets.com/messages/${conversation.id}`,
+    ctaText: "Reply to Inquiry",
+  }).catch(() => undefined);
+
   return { ok: true, conversationId: conversation.id };
 }
 
@@ -261,6 +274,20 @@ export async function requestServiceBooking(
 
   const sent = await sendMessage(conversation.id, lines);
   if (!sent.ok) return { ok: false, error: sent.error };
+
+  // Transactional email notification to provider (silent if not configured)
+  void sendNotificationToUser(service.owner_id, {
+    subject: `New booking request: ${service.name}`,
+    headline: `Booking request received for ${service.name}`,
+    bodyLines: [
+      `A prospective client requested an appointment for "${service.name}".`,
+      `Requested Date: ${input.preferredDate}${input.preferredTimeWindow ? ` (${input.preferredTimeWindow})` : ""}`,
+      input.creatureName ? `Animal: ${input.creatureName}` : "",
+      input.clientNotes ? `Notes: "${input.clientNotes.trim()}"` : "",
+    ].filter(Boolean),
+    ctaUrl: `https://scrlpets.com/messages/${conversation.id}`,
+    ctaText: "Review Booking Request",
+  }).catch(() => undefined);
 
   return { ok: true, conversationId: conversation.id };
 }

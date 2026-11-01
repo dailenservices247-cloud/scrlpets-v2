@@ -66,5 +66,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Scrlpets needs camera access to capture and upload photos of your animals, litters, and health records.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Scrlpets needs photo library access to upload photos and videos of your animals and kennel.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Scrlpets needs permission to save animal photos and pedigree certificates to your photo library.</string>
 </dict>
 </plist>
