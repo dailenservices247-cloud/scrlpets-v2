@@ -7,6 +7,7 @@ import { loginHrefFor } from "@/lib/auth/redirect";
 import { getHubSummary } from "@/lib/hub/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 import type { BrandType } from "@/lib/brands/queries";
+import { JevComingSoonCard } from "@/components/jev/JevComingSoonCard";
 
 export const dynamic = "force-dynamic";
 
@@ -107,6 +108,10 @@ export default async function HubPage() {
             );
           })}
         </div>
+      </section>
+
+      <section className="px-3 py-3" data-testid="hub-jev-preview">
+        <JevComingSoonCard source="hub" />
       </section>
 
       {summary.brands.length > 0 && (
