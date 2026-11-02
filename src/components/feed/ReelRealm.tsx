@@ -149,6 +149,26 @@ function ReelSlide({
             showLabel={false}
           />
           {signedIn && <SaveButton postId={item.id} initialSaved={saved} />}
+
+          {/* Vinyl Audio Disc Token */}
+          <Link
+            href={`/search?q=${encodeURIComponent(actorName)}`}
+            className="group relative mt-1 grid size-10 place-items-center rounded-full border border-white/20 bg-neutral-900 shadow-lg transition hover:scale-105"
+            aria-label={`Audio: Original Audio — ${actorName}`}
+            data-testid="reel-audio-disc"
+          >
+            <div className="size-5 rounded-full overflow-hidden border border-white/40">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="" className="size-full object-cover" />
+              ) : (
+                <span className="grid size-full place-items-center bg-primary text-micro font-bold text-white">
+                  {actorName.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="pointer-events-none absolute inset-1 rounded-full border border-white/10" />
+          </Link>
         </div>
       )}
 

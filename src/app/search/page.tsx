@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { SavedSearchPanel } from "@/components/search/SavedSearchPanel";
+import { TrendingTopicsRail } from "@/components/search/TrendingTopicsRail";
 import { getSessionUser } from "@/lib/auth/session";
 import { parsePriceCents } from "@/lib/compose/validation";
 import {
@@ -123,6 +124,10 @@ export default async function SearchPage({
             {t("submit")}
           </button>
         </form>
+
+        <div className="mt-4">
+          <TrendingTopicsRail selectedTag={query.startsWith("#") ? query : undefined} />
+        </div>
       </div>
 
       <SavedSearchPanel

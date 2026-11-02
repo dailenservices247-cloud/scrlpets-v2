@@ -5,9 +5,11 @@ import { createClient } from "@/lib/supabase/client";
 import { markConversationRead, sendMessage } from "@/lib/messaging/actions";
 import type { ThreadMessage } from "@/lib/messaging/queries";
 import type { MessageContext } from "@/lib/messaging/context";
-import { isVideoUrl } from "@/lib/media/media-kind";
+import { isVideoUrl, isAudioUrl } from "@/lib/media/media-kind";
 import { Button } from "@/components/ui/button";
 import { MediaInput } from "@/components/compose/MediaInput";
+import { VoiceNotePlayer } from "./VoiceNotePlayer";
+import { VoiceNoteRecorder } from "./VoiceNoteRecorder";
 import { X } from "lucide-react";
 import { MessageContextPill } from "./MessageContextPill";
 import { MessageReactions } from "./MessageReactions";
@@ -199,9 +201,11 @@ export function MessageThread({
                 m.senderId === meId ? "bg-primary text-primary-foreground" : "bg-card"
               }`}
             >
-              {m.body}
+              {m.body && <p>{m.body}</p>}
               {m.mediaUrl &&
-                (isVideoUrl(m.mediaUrl) ? (
+                (isAudioUrl(m.mediaUrl) ? (
+                  <VoiceNotePlayer src={m.mediaUrl} isMine={m.senderId === meId} />
+                ) : isVideoUrl(m.mediaUrl) ? (
                   <video
                     src={m.mediaUrl}
                     controls
@@ -315,10 +319,16 @@ export function MessageThread({
               {t("send")}
             </Button>
           </div>
-          {/* Reuses the compose picker + shared upload util — one uploader in
-              the app, size caps and image metadata stripping included. Video
-              metadata is NOT stripped; see the note in lib/media/upload.ts. */}
-          <MediaInput userId={meId} onUploaded={(url) => setMediaUrl(url)} />
+          <div className="flex items-center gap-2">
+            <MediaInput userId={meId} onUploaded={(url) => setMediaUrl(url)} />
+            <VoiceNoteRecorder
+              userId={meId}
+              onVoiceNoteUploaded={async (url) => {
+                const res = await sendMessage(conversationId, "", url);
+                if ("error" in res) setError(res.error);
+              }}
+            />
+          </div>
           {error && (
             <p className="text-sm text-destructive" role="alert" data-testid="message-error">
               {error}

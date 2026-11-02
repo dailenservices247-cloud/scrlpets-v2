@@ -95,3 +95,24 @@ export async function uploadMedia(
   const { data } = supabase.storage.from("media").getPublicUrl(path);
   return { url: data.publicUrl, kind: check.kind };
 }
+
+/**
+ * Uploads an audio voice note recorded in chat threads to the media bucket.
+ */
+export async function uploadVoiceNote(
+  blob: Blob,
+  userId: string,
+): Promise<{ url: string } | { error: string }> {
+  const supabase = createClient();
+  const ext = blob.type.includes("mp4") || blob.type.includes("m4a") ? "m4a" : "webm";
+  const path = `${userId}/audio-${crypto.randomUUID()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("media")
+    .upload(path, blob, { contentType: blob.type || "audio/webm" });
+
+  if (error) return { error: error.message };
+  const { data } = supabase.storage.from("media").getPublicUrl(path);
+  return { url: data.publicUrl };
+}
+

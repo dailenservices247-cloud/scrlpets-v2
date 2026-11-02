@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Music } from "lucide-react";
 import type { ReactNode } from "react";
 
 /**
@@ -20,12 +21,16 @@ export function ReelScrim({
   actorHref,
   avatarUrl,
   caption,
+  audioTitle,
+  soundHref,
   children,
 }: {
   actorName: string;
   actorHref: string;
   avatarUrl?: string | null;
   caption?: string | null;
+  audioTitle?: string | null;
+  soundHref?: string;
   /** The realm passes a Follow button here; the feed tile passes nothing. */
   children?: ReactNode;
 }) {
@@ -55,6 +60,20 @@ export function ReelScrim({
         {children}
       </div>
       {caption && <p className="mt-2 line-clamp-2 text-ui text-white/85">{caption}</p>}
+
+      {/* Sound / Audio track attribution */}
+      <div className="pointer-events-auto mt-2.5 flex items-center gap-1.5 w-fit">
+        <Link
+          href={soundHref || `/search?q=${encodeURIComponent(audioTitle || actorName)}`}
+          className="group flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-micro text-white/90 backdrop-blur-md transition hover:bg-black/60 hover:text-white"
+          data-testid="reel-audio-pill"
+        >
+          <Music className="size-3 shrink-0 text-brand-link transition group-hover:scale-110" aria-hidden />
+          <span className="max-w-[200px] truncate font-medium">
+            {audioTitle || `Original Audio — ${actorName}`}
+          </span>
+        </Link>
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Network, ExternalLink } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { ApplyPanel } from "@/components/marketplace/ApplyPanel";
+import { LitterGrowthTracker } from "@/components/litters/LitterGrowthTracker";
 import { getOpenApplication } from "@/lib/applications/queries";
 import { getSessionUser } from "@/lib/auth/session";
 import { getLitterYoung, getPublicLitter } from "@/lib/litters/queries";
@@ -202,6 +203,11 @@ export default async function LitterPublicPage({ params }: { params: Promise<{ i
           )}
         </section>
       )}
+
+      {/* Breeder OS Growth Velocity Tracker */}
+      <section className="px-4 pb-6">
+        <LitterGrowthTracker isBreeder={viewerIsSeller} />
+      </section>
 
       <section className="px-4 pb-8">
         <p className="eyebrow mb-2">{t("youngGrid")}</p>
