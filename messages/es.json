@@ -395,6 +395,8 @@
     "sendBlocked": "No puedes enviar mensajes en esta conversación.",
     "sendFailed": "El mensaje no se envió. Inténtalo de nuevo.",
     "seen": "Visto",
+    "delivered": "Entregado",
+    "isTyping": "está escribiendo...",
     "reactToMessage": "Reacciona a este mensaje",
     "attachmentAlt": "Foto adjunta a este mensaje",
     "privacyTitle": "Privacidad",

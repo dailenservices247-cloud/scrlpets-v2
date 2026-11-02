@@ -13,6 +13,7 @@ import {
   getPublicBrandTeam,
   listBrandCreatures,
   listBrandLitters,
+  listBrandAlumni,
 } from "@/lib/brands/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 import { getBrandFeed } from "@/lib/feed/query";
@@ -55,7 +56,7 @@ export default async function BrandPage({
   if (!brand) notFound();
 
   const user = await getSessionUser();
-  const [owner, feed, role, products, kit, gallery, team, creatures, litters, services] =
+  const [owner, feed, role, products, kit, gallery, team, creatures, litters, services, alumni] =
     await Promise.all([
       getProfileById(brand.ownerId),
       getBrandFeed(brand.id),
@@ -67,6 +68,7 @@ export default async function BrandPage({
       listBrandCreatures(brand.ownerId),
       listBrandLitters(brand.id, brand.ownerId),
       listBrandServices(brand.id, brand.ownerId),
+      listBrandAlumni(brand.id, brand.ownerId),
     ]);
   if (!owner) notFound();
 
@@ -363,6 +365,65 @@ export default async function BrandPage({
                 </ul>
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* Verified Alumni Gallery — Dogs & Animals Produced by this Establishment */}
+      {alumni.length > 0 && (
+        <section className="px-3 pt-3" data-testid="brand-alumni-section">
+          <div className="premium-panel rounded-2xl p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="eyebrow">Proven Genetics & Offspring</p>
+                <h2 className="mt-1 font-serif text-title">Produced by {brand.name}</h2>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-brand-link">
+                <ShieldCheck className="size-3.5" />
+                Verified Alumni
+              </span>
+            </div>
+            <p className="mt-1 text-meta text-muted-foreground">
+              Offspring from verified breedings thriving with their families across the community.
+            </p>
+
+            <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3" data-testid="brand-alumni-grid">
+              {alumni.map((a) => (
+                <Link
+                  key={a.id}
+                  href={`/c/${a.slug}`}
+                  className="rounded-xl border border-border/70 bg-muted/30 p-2.5 transition hover:border-primary/40"
+                  data-testid={`brand-alumni-card-${a.slug}`}
+                >
+                  {a.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={a.avatarUrl}
+                      alt=""
+                      width={160}
+                      height={128}
+                      className="aspect-[5/4] w-full rounded-lg object-cover"
+                    />
+                  ) : (
+                    <span
+                      className="grid aspect-[5/4] w-full place-items-center rounded-lg bg-primary/20 text-title font-semibold text-brand-link"
+                      aria-hidden
+                    >
+                      {a.name.slice(0, 1).toUpperCase()}
+                    </span>
+                  )}
+                  <span className="mt-2 block truncate text-ui font-semibold">{a.name}</span>
+                  <span className="block truncate text-meta text-muted-foreground">
+                    {a.breed ?? a.species ?? "Offspring"}
+                  </span>
+                  {a.ownerUsername && (
+                    <span className="mt-1 block truncate text-micro text-brand-link">
+                      with @{a.ownerUsername}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}

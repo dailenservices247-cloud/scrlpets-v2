@@ -43,7 +43,10 @@ export function MessageThread({
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isOtherTyping, setIsOtherTyping] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
+  const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
+  const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // I am the addressee of an unanswered knock: no composer until I answer.
   const awaitingMyAnswer = gate.status === "request" && !gate.iInitiated;
@@ -51,46 +54,61 @@ export function MessageThread({
 
   useEffect(() => {
     const supabase = createClient();
-    const ch = supabase
-      .channel(`conv:${conversationId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        (payload) => {
-          const m = payload.new as {
-            id: string;
-            sender_id: string;
-            body: string;
-            created_at: string;
-            media_url: string | null;
-          };
-          setItems((prev) =>
-            prev.some((x) => x.id === m.id)
-              ? prev
-              : [
-                  ...prev,
-                  {
-                    id: m.id,
-                    senderId: m.sender_id,
-                    body: m.body,
-                    createdAt: m.created_at,
-                    mediaUrl: m.media_url ?? null,
-                    reactions: [],
-                  },
-                ],
-          );
-        },
-      )
-      .subscribe();
+    const ch = supabase.channel(`conv:${conversationId}`);
+
+    ch.on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "messages",
+        filter: `conversation_id=eq.${conversationId}`,
+      },
+      (payload) => {
+        const m = payload.new as {
+          id: string;
+          sender_id: string;
+          body: string;
+          created_at: string;
+          media_url: string | null;
+        };
+        setItems((prev) =>
+          prev.some((x) => x.id === m.id)
+            ? prev
+            : [
+                ...prev,
+                {
+                  id: m.id,
+                  senderId: m.sender_id,
+                  body: m.body,
+                  createdAt: m.created_at,
+                  mediaUrl: m.media_url ?? null,
+                  reactions: [],
+                },
+              ],
+        );
+      },
+    );
+
+    ch.on(
+      "broadcast",
+      { event: "typing" },
+      (payload: { type: "broadcast"; event: string; payload?: { userId: string; isTyping: boolean } }) => {
+        if (payload.payload && payload.payload.userId !== meId) {
+          setIsOtherTyping(Boolean(payload.payload.isTyping));
+        }
+      },
+    );
+
+    ch.subscribe();
+
+    channelRef.current = ch;
+
     return () => {
       supabase.removeChannel(ch);
+      channelRef.current = null;
     };
-  }, [conversationId]);
+  }, [conversationId, meId]);
 
   useEffect(() => {
     bottom.current?.scrollIntoView({ behavior: "smooth" });
@@ -109,9 +127,18 @@ export function MessageThread({
     ? (items.filter((m) => m.senderId === meId && m.createdAt <= otherLastReadAt).at(-1)?.id ??
       null)
     : null;
+  const latestMineId = items.filter((m) => m.senderId === meId).at(-1)?.id ?? null;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    if (channelRef.current) {
+      void channelRef.current.send({
+        type: "broadcast",
+        event: "typing",
+        payload: { userId: meId, isTyping: false },
+      });
+    }
     const text = body;
     const media = mediaUrl;
     setBody("");
@@ -195,13 +222,28 @@ export function MessageThread({
                 ))}
             </div>
             <MessageReactions messageId={m.id} initial={m.reactions} />
-            {m.id === lastSeenMineId && (
+            {m.id === lastSeenMineId ? (
               <p className="text-xs text-muted-foreground" data-testid="read-receipt">
                 {t("seen")}
               </p>
-            )}
+            ) : m.senderId === meId && m.id === latestMineId ? (
+              <p className="text-xs text-muted-foreground/75" data-testid="delivery-status">
+                {t("delivered")}
+              </p>
+            ) : null}
           </div>
         ))}
+        {isOtherTyping && (
+          <div
+            className="flex items-center gap-2 pl-2 text-xs text-muted-foreground"
+            data-testid="typing-indicator"
+          >
+            <span className="size-2 rounded-full bg-brand-link opacity-75" />
+            <span>
+              {otherName} {t("isTyping")}
+            </span>
+          </div>
+        )}
         <div ref={bottom} />
       </div>
 
@@ -240,7 +282,26 @@ export function MessageThread({
           <div className="flex gap-2">
             <input
               value={body}
-              onChange={(e) => setBody(e.target.value)}
+              onChange={(e) => {
+                setBody(e.target.value);
+                if (channelRef.current) {
+                  void channelRef.current.send({
+                    type: "broadcast",
+                    event: "typing",
+                    payload: { userId: meId, isTyping: true },
+                  });
+                }
+                if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+                typingTimerRef.current = setTimeout(() => {
+                  if (channelRef.current) {
+                    void channelRef.current.send({
+                      type: "broadcast",
+                      event: "typing",
+                      payload: { userId: meId, isTyping: false },
+                    });
+                  }
+                }, 2500);
+              }}
               placeholder={t("placeholder")}
               aria-label={t("placeholder")}
               data-testid="message-input"

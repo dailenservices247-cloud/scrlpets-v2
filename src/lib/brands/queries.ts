@@ -341,3 +341,93 @@ export async function listBrandLitters(
     birthDate: l.birth_date,
   }));
 }
+
+export type BrandAlumniCreature = {
+  id: string;
+  name: string;
+  slug: string;
+  species: string | null;
+  breed: string | null;
+  avatarUrl: string | null;
+  ownerUsername: string | null;
+  ownerDisplayName: string | null;
+};
+
+/**
+ * Public verified alumni/offspring produced by this establishment (via litters or alumni handovers)
+ * that are now owned by families or clients.
+ */
+export async function listBrandAlumni(
+  brandId: string,
+  ownerId: string,
+): Promise<BrandAlumniCreature[]> {
+  const supabase = await createClient();
+
+  const { data: litters } = await supabase
+    .from("litters")
+    .select("id")
+    .or(`brand_id.eq.${brandId},owner_id.eq.${ownerId}`);
+
+  const litterIds = (litters ?? []).map((l: { id: string }) => l.id);
+
+  let creatureRows: {
+    id: string;
+    name: string;
+    slug: string;
+    species: string | null;
+    breed: string | null;
+    avatar_url: string | null;
+    owner_id: string;
+  }[] = [];
+
+  if (litterIds.length > 0) {
+    const { data } = await supabase
+      .from("creatures")
+      .select("id,name,slug,species,breed,avatar_url,owner_id")
+      .neq("owner_id", ownerId)
+      .in("litter_id", litterIds)
+      .eq("page_visible", true)
+      .is("archived_at", null)
+      .limit(16);
+    creatureRows = (data ?? []) as typeof creatureRows;
+  }
+
+  // Also check direct alumni handovers if fewer than 6
+  if (creatureRows.length < 6) {
+    const { data: alumni } = await supabase
+      .from("alumni")
+      .select("creatures(id,name,slug,species,breed,avatar_url,owner_id)")
+      .eq("breeder_id", ownerId)
+      .limit(12);
+
+    for (const r of (alumni ?? []) as unknown as { creatures: (typeof creatureRows)[0] | null }[]) {
+      if (r.creatures && !creatureRows.some((c) => c.id === r.creatures!.id)) {
+        creatureRows.push(r.creatures);
+      }
+    }
+  }
+
+  if (creatureRows.length === 0) return [];
+
+  const ownerIds = [...new Set(creatureRows.map((c) => c.owner_id).filter(Boolean))];
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id,username,display_name")
+    .in("id", ownerIds);
+
+  const profileMap = new Map<string, { username: string; display_name: string | null }>();
+  for (const p of (profiles ?? []) as { id: string; username: string; display_name: string | null }[]) {
+    profileMap.set(p.id, p);
+  }
+
+  return creatureRows.map((c) => ({
+    id: c.id,
+    name: c.name,
+    slug: c.slug,
+    species: c.species,
+    breed: c.breed,
+    avatarUrl: c.avatar_url,
+    ownerUsername: profileMap.get(c.owner_id)?.username ?? null,
+    ownerDisplayName: profileMap.get(c.owner_id)?.display_name ?? null,
+  }));
+}

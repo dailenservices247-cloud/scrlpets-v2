@@ -395,6 +395,8 @@
     "sendBlocked": "You can't send messages in this conversation.",
     "sendFailed": "That message didn't send. Try again.",
     "seen": "Seen",
+    "delivered": "Delivered",
+    "isTyping": "is typing...",
     "reactToMessage": "React to this message",
     "attachmentAlt": "Photo attached to this message",
     "privacyTitle": "Privacy",

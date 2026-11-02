@@ -139,6 +139,7 @@ function ReelSlide({
             initialCount={social.commentCount}
             signedIn={signedIn}
             loginHref={loginHrefFor(`/watch/reel/${item.id}`)}
+            drawer={true}
           />
           <ShareButton
             url={`https://scrlpets.com/watch/reel/${item.id}`}
@@ -190,7 +191,27 @@ export function ReelRealm({
 }) {
   const t = useTranslations("detail");
   const containerRef = useRef<HTMLDivElement>(null);
-  const [muted, setMuted] = useState(true);
+  const [activeId, setActiveId] = useState(startId);
+  const [muted, setMuted] = useState(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      const stored = localStorage.getItem("scrlpets_reel_muted");
+      return stored !== null ? stored === "true" : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleMuted = () => {
+    setMuted((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("scrlpets_reel_muted", String(next));
+      } catch {}
+      return next;
+    });
+  };
+
   const savedSet = new Set(savedIds);
   const followingSet = new Set(followingIds);
 
@@ -199,6 +220,32 @@ export function ReelRealm({
     const start = containerRef.current?.querySelector(`[data-reel-id="${startId}"]`);
     start?.scrollIntoView({ behavior: "instant" as ScrollBehavior });
   }, [startId]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const slides = container.querySelectorAll("[data-reel-id]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("data-reel-id");
+            if (id && id !== activeId) {
+              setActiveId(id);
+              if (typeof window !== "undefined" && window.location.pathname.startsWith("/watch/reel/")) {
+                window.history.replaceState(null, "", `/watch/reel/${id}`);
+              }
+            }
+          }
+        }
+      },
+      { threshold: 0.65 },
+    );
+
+    slides.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, [items, activeId]);
 
   return (
     <main className="relative bg-black" data-testid="reel-realm">
@@ -213,7 +260,7 @@ export function ReelRealm({
         </Link>
         <button
           type="button"
-          onClick={() => setMuted((m) => !m)}
+          onClick={toggleMuted}
           className="grid size-11 place-items-center rounded-full bg-black/55 text-white"
           aria-label={muted ? "Unmute" : "Mute"}
           data-testid="reel-mute-toggle"
@@ -235,7 +282,7 @@ export function ReelRealm({
             viewerId={viewerId}
             signedIn={signedIn}
             muted={muted}
-            onToggleMuted={() => setMuted((m) => !m)}
+            onToggleMuted={toggleMuted}
           />
         ))}
       </div>

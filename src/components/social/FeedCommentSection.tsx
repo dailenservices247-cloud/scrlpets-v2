@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { fetchComments } from "@/lib/social/comment-actions";
 import { CommentThread } from "./CommentThread";
+import { CommentDrawer } from "./CommentDrawer";
 import type { CommentNode } from "@/lib/social/comments";
 
 // F5 / punch list A17: commenting happens IN the feed — the Comment button
@@ -15,11 +16,13 @@ export function FeedCommentSection({
   initialCount,
   signedIn,
   loginHref,
+  drawer = false,
 }: {
   postId: string;
   initialCount: number;
   signedIn: boolean;
   loginHref: string;
+  drawer?: boolean;
 }) {
   const t = useTranslations("feed");
   const [open, setOpen] = useState(false);
@@ -74,7 +77,26 @@ export function FeedCommentSection({
         <MessageCircle className="size-6" aria-hidden />
         {count > 0 && <span aria-hidden>{count}</span>}
       </button>
-      {open && (
+      {open && drawer && (
+        <CommentDrawer isOpen={open} onClose={() => setOpen(false)} count={count}>
+          {loading && !thread ? (
+            <p className="py-3 text-sm text-muted-foreground">…</p>
+          ) : thread ? (
+            <div data-testid="inline-comments">
+              <CommentThread
+                postId={postId}
+                nodes={thread.nodes}
+                count={thread.count}
+                signedIn={signedIn}
+                commentsEnabled={thread.commentsEnabled}
+                loginHref={loginHref}
+                onMutated={load}
+              />
+            </div>
+          ) : null}
+        </CommentDrawer>
+      )}
+      {open && !drawer && (
         <div className="w-full basis-full" data-testid="inline-comments">
           {loading && !thread ? (
             <p className="py-3 text-sm text-muted-foreground">…</p>
