@@ -11,6 +11,7 @@ import { FeedTileAction } from "./FeedTileAction";
 import { TileMedia } from "./TileMedia";
 import { FormattedBody } from "./FormattedBody";
 import { realmTransitionName } from "@/lib/feed/realm-transition";
+import { extractFirstEmbedUrl } from "@/lib/media/embeds";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { ReportButton } from "@/components/social/ReportButton";
 import { ReactionBar } from "@/components/social/ReactionBar";
@@ -174,7 +175,7 @@ export async function FeedDestinationShell({
             )}
           </h2>
           <TileMedia
-            src={item.mediaUrl}
+            src={item.mediaUrl || extractFirstEmbedUrl(item.title)}
             alt={item.title ?? ""}
             variant="player"
             transitionName={realmTransitionName(item.type, item.id)}

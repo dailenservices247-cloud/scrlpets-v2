@@ -1,0 +1,81 @@
+name: Mobile Staging & Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android Release Bundle & APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Build Android Release APK
+        working-directory: android
+        run: ./gradlew assembleRelease
+
+      - name: Build Android App Bundle (AAB)
+        working-directory: android
+        run: ./gradlew bundleRelease
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrlpets-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+
+      - name: Upload Android AAB (Google Play)
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrlpets-release-aab
+          path: android/app/build/outputs/bundle/release/*.aab
+
+  validate-ios:
+    name: Validate iOS Project & Capacitor Sync
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
+
+      - name: Verify CocoaPods & Package.swift
+        working-directory: ios/App
+        run: |
+          test -f Package.swift && echo "Package.swift verified"
+          test -d App.xcodeproj && echo "Xcode project verified"

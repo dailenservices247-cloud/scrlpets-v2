@@ -12,6 +12,7 @@ import { AboutInfoCard } from "@/components/creature/AboutInfoCard";
 import { HealthTestsSection } from "@/components/creature/HealthTestsSection";
 import { HighlightsSection } from "@/components/highlights/HighlightsSection";
 import { LineageSection } from "@/components/creature/LineageSection";
+import { PedigreeMatrix } from "@/components/creature/PedigreeMatrix";
 import { AssuranceBadge } from "@/components/anchor/AssuranceBadge";
 import { AnchorSection } from "@/components/anchor/AnchorSection";
 import { ProductCard } from "@/components/shop/ProductCard";
@@ -34,6 +35,7 @@ import {
   getMyCreatureAnchor,
   getCreatureOriginAttribution,
 } from "@/lib/creatures/queries";
+import { getCreaturePedigree } from "@/lib/creatures/pedigree";
 
 export const dynamic = "force-dynamic";
 
@@ -55,7 +57,7 @@ export default async function CreaturePage({
   const { slug } = await params;
   const creature = await getCreatureBySlug(slug);
   if (!creature) notFound();
-  const [items, user, record, detail, tests, parents, offspring, assurance, origin] =
+  const [items, user, record, detail, tests, parents, offspring, assurance, origin, pedigree] =
     await Promise.all([
       getCreatureFeed(creature.id),
       getSessionUser(),
@@ -66,6 +68,7 @@ export default async function CreaturePage({
       getCreatureOffspring(creature.id),
       getCreatureAssurance(creature.id),
       getCreatureOriginAttribution(creature.id),
+      getCreaturePedigree(creature.id),
     ]);
   const [establishmentServices, establishmentProducts, recommendedProducts] = await Promise.all([
     origin?.brandId
@@ -359,6 +362,8 @@ export default async function CreaturePage({
         isOwner={isOwner}
         isDeceased={isDeceased}
       />
+
+      {pedigree && <PedigreeMatrix data={pedigree} />}
 
       <LineageSection parents={parents} offspring={offspring} isDeceased={isDeceased} />
 

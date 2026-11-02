@@ -8,6 +8,7 @@ import { FormattedBody } from "../FormattedBody";
 import { FeedCardShell } from "../FeedCardShell";
 import { TileMedia } from "../TileMedia";
 import { realmTransitionName } from "@/lib/feed/realm-transition";
+import { extractFirstEmbedUrl } from "@/lib/media/embeds";
 
 // punch list A2: plain posts read fully inline, FB/IG-style — no click-to-open.
 // punch list A17: commenting expands inline too; the destination page is for
@@ -23,6 +24,8 @@ export function PostTile({
   social?: PostSocialContext | null;
   signedIn?: boolean;
 }) {
+  const mediaSrc = item.mediaUrl || extractFirstEmbedUrl(item.title);
+
   return (
     <FeedCardShell item={item} canManage={canManage} register="editorial">
       {/* The testid is "post-body-text", NOT "post-body": the composer textarea
@@ -31,7 +34,7 @@ export function PostTile({
           every one of them ambiguous. */}
       {item.title && <FormattedBody content={item.title} />}
       <TileMedia
-        src={item.mediaUrl}
+        src={mediaSrc}
         alt={item.title ?? ""}
         transitionName={realmTransitionName(item.type, item.id)}
       />

@@ -12,6 +12,24 @@ export interface EmbedInfo {
   platformName: string;
 }
 
+const URL_REGEX = /https?:\/\/[^\s]+/gi;
+
+/**
+ * Extracts the first supported social embed URL from a freeform text string.
+ */
+export function extractFirstEmbedUrl(text: string | null | undefined): string | null {
+  if (!text) return null;
+  const matches = text.match(URL_REGEX);
+  if (!matches) return null;
+  for (const rawUrl of matches) {
+    const cleanUrl = rawUrl.replace(/[.,!?;:)>\]]+$/, "");
+    if (isEmbedUrl(cleanUrl)) {
+      return cleanUrl;
+    }
+  }
+  return null;
+}
+
 /**
  * Checks if a given URL points to a supported external video or post embed.
  */
@@ -80,9 +98,10 @@ export function parseEmbedUrl(url: string | null | undefined): EmbedInfo | null 
   }
 
   // 2. Instagram
-  // Reels: instagram.com/reel/CODE or instagram.com/reels/CODE
-  // Posts: instagram.com/p/CODE
-  const igReelMatch = trimmed.match(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:reel|reels)\/([a-zA-Z0-9_-]+)/i);
+  // Reels: instagram.com/reel/CODE, instagram.com/reels/CODE, or instagram.com/share/reel/CODE
+  // Posts: instagram.com/p/CODE or instagram.com/share/p/CODE
+  const igReelMatch =
+    trimmed.match(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:reel|reels|share\/reel)\/([a-zA-Z0-9_-]+)/i);
   if (igReelMatch) {
     const code = igReelMatch[1];
     return {
@@ -95,7 +114,9 @@ export function parseEmbedUrl(url: string | null | undefined): EmbedInfo | null 
     };
   }
 
-  const igPostMatch = trimmed.match(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/p\/([a-zA-Z0-9_-]+)/i);
+  const igPostMatch =
+    trimmed.match(/(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:p|share\/p)\/([a-zA-Z0-9_-]+)/i) ||
+    trimmed.match(/(?:https?:\/\/)?(?:www\.)?instagr\.am\/p\/([a-zA-Z0-9_-]+)/i);
   if (igPostMatch) {
     const code = igPostMatch[1];
     return {
@@ -109,7 +130,20 @@ export function parseEmbedUrl(url: string | null | undefined): EmbedInfo | null 
   }
 
   // 3. Facebook
-  // facebook.com/watch/?v=ID or facebook.com/.../videos/ID or fb.watch/ID
+  // facebook.com/watch/?v=ID or facebook.com/.../videos/ID or fb.watch/ID or facebook.com/reel/ID
+  const fbReelMatch = trimmed.match(/(?:https?:\/\/)?(?:www\.|web\.)?facebook\.com\/(?:reel|reels)\/([0-9]+)/i);
+  if (fbReelMatch) {
+    const videoId = fbReelMatch[1];
+    return {
+      provider: "facebook",
+      originalUrl: trimmed,
+      embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(trimmed)}&show_text=0`,
+      videoId,
+      kind: "reel",
+      platformName: "Facebook Reel",
+    };
+  }
+
   const fbWatchMatch =
     trimmed.match(/(?:https?:\/\/)?(?:www\.|web\.)?facebook\.com\/watch\/?\?v=([0-9]+)/i) ||
     trimmed.match(/(?:https?:\/\/)?(?:www\.|web\.)?facebook\.com\/.*\/videos\/([0-9]+)/i);
@@ -127,15 +161,33 @@ export function parseEmbedUrl(url: string | null | undefined): EmbedInfo | null 
   }
 
   // 4. TikTok
-  // tiktok.com/@user/video/ID
-  const ttMatch = trimmed.match(/(?:https?:\/\/)?(?:www\.)?tiktok\.com\/@[^/]+\/video\/([0-9]+)/i);
-  if (ttMatch) {
-    const videoId = ttMatch[1];
+  // Standard video: tiktok.com/@user/video/ID
+  // Photo post: tiktok.com/@user/photo/ID
+  // Short URL: tiktok.com/t/CODE, vt.tiktok.com/CODE, vm.tiktok.com/CODE
+  const ttStandardMatch =
+    trimmed.match(/(?:https?:\/\/)?(?:www\.|m\.)?tiktok\.com\/@[^/]+\/(?:video|photo)\/([0-9]+)/i);
+  if (ttStandardMatch) {
+    const videoId = ttStandardMatch[1];
     return {
       provider: "tiktok",
       originalUrl: trimmed,
       embedUrl: `https://www.tiktok.com/embed/v2/${videoId}`,
       videoId,
+      kind: "reel",
+      platformName: "TikTok",
+    };
+  }
+
+  const ttShortMatch =
+    trimmed.match(/(?:https?:\/\/)?(?:www\.)?tiktok\.com\/t\/([a-zA-Z0-9_-]+)/i) ||
+    trimmed.match(/(?:https?:\/\/)?(?:vt|vm)\.tiktok\.com\/([a-zA-Z0-9_-]+)/i);
+  if (ttShortMatch) {
+    const code = ttShortMatch[1];
+    return {
+      provider: "tiktok",
+      originalUrl: trimmed,
+      embedUrl: `https://www.tiktok.com/embed/v2/${code}`,
+      videoId: code,
       kind: "reel",
       platformName: "TikTok",
     };

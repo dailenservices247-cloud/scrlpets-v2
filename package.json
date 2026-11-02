@@ -9,7 +9,9 @@
     "lint": "eslint",
     "cap:sync": "cap sync",
     "cap:open:ios": "cap open ios",
-    "cap:open:android": "cap open android"
+    "cap:open:android": "cap open android",
+    "cap:build:android": "cap sync android && cd android && ./gradlew assembleRelease",
+    "cap:build:ios": "cap sync ios"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

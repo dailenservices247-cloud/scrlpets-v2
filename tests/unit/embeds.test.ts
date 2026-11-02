@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isEmbedUrl, parseEmbedUrl } from "@/lib/media/embeds";
+import { extractFirstEmbedUrl, isEmbedUrl, parseEmbedUrl } from "@/lib/media/embeds";
 
 describe("embeds parser", () => {
   it("detects and parses standard YouTube video URLs", () => {
@@ -56,6 +56,23 @@ describe("embeds parser", () => {
     const parsed = parseEmbedUrl(url);
     expect(parsed?.provider).toBe("tiktok");
     expect(parsed?.kind).toBe("reel");
+
+    const shortUrl = "https://vt.tiktok.com/ZS123abc/";
+    expect(isEmbedUrl(shortUrl)).toBe(true);
+    const parsedShort = parseEmbedUrl(shortUrl);
+    expect(parsedShort?.provider).toBe("tiktok");
+    expect(parsedShort?.kind).toBe("reel");
+  });
+
+  it("extracts the first valid embed URL from conversational post text", () => {
+    const postWithYt = "Check out our latest protection training drill! https://youtu.be/dQw4w9WgXcQ #workingdog";
+    expect(extractFirstEmbedUrl(postWithYt)).toBe("https://youtu.be/dQw4w9WgXcQ");
+
+    const postWithTiktok = "Oliver Queen having a blast in the yard: https://www.tiktok.com/@creator/video/7123456789012345678! Check it out!";
+    expect(extractFirstEmbedUrl(postWithTiktok)).toBe("https://www.tiktok.com/@creator/video/7123456789012345678");
+
+    const plainPost = "Just finished a great morning hike with Big Meech and the pack.";
+    expect(extractFirstEmbedUrl(plainPost)).toBeNull();
   });
 
   it("detects YouTube Live streams", () => {
