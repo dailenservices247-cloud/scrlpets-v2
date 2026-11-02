@@ -35,15 +35,21 @@ jobs:
       - name: Sync Capacitor Android
         run: npx cap sync android
 
-      - name: Build Android Release APK
+      - name: Build Android Debug & Release APKs
         working-directory: android
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleDebug assembleRelease
 
       - name: Build Android App Bundle (AAB)
         working-directory: android
         run: ./gradlew bundleRelease
 
-      - name: Upload Android APK
+      - name: Upload Android Debug APK (Installable Directly)
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrlpets-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+
+      - name: Upload Android Release APK
         uses: actions/upload-artifact@v4
         with:
           name: scrlpets-release-apk
@@ -77,5 +83,5 @@ jobs:
       - name: Verify CocoaPods & Package.swift
         working-directory: ios/App
         run: |
-          test -f Package.swift && echo "Package.swift verified"
+          test -f CapApp-SPM/Package.swift && echo "Package.swift verified"
           test -d App.xcodeproj && echo "Xcode project verified"
