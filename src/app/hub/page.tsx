@@ -8,6 +8,7 @@ import { getHubSummary } from "@/lib/hub/queries";
 import { BRAND_TYPE_OPTIONS } from "@/lib/brands/types";
 import type { BrandType } from "@/lib/brands/queries";
 import { JevComingSoonCard } from "@/components/jev/JevComingSoonCard";
+import { ProviderOnboardingBanner } from "@/components/market/ProviderOnboardingBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -108,6 +109,10 @@ export default async function HubPage() {
             );
           })}
         </div>
+      </section>
+
+      <section className="px-3 py-3" data-testid="hub-provider-onboarding">
+        <ProviderOnboardingBanner viewerId={user.id} compact />
       </section>
 
       <section className="px-3 py-3" data-testid="hub-jev-preview">

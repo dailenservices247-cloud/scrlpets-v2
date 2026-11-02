@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { AnimalCard } from "@/components/market/AnimalCard";
 import { ServiceCard } from "@/components/market/ServiceCard";
+import { ProviderOnboardingBanner } from "@/components/market/ProviderOnboardingBanner";
 import { MarketTabs, type MarketTab } from "@/components/market/MarketTabs";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { getSessionUser } from "@/lib/auth/session";
@@ -322,7 +323,11 @@ async function ServicesTab({ category }: { category?: string }) {
 
   return (
     <>
-      <p className="px-4 text-sm leading-6 text-muted-foreground" data-testid="services-notice">
+      <div className="px-4 pt-2 pb-1">
+        <ProviderOnboardingBanner viewerId={viewer?.id} />
+      </div>
+
+      <p className="px-4 pt-3 text-sm leading-6 text-muted-foreground" data-testid="services-notice">
         {t("vettingNotice")}
       </p>
 
