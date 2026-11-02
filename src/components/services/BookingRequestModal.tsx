@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Calendar, PawPrint, ShieldAlert, Sparkles, X } from "lucide-react";
+import { Calendar, Dna, PawPrint, ShieldAlert, Sparkles, X } from "lucide-react";
 import type { ProviderService, ServiceTierRate } from "@/lib/services/queries";
 import { requestServiceBooking } from "@/lib/services/actions";
 import { formatPrice } from "@/lib/shop/format";
@@ -23,9 +23,17 @@ export function BookingRequestModal({
   const [selectedTier, setSelectedTier] = useState<ServiceTierRate | null>(
     service.serviceTierRates.length > 0 ? service.serviceTierRates[0] : null,
   );
+  const isStudService =
+    service.name.toLowerCase().includes("stud") ||
+    (service.description ? service.description.toLowerCase().includes("stud") : false);
+
   const [preferredDate, setPreferredDate] = useState("");
   const [timeWindow, setTimeWindow] = useState("Afternoon (12pm - 5pm)");
   const [creatureName, setCreatureName] = useState("");
+  const [femaleRegistration, setFemaleRegistration] = useState("");
+  const [breedingMethod, setBreedingMethod] = useState("Fresh Chilled Semen (Priority Overnight)");
+  const [brucellosisTested, setBrucellosisTested] = useState(false);
+  const [progesteroneTracking, setProgesteroneTracking] = useState(false);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -35,19 +43,33 @@ export function BookingRequestModal({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!preferredDate) {
-      setError("Please choose a preferred date.");
+      setError(isStudService ? "Please choose an estimated ovulation or breeding date." : "Please choose a preferred date.");
       return;
     }
     setError(null);
+
+    const compiledNotes = isStudService
+      ? [
+          `🐾 BREEDING FEMALE & STUD PARAMETERS`,
+          creatureName.trim() ? `• Female: ${creatureName.trim()}` : null,
+          femaleRegistration.trim() ? `• Registration: ${femaleRegistration.trim()}` : null,
+          `• Breeding Method: ${breedingMethod}`,
+          `• Brucellosis Negative Test: ${brucellosisTested ? "Yes (Verified / Available)" : "Pending / Scheduling"}`,
+          `• Progesterone / Cytology Tracking: ${progesteroneTracking ? "Active / In Progress" : "Not yet started"}`,
+          notes.trim() ? `• Handler Notes: "${notes.trim()}"` : null,
+        ]
+          .filter(Boolean)
+          .join("\n")
+      : notes.trim() || null;
 
     startTransition(async () => {
       const res = await requestServiceBooking(service.id, {
         tierName: selectedTier ? selectedTier.name : null,
         tierPriceCents: selectedTier ? selectedTier.priceCents : service.priceCents,
         preferredDate,
-        preferredTimeWindow: timeWindow,
+        preferredTimeWindow: isStudService ? `Method: ${breedingMethod}` : timeWindow,
         creatureName: creatureName.trim() || null,
-        clientNotes: notes.trim() || null,
+        clientNotes: compiledNotes,
       });
 
       if (res.ok) {
@@ -141,10 +163,12 @@ export function BookingRequestModal({
               </div>
             )}
 
-            {/* Date & Time */}
+            {/* Date & Time / Method */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-muted-foreground">Preferred Date</label>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  {isStudService ? "Estimated Breeding / Ovulation Date" : "Preferred Date"}
+                </label>
                 <input
                   type="date"
                   min={today}
@@ -156,42 +180,115 @@ export function BookingRequestModal({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-muted-foreground">Time Window</label>
-                <select
-                  value={timeWindow}
-                  onChange={(e) => setTimeWindow(e.target.value)}
-                  className="min-h-11 w-full rounded-xl border border-input bg-card px-3 text-xs text-foreground"
-                >
-                  <option value="Morning (8am - 12pm)">Morning (8am - 12pm)</option>
-                  <option value="Afternoon (12pm - 5pm)">Afternoon (12pm - 5pm)</option>
-                  <option value="Evening (5pm - 8pm)">Evening (5pm - 8pm)</option>
-                  <option value="Flexible / Any time">Flexible / Any time</option>
-                </select>
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                  {isStudService ? "Breeding Method" : "Time Window"}
+                </label>
+                {isStudService ? (
+                  <select
+                    value={breedingMethod}
+                    onChange={(e) => setBreedingMethod(e.target.value)}
+                    className="min-h-11 w-full rounded-xl border border-input bg-card px-3 text-xs text-foreground"
+                  >
+                    <option value="Fresh Chilled Semen (Priority Overnight)">Fresh Chilled Semen (Overnight FedEx)</option>
+                    <option value="Natural Live Cover (Facility On-Site)">Natural Live Cover (Facility On-Site)</option>
+                    <option value="On-Site Artificial Insemination (AI)">On-Site AI (Ohio Facility)</option>
+                    <option value="Frozen Semen Straws (Liquid Nitrogen)">Frozen Straws (Vapor Tank Shipper)</option>
+                  </select>
+                ) : (
+                  <select
+                    value={timeWindow}
+                    onChange={(e) => setTimeWindow(e.target.value)}
+                    className="min-h-11 w-full rounded-xl border border-input bg-card px-3 text-xs text-foreground"
+                  >
+                    <option value="Morning (8am - 12pm)">Morning (8am - 12pm)</option>
+                    <option value="Afternoon (12pm - 5pm)">Afternoon (12pm - 5pm)</option>
+                    <option value="Evening (5pm - 8pm)">Evening (5pm - 8pm)</option>
+                    <option value="Flexible / Any time">Flexible / Any time</option>
+                  </select>
+                )}
               </div>
             </div>
 
-            {/* Pet / Animal Name */}
-            <div>
-              <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                <PawPrint className="size-3.5" />
-                <span>Pet / Animal (Optional)</span>
-              </label>
-              <input
-                placeholder="e.g. Meech (Presa Canario, 18 months)"
-                value={creatureName}
-                onChange={(e) => setCreatureName(e.target.value)}
-                className="min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm text-foreground"
-              />
-            </div>
+            {/* Animal Details */}
+            {isStudService ? (
+              <div className="space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-3.5">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-brand-link">
+                  <Dna className="size-4" />
+                  <span>Breeding Female Credentials</span>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      Female Name / Call Name
+                    </label>
+                    <input
+                      placeholder="e.g. Hera (W Hera De La Arena)"
+                      value={creatureName}
+                      onChange={(e) => setCreatureName(e.target.value)}
+                      className="min-h-11 w-full rounded-xl border border-input bg-card px-3 text-xs text-foreground"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      Registry & Pedigree / Reg #
+                    </label>
+                    <input
+                      placeholder="e.g. UKC P932-651 / AKC WS..."
+                      value={femaleRegistration}
+                      onChange={(e) => setFemaleRegistration(e.target.value)}
+                      className="min-h-11 w-full rounded-xl border border-input bg-card px-3 text-xs text-foreground"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 pt-1 sm:grid-cols-2">
+                  <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={brucellosisTested}
+                      onChange={(e) => setBrucellosisTested(e.target.checked)}
+                      className="size-4 rounded border-input text-primary focus:ring-primary"
+                    />
+                    <span>Brucellosis Negative Test on File</span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={progesteroneTracking}
+                      onChange={(e) => setProgesteroneTracking(e.target.checked)}
+                      className="size-4 rounded border-input text-primary focus:ring-primary"
+                    />
+                    <span>Progesterone Timing Tracked</span>
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                  <PawPrint className="size-3.5" />
+                  <span>Pet / Animal (Optional)</span>
+                </label>
+                <input
+                  placeholder="e.g. Meech (Presa Canario, 18 months)"
+                  value={creatureName}
+                  onChange={(e) => setCreatureName(e.target.value)}
+                  className="min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm text-foreground"
+                />
+              </div>
+            )}
 
             {/* Notes */}
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                Special Requests or Notes
+                {isStudService ? "Breeding Notes or Shipping Delivery Address" : "Special Requests or Notes"}
               </label>
               <textarea
                 rows={2}
-                placeholder="Specific requirements, pickup instructions, temperament notes..."
+                placeholder={
+                  isStudService
+                    ? "Vet clinic shipping address for semen delivery, specific progesterone levels, or timing notes..."
+                    : "Specific requirements, pickup instructions, temperament notes..."
+                }
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className="w-full rounded-xl border border-input bg-transparent p-3 text-xs text-foreground"
