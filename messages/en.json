@@ -487,13 +487,16 @@
     "announceNew": "{count, plural, one {# new notification} other {# new notifications}}"
   },
   "search": {
-    "placeholder": "Search people, animals, brands, listings",
+    "placeholder": "Search people, animals, posts, services, listings",
     "submit": "Search",
     "noResults": "Nothing found for “{query}”.",
     "people": "People",
     "brands": "Brands",
     "animals": "Animals",
     "listings": "Listings",
+    "posts": "Posts",
+    "services": "Services",
+    "untitledPost": "Community Post",
     "filters": {
       "species": "Species",
       "kind": "Listing type",

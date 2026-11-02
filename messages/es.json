@@ -487,13 +487,16 @@
     "announceNew": "{count, plural, one {# notificación nueva} other {# notificaciones nuevas}}"
   },
   "search": {
-    "placeholder": "Busca personas, animales, marcas, anuncios",
+    "placeholder": "Busca personas, animales, publicaciones, servicios, anuncios",
     "submit": "Buscar",
     "noResults": "No se encontró nada para «{query}».",
     "people": "Personas",
     "brands": "Marcas",
     "animals": "Animales",
     "listings": "Anuncios",
+    "posts": "Publicaciones",
+    "services": "Servicios",
+    "untitledPost": "Publicación comunitaria",
     "filters": {
       "species": "Especie",
       "kind": "Tipo de anuncio",

@@ -4,6 +4,7 @@ import { ReactionBar } from "@/components/social/ReactionBar";
 import { FeedCommentSection } from "@/components/social/FeedCommentSection";
 import { ShareButton } from "@/components/share/ShareButton";
 import { loginHrefFor } from "@/lib/auth/redirect";
+import { FormattedBody } from "../FormattedBody";
 import { FeedCardShell } from "../FeedCardShell";
 import { TileMedia } from "../TileMedia";
 import { realmTransitionName } from "@/lib/feed/realm-transition";
@@ -28,11 +29,7 @@ export function PostTile({
           has owned that id since PostForm, and seven assertions across four
           specs fill it by that name. A second element answering to it made
           every one of them ambiguous. */}
-      {item.title && (
-        <p className="whitespace-pre-wrap text-body" data-testid="post-body-text">
-          {item.title}
-        </p>
-      )}
+      {item.title && <FormattedBody content={item.title} />}
       <TileMedia
         src={item.mediaUrl}
         alt={item.title ?? ""}

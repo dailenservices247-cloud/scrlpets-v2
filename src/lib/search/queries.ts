@@ -5,6 +5,8 @@ export type SearchResults = {
   brands: { slug: string; name: string; avatarUrl: string | null }[];
   animals: { slug: string; name: string; avatarUrl: string | null }[];
   listings: { id: string; title: string; priceCents: number | null }[];
+  posts: { id: string; body: string | null; contentType: string; mediaUrl: string | null }[];
+  services: { id: string; name: string; category: string | null; priceCents: number | null; mediaUrl: string | null }[];
 };
 
 // V7-04: server-side listing filters. All optional — undefined means unset.
@@ -15,7 +17,14 @@ export type SearchFilters = {
   maxPriceCents?: number;
 };
 
-const EMPTY: SearchResults = { people: [], brands: [], animals: [], listings: [] };
+const EMPTY: SearchResults = {
+  people: [],
+  brands: [],
+  animals: [],
+  listings: [],
+  posts: [],
+  services: [],
+};
 
 export function hasActiveFilters(filters: SearchFilters): boolean {
   return (
@@ -40,11 +49,13 @@ function likePattern(raw: string): string {
  */
 export async function search(rawQuery: string, filters: SearchFilters = {}): Promise<SearchResults> {
   const q = rawQuery.trim();
-  const textSearch = q.length >= 2;
+  const normalized = q.replace(/^[#@]+/, "").trim();
+  const textSearch = q.length >= 2 || normalized.length >= 2;
   if (!textSearch && !hasActiveFilters(filters)) return EMPTY;
 
   const supabase = await createClient();
-  const pattern = textSearch ? likePattern(q) : null;
+  const queryTerm = normalized.length >= 2 ? normalized : q;
+  const pattern = textSearch ? likePattern(queryTerm) : null;
 
   // The species filter only makes sense for listings with an animal attached,
   // so it inner-joins creatures (excluding shop/product listings) — otherwise
@@ -73,6 +84,14 @@ export async function search(rawQuery: string, filters: SearchFilters = {}): Pro
   type ListingRow = { id: string; title: string; price_cents: number | null };
   type PersonRow = { username: string; display_name: string | null; avatar_url: string | null };
   type NamedRow = { slug: string; name: string; avatar_url: string | null };
+  type PostRow = { id: string; body: string | null; content_type: string; media_url: string | null };
+  type ServiceRow = {
+    id: string;
+    name: string;
+    category: string | null;
+    price_cents: number | null;
+    media_url: string | null;
+  };
 
   const peoplePromise = pattern
     ? supabase
@@ -87,12 +106,30 @@ export async function search(rawQuery: string, filters: SearchFilters = {}): Pro
   const animalsPromise = pattern
     ? supabase.from("creatures").select("slug, name, avatar_url").ilike("name", pattern).limit(10)
     : null;
+  const postsPromise = pattern
+    ? supabase
+        .from("posts")
+        .select("id, body, content_type, media_url")
+        .is("deleted_at", null)
+        .ilike("body", pattern)
+        .limit(10)
+    : null;
+  const servicesPromise = pattern
+    ? supabase
+        .from("services")
+        .select("id, name, category, price_cents, media_url")
+        .eq("active", true)
+        .or(`name.ilike.${pattern},description.ilike.${pattern}`)
+        .limit(10)
+    : null;
 
-  const [listingsRes, peopleRes, brandsRes, animalsRes] = await Promise.all([
+  const [listingsRes, peopleRes, brandsRes, animalsRes, postsRes, servicesRes] = await Promise.all([
     listingsQuery.limit(10),
     peoplePromise,
     brandsPromise,
     animalsPromise,
+    postsPromise,
+    servicesPromise,
   ]);
 
   return {
@@ -115,6 +152,19 @@ export async function search(rawQuery: string, filters: SearchFilters = {}): Pro
       id: r.id,
       title: r.title,
       priceCents: r.price_cents,
+    })),
+    posts: ((postsRes?.data ?? []) as unknown as PostRow[]).map((r) => ({
+      id: r.id,
+      body: r.body,
+      contentType: r.content_type,
+      mediaUrl: r.media_url,
+    })),
+    services: ((servicesRes?.data ?? []) as unknown as ServiceRow[]).map((r) => ({
+      id: r.id,
+      name: r.name,
+      category: r.category,
+      priceCents: r.price_cents,
+      mediaUrl: r.media_url,
     })),
   };
 }

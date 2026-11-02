@@ -9,6 +9,7 @@ import { AttributionStack } from "./AttributionStack";
 import { ContentTypeBadge } from "./ContentTypeBadge";
 import { FeedTileAction } from "./FeedTileAction";
 import { TileMedia } from "./TileMedia";
+import { FormattedBody } from "./FormattedBody";
 import { realmTransitionName } from "@/lib/feed/realm-transition";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { ReportButton } from "@/components/social/ReportButton";
@@ -161,7 +162,16 @@ export async function FeedDestinationShell({
               isListing ? "font-serif text-title" : "text-title font-semibold",
             )}
           >
-            {item.title ?? t("untitled")}
+            {item.title ? (
+              <FormattedBody
+                content={item.title}
+                as="span"
+                className="whitespace-pre-wrap"
+                testId="destination-title-text"
+              />
+            ) : (
+              t("untitled")
+            )}
           </h2>
           <TileMedia
             src={item.mediaUrl}

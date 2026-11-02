@@ -41,7 +41,12 @@ export default async function SearchPage({
   ]);
   const savedSearches = viewer ? await listSavedSearches(viewer.id) : [];
   const total =
-    results.people.length + results.brands.length + results.animals.length + results.listings.length;
+    results.people.length +
+    results.brands.length +
+    results.animals.length +
+    results.listings.length +
+    results.posts.length +
+    results.services.length;
 
   const returnParams = new URLSearchParams();
   if (query) returnParams.set("q", query);
@@ -205,6 +210,92 @@ export default async function SearchPage({
                   </Link>
                 </li>
               ))}
+            </ul>
+          </section>
+        )}
+        {results.services.length > 0 && (
+          <section>
+            <p className="eyebrow mb-2">{t("services")}</p>
+            <ul className="flex flex-col gap-2">
+              {results.services.map((s) => (
+                <li key={s.id}>
+                  <Link
+                    href={`/services/${s.id}`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/60 p-3 transition hover:border-border hover:bg-card/80"
+                    data-testid="search-service"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      {s.mediaUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={s.mediaUrl}
+                          alt=""
+                          className="size-10 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <span className="grid size-10 place-items-center rounded-lg bg-primary/20 text-xs font-semibold text-brand-link">
+                          {(s.name || "S").charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium">{s.name}</p>
+                        {s.category && (
+                          <p className="text-xs capitalize text-muted-foreground">
+                            {s.category.replace(/_/g, " ")}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {s.priceCents !== null && (
+                      <span className="text-sm font-medium text-muted-foreground">
+                        ${(s.priceCents / 100).toFixed(2)}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {results.posts.length > 0 && (
+          <section>
+            <p className="eyebrow mb-2">{t("posts")}</p>
+            <ul className="flex flex-col gap-2">
+              {results.posts.map((p) => {
+                const href =
+                  p.contentType === "reel"
+                    ? `/watch/reel/${p.id}`
+                    : p.contentType === "long_video"
+                      ? `/watch/${p.id}`
+                      : `/post/${p.id}`;
+                return (
+                  <li key={p.id}>
+                    <Link
+                      href={href}
+                      className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/60 p-3 transition hover:border-border hover:bg-card/80"
+                      data-testid="search-post"
+                    >
+                      {p.mediaUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={p.mediaUrl}
+                          alt=""
+                          className="size-10 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <span className="grid size-10 place-items-center rounded-lg bg-primary/20 text-xs font-semibold uppercase text-brand-link">
+                          {p.contentType === "reel" ? "Reel" : "Post"}
+                        </span>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-2 text-sm font-medium">
+                          {p.body || t("untitledPost")}
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </section>
         )}
