@@ -27,4 +27,18 @@ export type FeedItem = {
    */
   pinnedAt?: string | null;
   commentsEnabled?: boolean;
+  /** Collaborative co-author / co-breeder / handler / trainer */
+  collaborator?: {
+    id: string;
+    username: string;
+    displayName: string | null;
+    avatarUrl: string | null;
+    role?: string;
+  } | null;
+  /** Environmental or care stat badge attached to the post */
+  careBadge?: {
+    label: string;
+    value: string;
+    icon?: "temp" | "colony" | "diet" | "shed" | "weight";
+  } | null;
 };

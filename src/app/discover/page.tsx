@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { BookOpen, ChevronRight, Sparkles, Store, Tag, Users } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { TrendingTopicsRail } from "@/components/search/TrendingTopicsRail";
+import { CommunityObservationHub } from "@/components/observations/CommunityObservationHub";
 
 // Discover survives as a route but is no longer a bottom-nav slot — shop,
 // adopt and services merged into /market, and Groups and Guides are community
@@ -51,6 +52,10 @@ export default async function DiscoverPage() {
             <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden />
           </Link>
         ))}
+      </section>
+
+      <section className="px-4 pb-12">
+        <CommunityObservationHub />
       </section>
     </AppPage>
   );

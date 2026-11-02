@@ -56,7 +56,7 @@ export function generateListingDraft(input: ListingDraftInput): ListingDraftOutp
         Price: priceDisplay,
       },
       shippingTerms: "Overnight priority shipping via certified reptile carriers to nearest hub or home delivery when weather permits (40°F-90°F window).",
-      recommendedTags: ["#reptiles", "#captivebred", "#morphs", "#exoticpets"],
+      recommendedTags: ["#reptiles", "#captivebred", "#morphs", "#reptilekeepers"],
     };
   }
 

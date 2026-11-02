@@ -45,7 +45,7 @@ describe("Scrlpets AI Studio Suite", () => {
   });
 
   describe("Universal Purchase Agreement & LAG Contract", () => {
-    it("includes Live Arrival Guarantee (LAG) with 2-hour unboxing rule for shipped live exotics", () => {
+    it("includes Live Arrival Guarantee (LAG) with 2-hour unboxing rule for shipped live animals", () => {
       const contract = generateUniversalContract({
         species: "reptile",
         animalName: "Zeus",

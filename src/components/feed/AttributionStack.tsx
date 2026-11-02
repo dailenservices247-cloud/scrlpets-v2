@@ -58,7 +58,18 @@ export function AttributionStack({
   if (item.brand) {
     return (
       <div className={cn("flex min-w-0 items-start gap-2.5", className)} data-testid="attribution-stack">
-        <Avatar src={item.brand.avatarUrl} name={item.brand.name} size="lg" />
+        <div className="relative shrink-0">
+          <Avatar src={item.brand.avatarUrl} name={item.brand.name} size="lg" />
+          {item.collaborator && (
+            <div className="absolute -bottom-1 -right-1 ring-2 ring-background rounded-full overflow-hidden">
+              <Avatar
+                src={item.collaborator.avatarUrl}
+                name={item.collaborator.displayName ?? item.collaborator.username}
+                size="sm"
+              />
+            </div>
+          )}
+        </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <Link
@@ -68,7 +79,24 @@ export function AttributionStack({
             >
               {item.brand.name}
             </Link>
+            {item.collaborator && (
+              <span className="text-xs text-muted-foreground">
+                with{" "}
+                <Link
+                  href={`/u/${item.collaborator.username}`}
+                  className="font-medium text-foreground hover:text-brand-link hover:underline"
+                >
+                  {item.collaborator.displayName ?? item.collaborator.username}
+                </Link>
+                {item.collaborator.role ? ` (${item.collaborator.role})` : ""}
+              </span>
+            )}
             {item.creature ? <AnimalIdentityChip creature={item.creature} /> : null}
+            {item.careBadge && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-micro font-semibold text-primary">
+                {item.careBadge.label}: {item.careBadge.value}
+              </span>
+            )}
           </div>
           <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
             <Avatar src={item.author.avatarUrl} name={personName} size="sm" />
@@ -94,7 +122,18 @@ export function AttributionStack({
 
   return (
     <div className={cn("flex min-w-0 items-start gap-2.5", className)} data-testid="attribution-stack">
-      <Avatar src={item.author.avatarUrl} name={personName} size="lg" />
+      <div className="relative shrink-0">
+        <Avatar src={item.author.avatarUrl} name={personName} size="lg" />
+        {item.collaborator && (
+          <div className="absolute -bottom-1 -right-1 ring-2 ring-background rounded-full overflow-hidden">
+            <Avatar
+              src={item.collaborator.avatarUrl}
+              name={item.collaborator.displayName ?? item.collaborator.username}
+              size="sm"
+            />
+          </div>
+        )}
+      </div>
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <Link
@@ -103,7 +142,24 @@ export function AttributionStack({
           >
             {personName}
           </Link>
+          {item.collaborator && (
+            <span className="text-xs text-muted-foreground">
+              with{" "}
+              <Link
+                href={`/u/${item.collaborator.username}`}
+                className="font-medium text-foreground hover:text-brand-link hover:underline"
+              >
+                {item.collaborator.displayName ?? item.collaborator.username}
+              </Link>
+              {item.collaborator.role ? ` (${item.collaborator.role})` : ""}
+            </span>
+          )}
           {item.creature ? <AnimalIdentityChip creature={item.creature} /> : null}
+          {item.careBadge && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-micro font-semibold text-primary">
+              {item.careBadge.label}: {item.careBadge.value}
+            </span>
+          )}
         </div>
         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
           <Link

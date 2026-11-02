@@ -11,6 +11,7 @@ import { MemorialSection } from "@/components/creature/MemorialSection";
 import { AboutInfoCard } from "@/components/creature/AboutInfoCard";
 import { HealthTestsSection } from "@/components/creature/HealthTestsSection";
 import { DigitalPassport } from "@/components/creature/DigitalPassport";
+import { UniversalCareHabitatCard } from "@/components/care/UniversalCareHabitatCard";
 import { HighlightsSection } from "@/components/highlights/HighlightsSection";
 import { LineageSection } from "@/components/creature/LineageSection";
 import { PedigreeMatrix } from "@/components/creature/PedigreeMatrix";
@@ -367,6 +368,12 @@ export default async function CreaturePage({
         anchorVerified={assurance !== "declared"}
         ownerUsername={creature.owner.username}
         brandName={origin?.brandName}
+      />
+
+      <UniversalCareHabitatCard
+        creatureId={creature.id}
+        species={creature.species}
+        creatureName={creature.name}
       />
 
       <HealthTestsSection
