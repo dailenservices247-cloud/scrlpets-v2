@@ -1801,6 +1801,10 @@
       "offer": {
         "label": "Sell or offer a service",
         "description": "List an animal, sell supplies, offer a service or register a litter."
+      },
+      "tools": {
+        "label": "AI Studio & Tools",
+        "description": "Species-aware drafting aids, Live Arrival Guarantee contracts, and vet prep."
       }
     },
     "market": "Market"

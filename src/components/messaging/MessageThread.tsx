@@ -10,7 +10,10 @@ import { Button } from "@/components/ui/button";
 import { MediaInput } from "@/components/compose/MediaInput";
 import { VoiceNotePlayer } from "./VoiceNotePlayer";
 import { VoiceNoteRecorder } from "./VoiceNoteRecorder";
-import { X } from "lucide-react";
+import { VaultDocumentCard } from "@/components/vault/VaultDocumentCard";
+import { DocumentVaultDrawer } from "@/components/vault/DocumentVaultDrawer";
+import { encodeVaultDocumentMessage, parseVaultDocumentMessage } from "@/lib/vault/documents";
+import { FolderOpen, X } from "lucide-react";
 import { MessageContextPill } from "./MessageContextPill";
 import { MessageReactions } from "./MessageReactions";
 import { MessageRequestActions } from "./MessageRequestActions";
@@ -46,6 +49,7 @@ export function MessageThread({
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isOtherTyping, setIsOtherTyping] = useState(false);
+  const [isVaultOpen, setIsVaultOpen] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
   const channelRef = useRef<ReturnType<ReturnType<typeof createClient>["channel"]> | null>(null);
   const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -196,35 +200,51 @@ export function MessageThread({
             className={`flex max-w-[80%] flex-col ${m.senderId === meId ? "self-end items-end" : "self-start items-start"}`}
             data-testid="message-row"
           >
-            <div
-              className={`rounded-lg px-3 py-2 text-sm ${
-                m.senderId === meId ? "bg-primary text-primary-foreground" : "bg-card"
-              }`}
-            >
-              {m.body && <p>{m.body}</p>}
-              {m.mediaUrl &&
-                (isAudioUrl(m.mediaUrl) ? (
-                  <VoiceNotePlayer src={m.mediaUrl} isMine={m.senderId === meId} />
-                ) : isVideoUrl(m.mediaUrl) ? (
-                  <video
-                    src={m.mediaUrl}
-                    controls
-                    muted
-                    playsInline
-                    className="mt-2 max-h-60 w-full rounded-md bg-black"
-                    data-testid="message-media-video"
+            {(() => {
+              const vaultDoc = parseVaultDocumentMessage(m.body);
+              if (vaultDoc) {
+                return (
+                  <VaultDocumentCard
+                    title={vaultDoc.title}
+                    category={vaultDoc.category}
+                    species={vaultDoc.species}
+                    fileUrl={vaultDoc.fileUrl}
+                    isMine={m.senderId === meId}
                   />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={m.mediaUrl}
-                    alt={t("attachmentAlt")}
-                    onClick={() => setLightboxUrl(m.mediaUrl)}
-                    className="mt-2 max-h-60 w-full cursor-pointer rounded-md object-cover transition hover:opacity-95"
-                    data-testid="message-media"
-                  />
-                ))}
-            </div>
+                );
+              }
+              return (
+                <div
+                  className={`rounded-lg px-3 py-2 text-sm ${
+                    m.senderId === meId ? "bg-primary text-primary-foreground" : "bg-card"
+                  }`}
+                >
+                  {m.body && <p>{m.body}</p>}
+                  {m.mediaUrl &&
+                    (isAudioUrl(m.mediaUrl) ? (
+                      <VoiceNotePlayer src={m.mediaUrl} isMine={m.senderId === meId} />
+                    ) : isVideoUrl(m.mediaUrl) ? (
+                      <video
+                        src={m.mediaUrl}
+                        controls
+                        muted
+                        playsInline
+                        className="mt-2 max-h-60 w-full rounded-md bg-black"
+                        data-testid="message-media-video"
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={m.mediaUrl}
+                        alt={t("attachmentAlt")}
+                        onClick={() => setLightboxUrl(m.mediaUrl)}
+                        className="mt-2 max-h-60 w-full cursor-pointer rounded-md object-cover transition hover:opacity-95"
+                        data-testid="message-media"
+                      />
+                    ))}
+                </div>
+              );
+            })()}
             <MessageReactions messageId={m.id} initial={m.reactions} />
             {m.id === lastSeenMineId ? (
               <p className="text-xs text-muted-foreground" data-testid="read-receipt">
@@ -328,6 +348,16 @@ export function MessageThread({
                 if ("error" in res) setError(res.error);
               }}
             />
+            <button
+              type="button"
+              onClick={() => setIsVaultOpen(true)}
+              className="grid size-9 place-items-center rounded-xl border border-input text-muted-foreground transition hover:border-primary/40 hover:bg-muted/40 hover:text-foreground"
+              title="Attach document from Vault"
+              aria-label="Attach document from Vault"
+              data-testid="message-vault-btn"
+            >
+              <FolderOpen className="size-4" />
+            </button>
           </div>
           {error && (
             <p className="text-sm text-destructive" role="alert" data-testid="message-error">
@@ -361,6 +391,17 @@ export function MessageThread({
           </div>
         </div>
       )}
+
+      <DocumentVaultDrawer
+        isOpen={isVaultOpen}
+        onClose={() => setIsVaultOpen(false)}
+        onSelectDocument={async (doc) => {
+          setIsVaultOpen(false);
+          const encoded = encodeVaultDocumentMessage(doc);
+          const res = await sendMessage(conversationId, encoded, null);
+          if ("error" in res) setError(res.error);
+        }}
+      />
     </div>
   );
 }

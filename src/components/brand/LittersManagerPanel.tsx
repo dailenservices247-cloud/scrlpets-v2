@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Calendar, ChevronRight } from "lucide-react";
 import type { MyLitter } from "@/lib/litters/queries";
+import { UniversalLifeCyclePredictor } from "@/components/lifecycle/UniversalLifeCyclePredictor";
 
 export function LittersManagerPanel({
   litters,
@@ -97,6 +98,10 @@ export function LittersManagerPanel({
           ))}
         </ul>
       )}
+
+      <div className="mt-5 border-t border-border/70 pt-4">
+        <UniversalLifeCyclePredictor />
+      </div>
     </div>
   );
 }

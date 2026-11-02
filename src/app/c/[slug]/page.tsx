@@ -10,6 +10,7 @@ import { AnimalRecordsPanel } from "@/components/profile/AnimalRecordsPanel";
 import { MemorialSection } from "@/components/creature/MemorialSection";
 import { AboutInfoCard } from "@/components/creature/AboutInfoCard";
 import { HealthTestsSection } from "@/components/creature/HealthTestsSection";
+import { DigitalPassport } from "@/components/creature/DigitalPassport";
 import { HighlightsSection } from "@/components/highlights/HighlightsSection";
 import { LineageSection } from "@/components/creature/LineageSection";
 import { PedigreeMatrix } from "@/components/creature/PedigreeMatrix";
@@ -353,6 +354,19 @@ export default async function CreaturePage({
         creatureName={creature.name}
         isOwner={isOwner}
         viewerId={user?.id ?? null}
+      />
+
+      <DigitalPassport
+        creatureName={creature.name}
+        species={creature.species}
+        subtype={detail?.breed}
+        gender={detail?.gender}
+        birthOrHatchDate={detail?.birthDate}
+        registrationNumber={detail?.registrationNumber}
+        anchorType={detail?.anchorType}
+        anchorVerified={assurance !== "declared"}
+        ownerUsername={creature.owner.username}
+        brandName={origin?.brandName}
       />
 
       <HealthTestsSection

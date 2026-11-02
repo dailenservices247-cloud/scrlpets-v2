@@ -1801,6 +1801,10 @@
       "offer": {
         "label": "Vende u ofrece un servicio",
         "description": "Publica un animal, vende artículos, ofrece un servicio o registra una camada."
+      },
+      "tools": {
+        "label": "Estudio de IA y Herramientas",
+        "description": "Herramientas de redacción adaptadas a especies, contratos con garantía de llegada viva y preparación veterinaria."
       }
     },
     "market": "Mercado"

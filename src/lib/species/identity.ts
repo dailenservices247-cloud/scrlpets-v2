@@ -44,3 +44,34 @@ export function dominantSpecies(speciesList: (string | null | undefined)[]): str
 export function dominantSpeciesIdentity(speciesList: (string | null | undefined)[]): SpeciesIdentity {
   return speciesIdentity(dominantSpecies(speciesList));
 }
+
+/**
+ * Contextual taxonomy sub-type label based on animal species.
+ * Instead of assuming "Breed" for every animal, returns the domain-accurate descriptor:
+ * - Reptile: "Morph / Locality"
+ * - Insect / Invertebrate: "Species / Caste" (e.g. Queen, Colony)
+ * - Fish / Aquatic: "Strain / Variety"
+ * - Bird / Avian: "Mutation / Variety"
+ * - Dog / Cat / Rabbit: "Breed"
+ * - Default: "Breed / Morph / Variety"
+ */
+export function taxonomyLabelForSpecies(species: string | null | undefined): string {
+  if (!species) return "Breed / Morph / Variety";
+  switch (species.trim().toLowerCase()) {
+    case "dog":
+    case "cat":
+    case "rabbit":
+      return "Breed";
+    case "reptile":
+      return "Morph / Locality";
+    case "insect":
+      return "Species / Caste";
+    case "fish":
+      return "Strain / Variety";
+    case "bird":
+      return "Mutation / Variety";
+    default:
+      return "Breed / Morph / Variety";
+  }
+}
+

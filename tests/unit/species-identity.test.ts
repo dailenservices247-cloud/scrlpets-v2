@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { speciesIdentity } from "@/lib/species/identity";
+import { speciesIdentity, taxonomyLabelForSpecies } from "@/lib/species/identity";
 import { LITTER_SPECIES } from "@/lib/litters/constants";
 
 /**
@@ -44,5 +44,31 @@ describe("speciesIdentity.youngGroup", () => {
       expect(speciesIdentity(species).youngGroup).toBeTruthy();
     }
     expect(speciesIdentity("bird").youngGroup).not.toBe("litter");
+  });
+
+  describe("taxonomyLabelForSpecies", () => {
+    it("returns Breed only for mammals where it applies", () => {
+      expect(taxonomyLabelForSpecies("dog")).toBe("Breed");
+      expect(taxonomyLabelForSpecies("cat")).toBe("Breed");
+      expect(taxonomyLabelForSpecies("rabbit")).toBe("Breed");
+    });
+
+    it("returns Morph / Locality for reptiles", () => {
+      expect(taxonomyLabelForSpecies("reptile")).toBe("Morph / Locality");
+    });
+
+    it("returns Species / Caste for insects (e.g. ants, bees)", () => {
+      expect(taxonomyLabelForSpecies("insect")).toBe("Species / Caste");
+    });
+
+    it("returns Strain / Variety for fish and Mutation / Variety for birds", () => {
+      expect(taxonomyLabelForSpecies("fish")).toBe("Strain / Variety");
+      expect(taxonomyLabelForSpecies("bird")).toBe("Mutation / Variety");
+    });
+
+    it("falls back to Breed / Morph / Variety when unset or other", () => {
+      expect(taxonomyLabelForSpecies(null)).toBe("Breed / Morph / Variety");
+      expect(taxonomyLabelForSpecies("other")).toBe("Breed / Morph / Variety");
+    });
   });
 });

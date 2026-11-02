@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { BookOpen, ChevronRight, Store, Tag, Users } from "lucide-react";
+import { BookOpen, ChevronRight, Sparkles, Store, Tag, Users } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { TrendingTopicsRail } from "@/components/search/TrendingTopicsRail";
 
@@ -12,6 +12,7 @@ import { TrendingTopicsRail } from "@/components/search/TrendingTopicsRail";
 // find it.
 const destinations = [
   { href: "/market", key: "market", icon: Store },
+  { href: "/tools", key: "tools", icon: Sparkles },
   { href: "/groups", key: "groups", icon: Users },
   { href: "/guides", key: "guides", icon: BookOpen },
   { href: "/market/offer", key: "offer", icon: Tag },

@@ -1,4 +1,4 @@
-export type TopicCategory = "breed" | "working" | "care" | "viral";
+export type TopicCategory = "breed" | "working" | "care" | "viral" | "reptile" | "insect" | "aquatic" | "avian" | "small_pet";
 
 export type TrendingTopic = {
   tag: string;
@@ -9,16 +9,21 @@ export type TrendingTopic = {
 };
 
 export const CANONICAL_TRENDING_TOPICS: TrendingTopic[] = [
+  // Cross-Species & Discovery
   { tag: "#canecorso", label: "Cane Corso", count: 1420, category: "breed", hot: true },
+  { tag: "#antkeeping", label: "Ant Keeping & Nuptial Flights", count: 860, category: "insect", hot: true },
+  { tag: "#reptiles", label: "Reptiles & Morphs", count: 1750, category: "reptile", hot: true },
+  { tag: "#queenant", label: "Queen Ants & Colonies", count: 540, category: "insect" },
+  { tag: "#beardeddragon", label: "Bearded Dragons", count: 1120, category: "reptile" },
   { tag: "#workingdog", label: "Working Dogs", count: 980, category: "working", hot: true },
-  { tag: "#presacanario", label: "Presa Canario", count: 640, category: "breed", hot: true },
+  { tag: "#ballpython", label: "Ball Pythons & Morphs", count: 1340, category: "reptile" },
+  { tag: "#crestedgecko", label: "Crested Geckos", count: 910, category: "reptile" },
   { tag: "#puppy", label: "Litters & Whelps", count: 2150, category: "viral", hot: true },
-  { tag: "#protectiondog", label: "Personal Protection", count: 820, category: "working" },
-  { tag: "#frenchbulldog", label: "French Bulldog", count: 1890, category: "breed" },
-  { tag: "#studservice", label: "Verified Studs", count: 410, category: "care" },
-  { tag: "#malinois", label: "Belgian Malinois", count: 770, category: "working" },
-  { tag: "#germanshepherd", label: "German Shepherd", count: 1260, category: "breed" },
-  { tag: "#alumni", label: "Verified Alumni", count: 530, category: "care" },
+  { tag: "#aquascaping", label: "Fish & Aquariums", count: 780, category: "aquatic" },
+  { tag: "#hollandlop", label: "Holland Lop Rabbits", count: 620, category: "small_pet" },
+  { tag: "#parrots", label: "Parrots & Aviary", count: 590, category: "avian" },
+  { tag: "#presacanario", label: "Presa Canario", count: 640, category: "breed" },
+  { tag: "#alumni", label: "Verified Alumni & Handover", count: 530, category: "care" },
 ];
 
 export function formatTopicQuery(tag: string): string {
@@ -29,3 +34,4 @@ export function formatTopicQuery(tag: string): string {
 export function getTrendingTopics(): TrendingTopic[] {
   return CANONICAL_TRENDING_TOPICS;
 }
+
