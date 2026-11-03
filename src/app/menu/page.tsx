@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Bell,
-  Bone,
   BookOpen,
   Bookmark,
   Building2,
@@ -160,14 +159,14 @@ export default async function MenuPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="eyebrow">Account path</p>
-              <p className="mt-1 text-lg font-semibold tracking-tight">Animal-first profile</p>
+              <p className="mt-1 text-lg font-semibold tracking-tight">Connected profile</p>
             </div>
             <div className="grid size-12 place-items-center rounded-full bg-secondary/20 text-secondary-foreground">
-              <Bone className="size-5" aria-hidden />
+              <PawPrint className="size-5" aria-hidden />
             </div>
           </div>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            Profiles, animals, listings, and messages stay connected around the animal.
+            Profiles, animals, listings, and messages stay connected around each animal.
           </p>
         </div>
       </section>

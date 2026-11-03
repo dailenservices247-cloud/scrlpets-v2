@@ -18,9 +18,8 @@ export async function AnimalRail({ creatures }: { creatures: AnimalRailCreature[
     <section className="px-3 pt-4" data-testid="animal-rail" aria-labelledby="animal-rail-title">
       <div className="mb-2 flex items-center justify-between gap-3">
         <h2 id="animal-rail-title" className="eyebrow">
-          {t("animalsFirst")}
+          {t("metricAnimals")}
         </h2>
-        <span className="max-w-36 text-right text-xs text-muted-foreground">{t("animalsFirstHint")}</span>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-1">
         {creatures.map((creature) => (
