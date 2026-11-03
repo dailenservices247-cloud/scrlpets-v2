@@ -31,7 +31,7 @@ export function AnimalCard({ listing }: { listing: AnimalListing }) {
           className="eyebrow"
           data-testid={adoption ? "animal-intent-adoption" : "animal-intent-sale"}
         >
-          {t(adoption ? "intentAdoption" : "intentSale")}
+          {listing.creature?.species ?? t("intentSale")}
         </span>
         <p className="mt-1 font-semibold">{listing.creature?.name ?? listing.title}</p>
         {listing.creature?.species && (
@@ -42,9 +42,7 @@ export function AnimalCard({ listing }: { listing: AnimalListing }) {
         )}
         <p className="mt-auto pt-3 text-sm font-semibold">
           {listing.priceCents > 0
-            ? adoption
-              ? t("feeAmount", { amount: formatPrice(listing.priceCents, listing.currency) })
-              : formatPrice(listing.priceCents, listing.currency)
+            ? formatPrice(listing.priceCents, listing.currency)
             : t("noFee")}
         </p>
         <p className="truncate text-xs text-muted-foreground">@{listing.sellerUsername ?? "—"}</p>

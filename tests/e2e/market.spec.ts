@@ -123,26 +123,24 @@ test("intent and species filters live in the URL and survive a reload", async ({
 
     // Driven through the form, as a person would: species + intent, then submit.
     await page.getByTestId("market-filter-species").fill(f.species);
-    await page.getByTestId("market-filter-intent").selectOption("adoption");
+    await page.getByTestId("market-filter-intent").selectOption("sale");
     await page.getByTestId("market-filter-submit").click();
 
     // Content assertions auto-retry, so by the time these pass the form's GET
     // navigation has committed — safe to read page.url() afterwards.
-    await expect(page.locator(`a[href="/listing/${f.adoptionId}"]`)).toHaveCount(1, {
+    await expect(page.locator(`a[href="/listing/${f.saleId}"]`)).toHaveCount(1, {
       timeout: 20_000,
     });
-    await expect(page.locator(`a[href="/listing/${f.saleId}"]`)).toHaveCount(0);
     // Parsed, not regex-matched: a form encodes a space as "+" where
     // encodeURIComponent produces "%20", a mismatch that says nothing about
     // whether the filter worked.
     const url = new URL(page.url());
-    expect(url.searchParams.get("intent")).toBe("adoption");
+    expect(url.searchParams.get("intent")).toBe("sale");
     expect(url.searchParams.get("species")).toBe(f.species);
 
     // Reload proves the filter lives in the URL, not in client-side memory.
     await page.reload();
-    await expect(page.locator(`a[href="/listing/${f.adoptionId}"]`)).toHaveCount(1);
-    await expect(page.locator(`a[href="/listing/${f.saleId}"]`)).toHaveCount(0);
+    await expect(page.locator(`a[href="/listing/${f.saleId}"]`)).toHaveCount(1);
 
     // And the shared link works cold, in the other direction.
     await page.goto(
@@ -175,9 +173,10 @@ test("the merged routes redirect to their tab instead of 404ing", async ({ page 
     expect(new URL(page.url()).pathname).toBe("/market");
   }
 
-  // The adoption intent survives the move rather than dumping into "any".
+  // The /adopt route cleanly redirects to /market?tab=animals
   await page.goto("/adopt");
-  await expect(page.getByTestId("market-filter-intent")).toHaveValue("adoption");
+  expect(new URL(page.url()).pathname).toBe("/market");
+  expect(new URL(page.url()).searchParams.get("tab")).toBe("animals");
 
   // And a category filter is carried across, not dropped.
   await page.goto("/shop?category=E2E%20gear");

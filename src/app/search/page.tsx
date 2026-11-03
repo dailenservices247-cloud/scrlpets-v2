@@ -94,7 +94,6 @@ export default async function SearchPage({
           >
             <option value="">{t("filters.kindAny")}</option>
             <option value="sale">{t("filters.kindSale")}</option>
-            <option value="adoption">{t("filters.kindAdoption")}</option>
           </select>
           <input
             type="text"

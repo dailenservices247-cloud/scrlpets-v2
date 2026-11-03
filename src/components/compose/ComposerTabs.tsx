@@ -83,6 +83,7 @@ export function ComposerTabs({
   brands,
   subjects,
   groups = [],
+  activeBrandId = null,
 }: {
   userId: string;
   actorName: string;
@@ -90,12 +91,14 @@ export function ComposerTabs({
   brands: BrandAccess[];
   subjects: ComposerSubjects;
   groups?: MyGroup[];
+  activeBrandId?: string | null;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tab = normalizeMode(searchParams.get("mode"));
-  // ?brand= (set by createBrand's redirect) preselects that brand and flips identity to Brand.
-  const requestedBrandId = searchParams.get("brand");
+  // ?brand= (set by createBrand's redirect) preselects that brand and flips identity to Brand;
+  // otherwise, inherits the user's active persona if they switched in the Menu.
+  const requestedBrandId = searchParams.get("brand") ?? activeBrandId;
   const requestedBrand = brands.find((b) => b.id === requestedBrandId) ?? null;
   const [postingAs, setPostingAs] = useState<PostingAs>(requestedBrand ? "brand" : "person");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(

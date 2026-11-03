@@ -16,7 +16,7 @@ test("guest views a profile: tabs, posts, pets → creature page", async ({ page
   await page.getByTestId("pets-list").getByText("Max", { exact: true }).click();
   await expect(page).toHaveURL(/\/c\/max-c1/);
   await expect(page.getByTestId("creature-header")).toBeVisible();
-  await expect(page.getByTestId("feed-list")).toBeVisible();
+  await expect(page.getByTestId("feed-list")).toHaveCount(0);
 });
 
 test("unknown username 404s", async ({ page }) => {

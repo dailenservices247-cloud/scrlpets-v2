@@ -126,7 +126,7 @@ test("adoption surface is public and explains the checks", async ({ page }) => {
   await page.context().clearCookies();
   await page.goto("/adopt");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByTestId("adopt-gate-notice")).toContainText("identity-verified");
+  await expect(page).toHaveURL(/\/market\?tab=animals/);
 
   // Adoptions never leak into the product shop.
   const db = databaseClient();

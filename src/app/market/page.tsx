@@ -39,8 +39,8 @@ function parseTab(raw?: string): MarketTab {
   return raw === "supplies" || raw === "services" ? raw : "animals";
 }
 
-function parseIntent(raw?: string): "sale" | "adoption" | undefined {
-  return raw === "sale" || raw === "adoption" ? raw : undefined;
+function parseIntent(raw?: string): "sale" | undefined {
+  return raw === "sale" ? "sale" : undefined;
 }
 
 /**
@@ -105,15 +105,12 @@ async function AnimalsTab({
   minPrice,
   maxPrice,
 }: {
-  intent?: "sale" | "adoption";
+  intent?: "sale";
   species?: string;
   minPrice?: string;
   maxPrice?: string;
 }) {
-  const [t, tAdopt] = await Promise.all([
-    getTranslations("market"),
-    getTranslations("adopt"),
-  ]);
+  const t = await getTranslations("market");
   const [listings, speciesOptions] = await Promise.all([
     listAnimalListings({
       intent,
@@ -156,7 +153,6 @@ async function AnimalsTab({
           >
             <option value="">{t("filters.intentAny")}</option>
             <option value="sale">{t("filters.intentSale")}</option>
-            <option value="adoption">{t("filters.intentAdoption")}</option>
           </select>
           <input
             type="text"
@@ -186,11 +182,6 @@ async function AnimalsTab({
             {t("filters.submit")}
           </button>
         </form>
-        {/* Same gate, same wording as the old /adopt page: rehoming is held to
-            the checks a sale is, and this tab now carries both. */}
-        <p className="mt-3 text-sm leading-6 text-muted-foreground" data-testid="adopt-gate-notice">
-          {tAdopt("gateNotice")}
-        </p>
       </div>
 
       <div className="px-4 pb-8 pt-4">

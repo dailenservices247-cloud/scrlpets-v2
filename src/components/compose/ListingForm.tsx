@@ -71,7 +71,6 @@ export function ListingForm(props: ListingFormProps) {
   const [creatureId, setCreatureId] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [isAdoption, setIsAdoption] = useState(false);
   const [depositPercent, setDepositPercent] = useState(edit?.depositPercent ?? "");
   const [inspectionHours, setInspectionHours] = useState(edit?.inspectionHours ?? "");
   const [guarantee, setGuarantee] = useState<GuaranteeChoice>(edit?.guarantee ?? EMPTY_GUARANTEE);
@@ -118,7 +117,6 @@ export function ListingForm(props: ListingFormProps) {
       if (creatureId) fd.set("creatureId", creatureId);
       fd.set("description", description);
       fd.set("category", category);
-      if (creatureId && isAdoption) fd.set("listingKind", "adoption");
       fd.set("depositPercent", depositPercent);
       fd.set("inspectionHours", inspectionHours);
       fd.set("guaranteeKind", guarantee.kind);
@@ -303,22 +301,7 @@ export function ListingForm(props: ListingFormProps) {
           </div>
         </div>
       )}
-      {!isEditing && creatureId && (
-        <label className="flex items-start gap-3 rounded-xl border border-input p-3">
-          <input
-            type="checkbox"
-            checked={isAdoption}
-            onChange={(e) => setIsAdoption(e.target.checked)}
-            data-testid="listing-adoption"
-            className="mt-0.5 size-4"
-          />
-          <span className="text-sm">
-            <span className="font-medium">{t("adoptionLabel")}</span>
-            <span className="mt-0.5 block text-xs text-muted-foreground">{t("adoptionHelp")}</span>
-          </span>
-        </label>
-      )}
-      {((!isEditing && creatureId && !isAdoption) || (isEditing && edit?.hasAnimal)) && (
+      {((!isEditing && creatureId) || (isEditing && edit?.hasAnimal)) && (
         <div className="grid gap-3 rounded-xl border border-input p-3 sm:grid-cols-2" data-testid="sale-terms">
           <label className="flex flex-col gap-1 text-sm">
             <span className="font-medium">{t("depositLabel")}</span>
@@ -358,7 +341,7 @@ export function ListingForm(props: ListingFormProps) {
           </label>
         </div>
       )}
-      {((!isEditing && creatureId && !isAdoption) || (isEditing && edit?.hasAnimal)) && (
+      {((!isEditing && creatureId) || (isEditing && edit?.hasAnimal)) && (
         <GuaranteePicker value={guarantee} onChange={setGuarantee} />
       )}
       {err && <p className="text-destructive text-sm">{err}</p>}
