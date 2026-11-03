@@ -141,8 +141,10 @@ test("a recorded ancestor joins the tree but not the public roster", async ({ pa
    * and paired with the absence assertions below it proves the metric excludes
    * the ancestor rather than merely being some number.
    */
-  async function metricMatchesRail() {
-    const shown = await guest.getByTestId("animal-rail-card").count();
+  async function metricMatchesPets() {
+    await guest.goto(`/u/${SELLER_USERNAME}?tab=pets`);
+    const shown = await guest.getByTestId("pets-list").locator("a").count();
+    await guest.goto(`/u/${SELLER_USERNAME}`);
     await expect(guest.getByTestId("metric-animals").locator("dd")).toHaveText(String(shown));
   }
 
@@ -194,11 +196,8 @@ test("a recorded ancestor joins the tree but not the public roster", async ({ pa
   // pets tab. The owned animal added alongside it proves the filter
   // discriminates rather than just returning less.
   await guest.goto(`/u/${SELLER_USERNAME}`);
-  // Both animals were inserted; only the owned one may appear. Adding the owned
-  // one alongside proves the filter discriminates rather than returning less.
-  await expect(guest.getByTestId("animal-rail").getByText(`E2E Mine ${stamp}`)).toBeVisible();
-  await expect(guest.getByTestId("animal-rail").getByText(`E2E Ancestor ${stamp}`)).toHaveCount(0);
-  await metricMatchesRail();
+  await expect(guest.getByTestId("animal-rail")).toHaveCount(0);
+  await metricMatchesPets();
 
   await guest.goto(`/u/${SELLER_USERNAME}?tab=pets`);
   await expect(guest.getByTestId("pets-list").getByText(`E2E Mine ${stamp}`)).toBeVisible();
@@ -212,16 +211,16 @@ test("a recorded ancestor joins the tree but not the public roster", async ({ pa
   await toggle.click();
   await expect(toggle).toHaveAttribute("data-in-roster", "true", { timeout: 15_000 });
 
-  await guest.goto(`/u/${SELLER_USERNAME}`);
-  await expect(guest.getByTestId("animal-rail").getByText(`E2E Ancestor ${stamp}`)).toBeVisible();
-  await metricMatchesRail();
+  await guest.goto(`/u/${SELLER_USERNAME}?tab=pets`);
+  await expect(guest.getByTestId("pets-list").getByText(`E2E Ancestor ${stamp}`)).toBeVisible();
+  await metricMatchesPets();
 
   // And back, so this proves a toggle rather than a one-way door.
   await toggle.click();
   await expect(toggle).toHaveAttribute("data-in-roster", "false", { timeout: 15_000 });
-  await guest.goto(`/u/${SELLER_USERNAME}`);
-  await expect(guest.getByTestId("animal-rail").getByText(`E2E Ancestor ${stamp}`)).toHaveCount(0);
-  await metricMatchesRail();
+  await guest.goto(`/u/${SELLER_USERNAME}?tab=pets`);
+  await expect(guest.getByTestId("pets-list").getByText(`E2E Ancestor ${stamp}`)).toHaveCount(0);
+  await metricMatchesPets();
   await guestContext.close();
 
   // Cleanup — asserted, no hard delete exists on creatures. archived_at is what

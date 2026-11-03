@@ -10,16 +10,13 @@ import {
   getFollowList,
 } from "@/lib/profiles/queries";
 import { isFollowing, hasBlocked } from "@/lib/social/follows";
-import { AnimalRail } from "@/components/profile/AnimalRail";
 import { FeedComposerPrompt } from "@/components/feed/FeedComposerPrompt";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { ProfileIdentityPanel } from "@/components/profile/ProfileIdentityPanel";
 import { ProfileTabs } from "@/components/profile/ProfileTabs";
 import { FeedList } from "@/components/feed/FeedList";
 import { AppPage } from "@/components/app/AppPage";
 import { Card } from "@/components/ui/card";
 import type { FeedItem } from "@/lib/feed/types";
-import { getProfilePublicBrands } from "@/lib/brands/queries";
 import { getReviewsFor } from "@/lib/reviews/queries";
 import { ReviewList } from "@/components/reviews/ReviewList";
 import { listProfileServices } from "@/lib/services/queries";
@@ -69,11 +66,10 @@ export default async function ProfilePage({
   const active = tab === "pets" || tab === "about" ? tab : "posts";
   // Counts come from the SAME reads the list pages render, so tapping a count
   // can never land on a different number of people than the count promised.
-  const [creatures, profileFeed, ownedBrands, followers, following, reviews, services, products, recommendations] =
+  const [creatures, profileFeed, followers, following, reviews, services, products, recommendations] =
     await Promise.all([
       getCreaturesByOwner(profile.id),
       getProfileFeed(profile.id),
-      getProfilePublicBrands(profile.id),
       getFollowList(profile.id, "followers"),
       getFollowList(profile.id, "following"),
       getReviewsFor(profile.id),
@@ -90,7 +86,7 @@ export default async function ProfilePage({
         ])
       : [false, false];
   const metrics = [
-    { label: t("metricAnimals"), value: creatures.length, testId: "metric-animals" },
+    { label: t("tabPets"), value: creatures.length, testId: "metric-animals" },
     { label: t("metricPosts"), value: countType(profileFeed, ["post", "reel", "long_video"]), testId: "metric-posts" },
     { label: t("metricListings"), value: countType(profileFeed, ["listing"]), testId: "metric-listings" },
   ];
@@ -171,8 +167,6 @@ export default async function ProfilePage({
           metrics={metrics}
           albums={userAlbums}
         />
-        <ProfileIdentityPanel brands={ownedBrands} />
-        <AnimalRail creatures={creatures} />
         <div className="px-3 pt-3">
           <ProfileTabs />
         </div>

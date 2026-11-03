@@ -6,14 +6,13 @@ test("guest views a profile: tabs, posts, pets → creature page", async ({ page
   await expect(page.getByTestId("profile-header")).toBeVisible();
   await expect(page.getByTestId("profile-metrics")).toBeVisible();
   await expect(page.getByTestId("metric-animals")).toBeVisible();
-  await expect(page.getByTestId("animal-rail")).toBeVisible();
-  await expect(page.getByTestId("animal-rail-card").first()).toBeVisible();
-  await expect(page.getByTestId("animal-rail").getByText("Max", { exact: true })).toBeVisible();
+  await expect(page.getByTestId("animal-rail")).toHaveCount(0);
   await expect(page.getByTestId("feed-list")).toBeVisible();
   await expect(page.getByRole("tab", { name: "For You" })).toHaveCount(0);
   await page.getByTestId("ptab-pets").click();
   await expect(page).toHaveURL(/tab=pets/);
   await expect(page.getByTestId("pets-list")).toBeVisible();
+  await expect(page.getByTestId("pets-list").getByText("Max", { exact: true })).toBeVisible();
   await page.getByTestId("pets-list").getByText("Max", { exact: true }).click();
   await expect(page).toHaveURL(/\/c\/max-c1/);
   await expect(page.getByTestId("creature-header")).toBeVisible();

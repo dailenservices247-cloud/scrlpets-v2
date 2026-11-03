@@ -193,13 +193,11 @@ export default async function MenuPage() {
         <MenuRow href="/tree" icon={Network} label="Pedigree & Lineage" />
       </MenuGroup>
 
-      {(viewerIsOperator || viewerIsTransporter) && (
-        <MenuGroup heading="Operations & Transport" testId="menu-group-your-program">
+      {user && (
+        <MenuGroup heading="Brands & Operations" testId="menu-group-your-program">
+          <MenuRow href="/brand-os" icon={Building2} label="Brand OS (Manage Brands)" testId="menu-brand-os-row" />
           {viewerIsOperator && (
-            <>
-              <MenuRow href="/hub" icon={LayoutDashboard} label="Operator Hub" />
-              <MenuRow href="/brand-os" icon={Building2} label="Brand OS" />
-            </>
+            <MenuRow href="/hub" icon={LayoutDashboard} label="Operator Hub" />
           )}
           {viewerIsTransporter && (
             <MenuRow href="/jobs" icon={Truck} label="Transport Jobs & Quotes" testId="menu-transport-jobs-row" />
