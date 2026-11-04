@@ -23,6 +23,7 @@ type PostFormProps =
       attribution: ComposeAttribution;
       groups?: MyGroup[];
       disabled?: boolean;
+      onSwitchToListing?: () => void;
       edit?: never;
     }
   | {
@@ -37,10 +38,11 @@ type PostFormProps =
       attribution?: never;
       groups?: never;
       disabled?: never;
+      onSwitchToListing?: never;
     };
 
 export function PostForm(props: PostFormProps) {
-  const { userId } = props;
+  const { userId, onSwitchToListing } = props;
   const edit = props.edit;
   const creatures = props.creatures ?? [];
   const attribution = props.attribution;
@@ -357,6 +359,26 @@ export function PostForm(props: PostFormProps) {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {onSwitchToListing && !isEditing && (
+        <div className="flex items-center justify-between rounded-xl border border-dashed border-border/80 bg-muted/15 p-2.5">
+          <div className="flex items-center gap-2">
+            <span className="grid size-6 place-items-center rounded-lg bg-primary/15 text-brand-link text-xs">
+              🏷️
+            </span>
+            <span className="text-xs text-muted-foreground">
+              Selling or reserving an animal?
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={onSwitchToListing}
+            className="text-xs font-semibold text-brand-link hover:underline"
+          >
+            Create Animal Listing →
+          </button>
         </div>
       )}
 

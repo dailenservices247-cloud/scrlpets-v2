@@ -16,10 +16,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostForm } from "./PostForm";
 import { ListingForm } from "./ListingForm";
-import { ProductComposeForm } from "./ProductComposeForm";
-import { ServiceComposeForm } from "./ServiceComposeForm";
-import { PromotionComposeForm } from "./PromotionComposeForm";
-import { RecommendationComposeForm } from "./RecommendationComposeForm";
 import type { BrandAccess } from "@/lib/brands/queries";
 import type { MyGroup } from "@/lib/groups/queries";
 import { cn } from "@/lib/utils";
@@ -50,10 +46,10 @@ const modeOptions: {
 }[] = [
   { value: "post", label: "Post", icon: PenSquare, live: true },
   { value: "listing", label: "Animal Listing", icon: BadgeDollarSign, live: true },
-  { value: "product", label: "Product / Supply", icon: Store, live: true },
-  { value: "service", label: "Service", icon: Scissors, live: true },
-  { value: "recommendation", label: "Recommendation", icon: Sparkles, live: true },
-  { value: "promotion", label: "Promotion", icon: Megaphone, live: true },
+  { value: "product", label: "Product / Supply", icon: Store, live: false },
+  { value: "service", label: "Service", icon: Scissors, live: false },
+  { value: "recommendation", label: "Recommendation", icon: Sparkles, live: false },
+  { value: "promotion", label: "Promotion", icon: Megaphone, live: false },
   { value: "collaboration", label: "Collaboration", icon: Handshake, live: false },
 ];
 
@@ -190,24 +186,65 @@ export function ComposerTabs({
             Choose a brand in options before publishing as a brand.
           </p>
         )}
-        {tab === "post" && <PostForm userId={userId} creatures={creatures} attribution={attribution} groups={groups} disabled={!brandReady} />}
-        {tab === "listing" && <ListingForm userId={userId} creatures={creatures} attribution={attribution} disabled={!brandReady} />}
-        {tab === "product" && <ProductComposeForm userId={userId} attribution={attribution} disabled={!brandReady} />}
-        {tab === "service" && <ServiceComposeForm userId={userId} attribution={attribution} disabled={!brandReady} />}
-        {tab === "promotion" && <PromotionComposeForm userId={userId} attribution={attribution} disabled={!brandReady} />}
-        {tab === "recommendation" && (
-          <RecommendationComposeForm
+        {tab === "post" && (
+          <PostForm
             userId={userId}
             creatures={creatures}
-            products={subjects.products}
+            attribution={attribution}
+            groups={groups}
+            disabled={!brandReady}
+            onSwitchToListing={() => selectMode("listing")}
+          />
+        )}
+        {tab === "listing" && (
+          <ListingForm
+            userId={userId}
+            creatures={creatures}
             attribution={attribution}
             disabled={!brandReady}
           />
         )}
-        {tab === "collaboration" && (
-          <PlannedModePanel mode={modeLabels[tab]} postingLabel={postingLabel} subjectLabel={subjectLabel} />
+        {(tab === "product" ||
+          tab === "service" ||
+          tab === "recommendation" ||
+          tab === "promotion" ||
+          tab === "collaboration") && (
+          <DeferralModePanel
+            mode={modeLabels[tab]}
+            tab={tab}
+            postingLabel={postingLabel}
+            subjectLabel={subjectLabel}
+          />
         )}
       </section>
+
+      {/* Helpful context footer linking to Brand OS & Market */}
+      <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 text-center sm:text-left sm:flex sm:items-center sm:justify-between gap-4">
+        <div className="space-y-0.5">
+          <p className="text-xs font-semibold text-foreground">
+            Selling pet supplies or offering a professional service?
+          </p>
+          <p className="text-micro text-muted-foreground">
+            Manage your product catalog, service bookings, and rates in Brand OS and Market.
+          </p>
+        </div>
+        <div className="flex shrink-0 items-center justify-center gap-2 pt-2 sm:pt-0">
+          <Link
+            href="/brand-os"
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-input px-3 text-xs font-medium text-foreground transition hover:bg-muted/60"
+          >
+            <Building2 className="size-3.5 text-muted-foreground" />
+            Brand OS
+          </Link>
+          <Link
+            href="/market/offer"
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-xl bg-primary/15 px-3 text-xs font-semibold text-brand-link transition hover:bg-primary/25"
+          >
+            <Store className="size-3.5" />
+            Marketplace
+          </Link>
+        </div>
+      </div>
 
       <button
         type="button"
@@ -390,30 +427,71 @@ export function ComposerTabs({
   );
 }
 
-function PlannedModePanel({
+function DeferralModePanel({
   mode,
+  tab,
   postingLabel,
   subjectLabel,
 }: {
   mode: string;
+  tab: Mode;
   postingLabel: string;
   subjectLabel: string;
 }) {
+  const isService = tab === "service";
+  const isProduct = tab === "product";
+
   return (
-    <div className="rounded-xl border border-border/70 bg-muted/30 p-4" data-testid="planned-mode-panel">
-      <p className="eyebrow">Prepared mode</p>
-      <h2 className="mt-1 text-xl font-semibold">{mode}</h2>
+    <div className="rounded-2xl border border-border/70 bg-muted/20 p-5" data-testid="planned-mode-panel">
+      <div className="flex items-center gap-3">
+        <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/15 text-brand-link">
+          {isProduct ? (
+            <Store className="size-5" />
+          ) : isService ? (
+            <Scissors className="size-5" />
+          ) : (
+            <Sparkles className="size-5" />
+          )}
+        </div>
+        <div>
+          <p className="eyebrow">Commerce &amp; Operations</p>
+          <h2 className="mt-0.5 text-lg font-semibold">{mode}</h2>
+        </div>
+      </div>
       <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        This mode is mapped for Brand OS, feed, profile, and marketplace behavior. The current slice shows how it should be
-        attributed before adding schema and publishing.
+        {isProduct &&
+          "Physical supplies and shop products are cataloged in Brand OS and featured in Market (/market?tab=supplies)."}
+        {isService &&
+          "Professional pet services (grooming, boarding, training, stud) are managed with custom tier rates and deposit policies in Brand OS (/brand-os?tab=services)."}
+        {tab === "recommendation" &&
+          "Supply and care recommendations are deferred to animal dossiers and the go-home checkout experience where adopters purchase starter gear."}
+        {tab === "promotion" &&
+          "Commercial promotions and sponsorship deals are managed via Brand OS campaigns and featured in the Marketplace."}
+        {tab === "collaboration" &&
+          "Collaborative co-authorship and breeding partnerships are configured through your Pack and Brand relationships."}
       </p>
-      <div className="mt-4 rounded-xl border border-border/70 bg-background/20 p-3 text-sm">
-        <span className="text-muted-foreground">Preview: </span>
-        <span className="font-semibold">{postingLabel}</span>
-        <span className="text-muted-foreground"> / </span>
-        <span className="font-semibold">{subjectLabel}</span>
-        <span className="text-muted-foreground"> / </span>
-        <span className="font-semibold">{mode}</span>
+      <div className="mt-4 flex flex-wrap gap-2.5">
+        <Link
+          href={isService ? "/brand-os?tab=services" : "/brand-os"}
+          className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition hover:opacity-90"
+        >
+          <Building2 className="size-3.5" />
+          {isService ? "Manage Services in Brand OS" : "Open Brand OS"}
+        </Link>
+        <Link
+          href={isService ? "/market?tab=services" : "/market?tab=supplies"}
+          className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-input px-4 text-xs font-medium text-foreground transition hover:bg-muted/60"
+        >
+          View in Market →
+        </Link>
+      </div>
+      <div className="mt-4 border-t border-border/60 pt-3 text-xs text-muted-foreground">
+        <span>Preview: </span>
+        <span className="font-semibold text-foreground">{postingLabel}</span>
+        <span> / </span>
+        <span className="font-semibold text-foreground">{subjectLabel}</span>
+        <span> / </span>
+        <span className="font-semibold text-foreground">{mode}</span>
       </div>
     </div>
   );

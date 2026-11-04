@@ -23,8 +23,8 @@ export const metadata = {
  */
 const options = [
   { key: "animal", href: "/compose?mode=listing", icon: PawPrint },
-  { key: "supplies", href: "/compose?mode=product", icon: Store },
-  { key: "service", href: "/compose?mode=service", icon: Scissors },
+  { key: "supplies", href: "/brand-os", icon: Store },
+  { key: "service", href: "/brand-os?tab=services", icon: Scissors },
   { key: "litter", href: "/litters", icon: Users },
 ] as const;
 

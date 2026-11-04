@@ -31,7 +31,7 @@ export default async function ComposePage() {
               <p className="eyebrow">Composer</p>
               <h1 className="mt-1 text-2xl font-semibold tracking-tight">{t("title")}</h1>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Choose the identity, intent, and subject before publishing.
+                Share moments, reels, updates, or announce available animals.
               </p>
             </div>
             <Link href="/" className="rounded-md border border-input px-3 py-2 text-sm font-medium text-brand-link" aria-label="Back to feed">

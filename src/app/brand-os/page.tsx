@@ -38,8 +38,8 @@ import { JevComingSoonCard } from "@/components/jev/JevComingSoonCard";
 const quickActions = [
   { label: "Post update", icon: PenSquare, href: "/compose" },
   { label: "New listing", icon: BadgeDollarSign, href: "/compose?mode=listing" },
-  { label: "Add product", icon: Store, href: "/compose?mode=product" },
-  { label: "Offer service", icon: Scissors, href: "/compose?mode=service" },
+  { label: "Add product", icon: Store, href: "/brand-os" },
+  { label: "Offer service", icon: Scissors, href: "/brand-os?tab=services" },
   { label: "Applications", icon: ClipboardList, href: "/applications" },
   { label: "Messages", icon: MessageCircle, href: "/messages" },
   { label: "New brand", icon: UsersRound, href: "/brands/new" },

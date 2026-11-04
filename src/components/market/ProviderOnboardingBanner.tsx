@@ -22,8 +22,8 @@ export function ProviderOnboardingBanner({
   compact = false,
 }: ProviderOnboardingBannerProps) {
   const composeHref = viewerId
-    ? "/compose?mode=service"
-    : "/login?next=/compose%3Fmode%3Dservice";
+    ? "/brand-os?tab=services"
+    : "/login?next=/brand-os%3Ftab%3Dservices";
   const brandHref = viewerId
     ? "/brands/new"
     : "/login?next=/brands%2Fnew";
