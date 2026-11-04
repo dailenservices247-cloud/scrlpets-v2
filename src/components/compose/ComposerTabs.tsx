@@ -85,7 +85,12 @@ export function ComposerTabs({
   // otherwise, inherits the user's active persona if they switched in the Menu.
   const requestedBrandId = searchParams.get("brand") ?? activeBrandId;
   const requestedBrand = brands.find((b) => b.id === requestedBrandId) ?? null;
-  const [postingAs, setPostingAs] = useState<PostingAs>(requestedBrand ? "brand" : "person");
+  const initialPostingAs: PostingAs = requestedBrand
+    ? "brand"
+    : searchParams.get("mode") === "listing" && brands.length > 0
+    ? "brand"
+    : "person";
+  const [postingAs, setPostingAs] = useState<PostingAs>(initialPostingAs);
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(
     requestedBrand?.id ?? brands[0]?.id ?? null,
   );
@@ -126,7 +131,21 @@ export function ComposerTabs({
     router.replace(`/compose?${params.toString()}`, { scroll: false });
   }
 
-  const liveModes = modeOptions.filter((mode) => mode.live);
+  function handleSetPostingAs(next: PostingAs) {
+    setPostingAs(next);
+    if (next === "person" && tab === "listing") {
+      selectMode("post");
+    }
+  }
+
+  // Animal listings require a verified brand/breeder identity.
+  // Personal posting is strictly limited to social content.
+  const liveModes = useMemo(() => {
+    if (postingAs === "brand") {
+      return modeOptions.filter((mode) => mode.live);
+    }
+    return modeOptions.filter((mode) => mode.live && mode.value === "post");
+  }, [postingAs]);
 
   return (
     <div className="space-y-4 px-3 pb-24" data-testid="composer-alignment">
@@ -142,7 +161,7 @@ export function ComposerTabs({
           >
             <button
               type="button"
-              onClick={() => setPostingAs("person")}
+              onClick={() => handleSetPostingAs("person")}
               aria-pressed={postingAs === "person"}
               className={cn(
                 "flex min-h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition",
@@ -156,7 +175,7 @@ export function ComposerTabs({
             </button>
             <button
               type="button"
-              onClick={() => setPostingAs("brand")}
+              onClick={() => handleSetPostingAs("brand")}
               aria-pressed={postingAs === "brand"}
               className={cn(
                 "flex min-h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition",
@@ -316,16 +335,54 @@ export function ComposerTabs({
             attribution={attribution}
             groups={groups}
             disabled={!brandReady}
-            onSwitchToListing={() => selectMode("listing")}
+            onSwitchToListing={
+              postingAs === "brand"
+                ? () => selectMode("listing")
+                : brands.length > 0
+                ? () => {
+                    handleSetPostingAs("brand");
+                    selectMode("listing");
+                  }
+                : undefined
+            }
           />
         )}
-        {tab === "listing" && (
+        {tab === "listing" && postingAs === "brand" && (
           <ListingForm
             userId={userId}
             creatures={creatures}
             attribution={attribution}
             disabled={!brandReady}
           />
+        )}
+        {tab === "listing" && postingAs === "person" && (
+          <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-6 text-center space-y-3" data-testid="breeder-gate-notice">
+            <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/15 text-brand-link text-xl">
+              🏆
+            </div>
+            <h3 className="text-base font-semibold text-foreground">Breeder Account Required</h3>
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-5">
+              Animal listings and reservations are strictly limited to verified breeder and kennel brand pages to guarantee health certifications and buyer protections.
+            </p>
+            <div className="pt-2">
+              {brands.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => handleSetPostingAs("brand")}
+                  className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition"
+                >
+                  Switch to Brand Mode →
+                </button>
+              ) : (
+                <Link
+                  href="/brands/new"
+                  className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition"
+                >
+                  Create a Breeder Brand →
+                </Link>
+              )}
+            </div>
+          </div>
         )}
         {(tab === "product" ||
           tab === "service" ||
