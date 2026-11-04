@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeDollarSign, Building2, ClipboardList, MessageCircle, PawPrint, PenSquare, Scissors, Store, UsersRound } from "lucide-react";
+import { BadgeDollarSign, Building2, ClipboardList, Megaphone, MessageCircle, PawPrint, PenSquare, Scissors, Store, UsersRound } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { BrandIdentityPanel } from "@/components/brand/BrandIdentityPanel";
 import { BrandMembersPanel } from "@/components/brand/BrandMembersPanel";
@@ -25,10 +25,12 @@ import { BrandKitPanel } from "@/components/brand/BrandKitPanel";
 import { CatalogImportPanel } from "@/components/brand/CatalogImportPanel";
 import { LittersManagerPanel } from "@/components/brand/LittersManagerPanel";
 import { BrandOrdersPanel } from "@/components/brand/BrandOrdersPanel";
+import { PromotionsManagerPanel } from "@/components/brand/PromotionsManagerPanel";
 import { getBrandKit, getBrandGallery } from "@/lib/brand-kit/queries";
 import { listMyServices } from "@/lib/services/queries";
 import { listMyLitters } from "@/lib/litters/queries";
 import { getMyOrders } from "@/lib/orders/queries";
+import { listMyPromos } from "@/lib/promotions/queries";
 import { BRAND_TYPE_OPTIONS, canManageBrandContent } from "@/lib/brands/types";
 import { getBrandCapabilities } from "@/lib/hub/queries";
 import { hasCapability } from "@/lib/hub/capabilities";
@@ -38,6 +40,7 @@ import { JevComingSoonCard } from "@/components/jev/JevComingSoonCard";
 const quickActions = [
   { label: "Post update", icon: PenSquare, href: "/compose" },
   { label: "New listing", icon: BadgeDollarSign, href: "/compose?mode=listing" },
+  { label: "Run ad / promo", icon: Megaphone, href: "/brand-os?tab=promotions" },
   { label: "Add product", icon: Store, href: "/brand-os" },
   { label: "Offer service", icon: Scissors, href: "/brand-os?tab=services" },
   { label: "Applications", icon: ClipboardList, href: "/applications" },
@@ -51,6 +54,7 @@ const BRAND_OS_TABS = [
   { id: "inventory", label: "Products & Stock" },
   { id: "orders", label: "Orders & Sales" },
   { id: "services", label: "Services" },
+  { id: "promotions", label: "Ads & Promo" },
   { id: "brand_kit", label: "Brand Kit & Identity" },
 ] as const;
 
@@ -70,12 +74,13 @@ export default async function BrandOSPage({
 
   // R16: the operating modules are scoped to the OPERATOR, not the brand —
   // animals belong to a profile. A solo breeder with no brand still needs them.
-  const [roster, sellerListings, myServices, myLitters, myOrders] = await Promise.all([
+  const [roster, sellerListings, myServices, myLitters, myOrders, myPromos] = await Promise.all([
     getRoster(user.id),
     getSellerListings(user.id),
     listMyServices(user.id),
     listMyLitters(user.id),
     getMyOrders(),
+    listMyPromos(user.id),
   ]);
   // Brand attach on a new service needs manager rights (RLS is_brand_manager).
   const attachableBrands = brands
@@ -305,6 +310,12 @@ export default async function BrandOSPage({
       {(activeTab === "all" || activeTab === "services") && canServices && (
         <section className="px-3 py-3">
           <ServicesManagerPanel services={myServices} brands={attachableBrands} userId={user.id} />
+        </section>
+      )}
+
+      {(activeTab === "all" || activeTab === "promotions") && (
+        <section className="px-3 py-3">
+          <PromotionsManagerPanel promos={myPromos} brands={attachableBrands} userId={user.id} />
         </section>
       )}
 

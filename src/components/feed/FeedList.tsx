@@ -36,7 +36,7 @@ export async function FeedList({
     ),
     getFeedSocialContext(
       rawItems
-        .filter((item) => item.type === "post" || item.type === "reel")
+        .filter((item) => item.type === "post" || item.type === "reel" || item.type === "promo")
         .map((item) => item.id),
       viewerId,
     ),
@@ -101,6 +101,17 @@ export async function FeedList({
           if (item.type === "reel") {
             return (
               <ReelTile
+                key={item.id}
+                item={item}
+                canManage={canManage}
+                social={socialContext.get(item.id) ?? null}
+                signedIn={Boolean(viewerId)}
+              />
+            );
+          }
+          if (item.type === "promo") {
+            return (
+              <PromoTile
                 key={item.id}
                 item={item}
                 canManage={canManage}

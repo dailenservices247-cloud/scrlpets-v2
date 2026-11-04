@@ -222,13 +222,20 @@ export function ComposerTabs({
       <div className="rounded-2xl border border-border/60 bg-muted/20 p-4 text-center sm:text-left sm:flex sm:items-center sm:justify-between gap-4">
         <div className="space-y-0.5">
           <p className="text-xs font-semibold text-foreground">
-            Selling pet supplies or offering a professional service?
+            Selling pet supplies, offering a service, or launching sponsored promo?
           </p>
           <p className="text-micro text-muted-foreground">
-            Manage your product catalog, service bookings, and rates in Brand OS and Market.
+            Manage your commercial catalog, booking rates, and paid Facebook-style sponsored ads in Brand OS.
           </p>
         </div>
         <div className="flex shrink-0 items-center justify-center gap-2 pt-2 sm:pt-0">
+          <Link
+            href="/brand-os?tab=promotions"
+            className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-input px-3 text-xs font-medium text-foreground transition hover:bg-muted/60"
+          >
+            <Megaphone className="size-3.5 text-accent" />
+            Ad Studio
+          </Link>
           <Link
             href="/brand-os"
             className="inline-flex min-h-9 items-center gap-1.5 rounded-xl border border-input px-3 text-xs font-medium text-foreground transition hover:bg-muted/60"
@@ -466,23 +473,37 @@ function DeferralModePanel({
         {tab === "recommendation" &&
           "Supply and care recommendations are deferred to animal dossiers and the go-home checkout experience where adopters purchase starter gear."}
         {tab === "promotion" &&
-          "Commercial promotions and sponsorship deals are managed via Brand OS campaigns and featured in the Marketplace."}
+          "Sponsored ad campaigns and paid promotions are created in the Ad Studio (/brand-os?tab=promotions) and served directly into social feeds with Facebook-style action cards."}
         {tab === "collaboration" &&
           "Collaborative co-authorship and breeding partnerships are configured through your Pack and Brand relationships."}
       </p>
       <div className="mt-4 flex flex-wrap gap-2.5">
         <Link
-          href={isService ? "/brand-os?tab=services" : "/brand-os"}
+          href={tab === "promotion" ? "/brand-os?tab=promotions" : isService ? "/brand-os?tab=services" : "/brand-os"}
           className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition hover:opacity-90"
         >
-          <Building2 className="size-3.5" />
-          {isService ? "Manage Services in Brand OS" : "Open Brand OS"}
+          {tab === "promotion" ? (
+            <>
+              <Megaphone className="size-3.5" />
+              Open Ad Studio
+            </>
+          ) : isService ? (
+            <>
+              <Building2 className="size-3.5" />
+              Manage Services in Brand OS
+            </>
+          ) : (
+            <>
+              <Building2 className="size-3.5" />
+              Open Brand OS
+            </>
+          )}
         </Link>
         <Link
-          href={isService ? "/market?tab=services" : "/market?tab=supplies"}
+          href={tab === "promotion" ? "/brand-os?tab=promotions" : isService ? "/market?tab=services" : "/market?tab=supplies"}
           className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-input px-4 text-xs font-medium text-foreground transition hover:bg-muted/60"
         >
-          View in Market →
+          {tab === "promotion" ? "Configure Ads →" : "View in Market →"}
         </Link>
       </div>
       <div className="mt-4 border-t border-border/60 pt-3 text-xs text-muted-foreground">

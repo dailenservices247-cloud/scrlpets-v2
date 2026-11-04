@@ -112,7 +112,15 @@ export function AttributionStack({
               className="hover:underline"
               data-testid="post-permalink"
             >
-              <time dateTime={item.createdAt}>{time}</time>
+              {item.type === "promo" ? (
+                <span className="inline-flex items-center gap-1 font-medium text-foreground/80" data-testid="sponsored-label">
+                  <span>Sponsored</span>
+                  <span aria-hidden>·</span>
+                  <span className="text-micro" title="Public" aria-hidden>🌐</span>
+                </span>
+              ) : (
+                <time dateTime={item.createdAt}>{time}</time>
+              )}
             </Link>
           </div>
         </div>
@@ -167,7 +175,15 @@ export function AttributionStack({
             className="hover:underline"
             data-testid="post-permalink"
           >
-            <time dateTime={item.createdAt}>{time}</time>
+            {item.type === "promo" ? (
+              <span className="inline-flex items-center gap-1 font-medium text-foreground/80" data-testid="sponsored-label">
+                <span>Sponsored</span>
+                <span aria-hidden>·</span>
+                <span className="text-micro" title="Public" aria-hidden>🌐</span>
+              </span>
+            ) : (
+              <time dateTime={item.createdAt}>{time}</time>
+            )}
           </Link>
         </div>
       </div>

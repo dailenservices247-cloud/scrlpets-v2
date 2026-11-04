@@ -159,8 +159,13 @@ export async function getFeed(
   });
   if (error) throw error;
   const items = (data as Row[]).map(rowToFeedItem);
-  if (tab === "for_you") items.sort((a, b) => hashId(a.id) - hashId(b.id));
-  return applyDensityCaps(items);
+  // Feed purity: The social feed is strictly content (posts, reels, videos) and
+  // paid promotions/sponsorships. 'For sale' animal listings belong in the Market
+  // (/market), never organic social streams. Fixture listings are retained only
+  // during test harness runs when E2E_KEEP_FIXTURES=1.
+  const socialItems = hideFixtures() ? items.filter((it) => it.type !== "listing") : items;
+  if (tab === "for_you") socialItems.sort((a, b) => hashId(a.id) - hashId(b.id));
+  return applyDensityCaps(socialItems);
 }
 
 export type PostFlags = { pinnedAt: string | null; commentsEnabled: boolean };
