@@ -27,11 +27,24 @@ export async function updateCreatureDetails(
   slug: string,
   formData: FormData,
 ): Promise<CreatureActionResult> {
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
   const role = String(formData.get("creatureRole") ?? "");
   const gender = String(formData.get("gender") ?? "");
   if (role && !isCreatureRole(role)) return { ok: false, error: "invalid_role" };
   if (gender && !isGender(gender)) return { ok: false, error: "invalid_gender" };
+
+  // Personal accounts can only designate "pet". Breeding material is strictly gated to brand accounts.
+  const targetRole = role || "pet";
+  if (targetRole === "breeding") {
+    const { data: brandMemberships } = await supabase
+      .from("brand_memberships")
+      .select("id")
+      .eq("profile_id", user.id)
+      .limit(1);
+    if (!brandMemberships || brandMemberships.length === 0) {
+      return { ok: false, error: "breeding_requires_brand" };
+    }
+  }
 
   // Absent avatar fields must leave the column alone: editing the colour must
   // not blank the picture. resolveAvatarPatch is what keeps "untouched" and
@@ -52,7 +65,7 @@ export async function updateCreatureDetails(
       markings: str(formData, "markings"),
       birth_date: str(formData, "birthDate"),
       registration_number: str(formData, "registrationNumber"),
-      creature_role: role || "pet",
+      creature_role: targetRole,
       page_visible: formData.get("pageVisible") === "true",
     })
     .eq("id", creatureId);

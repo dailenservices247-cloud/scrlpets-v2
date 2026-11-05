@@ -327,6 +327,17 @@ export default async function BrandPage({
                     <span className="block truncate text-meta text-muted-foreground">
                       {c.breed ?? c.species ?? ""}
                     </span>
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      {c.creatureRole === "breeding" ? (
+                        <span className="inline-block rounded-md border border-amber-500/40 bg-amber-500/15 px-1.5 py-0.5 text-micro font-medium text-amber-300">
+                          🧬 Breeding Stock
+                        </span>
+                      ) : (
+                        <span className="inline-block rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 py-0.5 text-micro font-medium text-emerald-400">
+                          🐾 Kennel Companion
+                        </span>
+                      )}
+                    </div>
                     {c.deceasedAt && (
                       <span
                         className="mt-1 inline-block rounded-full border border-accent/40 bg-accent/15 px-2 py-0.5 text-micro font-medium text-foreground"

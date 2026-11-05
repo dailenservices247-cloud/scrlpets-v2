@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { attachPostFlags, rowToFeedItem, type Row } from "@/lib/feed/query";
 import type { FeedItem } from "@/lib/feed/types";
+import type { CreatureRole } from "@/lib/creatures/types";
 
 export type Profile = {
   id: string;
@@ -135,13 +136,14 @@ export type CreatureProfile = {
   avatarUrl: string | null;
   ownerId: string;
   owner: { username: string; displayName: string | null };
+  creatureRole?: CreatureRole;
 };
 
 export async function getCreatureBySlug(slug: string): Promise<CreatureProfile | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("creatures")
-    .select("id,name,species,slug,avatar_url,owner_id,profiles(username,display_name)")
+    .select("id,name,species,slug,avatar_url,owner_id,creature_role,profiles(username,display_name)")
     .eq("slug", slug)
     .maybeSingle();
   if (!data) return null;
@@ -154,6 +156,7 @@ export async function getCreatureBySlug(slug: string): Promise<CreatureProfile |
     avatarUrl: data.avatar_url,
     ownerId: data.owner_id,
     owner: { username: owner.username, displayName: owner.display_name },
+    creatureRole: (data.creature_role as CreatureRole) || "pet",
   };
 }
 
@@ -174,6 +177,7 @@ export type OwnedCreature = {
   species: string | null;
   slug: string;
   avatar_url: string | null;
+  creature_role?: CreatureRole;
 };
 
 /**
@@ -189,7 +193,7 @@ export async function getCreaturesByOwner(ownerId: string): Promise<OwnedCreatur
   const supabase = await createClient();
   const { data } = await supabase
     .from("creatures")
-    .select("id,name,species,slug,avatar_url")
+    .select("id,name,species,slug,avatar_url,creature_role")
     .eq("owner_id", ownerId)
     .eq("in_roster", true)
     // Every other owner-scoped read drops archived rows; this one did not, so
@@ -197,7 +201,7 @@ export async function getCreaturesByOwner(ownerId: string): Promise<OwnedCreatur
     // different cause.
     .is("archived_at", null)
     .order("created_at");
-  return data ?? [];
+  return (data ?? []) as OwnedCreature[];
 }
 
 /**

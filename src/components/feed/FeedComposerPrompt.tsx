@@ -1,5 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Plus } from "lucide-react";
+import { CreationMenuModal } from "@/components/compose/CreationMenuModal";
 
 export function FeedComposerPrompt({
   signedIn,
@@ -10,6 +14,7 @@ export function FeedComposerPrompt({
   avatarUrl?: string | null;
   fallbackLabel?: string | null;
 }) {
+  const [showMenu, setShowMenu] = useState(false);
   const fallback = (fallbackLabel?.trim() || "Guest").slice(0, 1).toUpperCase();
 
   return (
@@ -29,21 +34,46 @@ export function FeedComposerPrompt({
             {fallback}
           </span>
         )}
-        <Link
-          href={signedIn ? "/compose" : "/login"}
-          className="flex min-h-11 flex-1 items-center rounded-full border border-border/80 bg-muted/45 px-4 text-left text-sm font-semibold text-foreground transition hover:border-primary/45"
-          data-testid="compose-cta"
-        >
-          Share an animal update
-        </Link>
-        <Link
-          href={signedIn ? "/compose" : "/login"}
-          className="grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground"
-          aria-label="Add photo or video"
-        >
-          <ImagePlus className="size-5" aria-hidden />
-        </Link>
+        {signedIn ? (
+          <button
+            type="button"
+            onClick={() => setShowMenu(true)}
+            className="flex min-h-11 flex-1 items-center rounded-full border border-border/80 bg-muted/45 px-4 text-left text-sm font-semibold text-foreground transition hover:border-primary/45"
+            data-testid="compose-cta"
+          >
+            What&apos;s on your mind? Share an update...
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className="flex min-h-11 flex-1 items-center rounded-full border border-border/80 bg-muted/45 px-4 text-left text-sm font-semibold text-foreground transition hover:border-primary/45"
+            data-testid="compose-cta"
+          >
+            Sign in to share an update
+          </Link>
+        )}
+        {signedIn ? (
+          <button
+            type="button"
+            onClick={() => setShowMenu(true)}
+            className="grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground hover:bg-muted"
+            aria-label="Create post, story, reel, live or note"
+            data-testid="feed-create-plus"
+          >
+            <Plus className="size-5" aria-hidden />
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className="grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground"
+            aria-label="Add photo or video"
+          >
+            <ImagePlus className="size-5" aria-hidden />
+          </Link>
+        )}
       </div>
+
+      <CreationMenuModal isOpen={showMenu} onClose={() => setShowMenu(false)} />
     </div>
   );
 }

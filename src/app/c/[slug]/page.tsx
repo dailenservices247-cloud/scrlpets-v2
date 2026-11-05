@@ -34,6 +34,7 @@ import {
   getCreatureOriginAttribution,
 } from "@/lib/creatures/queries";
 import { getCreaturePedigree } from "@/lib/creatures/pedigree";
+import { getMyBrands } from "@/lib/brands/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +71,8 @@ export default async function CreaturePage({
     ]);
   const listing = items.find((item) => item.type === "listing");
   const isOwner = user?.id === creature.ownerId;
+  const userBrands = isOwner && user ? await getMyBrands(user.id) : [];
+  const hasBrandAccess = userBrands.length > 0;
   // The definer already refuses everyone but the keeper; the guard just avoids
   // a round trip whose answer is always null.
   // ponytail: sequential rather than folded into the Promise.all above, because
@@ -159,6 +162,7 @@ export default async function CreaturePage({
           detail={detail}
           isOwner={isOwner}
           isDeceased={isDeceased}
+          hasBrandAccess={hasBrandAccess}
         />
       )}
 

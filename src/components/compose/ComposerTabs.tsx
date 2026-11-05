@@ -10,11 +10,19 @@ import {
   Sparkles,
   Store,
   UserRound,
+  PlusCircle,
+  Clapperboard,
+  Radio,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostForm } from "./PostForm";
 import { ListingForm } from "./ListingForm";
+import { StoryStudio } from "./StoryStudio";
+import { ReelStudio } from "./ReelStudio";
+import { LiveStudio } from "./LiveStudio";
+import { NoteStudio } from "./NoteStudio";
 import type { BrandAccess } from "@/lib/brands/queries";
 import type { MyGroup } from "@/lib/groups/queries";
 import { cn } from "@/lib/utils";
@@ -33,7 +41,18 @@ export type ComposerSubjects = {
   products: SubjectOption[];
 };
 
-type Mode = "post" | "listing" | "product" | "service" | "promotion" | "recommendation" | "collaboration";
+type Mode =
+  | "post"
+  | "story"
+  | "reel"
+  | "live"
+  | "note"
+  | "listing"
+  | "product"
+  | "service"
+  | "promotion"
+  | "recommendation"
+  | "collaboration";
 type PostingAs = "person" | "brand";
 type About = "none" | "product" | "brand" | "litter" | "service";
 
@@ -42,9 +61,14 @@ const modeOptions: {
   label: string;
   icon: typeof PenSquare;
   live: boolean;
+  requiresBrand?: boolean;
 }[] = [
   { value: "post", label: "Post", icon: PenSquare, live: true },
-  { value: "listing", label: "Animal Listing", icon: BadgeDollarSign, live: true },
+  { value: "story", label: "Story", icon: PlusCircle, live: true },
+  { value: "reel", label: "Reel", icon: Clapperboard, live: true },
+  { value: "live", label: "Live", icon: Radio, live: true },
+  { value: "note", label: "Note", icon: MessageCircle, live: true },
+  { value: "listing", label: "Animal Listing", icon: BadgeDollarSign, live: true, requiresBrand: true },
   { value: "product", label: "Product / Supply", icon: Store, live: false },
   { value: "service", label: "Service", icon: Scissors, live: false },
   { value: "recommendation", label: "Recommendation", icon: Sparkles, live: false },
@@ -80,14 +104,14 @@ export function ComposerTabs({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tab = normalizeMode(searchParams.get("mode"));
+  const tab = normalizeMode(searchParams.get("mode") ?? searchParams.get("type"));
   // ?brand= (set by createBrand's redirect) preselects that brand and flips identity to Brand;
   // otherwise, inherits the user's active persona if they switched in the Menu.
   const requestedBrandId = searchParams.get("brand") ?? activeBrandId;
   const requestedBrand = brands.find((b) => b.id === requestedBrandId) ?? null;
   const initialPostingAs: PostingAs = requestedBrand
     ? "brand"
-    : searchParams.get("mode") === "listing" && brands.length > 0
+    : (searchParams.get("mode") === "listing" || searchParams.get("type") === "listing") && brands.length > 0
     ? "brand"
     : "person";
   const [postingAs, setPostingAs] = useState<PostingAs>(initialPostingAs);
@@ -144,7 +168,7 @@ export function ComposerTabs({
     if (postingAs === "brand") {
       return modeOptions.filter((mode) => mode.live);
     }
-    return modeOptions.filter((mode) => mode.live && mode.value === "post");
+    return modeOptions.filter((mode) => mode.live && !mode.requiresBrand);
   }, [postingAs]);
 
   return (
@@ -345,6 +369,31 @@ export function ComposerTabs({
                   }
                 : undefined
             }
+          />
+        )}
+        {tab === "story" && (
+          <StoryStudio
+            userId={userId}
+            actorName={postingAs === "brand" && selectedBrand ? selectedBrand.name : actorName}
+          />
+        )}
+        {tab === "reel" && (
+          <ReelStudio
+            userId={userId}
+            actorName={postingAs === "brand" && selectedBrand ? selectedBrand.name : actorName}
+          />
+        )}
+        {tab === "live" && (
+          <LiveStudio
+            userId={userId}
+            actorName={postingAs === "brand" && selectedBrand ? selectedBrand.name : actorName}
+          />
+        )}
+        {tab === "note" && (
+          <NoteStudio
+            userId={userId}
+            actorName={postingAs === "brand" && selectedBrand ? selectedBrand.name : actorName}
+            avatarUrl={postingAs === "brand" ? selectedBrand?.avatarUrl : null}
           />
         )}
         {tab === "listing" && postingAs === "brand" && (

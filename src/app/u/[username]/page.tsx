@@ -275,8 +275,21 @@ export default async function ProfilePage({
                   </span>
                 )}
                 <div className="min-w-0">
-                  <span className="block truncate text-base font-semibold">{c.name}</span>
-                  {c.species && <span className="mt-1 block truncate text-xs text-muted-foreground">{c.species}</span>}
+                  <div className="flex items-center gap-1.5">
+                    <span className="block truncate text-base font-semibold">{c.name}</span>
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                    {c.creature_role === "breeding" ? (
+                      <span className="shrink-0 rounded-md bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-micro font-medium text-amber-300">
+                        🧬 Breeding Stock
+                      </span>
+                    ) : (
+                      <span className="shrink-0 rounded-md bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 text-micro font-medium text-emerald-400">
+                        🐾 Family Pet
+                      </span>
+                    )}
+                    {c.species && <span className="block truncate text-xs text-muted-foreground">{c.species}</span>}
+                  </div>
                 </div>
               </Card>
             </Link>

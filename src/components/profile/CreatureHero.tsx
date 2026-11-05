@@ -54,6 +54,21 @@ export async function CreatureHero({
                 {creature.species}
               </span>
             )}
+            {creature.creatureRole === "breeding" ? (
+              <span
+                className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/15 px-2 py-1 text-xs font-semibold text-amber-300"
+                data-testid="creature-role-badge"
+              >
+                🧬 {origin?.brandName ? `Breeding Stock · ${origin.brandName}` : "Brand Breeding Stock"}
+              </span>
+            ) : (
+              <span
+                className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-xs font-semibold text-emerald-300"
+                data-testid="creature-role-badge"
+              >
+                🐾 Family Pet
+              </span>
+            )}
             <Link href={`/u/${creature.owner.username}`} className="text-brand-link underline">
               @{creature.owner.username}
             </Link>

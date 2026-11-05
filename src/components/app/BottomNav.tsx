@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Home, Menu, MessageCircle, Plus, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CreationMenuModal } from "@/components/compose/CreationMenuModal";
 
 // Slot 2 is /market — the merged marketplace. It was /discover, a browse hub
 // that cost a tap before the thing people came for; Discover survives as a
@@ -21,56 +23,72 @@ const items = [
 export function BottomNav({ unreadMessages = 0 }: { unreadMessages?: number }) {
   const pathname = usePathname();
   const t = useTranslations("nav");
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   return (
-    <nav
-      className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md border-t lg:hidden border-border/80 bg-[#202124]/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl"
-      aria-label="Primary"
-      data-testid="bottom-nav"
-    >
-      <div className="grid grid-cols-5 items-end gap-1">
-        {items.map((item) => {
-          const Icon = item.icon;
-          const active = item.match(pathname);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              // SideNav has carried this since it shipped; the mobile nav — the
-              // primary form factor — was missed, leaving colour as the only
-              // signal of where you are.
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "group flex min-h-14 flex-col items-center justify-end gap-1 rounded-lg px-1 text-micro font-medium text-muted-foreground transition",
-                active && "text-brand-link",
-                item.primary && "-mt-5 text-foreground",
-              )}
-              data-testid={item.href === "/messages" ? "messages-link" : `nav-${item.labelKey}`}
-            >
-              <span
-                className={cn(
-                  "relative grid place-items-center rounded-full transition",
+    <>
+      <nav
+        className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md border-t lg:hidden border-border/80 bg-[#202124]/95 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl"
+        aria-label="Primary"
+        data-testid="bottom-nav"
+      >
+        <div className="grid grid-cols-5 items-end gap-1">
+          {items.map((item) => {
+            const Icon = item.icon;
+            const active = item.match(pathname);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={
                   item.primary
-                    ? "size-14 border border-[color:var(--brand-on-wine)]/25 bg-primary text-primary-foreground shadow-[0_10px_28px_color-mix(in_oklab,var(--brand-wine),transparent_58%)]"
-                    : "size-8 group-hover:bg-muted/70",
-                  active && !item.primary && "bg-primary/15 ring-1 ring-primary/35",
+                    ? (e) => {
+                        e.preventDefault();
+                        setShowCreateModal(true);
+                      }
+                    : undefined
+                }
+                // SideNav has carried this since it shipped; the mobile nav — the
+                // primary form factor — was missed, leaving colour as the only
+                // signal of where you are.
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "group flex min-h-14 flex-col items-center justify-end gap-1 rounded-lg px-1 text-micro font-medium text-muted-foreground transition",
+                  active && "text-brand-link",
+                  item.primary && "-mt-5 text-foreground",
                 )}
+                data-testid={item.href === "/messages" ? "messages-link" : `nav-${item.labelKey}`}
               >
-                <Icon className={item.primary ? "size-6" : "size-5"} aria-hidden />
-                {item.href === "/messages" && unreadMessages > 0 && (
-                  <span
-                    className="absolute -right-1 -top-1 grid min-w-4 h-4 place-items-center rounded-full bg-primary px-1 text-micro font-bold text-primary-foreground leading-none"
-                    data-testid="unread-messages-badge"
-                  >
-                    {unreadMessages > 9 ? "9+" : unreadMessages}
-                  </span>
-                )}
-              </span>
-              <span>{t(item.labelKey)}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+                <span
+                  className={cn(
+                    "relative grid place-items-center rounded-full transition",
+                    item.primary
+                      ? "size-14 border border-[color:var(--brand-on-wine)]/25 bg-primary text-primary-foreground shadow-[0_10px_28px_color-mix(in_oklab,var(--brand-wine),transparent_58%)]"
+                      : "size-8 group-hover:bg-muted/70",
+                    active && !item.primary && "bg-primary/15 ring-1 ring-primary/35",
+                  )}
+                >
+                  <Icon className={item.primary ? "size-6" : "size-5"} aria-hidden />
+                  {item.href === "/messages" && unreadMessages > 0 && (
+                    <span
+                      className="absolute -right-1 -top-1 grid min-w-4 h-4 place-items-center rounded-full bg-primary px-1 text-micro font-bold text-primary-foreground leading-none"
+                      data-testid="unread-messages-badge"
+                    >
+                      {unreadMessages > 9 ? "9+" : unreadMessages}
+                    </span>
+                  )}
+                </span>
+                <span>{t(item.labelKey)}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      <CreationMenuModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
+    </>
   );
 }

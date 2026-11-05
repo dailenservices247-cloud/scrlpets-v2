@@ -8,7 +8,7 @@ import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { updateCreatureDetails, setCreatureArchived, deleteCreaturePermanently } from "@/lib/creatures/actions";
 import { MediaInput } from "@/components/compose/MediaInput";
 import { settleAction } from "@/lib/actions/settle";
-import { CREATURE_ROLES, GENDERS } from "@/lib/creatures/types";
+import { GENDERS } from "@/lib/creatures/types";
 import type { CreatureDetail } from "@/lib/creatures/queries";
 
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -24,6 +24,7 @@ export function AboutInfoCard({
   detail,
   isOwner,
   isDeceased,
+  hasBrandAccess = false,
 }: {
   creatureId: string;
   slug: string;
@@ -32,6 +33,7 @@ export function AboutInfoCard({
   detail: CreatureDetail;
   isOwner: boolean;
   isDeceased: boolean;
+  hasBrandAccess?: boolean;
 }) {
   const t = useTranslations("creature");
   const router = useRouter();
@@ -405,16 +407,24 @@ export function AboutInfoCard({
                     <span className="font-medium">{t("about.roleLabel")}</span>
                     <select
                       name="creatureRole"
-                      defaultValue={detail.creatureRole}
+                      defaultValue={hasBrandAccess ? detail.creatureRole : "pet"}
                       data-testid="about-input-role"
                       className="min-h-11 rounded-xl border border-input bg-transparent px-3 text-sm"
                     >
-                      {CREATURE_ROLES.map((role) => (
-                        <option key={role} value={role}>
-                          {t(`about.role.${role}`)}
+                      <option value="pet">
+                        {t("about.role.pet")} (Family Companion)
+                      </option>
+                      {hasBrandAccess ? (
+                        <option value="breeding">
+                          {t("about.role.breeding")} (Brand Breeding Stock)
                         </option>
-                      ))}
+                      ) : null}
                     </select>
+                    {!hasBrandAccess && (
+                      <span className="text-micro text-muted-foreground">
+                        Breeding material is reserved for verified Brand and Kennel accounts.
+                      </span>
+                    )}
                   </label>
 
                   <div className="rounded-xl border border-border/70 bg-muted/20 p-3">
