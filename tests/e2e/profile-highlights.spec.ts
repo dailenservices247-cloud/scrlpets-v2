@@ -247,23 +247,14 @@ test("a pinned post leads the profile and says where it is pinned", async ({ pag
   await sellerDb.rpc("soft_delete_managed_post", { target_post_id: later.data!.id });
 });
 
-test("the Following tab admits when it is showing more than your follows", async ({
+test("the feed is unified without broadened notice or tab clutter", async ({
   page,
 }) => {
-  // Guests have no graph at all, so their Following tab is always broadened.
   await page.context().clearCookies();
-  await page.goto("/?tab=following");
-  await expect(page.getByTestId("following-broadened-notice")).toBeVisible();
-
-  // One follow is still under the threshold — and it still says so.
-  await giveThirdOneFollow();
-  await signIn(page, THIRD_EMAIL);
-  await page.goto("/?tab=following");
-  await expect(page.getByTestId("following-broadened-notice")).toBeVisible();
-
-  // For You never claims to be your graph, so it never carries the notice.
-  await page.goto("/?tab=for_you");
+  await page.goto("/");
   await expect(page.getByTestId("following-broadened-notice")).toHaveCount(0);
+  await expect(page.getByTestId("tab-following")).toHaveCount(0);
+  await expect(page.getByTestId("tab-for-you")).toHaveCount(0);
 });
 
 test("a group surfaces its own guides, or admits it has none", async ({ page }) => {

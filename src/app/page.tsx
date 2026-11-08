@@ -17,12 +17,12 @@ export const dynamic = "force-dynamic";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams?: Promise<{ tab?: string }>;
 }) {
   const t = await getTranslations("litters");
   const user = await getSessionUser(); // null = guest (feed is public per G1-A); seam stays federation-ready
-  const { tab } = await searchParams;
-  const feedTab: FeedTab = tab === "for_you" ? "for_you" : "following";
+  const params = searchParams ? await searchParams : {};
+  const feedTab: FeedTab = params.tab === "following" ? "following" : "for_you";
   const [items, profile, promptFirstLitter] = await Promise.all([
     getFeed(feedTab, user?.id),
     user ? getProfileById(user.id) : Promise.resolve(null),
@@ -31,8 +31,7 @@ export default async function HomePage({
     // people's posts. The condition is their state, not the feed's.
     user ? shouldPromptFirstLitter(user.id) : Promise.resolve(false),
   ]);
-  // A signed-in Following feed that comes back empty = you follow nobody yet.
-  const followingEmpty = feedTab === "following" && !!user && items.length === 0;
+  const followingEmpty = false;
   return (
     // The header itself is the shell's now; the feed still owns the one row
     // that only makes sense here.
