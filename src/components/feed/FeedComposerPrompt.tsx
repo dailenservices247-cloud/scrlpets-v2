@@ -41,7 +41,7 @@ export function FeedComposerPrompt({
             className="flex min-h-11 flex-1 items-center rounded-full border border-border/80 bg-muted/45 px-4 text-left text-sm font-semibold text-foreground transition hover:border-primary/45"
             data-testid="compose-cta"
           >
-            What&apos;s on your mind? Share an update...
+            What&apos;s on your mind? Share an animal update...
           </button>
         ) : (
           <Link

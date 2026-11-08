@@ -44,7 +44,12 @@ export default async function HomePage({
         />
       }
     >
-      <UpdatesMomentsRail items={items} signedIn={Boolean(user)} />
+      <UpdatesMomentsRail
+        items={items}
+        signedIn={Boolean(user)}
+        userAvatarUrl={profile?.avatarUrl}
+        userName={profile?.displayName ?? profile?.username}
+      />
       {promptFirstLitter && (
         <section className="px-3 pt-4" data-testid="first-litter-prompt">
           <div className="premium-panel rounded-2xl p-4">
