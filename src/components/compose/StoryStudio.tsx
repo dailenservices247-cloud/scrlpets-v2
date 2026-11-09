@@ -108,7 +108,7 @@ export function StoryStudio({
               onClick={() => setPrivacy("close_friends")}
               className={cn(
                 "flex items-center gap-1 px-2.5 py-1 rounded-lg transition font-medium",
-                privacy === "close_friends" ? "bg-amber-500/20 text-amber-400" : "text-muted-foreground hover:text-foreground"
+                privacy === "close_friends" ? "bg-accent/20 text-accent font-semibold" : "text-muted-foreground hover:text-foreground"
               )}
             >
               <Star className="size-3" />
@@ -216,7 +216,7 @@ export function StoryStudio({
                   </div>
                 )}
                 {boomerang && (
-                  <span className="absolute bottom-4 left-4 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-micro font-bold text-amber-300 backdrop-blur-xs">
+                  <span className="absolute bottom-4 left-4 flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-micro font-bold text-accent backdrop-blur-xs">
                     <Repeat className="size-3" />
                     Looping
                   </span>
@@ -297,7 +297,7 @@ export function StoryStudio({
                 className="flex min-h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-xs font-medium text-foreground hover:bg-muted transition"
                 data-testid="story-add-photo"
               >
-                <Upload className="size-3.5 text-blue-400" />
+                <Upload className="size-3.5 text-muted-foreground" />
                 <span>Add Photo ({mediaFiles.length}/4)</span>
               </button>
 
@@ -307,7 +307,7 @@ export function StoryStudio({
                 className={cn(
                   "flex min-h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition",
                   boomerang
-                    ? "border-amber-500/50 bg-amber-500/15 text-amber-400"
+                    ? "border-accent/50 bg-accent/15 text-accent"
                     : "border-input bg-card text-foreground hover:bg-muted"
                 )}
                 data-testid="story-toggle-boomerang"
@@ -341,7 +341,7 @@ export function StoryStudio({
                 className={cn(
                   "flex min-h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-medium transition",
                   musicTrack
-                    ? "border-rose-500/50 bg-rose-500/15 text-rose-400"
+                    ? "border-primary/50 bg-primary/15 text-brand-link"
                     : "border-input bg-card text-foreground hover:bg-muted"
                 )}
                 data-testid="story-toggle-music"

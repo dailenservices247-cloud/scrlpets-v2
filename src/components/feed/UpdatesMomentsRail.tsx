@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useSyncExternalStore } from "react";
+import { useState, useEffect, useMemo, useSyncExternalStore, useRef } from "react";
 import Link from "next/link";
 import { Plus, X, ChevronLeft, ChevronRight, Play, Pause, User, ExternalLink } from "lucide-react";
 import type { FeedItem } from "@/lib/feed/types";
@@ -255,14 +255,48 @@ export function UpdatesMomentsRail({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [activeStoryIndex, moments]);
 
+  const railRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(moments.length > 3);
+
+  function checkScroll() {
+    const el = railRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 20);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 20);
+  }
+
+  function scrollRail(direction: "left" | "right") {
+    const el = railRef.current;
+    if (!el) return;
+    const offset = direction === "left" ? -300 : 300;
+    el.scrollBy({ left: offset, behavior: "smooth" });
+  }
+
   const currentStory = activeStoryIndex !== null ? moments[activeStoryIndex] : null;
 
   return (
     <section
-      className="border-b border-border/80 bg-background/70 py-3"
+      className="relative border-b border-border/80 bg-background/70 py-3 group/rail"
       data-testid="updates-moments"
     >
-      <div className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-none">
+      {/* Desktop Left Scroll Button */}
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => scrollRail("left")}
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 hidden lg:grid size-9 place-items-center rounded-full bg-card/95 text-foreground border border-border/80 shadow-md backdrop-blur-xs transition hover:bg-card hover:scale-105"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+      )}
+
+      <div
+        ref={railRef}
+        onScroll={checkScroll}
+        className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-none scroll-smooth"
+      >
         {/* Card 1: Create story (Signed in user photo + center-bottom plus + Create story label) */}
         <Link
           href={signedIn ? "/compose?mode=story" : "/login"}
@@ -292,10 +326,10 @@ export function UpdatesMomentsRail({
             )}
           </div>
 
-          {/* Bottom 28% card background with centered blue plus button on the seam */}
+          {/* Bottom 28% card background with centered wine plus button on the seam */}
           <div className="relative flex h-[28%] w-full flex-col items-center justify-end bg-card px-1.5 pb-2.5 pt-3 text-center">
             <span
-              className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 grid size-9 place-items-center rounded-full bg-blue-600 text-white shadow-md ring-4 ring-card transition group-hover:bg-blue-500"
+              className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card transition group-hover:bg-[#a0414e]"
               aria-hidden
             >
               <Plus className="size-5 stroke-[2.5]" />
@@ -337,7 +371,7 @@ export function UpdatesMomentsRail({
                   className={`size-9 overflow-hidden rounded-full transition-all duration-200 ${
                     isWatched
                       ? "ring-2 ring-white/35 ring-offset-1 ring-offset-black/60 opacity-90"
-                      : "ring-[3px] ring-blue-500 ring-offset-2 ring-offset-black/60 shadow-lg"
+                      : "ring-[3px] ring-[#a0414e] ring-offset-2 ring-offset-black/60 shadow-lg"
                   }`}
                 >
                   {moment.avatarUrl ? (
@@ -365,6 +399,18 @@ export function UpdatesMomentsRail({
           );
         })}
       </div>
+
+      {/* Desktop Right Scroll Button */}
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => scrollRail("right")}
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 hidden lg:grid size-9 place-items-center rounded-full bg-card/95 text-foreground border border-border/80 shadow-md backdrop-blur-xs transition hover:bg-card hover:scale-105"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="size-5" />
+        </button>
+      )}
 
       {/* Fullscreen Story Viewer Modal */}
       {currentStory && (

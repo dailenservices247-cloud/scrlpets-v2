@@ -4,6 +4,7 @@ import { AppHeader } from "./AppHeader";
 import { BottomNav } from "./BottomNav";
 import { Footer } from "./Footer";
 import { SideNav } from "./SideNav";
+import { RightRail } from "./RightRail";
 import { NotificationAnnouncer } from "@/components/notifications/NotificationAnnouncer";
 import { getSessionUser } from "@/lib/auth/session";
 import { getUnreadCount } from "@/lib/notifications/queries";
@@ -36,7 +37,12 @@ export async function AppPage({
     user ? getUnreadConversationCount(user.id) : 0,
   ]);
   return (
-    <div className={cn("lg:mx-auto lg:flex", wide ? "lg:max-w-7xl" : "lg:max-w-5xl")}>
+    <div
+      className={cn(
+        "lg:mx-auto lg:flex lg:justify-center",
+        wide ? "lg:max-w-7xl" : "lg:max-w-5xl xl:max-w-[1320px]",
+      )}
+    >
       {showBottomNav && <SideNav unreadCount={unreadCount} unreadMessages={unreadMessages} />}
       {/* Header, content and footer stack in one column so the header is a
           sibling of <main> — a <header> nested inside main is not a banner
@@ -58,6 +64,7 @@ export async function AppPage({
         {/* Clears the fixed BottomNav itself, which is why main no longer carries pb-24. */}
         {showBottomNav && <Footer />}
       </div>
+      {showBottomNav && !wide && <RightRail />}
       {/* Lives in the shell, not on /notifications. Announcing new mail only on
           the page where you can already see it is the one place it is useless.
           It seeds its own baseline from the first poll, so no server read is

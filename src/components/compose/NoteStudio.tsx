@@ -62,7 +62,7 @@ export function NoteStudio({
               A quick thought bubble visible to friends for 24 hours
             </p>
           </div>
-          <span className="flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-1 text-micro font-semibold text-emerald-400">
+          <span className="flex items-center gap-1 rounded-full border border-accent/40 bg-accent/15 px-2.5 py-1 text-micro font-semibold text-accent">
             <Clock className="size-3" />
             24 Hours
           </span>
@@ -122,7 +122,7 @@ export function NoteStudio({
               <span
                 className={cn(
                   "text-micro font-medium",
-                  charsLeft < 10 ? "text-amber-400" : "text-muted-foreground"
+                  charsLeft < 10 ? "text-accent font-semibold" : "text-muted-foreground"
                 )}
               >
                 {charsLeft} chars remaining
@@ -151,7 +151,7 @@ export function NoteStudio({
               className="flex min-h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-xs font-medium text-foreground hover:bg-muted transition"
               data-testid="note-toggle-mood"
             >
-              <Smile className="size-3.5 text-amber-400" />
+              <Smile className="size-3.5 text-accent" />
               <span>Mood: {selectedMood.emoji} {selectedMood.label}</span>
             </button>
 

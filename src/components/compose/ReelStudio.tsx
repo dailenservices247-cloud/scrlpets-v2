@@ -122,7 +122,7 @@ export function ReelStudio({
                 </span>
                 {selectedAudio && (
                   <span className="flex items-center gap-1 bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-xs text-micro truncate max-w-[140px]">
-                    <Music className="size-2.5 text-rose-400 shrink-0" />
+                    <Music className="size-2.5 text-brand-link shrink-0" />
                     {selectedAudio}
                   </span>
                 )}
@@ -155,7 +155,7 @@ export function ReelStudio({
                 className="flex min-h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-xs font-medium text-foreground hover:bg-muted"
                 data-testid="reel-audio-btn"
               >
-                <Music className="size-3.5 text-rose-400" />
+                <Music className="size-3.5 text-brand-link" />
                 <span>{selectedAudio ?? "Choose Audio"}</span>
               </button>
 
@@ -168,7 +168,7 @@ export function ReelStudio({
                 className="flex min-h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-xs font-medium text-foreground hover:bg-muted"
                 data-testid="reel-effect-btn"
               >
-                <Wand2 className="size-3.5 text-purple-400" />
+                <Wand2 className="size-3.5 text-brand-link" />
                 <span>Effect: {selectedEffect.name}</span>
               </button>
 
@@ -178,7 +178,7 @@ export function ReelStudio({
                 className="flex min-h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-xs font-medium text-foreground hover:bg-muted"
                 data-testid="reel-draft-btn"
               >
-                <FileEdit className="size-3.5 text-amber-400" />
+                <FileEdit className="size-3.5 text-muted-foreground" />
                 <span>Save Draft</span>
               </button>
             </div>

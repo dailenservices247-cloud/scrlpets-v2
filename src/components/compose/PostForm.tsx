@@ -245,45 +245,45 @@ export function PostForm(props: PostFormProps) {
         </div>
       )}
 
-      {/* Facebook-style status badges pill */}
+      {/* Facebook-style status badges pill — styled strictly in Brand House palette */}
       {(feeling || location || lifeUpdate || musicTrack || fundraiser || eventTag) && (
         <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border/80 bg-muted/30 p-2.5 text-xs">
           {feeling && (
-            <span className="flex items-center gap-1 rounded-md bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-amber-300">
+            <span className="flex items-center gap-1 rounded-md bg-primary/15 border border-primary/30 px-2 py-0.5 text-brand-link">
               <span>{feeling.emoji} Feeling {feeling.label}</span>
               <button type="button" onClick={() => setFeeling(null)} className="ml-1 text-muted-foreground hover:text-foreground">×</button>
             </span>
           )}
           {location && (
-            <span className="flex items-center gap-1 rounded-md bg-blue-500/15 border border-blue-500/30 px-2 py-0.5 text-blue-300">
+            <span className="flex items-center gap-1 rounded-md bg-secondary/15 border border-secondary/30 px-2 py-0.5 text-[#347466] dark:text-[#64bca9]">
               <MapPin className="size-3" />
               <span>{location}</span>
               <button type="button" onClick={() => setLocation(null)} className="ml-1 text-muted-foreground hover:text-foreground">×</button>
             </span>
           )}
           {lifeUpdate && (
-            <span className="flex items-center gap-1 rounded-md bg-purple-500/15 border border-purple-500/30 px-2 py-0.5 text-purple-300">
+            <span className="flex items-center gap-1 rounded-md bg-accent/15 border border-accent/30 px-2 py-0.5 text-accent">
               <Sparkles className="size-3" />
               <span>{lifeUpdate}</span>
               <button type="button" onClick={() => setLifeUpdate(null)} className="ml-1 text-muted-foreground hover:text-foreground">×</button>
             </span>
           )}
           {musicTrack && (
-            <span className="flex items-center gap-1 rounded-md bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 text-rose-300">
+            <span className="flex items-center gap-1 rounded-md bg-primary/15 border border-primary/30 px-2 py-0.5 text-brand-link">
               <Music className="size-3" />
               <span>{musicTrack}</span>
               <button type="button" onClick={() => setMusicTrack(null)} className="ml-1 text-muted-foreground hover:text-foreground">×</button>
             </span>
           )}
           {fundraiser && (
-            <span className="flex items-center gap-1 rounded-md bg-red-500/15 border border-red-500/30 px-2 py-0.5 text-red-300">
+            <span className="flex items-center gap-1 rounded-md bg-primary/15 border border-primary/30 px-2 py-0.5 text-brand-link">
               <HeartHandshake className="size-3" />
               <span>{fundraiser}</span>
               <button type="button" onClick={() => setFundraiser(null)} className="ml-1 text-muted-foreground hover:text-foreground">×</button>
             </span>
           )}
           {eventTag && (
-            <span className="flex items-center gap-1 rounded-md bg-teal-500/15 border border-teal-500/30 px-2 py-0.5 text-teal-300">
+            <span className="flex items-center gap-1 rounded-md bg-secondary/15 border border-secondary/30 px-2 py-0.5 text-[#347466] dark:text-[#64bca9]">
               <Calendar className="size-3" />
               <span>{eventTag}</span>
               <button type="button" onClick={() => setEventTag(null)} className="ml-1 text-muted-foreground hover:text-foreground">×</button>
@@ -301,7 +301,7 @@ export function PostForm(props: PostFormProps) {
         data-testid="post-body"
       />
 
-      {/* Facebook-style 'Add to your post' bar */}
+      {/* Facebook-style 'Add to your post' bar — color sound and Brand House aligned */}
       {!isEditing && (
         <div className="flex flex-wrap items-center justify-between rounded-xl border border-border/80 bg-muted/20 p-2.5" data-testid="post-facebook-toolbar">
           <span className="text-xs font-semibold text-foreground">Add to your post</span>
@@ -313,7 +313,7 @@ export function PostForm(props: PostFormProps) {
                 setMediaMode("upload");
                 setActiveDrawer(null);
               }}
-              className="grid size-8 place-items-center rounded-lg text-emerald-400 hover:bg-muted/60 transition"
+              className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted/60 hover:text-foreground transition"
               data-testid="post-add-photo"
             >
               <Upload className="size-4" />
@@ -324,7 +324,7 @@ export function PostForm(props: PostFormProps) {
               onClick={() => setActiveDrawer(activeDrawer === "feeling" ? null : "feeling")}
               className={cn(
                 "grid size-8 place-items-center rounded-lg transition",
-                activeDrawer === "feeling" ? "bg-amber-500/20 text-amber-300" : "text-amber-400 hover:bg-muted/60"
+                activeDrawer === "feeling" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               )}
               data-testid="post-add-feeling"
             >
@@ -336,7 +336,7 @@ export function PostForm(props: PostFormProps) {
               onClick={() => setActiveDrawer(activeDrawer === "location" ? null : "location")}
               className={cn(
                 "grid size-8 place-items-center rounded-lg transition",
-                activeDrawer === "location" ? "bg-blue-500/20 text-blue-300" : "text-blue-400 hover:bg-muted/60"
+                activeDrawer === "location" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               )}
               data-testid="post-add-location"
             >
@@ -348,7 +348,7 @@ export function PostForm(props: PostFormProps) {
               onClick={() => setActiveDrawer(activeDrawer === "lifeUpdate" ? null : "lifeUpdate")}
               className={cn(
                 "grid size-8 place-items-center rounded-lg transition",
-                activeDrawer === "lifeUpdate" ? "bg-purple-500/20 text-purple-300" : "text-purple-400 hover:bg-muted/60"
+                activeDrawer === "lifeUpdate" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               )}
               data-testid="post-add-milestone"
             >
@@ -360,7 +360,7 @@ export function PostForm(props: PostFormProps) {
               onClick={() => setActiveDrawer(activeDrawer === "music" ? null : "music")}
               className={cn(
                 "grid size-8 place-items-center rounded-lg transition",
-                activeDrawer === "music" ? "bg-rose-500/20 text-rose-300" : "text-rose-400 hover:bg-muted/60"
+                activeDrawer === "music" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               )}
               data-testid="post-add-music"
             >
@@ -372,7 +372,7 @@ export function PostForm(props: PostFormProps) {
               onClick={() => setActiveDrawer(activeDrawer === "fundraiser" ? null : "fundraiser")}
               className={cn(
                 "grid size-8 place-items-center rounded-lg transition",
-                activeDrawer === "fundraiser" ? "bg-red-500/20 text-red-300" : "text-red-400 hover:bg-muted/60"
+                activeDrawer === "fundraiser" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               )}
               data-testid="post-add-fundraiser"
             >
@@ -384,7 +384,7 @@ export function PostForm(props: PostFormProps) {
               onClick={() => setActiveDrawer(activeDrawer === "event" ? null : "event")}
               className={cn(
                 "grid size-8 place-items-center rounded-lg transition",
-                activeDrawer === "event" ? "bg-teal-500/20 text-teal-300" : "text-teal-400 hover:bg-muted/60"
+                activeDrawer === "event" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               )}
               data-testid="post-add-event"
             >

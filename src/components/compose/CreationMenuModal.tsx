@@ -29,7 +29,7 @@ export const CREATION_MODES: CreationMenuItem[] = [
     subtitle: "Share photos, videos, feelings, and milestones to the feed",
     href: "/compose?mode=post",
     icon: SquarePen,
-    color: "text-blue-400 bg-blue-500/15 border-blue-500/30",
+    color: "text-brand-link bg-primary/15 border-primary/30",
   },
   {
     id: "story",
@@ -37,7 +37,7 @@ export const CREATION_MODES: CreationMenuItem[] = [
     subtitle: "Share 24-hour visual moments, text, music, and photo collages",
     href: "/compose?mode=story",
     icon: PlusCircle,
-    color: "text-amber-400 bg-amber-500/15 border-amber-500/30",
+    color: "text-[#347466] dark:text-[#64bca9] bg-secondary/15 border-secondary/30",
     badge: "24h",
   },
   {
@@ -46,7 +46,7 @@ export const CREATION_MODES: CreationMenuItem[] = [
     subtitle: "Create short-form video clips with music, effects, and templates",
     href: "/compose?mode=reel",
     icon: Clapperboard,
-    color: "text-rose-400 bg-rose-500/15 border-rose-500/30",
+    color: "text-brand-link bg-primary/15 border-primary/30",
   },
   {
     id: "live",
@@ -54,7 +54,7 @@ export const CREATION_MODES: CreationMenuItem[] = [
     subtitle: "Broadcast live video using OBS stream keys or camera studio",
     href: "/compose?mode=live",
     icon: Radio,
-    color: "text-red-400 bg-red-500/15 border-red-500/30",
+    color: "text-destructive bg-destructive/15 border-destructive/30",
     badge: "LIVE",
   },
   {
@@ -63,7 +63,7 @@ export const CREATION_MODES: CreationMenuItem[] = [
     subtitle: "Share a 24h thought bubble, status mood, and favorite track",
     href: "/compose?mode=note",
     icon: MessageCircle,
-    color: "text-emerald-400 bg-emerald-500/15 border-emerald-500/30",
+    color: "text-accent bg-accent/15 border-accent/30",
     badge: "24h",
   },
 ];

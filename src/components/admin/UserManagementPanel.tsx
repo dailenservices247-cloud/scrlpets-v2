@@ -255,17 +255,17 @@ export function UserManagementPanel({ initialUsers }: { initialUsers: AdminUserR
                         </span>
                       )}
                       {isModerator && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 font-mono text-micro font-semibold text-purple-600 dark:text-purple-400">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-accent/40 bg-accent/15 px-2 py-0.5 font-mono text-micro font-semibold text-accent">
                           MOD
                         </span>
                       )}
                       {u.roles.includes("breeder") && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-micro font-medium text-blue-600 dark:text-blue-400">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-secondary/40 bg-secondary/15 px-2 py-0.5 text-micro font-medium text-secondary dark:text-secondary-foreground">
                           Breeder
                         </span>
                       )}
                       {u.roles.includes("transporter") && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-micro font-medium text-cyan-600 dark:text-cyan-400">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/15 px-2 py-0.5 text-micro font-medium text-brand-link">
                           Transporter
                         </span>
                       )}

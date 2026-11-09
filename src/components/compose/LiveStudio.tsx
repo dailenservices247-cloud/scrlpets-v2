@@ -168,7 +168,7 @@ export function LiveStudio({
                       <span className="font-semibold text-brand-link">SarahPaws:</span> Aww look at that pup! 🐶
                     </div>
                     <div className="rounded-lg bg-muted/20 p-2 text-micro">
-                      <span className="font-semibold text-emerald-400">GoldenClub:</span> Hello from Ohio! Great setup.
+                      <span className="font-semibold text-[#347466] dark:text-[#64bca9]">GoldenClub:</span> Hello from Ohio! Great setup.
                     </div>
                   </>
                 )}
@@ -189,7 +189,7 @@ export function LiveStudio({
         {streamMode === "rtmp" && (
           <div className="mt-5 space-y-3 rounded-xl border border-border/80 bg-card p-4" data-testid="rtmp-setup-box">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
-              <KeyRound className="size-4 text-amber-400" />
+              <KeyRound className="size-4 text-brand-link" />
               <span>Broadcast Software Setup (OBS, GoPro, Streamlabs)</span>
             </div>
             <div>
@@ -215,7 +215,7 @@ export function LiveStudio({
                   onClick={handleCopyKey}
                   className="flex items-center gap-1 rounded-lg border border-input bg-muted/50 px-3 text-xs font-semibold hover:bg-muted"
                 >
-                  {copiedKey ? <Check className="size-3.5 text-emerald-400" /> : <Copy className="size-3.5" />}
+                  {copiedKey ? <Check className="size-3.5 text-[#347466] dark:text-[#64bca9]" /> : <Copy className="size-3.5" />}
                   <span>{copiedKey ? "Copied" : "Copy"}</span>
                 </button>
               </div>

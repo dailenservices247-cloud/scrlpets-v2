@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ImagePlus, Plus } from "lucide-react";
+import { ImagePlus, Plus, Radio } from "lucide-react";
 import { CreationMenuModal } from "@/components/compose/CreationMenuModal";
 
 export function FeedComposerPrompt({
@@ -53,15 +53,31 @@ export function FeedComposerPrompt({
           </Link>
         )}
         {signedIn ? (
-          <button
-            type="button"
-            onClick={() => setShowMenu(true)}
-            className="grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground hover:bg-muted"
-            aria-label="Create post, story, reel, live or note"
-            data-testid="feed-create-plus"
-          >
-            <Plus className="size-5" aria-hidden />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <Link
+              href="/compose?mode=live"
+              title="Live stream"
+              className="hidden sm:grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-destructive transition hover:bg-muted"
+            >
+              <Radio className="size-4.5" />
+            </Link>
+            <Link
+              href="/compose?mode=post"
+              title="Photo / video"
+              className="hidden sm:grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-brand-link transition hover:bg-muted"
+            >
+              <ImagePlus className="size-4.5" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => setShowMenu(true)}
+              className="grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground hover:bg-muted"
+              aria-label="Create post, story, reel, live or note"
+              data-testid="feed-create-plus"
+            >
+              <Plus className="size-5" aria-hidden />
+            </button>
+          </div>
         ) : (
           <Link
             href="/login"
