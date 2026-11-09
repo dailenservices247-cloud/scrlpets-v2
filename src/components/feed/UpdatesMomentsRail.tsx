@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useSyncExternalStore, useRef } from "react";
 import Link from "next/link";
-import { Plus, X, ChevronLeft, ChevronRight, Play, Pause, User, ExternalLink } from "lucide-react";
+import { Plus, X, ChevronLeft, ChevronRight, Play, Pause, ExternalLink } from "lucide-react";
 import type { FeedItem } from "@/lib/feed/types";
 
 export type Moment = {
@@ -320,15 +320,12 @@ export function UpdatesMomentsRail({
                 className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
-              <div className="grid size-full place-items-center bg-gradient-to-b from-muted/70 to-muted/30 text-foreground/80">
-                {userName ? (
-                  <span className="text-2xl font-bold tracking-tight">
-                    {userName.slice(0, 1).toUpperCase()}
-                  </span>
-                ) : (
-                  <User className="size-10 text-muted-foreground/70" aria-hidden />
-                )}
-              </div>
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src="https://yjvdakzcqypnbcxeywvy.supabase.co/storage/v1/object/public/scrlpets-media/e14ee7ea-bc6e-4731-bfd0-f1981b2ae1b2.jpeg"
+                alt="Create story"
+                className="size-full object-cover brightness-90 transition-transform duration-300 group-hover:scale-105"
+              />
             )}
           </div>
 
@@ -366,7 +363,7 @@ export function UpdatesMomentsRail({
                   className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
-                <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 text-2xl font-bold text-white/50">
+                <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-primary/30 via-card to-card text-2xl font-bold text-white/50">
                   {moment.label.slice(0, 1).toUpperCase()}
                 </div>
               )}
@@ -377,7 +374,7 @@ export function UpdatesMomentsRail({
                   className={`size-9 overflow-hidden rounded-full transition-all duration-200 ${
                     isWatched
                       ? "ring-2 ring-white/35 ring-offset-1 ring-offset-black/60 opacity-90"
-                      : "ring-[3px] ring-[#a0414e] ring-offset-2 ring-offset-black/60 shadow-lg"
+                      : "ring-[3.5px] ring-[#a0414e] ring-offset-2 ring-offset-black/75 shadow-lg"
                   }`}
                 >
                   {moment.avatarUrl ? (

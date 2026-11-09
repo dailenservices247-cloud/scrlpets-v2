@@ -25,7 +25,7 @@ export function AppHeader({
             composer prompt renders in it via `children`, and hiding the whole
             header would take that with it. */}
         <div className="flex items-center gap-2">
-          {signedIn && <HeaderCreateButton />}
+          <HeaderCreateButton signedIn={signedIn} />
           {/* R11: this icon looked like search but linked to /shop — now that
               real search exists it goes where it says. */}
           <Link

@@ -5,6 +5,7 @@ import type { FeedItem } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
 import { FeedCardActions } from "./FeedCardActions";
+import { DismissibleFeedCard } from "./DismissibleFeedCard";
 import { cn } from "@/lib/utils";
 import { EDITORIAL_SURFACE, PANEL_ACCENT, PANEL_SURFACE } from "@/lib/feed/registers";
 import { AttributionStack } from "./AttributionStack";
@@ -30,78 +31,84 @@ export function FeedCardShell({
 }) {
   const t = useTranslations("content");
 
-  const header = (
-    <header className="flex items-start justify-between gap-3">
-      <AttributionStack item={item} className="flex-1" />
-      <div className="flex items-center gap-1.5">
-        {/* Groups are public, so a group post is in everyone's feed — this
-            chip is the only thing that says where it came from. Every tile
-            renders through this shell, so labelling it here covers the home
-            feed, the profile feed and the creature feed at once. */}
-        {item.group && (
-          <Link
-            href={`/groups/${item.group.slug}`}
-            aria-label={t("inGroup", { group: item.group.name })}
-            data-testid="group-chip"
-            className="max-w-40 truncate rounded-full border border-secondary/40 bg-secondary/10 px-2 py-0.5 text-micro font-medium text-secondary-foreground hover:bg-secondary/20"
-          >
-            {item.group.name}
-          </Link>
-        )}
-        {/* Says WHERE it is pinned, because the same post shows up on
-            surfaces the pin has no bearing on. */}
-        {item.pinnedAt && (
-          <span
-            className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-micro font-medium text-brand-link"
-            data-testid="pinned-chip"
-          >
-            {t("pinnedToProfile")}
-          </span>
-        )}
-        {/* Plain posts read FB-style — no type badge (punch list A2). */}
-        {item.type !== "post" && <ContentTypeBadge type={item.type} />}
-        {canManage ? (
-          <ContentOwnerActions item={item} />
-        ) : (
-          <FeedCardActions item={item} />
-        )}
-      </div>
-    </header>
-  );
-
-  // Editorial items are not objects sitting on a surface — they are entries in
-  // a column. No border, no fill, no shadow; the rhythm between them does the
-  // separating that a box used to do.
-  if (register === "editorial") {
-    return (
-      <article
-        className={cn(
-          EDITORIAL_SURFACE,
-          // The hairline is what the border used to be: separation without
-          // enclosure. It belongs to the LIST, not to the register, so it lives
-          // here rather than in EDITORIAL_SURFACE — a post's own realm is one
-          // entry and has nothing to be separated from. The last entry drops it
-          // so the column ends on content rather than a rule pointing at nothing.
-          "border-b border-border/45 pb-5 last:border-b-0 last:pb-0",
-          className,
-        )}
-        data-testid={`tile-${item.type}`}
-      >
-        {header}
-        {children}
-      </article>
-    );
-  }
-
-  // overflow-hidden so media pulled to the panel's edge is clipped by the
-  // panel's own radius instead of poking square corners past it.
   return (
-    <Card
-      className={cn(PANEL_SURFACE, PANEL_ACCENT[item.type], className)}
-      data-testid={`tile-${item.type}`}
-    >
-      {header}
-      {children}
-    </Card>
+    <DismissibleFeedCard>
+      {(onHide) => {
+        const header = (
+          <header className="flex items-start justify-between gap-3">
+            <AttributionStack item={item} className="flex-1" />
+            <div className="flex items-center gap-1.5">
+              {/* Groups are public, so a group post is in everyone's feed — this
+                  chip is the only thing that says where it came from. Every tile
+                  renders through this shell, so labelling it here covers the home
+                  feed, the profile feed and the creature feed at once. */}
+              {item.group && (
+                <Link
+                  href={`/groups/${item.group.slug}`}
+                  aria-label={t("inGroup", { group: item.group.name })}
+                  data-testid="group-chip"
+                  className="max-w-40 truncate rounded-full border border-secondary/40 bg-secondary/10 px-2 py-0.5 text-micro font-medium text-secondary-foreground hover:bg-secondary/20"
+                >
+                  {item.group.name}
+                </Link>
+              )}
+              {/* Says WHERE it is pinned, because the same post shows up on
+                  surfaces the pin has no bearing on. */}
+              {item.pinnedAt && (
+                <span
+                  className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-micro font-medium text-brand-link"
+                  data-testid="pinned-chip"
+                >
+                  {t("pinnedToProfile")}
+                </span>
+              )}
+              {/* Plain posts read FB-style — no type badge (punch list A2). */}
+              {item.type !== "post" && <ContentTypeBadge type={item.type} />}
+              {canManage ? (
+                <ContentOwnerActions item={item} />
+              ) : (
+                <FeedCardActions item={item} onHide={onHide} />
+              )}
+            </div>
+          </header>
+        );
+
+        // Editorial items are not objects sitting on a surface — they are entries in
+        // a column. No border, no fill, no shadow; the rhythm between them does the
+        // separating that a box used to do.
+        if (register === "editorial") {
+          return (
+            <article
+              className={cn(
+                EDITORIAL_SURFACE,
+                // The hairline is what the border used to be: separation without
+                // enclosure. It belongs to the LIST, not to the register, so it lives
+                // here rather than in EDITORIAL_SURFACE — a post's own realm is one
+                // entry and has nothing to be separated from. The last entry drops it
+                // so the column ends on content rather than a rule pointing at nothing.
+                "border-b border-border/45 pb-5 last:border-b-0 last:pb-0",
+                className,
+              )}
+              data-testid={`tile-${item.type}`}
+            >
+              {header}
+              {children}
+            </article>
+          );
+        }
+
+        // overflow-hidden so media pulled to the panel's edge is clipped by the
+        // panel's own radius instead of poking square corners past it.
+        return (
+          <Card
+            className={cn(PANEL_SURFACE, PANEL_ACCENT[item.type], className)}
+            data-testid={`tile-${item.type}`}
+          >
+            {header}
+            {children}
+          </Card>
+        );
+      }}
+    </DismissibleFeedCard>
   );
 }
