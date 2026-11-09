@@ -12,6 +12,8 @@ export type Moment = {
   imageUrl: string | null;
   avatarUrl: string | null;
   authorName: string;
+  creatureName?: string | null;
+  creatureSlug?: string | null;
   createdAt: string;
   caption: string | null;
   profileType: "creature" | "brand" | "user";
@@ -58,46 +60,50 @@ function getMoments(items: FeedItem[]): Moment[] {
   const moments: Moment[] = [];
 
   for (const item of items) {
-    const key = item.creature?.id ?? item.brand?.id ?? item.author.id;
-    if (seen.has(key)) continue;
-    seen.add(key);
+    // Stories are created by human users or verified brands.
+    // An animal/creature NEVER posts stories or content on behalf of a human.
+    const isBrand = Boolean(item.brand);
+    const posterId = isBrand ? item.brand!.id : item.author.id;
 
-    const label =
-      item.creature?.name ??
-      item.brand?.name ??
-      item.author.displayName ??
-      item.author.username;
+    // Deduplicate stories by the poster identity
+    if (seen.has(posterId)) continue;
+    seen.add(posterId);
 
-    const avatarUrl =
-      item.creature?.avatarUrl ??
-      item.brand?.avatarUrl ??
-      item.author.avatarUrl;
+    const posterName = isBrand
+      ? item.brand!.name
+      : (item.author.displayName ?? item.author.username);
 
+    const posterAvatar = isBrand
+      ? item.brand!.avatarUrl
+      : item.author.avatarUrl;
+
+    // The visual story content: media uploaded by the author, or animal photo if post is about a creature
     const imageUrl =
       item.mediaUrl ??
       item.creature?.avatarUrl ??
-      item.brand?.avatarUrl ??
-      item.author.avatarUrl;
+      posterAvatar;
 
-    const href = item.creature
-      ? `/c/${item.creature.slug}`
-      : item.brand
-        ? `/b/${item.brand.slug}`
-        : `/u/${item.author.username}`;
+    // Authoritative label: The creator who published the story.
+    // If an animal is featured, display "Poster · Animal" so it's clear who created the post.
+    const label = item.creature?.name
+      ? `${posterName} · ${item.creature.name}`
+      : posterName;
 
-    const profileType: "creature" | "brand" | "user" = item.creature
-      ? "creature"
-      : item.brand
-        ? "brand"
-        : "user";
+    const href = isBrand
+      ? `/b/${item.brand!.slug}`
+      : `/u/${item.author.username}`;
+
+    const profileType: "creature" | "brand" | "user" = isBrand ? "brand" : "user";
 
     moments.push({
       id: item.id,
       href,
       label,
       imageUrl,
-      avatarUrl,
-      authorName: item.author.displayName ?? item.author.username,
+      avatarUrl: posterAvatar, // Top-left circle avatar is ALWAYS the author/poster!
+      authorName: posterName,
+      creatureName: item.creature?.name ?? null,
+      creatureSlug: item.creature?.slug ?? null,
       createdAt: item.createdAt,
       caption: item.title,
       profileType,
@@ -539,21 +545,30 @@ export function UpdatesMomentsRail({
                   {currentStory.caption}
                 </p>
               )}
-              <div className="flex items-center justify-between">
-                <Link
-                  href={currentStory.href}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md px-3.5 py-1.5 text-xs font-semibold text-white transition"
-                >
-                  <span>
-                    View{" "}
-                    {currentStory.profileType === "creature"
-                      ? "Creature"
-                      : currentStory.profileType === "brand"
-                        ? "Brand"
-                        : "Profile"}
-                  </span>
-                  <ExternalLink className="size-3.5" />
-                </Link>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={currentStory.href}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md px-3.5 py-1.5 text-xs font-semibold text-white transition"
+                  >
+                    <span>
+                      View{" "}
+                      {currentStory.profileType === "brand"
+                        ? "Brand Profile"
+                        : "Author Profile"}
+                    </span>
+                    <ExternalLink className="size-3.5" />
+                  </Link>
+                  {currentStory.creatureSlug && (
+                    <Link
+                      href={`/c/${currentStory.creatureSlug}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-primary/40 hover:bg-primary/60 backdrop-blur-md px-3.5 py-1.5 text-xs font-semibold text-white transition"
+                    >
+                      <span>View {currentStory.creatureName ?? "Animal"}</span>
+                      <ExternalLink className="size-3.5" />
+                    </Link>
+                  )}
+                </div>
                 <span className="text-micro text-white/60">
                   Tap sides to navigate
                 </span>

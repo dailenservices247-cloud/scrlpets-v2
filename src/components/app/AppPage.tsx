@@ -40,7 +40,7 @@ export async function AppPage({
     <div
       className={cn(
         "lg:mx-auto lg:flex lg:justify-center",
-        wide ? "lg:max-w-7xl" : "lg:max-w-5xl xl:max-w-[1320px]",
+        wide ? "lg:max-w-7xl" : "lg:max-w-5xl min-[1140px]:max-w-[1320px]",
       )}
     >
       {showBottomNav && <SideNav unreadCount={unreadCount} unreadMessages={unreadMessages} />}

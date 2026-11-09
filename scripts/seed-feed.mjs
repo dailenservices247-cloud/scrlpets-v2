@@ -75,7 +75,7 @@ async function run() {
         '${PROD_OWNER_ID}',
         'post',
         'Springyard resistance sprint and obedience work with the Presas. Building clean bone density, spring, and core stability without overstressing growth plates.\n\nProper structure starts with disciplined conditioning and clear handler communication.',
-        'https://qygdixvmxrezhavvnkgc.supabase.co/storage/v1/object/public/media/7ce63264-282e-49c8-95f9-0a5e760950da/613066c4-25f5-44c1-aa67-31f6748a149f.jpeg',
+        'https://qygdixvmxrezhavvnkgc.supabase.co/storage/v1/object/public/media/7ce63264-282e-49c8-95f9-0a5e760950da/1f3b3a35-bd02-43af-9b1e-f6780b500a92.jpeg',
         '${BIG_MEECH_ID}',
         'brand',
         '${PROD_BRAND_ID}',

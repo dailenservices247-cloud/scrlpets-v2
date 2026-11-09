@@ -6,7 +6,7 @@ import { Cake, Sparkles, ExternalLink, ShieldCheck, MessageSquare } from "lucide
 export function RightRail() {
   return (
     <aside
-      className="sticky top-0 hidden h-dvh w-72 shrink-0 flex-col gap-6 overflow-y-auto border-l border-border/60 p-4 xl:flex scrollbar-none"
+      className="sticky top-0 hidden h-dvh w-64 min-[1280px]:w-72 shrink-0 flex-col gap-6 overflow-y-auto border-l border-border/60 p-4 min-[1140px]:flex scrollbar-none"
       data-testid="right-rail"
       aria-label="Community and Sponsored Sidebar"
     >
