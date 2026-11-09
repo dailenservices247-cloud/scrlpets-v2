@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import type { FeedItem } from "@/lib/feed/types";
 import { Card } from "@/components/ui/card";
 import { ContentOwnerActions } from "@/components/content/ContentOwnerActions";
+import { FeedCardActions } from "./FeedCardActions";
 import { cn } from "@/lib/utils";
 import { EDITORIAL_SURFACE, PANEL_ACCENT, PANEL_SURFACE } from "@/lib/feed/registers";
 import { AttributionStack } from "./AttributionStack";
@@ -59,7 +60,11 @@ export function FeedCardShell({
         )}
         {/* Plain posts read FB-style — no type badge (punch list A2). */}
         {item.type !== "post" && <ContentTypeBadge type={item.type} />}
-        {canManage && <ContentOwnerActions item={item} />}
+        {canManage ? (
+          <ContentOwnerActions item={item} />
+        ) : (
+          <FeedCardActions item={item} />
+        )}
       </div>
     </header>
   );
