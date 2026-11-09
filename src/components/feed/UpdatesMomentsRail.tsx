@@ -322,7 +322,7 @@ export function UpdatesMomentsRail({
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src="https://yjvdakzcqypnbcxeywvy.supabase.co/storage/v1/object/public/scrlpets-media/e14ee7ea-bc6e-4731-bfd0-f1981b2ae1b2.jpeg"
+                src="https://qygdixvmxrezhavvnkgc.supabase.co/storage/v1/object/public/media/7ce63264-282e-49c8-95f9-0a5e760950da/205bc3c7-c42f-4bbe-9682-7253039a233d.jpeg"
                 alt="Create story"
                 className="size-full object-cover brightness-90 transition-transform duration-300 group-hover:scale-105"
               />
