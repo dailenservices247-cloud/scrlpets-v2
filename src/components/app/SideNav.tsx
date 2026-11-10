@@ -28,7 +28,7 @@ export function SideNav({
   const pathname = usePathname();
   return (
     <aside
-      className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-1 border-r border-border/60 p-4 lg:flex"
+      className="sticky top-0 hidden h-dvh w-56 min-[1280px]:w-64 min-[1440px]:w-72 shrink-0 flex-col gap-1 border-r border-border/60 p-4 lg:flex"
       data-testid="side-nav"
     >
       <Link href="/" className="mb-4 flex items-center gap-2 px-2">

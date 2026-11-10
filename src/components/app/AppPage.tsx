@@ -39,8 +39,8 @@ export async function AppPage({
   return (
     <div
       className={cn(
-        "lg:mx-auto lg:flex lg:justify-center",
-        wide ? "lg:max-w-7xl" : "lg:max-w-5xl min-[1140px]:max-w-[1320px]",
+        "lg:mx-auto lg:flex lg:justify-center lg:gap-3 min-[1280px]:gap-5 min-[1440px]:gap-7 lg:w-full lg:px-2 min-[1280px]:px-4",
+        wide ? "lg:max-w-7xl" : "max-w-[1440px] xl:max-w-[1536px] 2xl:max-w-[1680px]",
       )}
     >
       {showBottomNav && <SideNav unreadCount={unreadCount} unreadMessages={unreadMessages} />}
@@ -50,7 +50,9 @@ export async function AppPage({
       <div
         className={cn(
           "app-surface flex min-h-dvh w-full min-w-0 flex-col lg:border-x lg:border-border/60",
-          wide ? "lg:max-w-[calc(100%-15rem)]" : "lg:max-w-[720px]",
+          wide
+            ? "lg:max-w-[calc(100%-15rem)]"
+            : "lg:w-[720px] lg:max-w-[720px] lg:shrink-0",
         )}
       >
         {showBottomNav && (
