@@ -2313,6 +2313,15 @@
       "clutch": "la nidada",
       "brood": "la cría",
       "spawn": "la freza",
+      "foal": "la camada de potros",
+      "piglet": "la lechigada",
+      "kid": "la camada de cabritos",
+      "lamb": "la camada de corderos",
+      "cria": "la camada de crías",
+      "kit": "la camada de gazapos",
+      "hoglet": "la camada de erizos",
+      "joey": "la cría de marsupial",
+      "infant": "las crías",
       "group": "la cría"
     }
   }

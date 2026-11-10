@@ -2313,6 +2313,15 @@
       "clutch": "clutch",
       "brood": "brood",
       "spawn": "spawn",
+      "foal": "foal crop",
+      "piglet": "farrow",
+      "kid": "kid crop",
+      "lamb": "lamb crop",
+      "cria": "cria crop",
+      "kit": "kit litter",
+      "hoglet": "hoglet litter",
+      "joey": "joey brood",
+      "infant": "troop infants",
       "group": "group"
     }
   }

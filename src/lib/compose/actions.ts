@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { validatePost, validateListing, parsePriceCents, parseSaleTerms, parseGuarantee } from "./validation";
+import { verifySpeciesListingCompliance } from "@/lib/species/statutory-tiers";
 import { dispatchSyndication } from "@/lib/syndication/dispatcher";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -145,6 +146,12 @@ export async function createListing(
       : parsePriceCents(rawPrice);
   const v = validateListing({ title, priceCents }, { allowFree: listingKind === "adoption" });
   if (!v.ok) return { ok: false, error: v.error };
+
+  // Statutory Compliance Gate (Big Cat Public Safety Act 16 U.S.C. § 3372 & Lacey Act 18 U.S.C. § 42)
+  const compliance = verifySpeciesListingCompliance(category, title);
+  if (!compliance.allowed) {
+    return { ok: false, error: "federally_prohibited_species" };
+  }
   const terms = parseSaleTerms(
     String(formData.get("depositPercent") ?? ""),
     String(formData.get("inspectionHours") ?? ""),
@@ -286,6 +293,11 @@ export async function editListing(listingId: string, formData: FormData): Promis
 
   const v = validateListing({ title, priceCents }, { allowFree: isAdoption });
   if (!v.ok) return { ok: false, error: v.error };
+
+  const compliance = verifySpeciesListingCompliance(null, title);
+  if (!compliance.allowed) {
+    return { ok: false, error: "federally_prohibited_species" };
+  }
 
   // Sale terms are only submitted for an animal listing; a product listing sends
   // nothing and must keep whatever it had rather than being reset to defaults.

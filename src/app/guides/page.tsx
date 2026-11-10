@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Scale, ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { BookmarkButton } from "@/components/guides/BookmarkButton";
@@ -47,6 +48,36 @@ export default async function GuidesPage({
       <div className="px-4 py-6">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
+
+        {/* Featured Legal & Taxonomic Statutory Guide */}
+        <Link
+          href="/guides/animal-legality"
+          className="group mt-4 flex items-center justify-between rounded-2xl border border-primary/40 bg-primary/10 p-4 transition hover:bg-primary/15"
+          data-testid="statutory-guide-banner"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid size-10 place-items-center rounded-xl bg-primary/20 text-brand-link">
+              <Scale className="size-5" />
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-link">
+                  Statutory Reference
+                </span>
+                <span className="rounded-full bg-primary/20 px-2 py-0.2 text-micro font-semibold text-brand-link">
+                  6 Legal Tiers
+                </span>
+              </div>
+              <p className="text-sm font-bold text-foreground">
+                Companion & Exotic Animal Statutory Legality Guide
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Federal Lacey Act, Big Cat Public Safety Act, State DWA black lists & Municipal codes.
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="size-5 text-brand-link transition group-hover:translate-x-1" />
+        </Link>
 
         <form action="/guides" className="mt-4 flex flex-wrap gap-2">
           <input

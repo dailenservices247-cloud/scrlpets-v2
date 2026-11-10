@@ -3,6 +3,7 @@ import type { PostSocialContext } from "@/lib/social/reactions";
 import { ReactionBar } from "@/components/social/ReactionBar";
 import { FeedCommentSection } from "@/components/social/FeedCommentSection";
 import { ShareButton } from "@/components/share/ShareButton";
+import { SaveButton } from "@/components/social/SaveButton";
 import { loginHrefFor } from "@/lib/auth/redirect";
 import { FormattedBody } from "../FormattedBody";
 import { FeedCardShell } from "../FeedCardShell";
@@ -39,20 +40,13 @@ export function PostTile({
         transitionName={realmTransitionName(item.type, item.id)}
       />
       {social && (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-2">
-          <ReactionBar
-            postId={item.id}
-            initialCounts={social.reactions.counts}
-            initialMine={social.reactions.mine}
-            signedIn={signedIn}
-          />
-          <div className="flex items-center gap-1.5">
-            <ShareButton
-              url={`https://scrlpets.com/post/${item.id}`}
-              title={item.title ?? "Scrlpets Post"}
-              mediaUrl={item.mediaUrl}
-              variant="ghost"
-              showLabel={false}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-2" data-testid="post-social-bar">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <ReactionBar
+              postId={item.id}
+              initialCounts={social.reactions.counts}
+              initialMine={social.reactions.mine}
+              signedIn={signedIn}
             />
             <FeedCommentSection
               postId={item.id}
@@ -60,6 +54,16 @@ export function PostTile({
               signedIn={signedIn}
               loginHref={loginHrefFor(`/post/${item.id}`)}
             />
+            <ShareButton
+              url={`https://scrlpets.com/post/${item.id}`}
+              title={item.title ?? "Scrlpets Post"}
+              mediaUrl={item.mediaUrl}
+              variant="ghost"
+              showLabel={false}
+            />
+          </div>
+          <div className="flex items-center">
+            <SaveButton postId={item.id} initialSaved={false} />
           </div>
         </div>
       )}

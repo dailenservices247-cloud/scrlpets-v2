@@ -2,7 +2,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { ShieldAlert, AlertTriangle, Scale } from "lucide-react";
 import { createListing, editListing } from "@/lib/compose/actions";
+import { verifySpeciesListingCompliance } from "@/lib/species/statutory-tiers";
 import { applyAttribution } from "./attribution";
 import type { ComposeAttribution } from "./ComposerTabs";
 import { MediaInput } from "./MediaInput";
@@ -85,8 +87,15 @@ export function ListingForm(props: ListingFormProps) {
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const compliance = verifySpeciesListingCompliance(category, title);
+  const isProhibited = !compliance.allowed;
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (isProhibited) {
+      setErr(compliance.notice ?? "This species is prohibited under federal wildlife statute.");
+      return;
+    }
     setBusy(true);
     setErr(null);
     const fd = new FormData();
@@ -344,8 +353,37 @@ export function ListingForm(props: ListingFormProps) {
       {((!isEditing && creatureId) || (isEditing && edit?.hasAnimal)) && (
         <GuaranteePicker value={guarantee} onChange={setGuarantee} />
       )}
+      {isProhibited && (
+        <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-3.5 text-xs text-destructive" data-testid="prohibited-species-alert">
+          <div className="flex items-center gap-2 font-bold">
+            <ShieldAlert className="size-4 shrink-0" />
+            <span>Federal Prohibition Notice (Tier 6)</span>
+          </div>
+          <p className="mt-1 leading-relaxed">
+            {compliance.notice}
+          </p>
+          <a
+            href="/guides/animal-legality"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1 font-semibold underline hover:opacity-80"
+          >
+            <Scale className="size-3.5" />
+            <span>View Companion & Exotic Animal Statutory Guide</span>
+          </a>
+        </div>
+      )}
+      {!isProhibited && compliance.disclaimer && (
+        <div className="rounded-xl border border-amber-600/40 bg-amber-600/10 p-3 text-xs text-amber-500" data-testid="compliance-disclaimer">
+          <div className="flex items-center gap-1.5 font-semibold">
+            <AlertTriangle className="size-3.5 shrink-0" />
+            <span>Statutory Advisory (Tier {compliance.tier})</span>
+          </div>
+          <p className="mt-1">{compliance.disclaimer}</p>
+        </div>
+      )}
       {err && <p className="text-destructive text-sm">{err}</p>}
-      <Button type="submit" disabled={busy || disabled} data-testid="listing-submit">
+      <Button type="submit" disabled={busy || disabled || isProhibited} data-testid="listing-submit">
         {isEditing ? tc("saveChanges") : t("submitListing")}
       </Button>
     </form>
