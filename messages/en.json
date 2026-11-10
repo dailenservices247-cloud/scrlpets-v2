@@ -1136,6 +1136,69 @@
     "catalogEmptyNotLive": "This applies once payments are switched on."
   },
   "settings": {
+    "title": "Settings & Privacy",
+    "subtitle": "Manage your profile, preferences, security, and breeding accounts",
+    "back": "Back",
+    "groups": {
+      "account": "Account & Identity",
+      "experience": "Preferences & Experience",
+      "commerce": "Commerce & Monetization",
+      "legal": "Legal & Compliance"
+    },
+    "rows": {
+      "profile": {
+        "title": "Profile Information",
+        "subtitle": "Bio, handle, location, and breeder public badge"
+      },
+      "account": {
+        "title": "Account Security",
+        "subtitle": "Email, password, and two-factor authentication (2FA)"
+      },
+      "verification": {
+        "title": "Identity Verification",
+        "subtitle": "Stripe Identity badge required for animal & stud listings"
+      },
+      "preferences": {
+        "title": "Language & Regional",
+        "subtitle": "Language (English/Español), units, time, and species focus"
+      },
+      "notifications": {
+        "title": "Notifications & Alerts",
+        "subtitle": "Direct messages, escrow updates, gotcha days, and sounds"
+      },
+      "privacy": {
+        "title": "Privacy & Visibility",
+        "subtitle": "Pedigree lineage tree privacy and reciprocal read receipts"
+      },
+      "payouts": {
+        "title": "Seller Payouts & Escrow",
+        "subtitle": "Stripe Connect custom onboarding, balances, and payouts"
+      },
+      "subscription": {
+        "title": "Membership & Plan",
+        "subtitle": "Pro Breeder tiers, monthly quotas, and payment methods"
+      },
+      "referrals": {
+        "title": "Referrals & Rewards",
+        "subtitle": "Invite fellow breeders and earn credits toward subscription"
+      },
+      "animalLegality": {
+        "title": "Statutory Animal Legality",
+        "subtitle": "Comprehensive federal, Ohio ORC 935, and municipal companion matrix"
+      },
+      "guidelines": {
+        "title": "Community Guidelines",
+        "subtitle": "Ethical breeding standards, buyer protection, and code of conduct"
+      },
+      "terms": {
+        "title": "Terms of Service",
+        "subtitle": "Escrow agreements, marketplace terms, and arbitration"
+      },
+      "privacyPolicy": {
+        "title": "Privacy Policy",
+        "subtitle": "How Scrlpets processes and protects your data"
+      }
+    },
     "languageHeading": "Language",
     "languageHelp": "Applies to every page, on this device.",
     "languageEnglish": "English",

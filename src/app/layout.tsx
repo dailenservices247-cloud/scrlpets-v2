@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
@@ -37,18 +38,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${inter.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="min-h-dvh bg-background text-foreground">
-        <NextIntlClientProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers>{children}</Providers>
         </NextIntlClientProvider>
       </body>

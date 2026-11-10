@@ -1136,8 +1136,71 @@
     "catalogEmptyNotLive": "Esto se aplica cuando los pagos estén activados."
   },
   "settings": {
+    "title": "Configuración y Privacidad",
+    "subtitle": "Administre su perfil, preferencias, seguridad y cuentas de crianza",
+    "back": "Volver",
+    "groups": {
+      "account": "Cuenta e Identidad",
+      "experience": "Preferencias y Experiencia",
+      "commerce": "Comercio y Monetización",
+      "legal": "Legal y Cumplimiento"
+    },
+    "rows": {
+      "profile": {
+        "title": "Información del Perfil",
+        "subtitle": "Biografía, nombre de usuario, ubicación e insignia pública de criador"
+      },
+      "account": {
+        "title": "Seguridad de la Cuenta",
+        "subtitle": "Correo, contraseña y autenticación en dos pasos (2FA)"
+      },
+      "verification": {
+        "title": "Verificación de Identidad",
+        "subtitle": "Insignia de Stripe Identity requerida para ventas y sementales"
+      },
+      "preferences": {
+        "title": "Idioma y Configuración Regional",
+        "subtitle": "Idioma (English/Español), unidades, hora y enfoque de especies"
+      },
+      "notifications": {
+        "title": "Notificaciones y Alertas",
+        "subtitle": "Mensajes directos, depósitos en garantía, aniversarios y sonidos"
+      },
+      "privacy": {
+        "title": "Privacidad y Visibilidad",
+        "subtitle": "Privacidad del árbol genealógico y confirmaciones de lectura"
+      },
+      "payouts": {
+        "title": "Pagos de Vendedor y Custodia",
+        "subtitle": "Integración de Stripe Connect, saldos y transferencias"
+      },
+      "subscription": {
+        "title": "Membresía y Plan",
+        "subtitle": "Planes de Criador Pro, cuotas mensuales y métodos de pago"
+      },
+      "referrals": {
+        "title": "Referencias y Recompensas",
+        "subtitle": "Invite a otros criadores y gane créditos para su membresía"
+      },
+      "animalLegality": {
+        "title": "Legalidad Estatutaria de Animales",
+        "subtitle": "Marco integral federal, Ohio ORC 935 y ordenanzas municipales"
+      },
+      "guidelines": {
+        "title": "Normas de la Comunidad",
+        "subtitle": "Estándares éticos de crianza y código de conducta"
+      },
+      "terms": {
+        "title": "Términos del Servicio",
+        "subtitle": "Acuerdos de custodia, términos del mercado y arbitraje"
+      },
+      "privacyPolicy": {
+        "title": "Política de Privacidad",
+        "subtitle": "Cómo Scrlpets procesa y resguarda su información"
+      }
+    },
     "languageHeading": "Idioma",
-    "languageHelp": "Se aplica a todas las páginas, en este dispositivo.",
+    "languageHelp": "Se aplica a cada página, en este dispositivo.",
     "languageEnglish": "English",
     "languageSpanish": "Español",
     "languageSaving": "Guardando…"

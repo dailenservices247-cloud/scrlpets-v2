@@ -47,7 +47,11 @@ export function LanguageSwitcher({ current }: { current: Locale }) {
               setChosen(locale);
               startTransition(async () => {
                 await setLocale(locale);
-                router.refresh();
+                if (typeof window !== "undefined") {
+                  window.location.reload();
+                } else {
+                  router.refresh();
+                }
               });
             }}
           >
