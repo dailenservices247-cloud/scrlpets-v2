@@ -2,9 +2,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ShieldAlert, AlertTriangle, Scale } from "lucide-react";
+import {
+  ShieldAlert,
+  AlertTriangle,
+  Scale,
+} from "lucide-react";
 import { createListing, editListing } from "@/lib/compose/actions";
-import { verifySpeciesListingCompliance } from "@/lib/species/statutory-tiers";
+import {
+  REGULATORY_TIERS_META,
+  lookupSpeciesProfile,
+  verifySpeciesListingCompliance,
+} from "@/lib/species/statutory-tiers";
+import { cn } from "@/lib/utils";
 import { applyAttribution } from "./attribution";
 import type { ComposeAttribution } from "./ComposerTabs";
 import { MediaInput } from "./MediaInput";
@@ -30,6 +39,18 @@ function isSellerGateError(error: string): boolean {
     e.includes("new row violates")
   );
 }
+
+const POPULAR_SPECIES = [
+  { label: "Canine (Dog)", value: "Dog", icon: "🐶" },
+  { label: "Feline (Cat)", value: "Cat", icon: "🐱" },
+  { label: "Equine (Horse)", value: "Horse", icon: "🐎" },
+  { label: "Lagomorph (Rabbit)", value: "Rabbit", icon: "🐰" },
+  { label: "Reptile & Herp", value: "Ball Python", icon: "🐍" },
+  { label: "Avian (Bird)", value: "Bird", icon: "🦜" },
+  { label: "Livestock & Farm", value: "Goat", icon: "🐐" },
+  { label: "Small Exotic", value: "Ferret", icon: "🦔" },
+  { label: "Supplies & Gear", value: "Supplies", icon: "📦" },
+];
 
 type ListingFormProps =
   | {
@@ -89,6 +110,22 @@ export function ListingForm(props: ListingFormProps) {
 
   const compliance = verifySpeciesListingCompliance(category, title);
   const isProhibited = !compliance.allowed;
+  const matchedProfile =
+    compliance.profile ??
+    lookupSpeciesProfile(category) ??
+    (title ? lookupSpeciesProfile(title) : null);
+
+  // Escrow & payout calculations
+  const parsedPrice = parseFloat(price.replace(/[^0-9.]/g, ""));
+  const hasValidPrice = !isNaN(parsedPrice) && parsedPrice > 0;
+  const platformFee = hasValidPrice ? parsedPrice * 0.05 : 0;
+  const netPayout = hasValidPrice ? parsedPrice - platformFee : 0;
+
+  const parsedDeposit = parseFloat(depositPercent);
+  const hasDeposit =
+    hasValidPrice && !isNaN(parsedDeposit) && parsedDeposit > 0 && parsedDeposit <= 25;
+  const depositAmount = hasDeposit ? (parsedPrice * parsedDeposit) / 100 : 0;
+  const remainingBalance = hasDeposit ? parsedPrice - depositAmount : 0;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -180,12 +217,6 @@ export function ListingForm(props: ListingFormProps) {
       capture("listing_created", { has_media: !!mediaUrl, has_creature: !!creatureId });
       router.push("/");
     }
-    // No router.refresh() here. Both branches NAVIGATE, and a refresh issued in
-    // the same tick cancels the pending push — the form simply sat on /edit with
-    // the save already written, no error and no movement. It was a live race the
-    // whole time and only started losing when the listing page grew a guarantee
-    // panel and got slower to render. push() already fetches the target fresh,
-    // and the server action's revalidatePath handles the cache.
   }
 
   return (
@@ -194,43 +225,209 @@ export function ListingForm(props: ListingFormProps) {
       className="flex flex-col gap-4 pt-4"
       data-testid={isEditing ? "edit-listing-form" : "listing-form"}
     >
-      <input
-        className="rounded border border-input bg-transparent p-2"
-        placeholder={t("titlePlaceholder")}
-        aria-label={t("titlePlaceholder")}
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        data-testid="listing-title"
-      />
-      <input
-        className="rounded border border-input bg-transparent p-2"
-        placeholder={t("pricePlaceholder")}
-        aria-label={t("pricePlaceholder")}
-        inputMode="decimal"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-        data-testid="listing-price"
-      />
+      {/* Title */}
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="listing-title-input" className="text-xs font-semibold text-muted-foreground">
+          {t("titlePlaceholder")}
+        </label>
+        <input
+          id="listing-title-input"
+          className="rounded-xl border border-input bg-transparent p-2.5 text-sm transition focus:border-brand-link focus:outline-none"
+          placeholder={t("titlePlaceholder")}
+          aria-label={t("titlePlaceholder")}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          data-testid="listing-title"
+        />
+      </div>
+
+      {/* Price & Escrow Fee Estimator */}
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="listing-price-input" className="text-xs font-semibold text-muted-foreground">
+            {t("pricePlaceholder")}
+          </label>
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-2.5 text-sm font-semibold text-muted-foreground">
+              $
+            </span>
+            <input
+              id="listing-price-input"
+              className="w-full rounded-xl border border-input bg-transparent py-2.5 pl-7 pr-3 text-sm transition focus:border-brand-link focus:outline-none"
+              placeholder={t("pricePlaceholder")}
+              aria-label={t("pricePlaceholder")}
+              inputMode="decimal"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              data-testid="listing-price"
+            />
+          </div>
+        </div>
+
+        {/* Real-time Escrow & Net Payout Breakdown */}
+        {hasValidPrice && (
+          <div className="rounded-xl border border-border/70 bg-muted/20 p-3 space-y-2 text-xs">
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span>Buyer Total:</span>
+              <span className="font-semibold text-foreground">
+                ${parsedPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span className="inline-flex items-center gap-1">
+                <span>Platform Escrow Protection (5%):</span>
+              </span>
+              <span>
+                -${platformFee.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="flex items-center justify-between pt-1 border-t border-border/50 font-medium">
+              <span className="text-foreground">Estimated Net Direct Deposit:</span>
+              <span className="font-bold text-brand-link">
+                ${netPayout.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            {hasDeposit && (
+              <div className="pt-1.5 border-t border-border/40 text-micro text-muted-foreground flex flex-wrap justify-between gap-1">
+                <span>
+                  Upfront Reservation ({parsedDeposit}%):{" "}
+                  <strong className="text-foreground">
+                    ${depositAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </strong>
+                </span>
+                <span>
+                  Balance at Handover:{" "}
+                  <strong className="text-foreground">
+                    ${remainingBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </strong>
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {!isEditing && (
         <>
-          <textarea
-            className="min-h-24 rounded border border-input bg-transparent p-2"
-            placeholder={t("descriptionPlaceholder")}
-            aria-label={t("descriptionPlaceholder")}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            data-testid="listing-description"
-          />
-          <input
-            className="rounded border border-input bg-transparent p-2"
-            placeholder={t("categoryPlaceholder")}
-            aria-label={t("categoryPlaceholder")}
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            data-testid="listing-category"
-          />
+          {/* Description */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="listing-description-input" className="text-xs font-semibold text-muted-foreground">
+              {t("descriptionPlaceholder")}
+            </label>
+            <textarea
+              id="listing-description-input"
+              className="min-h-24 rounded-xl border border-input bg-transparent p-2.5 text-sm transition focus:border-brand-link focus:outline-none"
+              placeholder={t("descriptionPlaceholder")}
+              aria-label={t("descriptionPlaceholder")}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              data-testid="listing-description"
+            />
+          </div>
+
+          {/* Species & Taxonomy Classification */}
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+              <span>Species &amp; Classification</span>
+              <span className="text-micro font-normal text-muted-foreground">
+                Select category or type custom breed
+              </span>
+            </label>
+
+            {/* Quick Pills */}
+            <div className="flex flex-wrap gap-1.5 pb-0.5">
+              {POPULAR_SPECIES.map((s) => {
+                const isSelected =
+                  category.toLowerCase() === s.value.toLowerCase() ||
+                  (s.value === "Dog" && category.toLowerCase().includes("dog"));
+                return (
+                  <button
+                    key={s.value}
+                    type="button"
+                    onClick={() => setCategory(s.value)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition border",
+                      isSelected
+                        ? "border-primary bg-primary/20 text-brand-link font-semibold shadow-xs"
+                        : "border-border/70 bg-muted/30 text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <span>{s.icon}</span>
+                    <span>{s.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <input
+              className="rounded-xl border border-input bg-transparent p-2.5 text-sm transition focus:border-brand-link focus:outline-none"
+              placeholder={t("categoryPlaceholder")}
+              aria-label={t("categoryPlaceholder")}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              data-testid="listing-category"
+            />
+          </div>
+
+          {/* Dynamic Breeder Taxonomy & Statutory Identity Card */}
+          {matchedProfile && (
+            <div className="rounded-xl border border-border/80 bg-muted/20 p-3.5 space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="grid size-6 place-items-center rounded-lg bg-primary/20 text-xs font-bold text-brand-link">
+                    {matchedProfile.tier}
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">
+                      {matchedProfile.name}{" "}
+                      <span className="text-micro font-normal italic text-muted-foreground">
+                        ({matchedProfile.scientificTaxa})
+                      </span>
+                    </p>
+                    <p className="text-micro text-muted-foreground">
+                      Tier {matchedProfile.tier}: {REGULATORY_TIERS_META[matchedProfile.tier].title.replace(/^Tier \d+: /, "")}
+                    </p>
+                  </div>
+                </div>
+                <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-micro font-semibold text-brand-link">
+                  {matchedProfile.vocabulary.roleBadge} Classification
+                </span>
+              </div>
+
+              {/* Breeder Vocabulary Breakdown */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 border-t border-border/50 text-micro">
+                <div className="rounded-lg bg-background/60 p-1.5 border border-border/40">
+                  <span className="text-muted-foreground block">Offspring</span>
+                  <span className="font-semibold text-foreground">{matchedProfile.vocabulary.youngTerm}</span>
+                </div>
+                <div className="rounded-lg bg-background/60 p-1.5 border border-border/40">
+                  <span className="text-muted-foreground block">Group</span>
+                  <span className="font-semibold text-foreground capitalize">{matchedProfile.vocabulary.youngGroup}</span>
+                </div>
+                <div className="rounded-lg bg-background/60 p-1.5 border border-border/40">
+                  <span className="text-muted-foreground block">Lineage</span>
+                  <span className="font-semibold text-foreground">
+                    {matchedProfile.vocabulary.sireTerm} / {matchedProfile.vocabulary.damTerm}
+                  </span>
+                </div>
+                <div className="rounded-lg bg-background/60 p-1.5 border border-border/40">
+                  <span className="text-muted-foreground block">Classification</span>
+                  <span className="font-semibold text-foreground">{matchedProfile.vocabulary.taxonomyLabel}</span>
+                </div>
+              </div>
+
+              {/* Statutory Citation */}
+              <div className="text-micro text-muted-foreground pt-0.5 flex items-start gap-1.5">
+                <Scale className="size-3.5 shrink-0 mt-0.5 text-brand-link" />
+                <span>
+                  <strong>Statutory Basis:</strong> {matchedProfile.statutoryCitation}
+                </span>
+              </div>
+            </div>
+          )}
         </>
       )}
+
       {isEditing && mediaUrl && (
         <div className="rounded-xl border border-border/70 p-3" data-testid="current-media">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -240,15 +437,27 @@ export function ListingForm(props: ListingFormProps) {
           </Button>
         </div>
       )}
-      <MediaInput userId={userId} onUploaded={setMediaUrl} />
-      <GalleryPhotosEditor
-        userId={userId}
-        listingId={edit?.id ?? null}
-        onPendingPhotosChange={setPendingGalleryPhotos}
-      />
+
+      {/* Media Upload */}
+      <div className="space-y-1">
+        <label className="text-xs font-semibold text-muted-foreground">Primary Cover Media</label>
+        <MediaInput userId={userId} onUploaded={setMediaUrl} />
+      </div>
+
+      {/* Gallery Photos */}
+      <div className="space-y-1">
+        <label className="text-xs font-semibold text-muted-foreground">Additional Gallery Photos</label>
+        <GalleryPhotosEditor
+          userId={userId}
+          listingId={edit?.id ?? null}
+          onPendingPhotosChange={setPendingGalleryPhotos}
+        />
+      </div>
+
       {!isEditing && (
         <CreaturePicker creatures={creatures} value={creatureId} onChange={setCreatureId} />
       )}
+
       {!creatureId && !isEditing && (
         <div className="space-y-3 rounded-xl border border-input p-3" data-testid="merchant-options">
           <p className="eyebrow">Seller Channel</p>
@@ -257,7 +466,9 @@ export function ListingForm(props: ListingFormProps) {
               type="button"
               onClick={() => setSellerSource("distributor")}
               className={`rounded-xl border p-2.5 text-left text-xs transition ${
-                sellerSource === "distributor" ? "border-primary/70 bg-primary/15 font-semibold text-brand-link" : "border-border/70 bg-muted/30 text-muted-foreground"
+                sellerSource === "distributor"
+                  ? "border-primary/70 bg-primary/15 font-semibold text-brand-link"
+                  : "border-border/70 bg-muted/30 text-muted-foreground"
               }`}
             >
               Independent Seller
@@ -266,7 +477,9 @@ export function ListingForm(props: ListingFormProps) {
               type="button"
               onClick={() => setSellerSource("merchant")}
               className={`rounded-xl border p-2.5 text-left text-xs transition ${
-                sellerSource === "merchant" ? "border-primary/70 bg-primary/15 font-semibold text-brand-link" : "border-border/70 bg-muted/30 text-muted-foreground"
+                sellerSource === "merchant"
+                  ? "border-primary/70 bg-primary/15 font-semibold text-brand-link"
+                  : "border-border/70 bg-muted/30 text-muted-foreground"
               }`}
             >
               Store / Merchant
@@ -310,6 +523,8 @@ export function ListingForm(props: ListingFormProps) {
           </div>
         </div>
       )}
+
+      {/* Sale terms (deposit & inspection window) - shown for animal sales */}
       {((!isEditing && creatureId) || (isEditing && edit?.hasAnimal)) && (
         <div className="grid gap-3 rounded-xl border border-input p-3 sm:grid-cols-2" data-testid="sale-terms">
           <label className="flex flex-col gap-1 text-sm">
@@ -350,18 +565,22 @@ export function ListingForm(props: ListingFormProps) {
           </label>
         </div>
       )}
+
       {((!isEditing && creatureId) || (isEditing && edit?.hasAnimal)) && (
         <GuaranteePicker value={guarantee} onChange={setGuarantee} />
       )}
+
+      {/* Federal Prohibited Species Alert (Tier 6) */}
       {isProhibited && (
-        <div className="rounded-xl border border-destructive/50 bg-destructive/10 p-3.5 text-xs text-destructive" data-testid="prohibited-species-alert">
+        <div
+          className="rounded-xl border border-destructive/50 bg-destructive/10 p-3.5 text-xs text-destructive"
+          data-testid="prohibited-species-alert"
+        >
           <div className="flex items-center gap-2 font-bold">
             <ShieldAlert className="size-4 shrink-0" />
             <span>Federal Prohibition Notice (Tier 6)</span>
           </div>
-          <p className="mt-1 leading-relaxed">
-            {compliance.notice}
-          </p>
+          <p className="mt-1 leading-relaxed">{compliance.notice}</p>
           <a
             href="/guides/animal-legality"
             target="_blank"
@@ -369,12 +588,17 @@ export function ListingForm(props: ListingFormProps) {
             className="mt-2 inline-flex items-center gap-1 font-semibold underline hover:opacity-80"
           >
             <Scale className="size-3.5" />
-            <span>View Companion & Exotic Animal Statutory Guide</span>
+            <span>View Companion &amp; Exotic Animal Statutory Guide</span>
           </a>
         </div>
       )}
+
+      {/* Statutory Advisory Disclaimer */}
       {!isProhibited && compliance.disclaimer && (
-        <div className="rounded-xl border border-amber-600/40 bg-amber-600/10 p-3 text-xs text-amber-500" data-testid="compliance-disclaimer">
+        <div
+          className="rounded-xl border border-amber-600/40 bg-amber-600/10 p-3 text-xs text-amber-500"
+          data-testid="compliance-disclaimer"
+        >
           <div className="flex items-center gap-1.5 font-semibold">
             <AlertTriangle className="size-3.5 shrink-0" />
             <span>Statutory Advisory (Tier {compliance.tier})</span>
@@ -382,8 +606,14 @@ export function ListingForm(props: ListingFormProps) {
           <p className="mt-1">{compliance.disclaimer}</p>
         </div>
       )}
+
       {err && <p className="text-destructive text-sm">{err}</p>}
-      <Button type="submit" disabled={busy || disabled || isProhibited} data-testid="listing-submit">
+
+      <Button
+        type="submit"
+        disabled={busy || disabled || isProhibited}
+        data-testid="listing-submit"
+      >
         {isEditing ? tc("saveChanges") : t("submitListing")}
       </Button>
     </form>
