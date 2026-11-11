@@ -67,7 +67,7 @@ export default async function CreaturePage({
       getCreatureOffspring(creature.id),
       getCreatureAssurance(creature.id),
       getCreatureOriginAttribution(creature.id),
-      getCreaturePedigree(creature.id),
+      getCreaturePedigree(creature.id, 4),
     ]);
   const listing = items.find((item) => item.type === "listing");
   const isOwner = user?.id === creature.ownerId;
