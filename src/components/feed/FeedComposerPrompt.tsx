@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ImagePlus, Plus, Radio } from "lucide-react";
+import { ImagePlus, PawPrint, Plus, Radio, Sparkles } from "lucide-react";
 import { CreationMenuModal } from "@/components/compose/CreationMenuModal";
 
 export function FeedComposerPrompt({
@@ -88,6 +88,35 @@ export function FeedComposerPrompt({
           </Link>
         )}
       </div>
+
+      {signedIn && (
+        <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2.5">
+          <Link
+            href="/compose?mode=post"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-1 text-xs font-semibold text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+          >
+            <ImagePlus className="size-4 text-emerald-500" />
+            <span>Photo / Video</span>
+          </Link>
+          <div className="h-4 w-px bg-border/60" />
+          <button
+            type="button"
+            onClick={() => setShowMenu(true)}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-1 text-xs font-semibold text-muted-foreground transition hover:bg-muted/60 hover:text-foreground cursor-pointer"
+          >
+            <PawPrint className="size-4 text-brand-link" />
+            <span>Tag Animal</span>
+          </button>
+          <div className="h-4 w-px bg-border/60" />
+          <Link
+            href="/compose?mode=story"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-1 text-xs font-semibold text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+          >
+            <Sparkles className="size-4 text-amber-500" />
+            <span>Story / Milestone</span>
+          </Link>
+        </div>
+      )}
 
       <CreationMenuModal isOpen={showMenu} onClose={() => setShowMenu(false)} />
     </div>

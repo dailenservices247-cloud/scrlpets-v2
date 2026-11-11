@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useSyncExternalStore, useRef } from "react";
 import Link from "next/link";
-import { Plus, X, ChevronLeft, ChevronRight, Play, Pause, ExternalLink } from "lucide-react";
+import { Plus, X, ChevronLeft, ChevronRight, Play, Pause, ExternalLink, Camera } from "lucide-react";
 import type { FeedItem } from "@/lib/feed/types";
 
 export type Moment = {
@@ -83,11 +83,9 @@ function getMoments(items: FeedItem[]): Moment[] {
       item.creature?.avatarUrl ??
       posterAvatar;
 
-    // Authoritative label: The creator who published the story.
-    // If an animal is featured, display "Poster · Animal" so it's clear who created the post.
-    const label = item.creature?.name
-      ? `${posterName} · ${item.creature.name}`
-      : posterName;
+    // Authoritative byline: The human creator or kennel brand is ALWAYS the publisher.
+    // The animal is the featured subject of the media, never the publisher.
+    const label = posterName;
 
     const href = isBrand
       ? `/b/${item.brand!.slug}`
@@ -303,10 +301,10 @@ export function UpdatesMomentsRail({
         onScroll={checkScroll}
         className="flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-none scroll-smooth"
       >
-        {/* Card 1: Create story (Signed in user photo + center-bottom plus + Create story label) */}
+        {/* Card 1: Create story (User profile photo + center-bottom plus + Create story label) */}
         <Link
           href={signedIn ? "/compose?mode=story" : "/login"}
-          className="group relative flex h-48 w-28 sm:h-52 sm:w-32 shrink-0 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition hover:border-primary/50"
+          className="group relative flex h-56 w-32 sm:h-60 sm:w-36 shrink-0 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition hover:border-primary/50"
           data-testid="create-moment"
           aria-label="Create story"
         >
@@ -320,12 +318,11 @@ export function UpdatesMomentsRail({
                 className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src="https://qygdixvmxrezhavvnkgc.supabase.co/storage/v1/object/public/media/7ce63264-282e-49c8-95f9-0a5e760950da/205bc3c7-c42f-4bbe-9682-7253039a233d.jpeg"
-                alt="Create story"
-                className="size-full object-cover brightness-90 transition-transform duration-300 group-hover:scale-105"
-              />
+              <div className="grid size-full place-items-center bg-gradient-to-b from-muted/80 to-muted/40 text-muted-foreground">
+                <div className="grid size-12 place-items-center rounded-full bg-card/90 border border-border/80 shadow-inner">
+                  <Camera className="size-5 text-brand-link" />
+                </div>
+              </div>
             )}
           </div>
 
@@ -351,20 +348,20 @@ export function UpdatesMomentsRail({
               type="button"
               key={moment.id}
               onClick={() => openStory(index)}
-              className="group relative h-48 w-28 sm:h-52 sm:w-32 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-card text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm cursor-pointer"
-              aria-label={`View story by ${moment.label}`}
+              className="group relative h-56 w-32 sm:h-60 sm:w-36 shrink-0 overflow-hidden rounded-2xl border border-border/70 bg-card text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary shadow-sm cursor-pointer"
+              aria-label={`View story by ${moment.authorName}`}
             >
               {/* Full bleed image */}
               {moment.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={moment.imageUrl}
-                  alt={moment.label}
+                  alt={moment.authorName}
                   className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
               ) : (
                 <div className="absolute inset-0 grid place-items-center bg-gradient-to-br from-primary/30 via-card to-card text-2xl font-bold text-white/50">
-                  {moment.label.slice(0, 1).toUpperCase()}
+                  {moment.authorName.slice(0, 1).toUpperCase()}
                 </div>
               )}
 
@@ -374,7 +371,7 @@ export function UpdatesMomentsRail({
                   className={`size-9 overflow-hidden rounded-full transition-all duration-200 ${
                     isWatched
                       ? "ring-2 ring-white/35 ring-offset-1 ring-offset-black/60 opacity-90"
-                      : "ring-[3.5px] ring-[#a0414e] ring-offset-2 ring-offset-black/75 shadow-lg"
+                      : "ring-[3.5px] ring-primary ring-offset-2 ring-offset-black/75 shadow-lg"
                   }`}
                 >
                   {moment.avatarUrl ? (
@@ -386,17 +383,23 @@ export function UpdatesMomentsRail({
                     />
                   ) : (
                     <div className="grid size-full place-items-center bg-muted text-xs font-bold text-foreground">
-                      {moment.label.slice(0, 1).toUpperCase()}
+                      {moment.authorName.slice(0, 1).toUpperCase()}
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Bottom gradient and author name */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent pb-2.5 pt-12 px-2.5 pointer-events-none">
-                <p className="line-clamp-2 text-xs font-semibold text-white leading-tight drop-shadow-sm text-left">
-                  {moment.label}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent pb-2.5 pt-12 px-2.5 pointer-events-none">
+                <p className="line-clamp-1 text-xs font-bold text-white leading-tight drop-shadow-sm text-left">
+                  {moment.authorName}
                 </p>
+                {moment.creatureName && (
+                  <span className="mt-0.5 inline-flex items-center gap-1 text-micro font-medium text-white/85 truncate drop-shadow-xs">
+                    <span>🐾</span>
+                    <span>{moment.creatureName}</span>
+                  </span>
+                )}
               </div>
             </button>
           );
@@ -478,11 +481,18 @@ export function UpdatesMomentsRail({
                     href={currentStory.href}
                     className="block text-sm font-bold text-white hover:underline drop-shadow-sm leading-tight"
                   >
-                    {currentStory.label}
+                    {currentStory.authorName}
                   </Link>
-                  <span className="text-micro text-white/75 drop-shadow-sm">
-                    {formatTimeAgo(currentStory.createdAt)}
-                  </span>
+                  <div className="flex items-center gap-1.5 text-micro text-white/80 drop-shadow-sm">
+                    {currentStory.creatureName && (
+                      <span className="inline-flex items-center gap-1">
+                        <span>🐾</span>
+                        <span>{currentStory.creatureName}</span>
+                        <span>·</span>
+                      </span>
+                    )}
+                    <span>{formatTimeAgo(currentStory.createdAt)}</span>
+                  </div>
                 </div>
               </div>
 

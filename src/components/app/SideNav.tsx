@@ -2,7 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Home, Menu, MessageCircle, Plus, Search, Store } from "lucide-react";
+import {
+  Bell,
+  Bookmark,
+  CalendarDays,
+  GitFork,
+  Home,
+  Menu,
+  MessageCircle,
+  PawPrint,
+  Plus,
+  Search,
+  Store,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // F7 / punch list A21: on desktop the web app uses a left sidebar nav (like
@@ -72,6 +84,36 @@ export function SideNav({
           </Link>
         );
       })}
+
+      <div className="my-1.5 border-t border-border/50 px-1 pt-2">
+        <p className="px-2 pb-1 text-micro font-bold uppercase tracking-wider text-muted-foreground">
+          Shortcuts
+        </p>
+        {[
+          { href: "/pack", label: "My Pack & Animals", icon: PawPrint, match: (p: string) => p.startsWith("/pack") },
+          { href: "/tree", label: "Pedigrees & Lineage", icon: GitFork, match: (p: string) => p.startsWith("/tree") },
+          { href: "/litters", label: "Litters & Breeding", icon: CalendarDays, match: (p: string) => p.startsWith("/litters") },
+          { href: "/saved", label: "Saved Vault", icon: Bookmark, match: (p: string) => p.startsWith("/saved") },
+        ].map((item) => {
+          const Icon = item.icon;
+          const active = item.match(pathname);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "flex min-h-10 items-center gap-3 rounded-xl px-2.5 text-ui font-medium transition",
+                active ? "bg-primary/15 text-brand-link" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+              )}
+            >
+              <Icon className="size-4.5 shrink-0" aria-hidden />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+
       <Link
         href="/compose"
         className="mt-2 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"

@@ -62,7 +62,8 @@ export function ReactionBar({
     <div className="flex items-center gap-2" data-testid="reaction-bar">
       <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger
-          className={`grid min-h-11 min-w-11 place-items-center rounded-lg transition hover:bg-muted/60 disabled:opacity-60 ${
+          onMouseEnter={() => signedIn && setOpen(true)}
+          className={`grid min-h-11 min-w-11 place-items-center rounded-lg transition hover:bg-muted/60 disabled:opacity-60 cursor-pointer ${
             mine ? "text-brand-link" : "text-muted-foreground"
           }`}
           disabled={!signedIn}
