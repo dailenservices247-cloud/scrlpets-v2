@@ -33,7 +33,7 @@ const contentSecurityPolicy = [
   // Supabase-hosted video and the composer's blob: preview.
   `media-src 'self' blob: ${supabaseOrigin || "https://*.supabase.co"}`,
   "font-src 'self' data:",
-  `connect-src 'self' ${supabaseSources} https://*.sentry.io https://us.i.posthog.com https://*.posthog.com https://challenges.cloudflare.com`,
+  `connect-src 'self' data: ${supabaseSources} https://*.sentry.io https://us.i.posthog.com https://*.posthog.com https://challenges.cloudflare.com https://*.cloudflare.com https://*.cloudflareinsights.com`,
   // Turnstile renders its challenge in an iframe, so script-src alone is not
   // enough — a missing frame-src is a widget that mounts and never completes.
   // We also permit trusted video platforms (YouTube, Instagram, Facebook, TikTok, Twitch) for embeds.

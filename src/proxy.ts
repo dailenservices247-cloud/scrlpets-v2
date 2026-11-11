@@ -23,9 +23,12 @@ export async function proxy(request: NextRequest) {
     return redirect;
   }
   if (user && path.startsWith("/login")) {
-    return NextResponse.redirect(
-      new URL(safeNextPath(request.nextUrl.searchParams.get("next")), request.url),
-    );
+    const isSignup = request.nextUrl.searchParams.get("mode") === "signup";
+    if (!isSignup) {
+      return NextResponse.redirect(
+        new URL(safeNextPath(request.nextUrl.searchParams.get("next")), request.url),
+      );
+    }
   }
   if (!user && isProtectedPath(path)) {
     const loginUrl = new URL("/login", request.url);

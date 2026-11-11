@@ -13,6 +13,7 @@ import {
   HeartPulse,
   LayoutDashboard,
   LifeBuoy,
+  LogOut,
   Network,
   Package,
   PawPrint,
@@ -169,7 +170,20 @@ export default async function MenuPage() {
         {viewerIsAdmin && <MenuRow href="/admin" icon={ShieldAlert} label="Admin" />}
       </MenuGroup>
 
-      {!user && (
+      {user ? (
+        <section className="mt-5 px-4">
+          <form action="/auth/signout" method="post">
+            <button
+              type="submit"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-border/80 bg-card/60 px-4 text-sm font-semibold text-muted-foreground transition hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+              data-testid="menu-signout"
+            >
+              <LogOut className="size-4" aria-hidden />
+              <span>Sign out</span>
+            </button>
+          </form>
+        </section>
+      ) : (
         <section className="mt-5 px-4">
           <Link href="/login" className="flex min-h-12 items-center justify-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground">
             Sign in

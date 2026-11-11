@@ -39,7 +39,8 @@ export function authErrorKey(message: string): AuthErrorKey {
   if (normalized.includes("email not confirmed")) return "email_not_confirmed";
   if (
     normalized.includes("already registered") ||
-    normalized.includes("already exists")
+    normalized.includes("already exists") ||
+    normalized.includes("user already exists")
   ) {
     return "already_registered";
   }
@@ -51,7 +52,14 @@ export function authErrorKey(message: string): AuthErrorKey {
   }
   // Supabase's own password policy can refuse before ours does (its minimum is
   // configured per project): "Password should be at least N characters".
-  if (normalized.includes("password") && normalized.includes("should be")) {
+  if (
+    normalized.includes("password") &&
+    (normalized.includes("should be") ||
+      normalized.includes("weak") ||
+      normalized.includes("least") ||
+      normalized.includes("pwned") ||
+      normalized.includes("common"))
+  ) {
     return "weak_password";
   }
   if (

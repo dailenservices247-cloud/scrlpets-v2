@@ -74,7 +74,10 @@ export async function signUpWithPassword(formData: FormData): Promise<SignUpResu
       ...(referralCode ? { data: { referral_code: referralCode } } : {}),
     },
   });
-  if (error) return { status: "error", error: authErrorKey(error.message) };
+  if (error) {
+    console.error("[signUpWithPassword failure]", error.message);
+    return { status: "error", error: authErrorKey(error.message) };
+  }
   // With email confirmation on, Supabase obfuscates existing confirmed accounts
   // as a success with no identities — no email will arrive.
   if (data.user && data.user.identities?.length === 0) {

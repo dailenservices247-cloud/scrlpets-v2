@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LogOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   changeEmail,
@@ -135,6 +136,23 @@ export function AccountSettings({ currentEmail }: { currentEmail: string }) {
         >
           {busy === "export" ? t("working") : t("exportAction")}
         </button>
+      </section>
+
+      <section className="premium-panel rounded-2xl p-4">
+        <h2 className="text-sm font-semibold">Account Session</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Sign out of Scrlpets on this browser or switch accounts.
+        </p>
+        <form action="/auth/signout" method="post" className="mt-3">
+          <button
+            type="submit"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border/70 bg-card/60 px-4 text-sm font-semibold text-muted-foreground transition hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+            data-testid="account-signout"
+          >
+            <LogOut className="size-4" aria-hidden />
+            <span>Sign out</span>
+          </button>
+        </form>
       </section>
 
       <section className="premium-panel rounded-2xl border-destructive/40 p-4">

@@ -20,6 +20,7 @@ declare global {
     turnstile?: {
       render: (el: HTMLElement, opts: Record<string, unknown>) => string;
       reset: (id?: string) => void;
+      remove?: (id?: string) => void;
     };
   }
 }
@@ -41,14 +42,28 @@ export function TurnstileWidget({
 
   useEffect(() => {
     if (!siteKey || !ready || !ref.current || !window.turnstile) return;
-    widgetId.current = window.turnstile.render(ref.current, {
-      sitekey: siteKey,
-      callback: (token: string) => onToken(token),
-      // A token that expired while the user was typing is worse than no token:
-      // it fails at submit with a message about credentials. Clear it instead.
-      "expired-callback": () => onToken(null),
-      "error-callback": () => onToken(null),
-    });
+    try {
+      widgetId.current = window.turnstile.render(ref.current, {
+        sitekey: siteKey,
+        callback: (token: string) => onToken(token),
+        // A token that expired while the user was typing is worse than no token:
+        // it fails at submit with a message about credentials. Clear it instead.
+        "expired-callback": () => onToken(null),
+        "error-callback": () => onToken(null),
+      });
+    } catch {
+      // Ignore double render in React development / strict mode
+    }
+    return () => {
+      if (widgetId.current && window.turnstile?.remove) {
+        try {
+          window.turnstile.remove(widgetId.current);
+        } catch {
+          // ignore
+        }
+        widgetId.current = null;
+      }
+    };
   }, [siteKey, ready, onToken]);
 
   // A Turnstile token is redeemed ONCE, and Supabase redeems it while verifying

@@ -22,12 +22,14 @@ import { authSubmitBlocked, captchaEnabled } from "@/lib/auth/captcha";
 type Mode = "signin" | "signup";
 
 export function LoginForm({
+  currentUserEmail = null,
   nextPath,
   initialError,
   notice,
   initialMode = "signin",
   referralCode = null,
 }: {
+  currentUserEmail?: string | null;
   nextPath: string;
   initialError?: AuthErrorKey | null;
   notice?: AuthNoticeKey | null;
@@ -94,6 +96,7 @@ export function LoginForm({
       if (captchaToken) fd.set("captchaToken", captchaToken);
       const result = await signUpWithPassword(fd);
       setBusy(false);
+      spendCaptchaToken();
       if (result.status === "error") {
         setError(result.error);
         return;
@@ -281,6 +284,41 @@ export function LoginForm({
     }
   }
 
+  if (currentUserEmail && mode === "signup") {
+    return (
+      <AuthShell>
+        <section
+          className="rounded-2xl border border-secondary/35 bg-secondary/10 p-6 text-center"
+          role="status"
+          data-testid="already-signed-in"
+        >
+          <h1 className="text-2xl font-semibold">Already signed in</h1>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            You are currently signed in as <strong className="text-foreground">{currentUserEmail}</strong>.
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            To create a brand-new account or sign up a new kennel, sign out first.
+          </p>
+          <form action="/auth/signout" method="post" className="mt-5">
+            <Button
+              className="min-h-11 w-full"
+              type="submit"
+              data-testid="signup-signout-btn"
+            >
+              Sign out & Create Account
+            </Button>
+          </form>
+          <Link
+            href={nextPath || "/"}
+            className="mt-3 inline-block text-sm text-brand-link underline"
+          >
+            Continue as {currentUserEmail}
+          </Link>
+        </section>
+      </AuthShell>
+    );
+  }
+
   if (codeSent) {
     return (
       <AuthShell>
@@ -450,9 +488,42 @@ export function LoginForm({
         {/* Stated before submitting, not discovered afterwards. The server
             action enforces exactly this sentence. */}
         {mode === "signup" && (
-          <p id="password-rule" className="text-xs leading-5 text-muted-foreground" data-testid="password-rule">
-            {t("passwordRule")}
-          </p>
+          <div className="space-y-1.5">
+            <p id="password-rule" className="text-xs leading-5 text-muted-foreground" data-testid="password-rule">
+              {t("passwordRule")}
+            </p>
+            {password.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-0.5">
+                <span
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-micro font-medium ${
+                    password.length >= PASSWORD_MIN_LENGTH
+                      ? "bg-secondary/15 text-secondary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {password.length >= PASSWORD_MIN_LENGTH ? "✓" : "○"} 8+ chars
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-micro font-medium ${
+                    /\p{L}/u.test(password)
+                      ? "bg-secondary/15 text-secondary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {/\p{L}/u.test(password) ? "✓" : "○"} 1 letter
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-micro font-medium ${
+                    /\d/.test(password)
+                      ? "bg-secondary/15 text-secondary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {/\d/.test(password) ? "✓" : "○"} 1 number
+                </span>
+              </div>
+            )}
+          </div>
         )}
         {mode === "signup" && (
           <label className="flex min-h-11 items-center gap-3 text-sm">
