@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
 import { TierList } from "@/components/subscriptions/TierList";
@@ -21,46 +22,49 @@ export default async function SubscriptionSettingsPage() {
 
   return (
     <AppPage>
-      <header className="flex items-center justify-between px-3 pb-3 pt-4">
-        <h1 className="text-xl font-semibold">{t("title")}</h1>
-        <Link href="/menu" className="text-sm text-brand-link underline">
-          {t("back")}
-        </Link>
-      </header>
-
-      <section className="px-3 pb-3">
-        <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
-        {/* Said on the page, not just in the schema: the plan never moves the
-            fee onto the buyer, so nobody shops a seller's plan. */}
-        <p className="mt-2 text-xs text-muted-foreground">{t("sellerPaysNotice")}</p>
-      </section>
-
-      {subscription && (
-        <section className="px-3 pb-3">
-          <div className="premium-panel rounded-2xl p-4" data-testid="current-subscription">
-            <p className="eyebrow">{t("currentHeading")}</p>
-            <p className="mt-1 text-sm font-semibold">{subscription.tierKey}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t(`status.${subscription.status}`)}
-            </p>
+      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
+        <header className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              {t("title")}
+            </h1>
+            <p className="mt-1 text-xs text-muted-foreground">{t("subtitle")}</p>
           </div>
-          <div className="pt-3">
-            <PausePanel
-              subscription={subscription}
-              tier={tiers.find((tier) => tier.key === subscription.tierKey) ?? null}
-            />
-          </div>
+          <Link
+            href="/settings"
+            className="grid size-9 place-items-center rounded-xl border border-border/70 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-muted/60 hover:text-foreground"
+            aria-label="Back to settings"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
+          </Link>
+        </header>
+
+        <section className="mb-6 rounded-2xl border border-border/70 bg-card/40 p-4">
+          <p className="text-xs leading-relaxed text-muted-foreground">{t("sellerPaysNotice")}</p>
         </section>
-      )}
 
-      <section className="px-3 pb-6">
-        <h2 className="pb-2 text-sm font-semibold">{t("plansHeading")}</h2>
-        <TierList
-          tiers={tiers}
-          enabled={enabled}
-          currentTierKey={subscription?.status === "active" ? subscription.tierKey : null}
-        />
-      </section>
+        {subscription && (
+          <section className="mb-6">
+            <div className="premium-panel rounded-2xl p-4" data-testid="current-subscription">
+              <p className="eyebrow">{t("currentHeading")}</p>
+              <p className="mt-1 text-sm font-semibold">{subscription.tierKey}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t(`status.${subscription.status}`)}
+              </p>
+            </div>
+            <div className="pt-3">
+              <PausePanel
+                subscription={subscription}
+                tier={tiers.find((tier) => tier.key === subscription.tierKey) ?? null}
+              />
+            </div>
+          </section>
+        )}
+
+        <section className="pb-6">
+          <TierList tiers={tiers} currentTierKey={subscription?.tierKey ?? null} enabled={enabled} />
+        </section>
+      </div>
     </AppPage>
   );
 }

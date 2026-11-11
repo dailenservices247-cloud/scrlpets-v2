@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { AppPage } from "@/components/app/AppPage";
@@ -30,16 +31,29 @@ export default async function ReferralsPage() {
 
   return (
     <AppPage>
-      <header className="flex items-center justify-between px-3 pb-3 pt-4">
-        <h1 className="text-xl font-semibold">{t("title")}</h1>
-        <Link href="/menu" className="text-sm text-brand-link underline">
-          {t("back")}
-        </Link>
-      </header>
-      <div className="flex flex-col gap-4 px-3 pb-6">
-        <ClaimReferralForm claimedCode={referrerCode} />
-        <ReferralPanel link={link} stats={stats} />
-        <ReferralShare link={link} />
+      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
+        <header className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              {t("title")}
+            </h1>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Invite trusted breeders and companion owners to earn pack credits.
+            </p>
+          </div>
+          <Link
+            href="/settings"
+            className="grid size-9 place-items-center rounded-xl border border-border/70 bg-card/60 text-muted-foreground transition hover:border-border hover:bg-muted/60 hover:text-foreground"
+            aria-label="Back to settings"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
+          </Link>
+        </header>
+        <div className="flex flex-col gap-4 pb-6">
+          <ClaimReferralForm claimedCode={referrerCode} />
+          <ReferralPanel link={link} stats={stats} />
+          <ReferralShare link={link} />
+        </div>
       </div>
     </AppPage>
   );
