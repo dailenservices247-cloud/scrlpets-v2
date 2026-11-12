@@ -28,6 +28,15 @@ export function LinkParentsSheet({
   // cross-owner parents, so this list is a UX narrowing, not the real guard.
   const candidates = allCreatures.filter((c) => c.id !== creature.id);
 
+  // Gender-aware candidate narrowing for Sire and Dam slots
+  const getEligibleCandidates = (slot: Slot) => {
+    return candidates.filter((c) => {
+      if (slot === "sire") return c.gender !== "female";
+      if (slot === "dam") return c.gender !== "male";
+      return true;
+    });
+  };
+
   async function link(slot: Slot, parentId: string) {
     if (!parentId) return;
     setBusy(slot);
@@ -94,9 +103,9 @@ export function LinkParentsSheet({
                       data-testid={`link-parents-${slot}-select-${creature.id}`}
                     >
                       <option value="">{t("slotNone")}</option>
-                      {candidates.map((candidate) => (
+                      {getEligibleCandidates(slot).map((candidate) => (
                         <option key={candidate.id} value={candidate.id}>
-                          {candidate.name}
+                          {candidate.name} {candidate.breed ? `(${candidate.breed})` : candidate.species ? `(${candidate.species})` : ""}
                         </option>
                       ))}
                     </select>

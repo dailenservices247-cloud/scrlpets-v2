@@ -241,6 +241,26 @@ export function TransportDispatchTimeline({
         </div>
       </div>
 
+      {/* Interstate Corridor Route Progress */}
+      <div className="mt-4 rounded-xl border border-border/80 bg-muted/20 p-3.5 space-y-2" data-testid="route-progress-card">
+        <div className="flex flex-wrap items-center justify-between text-xs gap-1">
+          <span className="font-semibold text-foreground flex items-center gap-1.5">
+            <Truck className="size-3.5 text-primary" />
+            <span>Corridor Transit: I-75 Southbound Route</span>
+          </span>
+          <span className="font-mono text-micro text-emerald-400 font-medium">
+            440 / 680 mi completed (65%)
+          </span>
+        </div>
+        <div className="h-2 w-full rounded-full bg-border/60 overflow-hidden">
+          <div className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full" style={{ width: "65%" }} />
+        </div>
+        <div className="flex items-center justify-between text-micro text-muted-foreground pt-0.5">
+          <span>Origin: Danu's Ark (Ohio)</span>
+          <span>Destination Corridor Arrival</span>
+        </div>
+      </div>
+
       {/* Multi-Milestone Visual Stepper */}
       <div className="mt-6">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
@@ -335,6 +355,45 @@ export function TransportDispatchTimeline({
             className="mb-4 rounded-xl border border-border/80 bg-muted/20 p-3 text-xs space-y-3"
             data-testid="welfare-log-form"
           >
+            {/* Quick 1-tap presets */}
+            <div>
+              <span className="block text-micro font-medium text-muted-foreground uppercase mb-1.5">
+                Quick 1-Tap Welfare Presets
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewActivity("Fresh electrolyte water provided. Animal drank well and rested comfortably.");
+                    setNewTemp(68);
+                  }}
+                  className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-micro font-medium text-emerald-400 hover:bg-emerald-500/20"
+                >
+                  💧 Water &amp; Electrolytes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewActivity("15-minute leash walk and potty break. Alert, active, and calm demeanor.");
+                    setNewTemp(69);
+                  }}
+                  className="rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-micro font-medium text-blue-400 hover:bg-blue-500/20"
+                >
+                  🐾 15-Min Leash Exercise
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewActivity("Pre-dropoff welfare check: vital signs normal, coat dry, clean crate bedding.");
+                    setNewTemp(68);
+                  }}
+                  className="rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-micro font-medium text-purple-400 hover:bg-purple-500/20"
+                >
+                  🩺 Destination Welfare Check
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-micro font-medium text-muted-foreground uppercase mb-1">

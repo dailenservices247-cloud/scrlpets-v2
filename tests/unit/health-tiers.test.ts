@@ -5,8 +5,8 @@ import type { GeneticTest } from "@/lib/creatures/queries";
 describe("calculateHealthTier", () => {
   it("assigns Elite tier when both OFA phenotypic clearances and genomic DNA panels are clear", () => {
     const tests: GeneticTest[] = [
-      { id: "1", testType: "phenotypic", conditionName: "OFA Hips / Radiograph", result: "normal", grade: null, geneName: null, genotype: null, provider: "OFA", testDate: "2026-01-01", certificateNumber: null, notes: null },
-      { id: "2", testType: "phenotypic", conditionName: "OFA Elbows", result: "clear", grade: null, geneName: null, genotype: null, provider: "OFA", testDate: "2026-01-01", certificateNumber: null, notes: null },
+      { id: "1", testType: "hip", conditionName: "OFA Hips / Radiograph", result: "normal", grade: null, geneName: null, genotype: null, provider: "OFA", testDate: "2026-01-01", certificateNumber: null, notes: null },
+      { id: "2", testType: "elbow", conditionName: "OFA Elbows", result: "clear", grade: null, geneName: null, genotype: null, provider: "OFA", testDate: "2026-01-01", certificateNumber: null, notes: null },
       { id: "3", testType: "dna_panel", conditionName: "Embark DNA Health Panel", result: "clear", grade: null, geneName: null, genotype: null, provider: "Embark", testDate: "2026-01-01", certificateNumber: null, notes: null },
     ];
     const tier = calculateHealthTier({ tests, anchorVerified: true });
@@ -17,7 +17,7 @@ describe("calculateHealthTier", () => {
 
   it("assigns Comprehensive tier when at least one phenotypic or DNA clearance is documented", () => {
     const tests: GeneticTest[] = [
-      { id: "1", testType: "phenotypic", conditionName: "OFA Cardiac Screening", result: "normal", grade: null, geneName: null, genotype: null, provider: "OFA", testDate: "2026-01-01", certificateNumber: null, notes: null },
+      { id: "1", testType: "cardiac", conditionName: "OFA Cardiac Screening", result: "normal", grade: null, geneName: null, genotype: null, provider: "OFA", testDate: "2026-01-01", certificateNumber: null, notes: null },
     ];
     const tier = calculateHealthTier({ tests });
     expect(tier.tier).toBe("comprehensive");
