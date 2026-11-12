@@ -151,6 +151,16 @@ export function PedigreeMatrix({ data }: { data: PedigreeData }) {
               <span>5-Gen Certificate</span>
             </button>
 
+            {/* Visual Tree Builder & Lineage Editor */}
+            <Link
+              href="/tree"
+              className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition cursor-pointer"
+              data-testid="pedigree-manage-tree-btn"
+            >
+              <Network className="size-3.5 text-brand-link" />
+              <span>Tree Builder</span>
+            </Link>
+
             {/* COI Badge */}
             <button
               type="button"
