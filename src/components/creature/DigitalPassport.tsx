@@ -3,6 +3,7 @@
 import { ShieldCheck, Award, FileCheck2, Printer, Dna, Activity } from "lucide-react";
 import { taxonomyLabelForSpecies } from "@/lib/species/identity";
 import type { GeneticTest } from "@/lib/creatures/queries";
+import { HealthTierBadge } from "@/components/verification/HealthTierBadge";
 import { cn } from "@/lib/utils";
 
 export type DigitalPassportProps = {
@@ -63,7 +64,13 @@ export function DigitalPassport({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <HealthTierBadge
+              tests={tests}
+              anchorVerified={anchorVerified}
+              registrationNumber={registrationNumber}
+            />
+
             <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-micro font-medium text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="size-3" />
               <span>Chain-of-Custody Verified</span>

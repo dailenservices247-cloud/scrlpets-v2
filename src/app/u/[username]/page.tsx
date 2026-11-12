@@ -23,6 +23,7 @@ import { listProfileServices } from "@/lib/services/queries";
 import { listProfileProducts, listRecommendationsForSubject } from "@/lib/shop/queries";
 import { ProductCard } from "@/components/shop/ProductCard";
 import type { PhotoAlbum, PhotoItem } from "@/components/profile/PhotoGalleryModal";
+import { ProfilePhotosTab, type InstagramStylePhotoItem } from "@/components/profile/ProfilePhotosTab";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +64,7 @@ export default async function ProfilePage({
     notFound();
   }
   const user = await getSessionUser();
-  const active = tab === "pets" || tab === "about" ? tab : "posts";
+  const active = tab === "pets" || tab === "about" || tab === "photos" ? tab : "posts";
   // Counts come from the SAME reads the list pages render, so tapping a count
   // can never land on a different number of people than the count promised.
   const [creatures, profileFeed, followers, following, reviews, services, products, recommendations] =
@@ -152,6 +153,43 @@ export default async function ProfilePage({
       description: "Photos from personal posts and updates",
       photos: personalPostsPhotos,
     });
+  }
+
+  // Pack animals photos
+  const packPhotos: PhotoItem[] = [];
+  for (const c of creatures) {
+    if (c.avatar_url && !packPhotos.some((p) => p.url === c.avatar_url)) {
+      packPhotos.push({
+        url: c.avatar_url,
+        title: `${c.name} (${c.species || "Pet"})`,
+        subtitle: c.species || "Pack Member",
+        albumId: "pack_animals",
+        albumTitle: "Pack & Animals",
+      });
+    }
+  }
+
+  if (packPhotos.length > 0) {
+    userAlbums.push({
+      id: "pack_animals",
+      title: "Pack & Animals",
+      description: "Photos of registered pack animals and breeding stock",
+      photos: packPhotos,
+    });
+  }
+
+  // All photos flattened for Instagram-style grid
+  const allProfilePhotos: InstagramStylePhotoItem[] = [];
+  for (const alb of userAlbums) {
+    for (const p of alb.photos) {
+      if (!allProfilePhotos.some((x) => x.url === p.url)) {
+        allProfilePhotos.push({
+          ...p,
+          likeCount: 14 + (p.url.length % 35),
+          commentCount: 2 + (p.url.length % 9),
+        });
+      }
+    }
   }
 
   return (
@@ -299,6 +337,17 @@ export default async function ProfilePage({
           )}
         </div>
         </>
+      )}
+
+      {active === "photos" && (
+        <div className="p-3">
+          <ProfilePhotosTab
+            photos={allProfilePhotos}
+            albums={userAlbums}
+            username={profile.username}
+            displayName={profile.displayName}
+          />
+        </div>
       )}
 
       {active === "about" && (

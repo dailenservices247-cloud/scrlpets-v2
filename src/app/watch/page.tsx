@@ -197,13 +197,15 @@ export default async function WatchPage() {
                   <p className="font-semibold text-xs text-white line-clamp-2 drop-shadow-sm">
                     {reel.title || "Untitled Reel"}
                   </p>
-                  <div className="flex items-center gap-1.5 text-micro text-white/80">
-                    <span>@{reel.author.username}</span>
+                  <div className="flex items-center justify-between gap-1 text-micro text-white/80">
+                    <span className="truncate">@{reel.author.username}</span>
                     {reel.creature && (
-                      <>
-                        <span>&middot;</span>
-                        <span className="truncate">{reel.creature.name}</span>
-                      </>
+                      <span
+                        className="inline-flex items-center gap-1 rounded-md bg-white/20 px-1.5 py-0.5 text-micro font-medium text-white backdrop-blur-sm hover:bg-white/35 transition"
+                        title={`View ${reel.creature.name}'s verified pedigree and health passport`}
+                      >
+                        🧬 Lineage &amp; Pack
+                      </span>
                     )}
                   </div>
                 </div>

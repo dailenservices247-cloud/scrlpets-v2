@@ -265,6 +265,7 @@
   },
   "profile": {
     "tabPosts": "Posts",
+    "tabPhotos": "Photos",
     "tabPets": "Pets",
     "tabAbout": "About",
     "noPosts": "No posts yet.",

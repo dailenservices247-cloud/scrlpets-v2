@@ -102,15 +102,15 @@ export function OrderInspectionBanner({
           <div>
             <h2 className="text-sm font-semibold tracking-tight text-foreground">
               {isBuyer
-                ? "Buyer Inspection & Health Verification Period"
+                ? "72-Hour Post-Delivery Veterinary Welfare & Inspection Window"
                 : isSeller
-                  ? "Buyer Inspection Window Active"
+                  ? "72-Hour Buyer Veterinary Inspection Window Active"
                   : isTransporter
                     ? "Handover Verified — In Buyer Inspection"
-                    : "Inspection Window Active"}
+                    : "72-Hour Inspection Window Active"}
             </h2>
             <p className="text-micro text-muted-foreground">
-              Standard {inspectionHours}-Hour Escrow Protection Window
+              {inspectionHours || 72}-Hour Held Payment Guarantee Protection Window
             </p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export function OrderInspectionBanner({
             The animal was successfully handed over with security code and microchip verification.
             The buyer has until{" "}
             <strong className="text-foreground">{formattedEndDate ?? "the window ends"}</strong> to
-            complete their standard inspection. Escrow funds will automatically release to your
+            complete their standard veterinary health inspection. Protected reservation funds will automatically release to your
             payout balance when the countdown finishes, unless the buyer confirms early or opens a
             dispute.
           </>

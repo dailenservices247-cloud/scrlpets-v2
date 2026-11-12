@@ -229,6 +229,16 @@ export function PhotoGalleryModal({
           </button>
         )}
 
+        {/* Instagram-style 1/N counter badge overlay */}
+        {total > 1 && (
+          <div
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 rounded-full bg-black/65 px-3 py-1 text-xs font-mono font-medium text-white backdrop-blur-md border border-white/15 shadow-md"
+            data-testid="photo-lightbox-counter"
+          >
+            {currentIndex + 1} / {total}
+          </div>
+        )}
+
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           key={current.url}
@@ -251,8 +261,24 @@ export function PhotoGalleryModal({
         )}
       </div>
 
-      {/* Bottom Bar: Caption + Thumbnail Gallery */}
+      {/* Bottom Bar: Caption + Instagram Dots + Thumbnail Gallery */}
       <footer className="p-4 z-10 bg-gradient-to-t from-black/90 via-black/60 to-transparent">
+        {/* Instagram Pagination Dots */}
+        {total > 1 && (
+          <div className="flex items-center justify-center gap-1.5 pb-2" aria-hidden>
+            {activePhotos.slice(0, 8).map((_, dotIdx) => (
+              <span
+                key={dotIdx}
+                className={`size-1.5 rounded-full transition-all duration-200 ${
+                  currentIndex === dotIdx
+                    ? "w-4 bg-primary rounded-full"
+                    : "bg-white/40"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
         {current.subtitle && (
           <p className="mb-3 text-center text-xs text-white/70">
             {current.subtitle}
