@@ -58,7 +58,7 @@ describe("Scrlpets AI Studio Suite", () => {
 
       expect(contract).toContain("LIVE ARRIVAL GUARANTEE (LAG)");
       expect(contract).toContain("unboxing video proof within 2 hours");
-      expect(contract).toContain("Scrlpets escrow protection");
+      expect(contract).toContain("Scrlpets buyer protection");
     });
 
     it("includes health warranty and genetic guarantee for domestic companions", () => {

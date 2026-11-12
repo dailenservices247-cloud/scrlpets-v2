@@ -301,7 +301,7 @@ export function BookingRequestModal({
                 {service.depositAmountCents
                   ? formatPrice(service.depositAmountCents, service.currency)
                   : "Stated upon confirmation"}{" "}
-                (held securely in escrow upon acceptance).
+                (held securely under buyer protection upon acceptance).
               </div>
             )}
 

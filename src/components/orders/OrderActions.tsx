@@ -411,11 +411,11 @@ export function OrderActions({
       {viewerId === order.buyerId && (order.status === "awaiting_payment" || order.status === "deposit_held") && (
         <div className="flex flex-col gap-2 rounded-xl border border-primary/40 bg-primary/10 p-3" data-testid="order-payment-box">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {order.status === "deposit_held" ? "Stage 2 Escrow Payment" : "Escrow Payment"}
+            {order.status === "deposit_held" ? "Stage 2 Balance Payment" : "Secured Reservation Payment"}
           </p>
           <p className="text-xs text-muted-foreground">
             {order.status === "deposit_held"
-              ? "Animal is verified on the way or ready for handover. Relinquish the remaining balance to hold in escrow."
+              ? "Animal is verified on the way or ready for handover. Relinquish the remaining balance to hold under buyer protection."
               : "Pay the required deposit to reserve the animal, or pay in full."}
           </p>
           <div className="flex flex-wrap gap-2 pt-1">

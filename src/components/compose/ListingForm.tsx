@@ -275,7 +275,7 @@ export function ListingForm(props: ListingFormProps) {
             </div>
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="inline-flex items-center gap-1">
-                <span>Platform Escrow Protection (5%):</span>
+                <span>Buyer Protection Guarantee (5%):</span>
               </span>
               <span>
                 -${platformFee.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -518,7 +518,7 @@ export function ListingForm(props: ListingFormProps) {
               className="w-full rounded border border-input bg-transparent p-2 text-xs"
             >
               <option value="direct_checkout">Direct Checkout (Instant Purchase)</option>
-              <option value="contract_escrow">Escrow &amp; Contract Agreement</option>
+              <option value="contract_escrow">Protected Contract &amp; Held Deposit</option>
             </select>
           </div>
         </div>

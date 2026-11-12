@@ -50,7 +50,7 @@ export function NotificationsForm({
         </div>
       )}
 
-      {/* 1. Transaction & Escrow (Always On) */}
+      {/* 1. Transaction & Payment Protection (Always On) */}
       <section className="premium-panel rounded-2xl p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
@@ -58,9 +58,9 @@ export function NotificationsForm({
               <ShieldCheck className="size-4.5" />
             </span>
             <div>
-              <h2 className="text-sm font-bold text-foreground">Order, Escrow & Payment Alerts</h2>
+              <h2 className="text-sm font-bold text-foreground">Order, Security & Payment Protection Alerts</h2>
               <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                Critical notifications regarding deposit escrow release, carrier transport pickup, dispute arbitration, and Stripe payouts.
+                Critical notifications regarding held deposit release, carrier transport pickup, dispute arbitration, and Stripe payouts.
               </p>
             </div>
           </div>

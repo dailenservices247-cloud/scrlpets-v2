@@ -86,7 +86,7 @@ export function generateUniversalContract(input: ContractDraftInput): string {
   let guaranteeClause = "";
   if (normSpecies === "insect" || normSpecies === "reptile" || normSpecies === "fish") {
     guaranteeClause = `LIVE ARRIVAL GUARANTEE (LAG):
-Seller guarantees live and healthy arrival of the specimen (${input.animalName}) provided the package is accepted on the first delivery attempt or picked up from the carrier hub within ${lagHours} hours of arrival. In the rare event of mortality or severe distress, Buyer must provide clear, unedited unboxing video proof within ${lagHours} hours of delivery to qualify for an immediate replacement or full refund under Scrlpets escrow protection.`;
+Seller guarantees live and healthy arrival of the specimen (${input.animalName}) provided the package is accepted on the first delivery attempt or picked up from the carrier hub within ${lagHours} hours of arrival. In the rare event of mortality or severe distress, Buyer must provide clear, unedited unboxing video proof within ${lagHours} hours of delivery to qualify for an immediate replacement or full refund under Scrlpets buyer protection.`;
   } else {
     guaranteeClause = `HEALTH WARRANTY & GENETIC GUARANTEE:
 Seller guarantees that ${input.animalName} is in good health at the time of physical handover. Seller provides a ${healthDays}-day genetic health guarantee covering life-threatening congenital defects confirmed by a licensed veterinarian. Both parties agree to transfer health records via the Scrlpets Document Vault upon release.`;

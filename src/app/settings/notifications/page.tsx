@@ -7,7 +7,7 @@ import { NotificationsForm } from "@/components/settings/NotificationsForm";
 
 export const metadata = {
   title: "Notifications & Alerts Settings | Scrlpets",
-  description: "Configure alerts for messages, escrow updates, gotcha days, and breeding reminders.",
+  description: "Configure alerts for messages, payment protection updates, gotcha days, and breeding reminders.",
 };
 
 export default async function NotificationsSettingsPage() {

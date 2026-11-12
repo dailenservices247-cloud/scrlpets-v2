@@ -79,14 +79,19 @@ export async function listMyLitters(ownerId: string): Promise<MyLitter[]> {
   }));
 }
 
-export type BreedingCreature = { id: string; name: string };
+export type BreedingCreature = {
+  id: string;
+  name: string;
+  species?: string | null;
+  breed?: string | null;
+};
 
 /** Dam/sire picker options: the caller's own creatures marked as breeding stock (the DB trigger enforces ownership regardless). */
 export async function listOwnBreedingCreatures(ownerId: string): Promise<BreedingCreature[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("creatures")
-    .select("id,name")
+    .select("id,name,species,breed")
     .eq("owner_id", ownerId)
     .is("archived_at", null)
     .eq("creature_role", "breeding")

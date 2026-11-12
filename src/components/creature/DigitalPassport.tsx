@@ -1,7 +1,9 @@
 "use client";
 
-import { ShieldCheck, Award, FileCheck2, Printer } from "lucide-react";
+import { ShieldCheck, Award, FileCheck2, Printer, Dna, Activity } from "lucide-react";
 import { taxonomyLabelForSpecies } from "@/lib/species/identity";
+import type { GeneticTest } from "@/lib/creatures/queries";
+import { cn } from "@/lib/utils";
 
 export type DigitalPassportProps = {
   creatureName: string;
@@ -14,6 +16,7 @@ export type DigitalPassportProps = {
   anchorVerified?: boolean;
   ownerUsername: string;
   brandName?: string | null;
+  tests?: GeneticTest[];
 };
 
 export function DigitalPassport({
@@ -27,6 +30,7 @@ export function DigitalPassport({
   anchorVerified = true,
   ownerUsername,
   brandName,
+  tests = [],
 }: DigitalPassportProps) {
   const taxonomyLabel = taxonomyLabelForSpecies(species);
   const normalizedSpecies = (species || "Animal").toLowerCase();
@@ -36,6 +40,10 @@ export function DigitalPassport({
       window.print();
     }
   };
+
+  const clearTestsCount = tests.filter(
+    (t) => t.result === "clear" || t.result === "normal",
+  ).length;
 
   return (
     <section className="mx-auto max-w-2xl px-4 pt-4" data-testid="digital-health-passport">
@@ -50,7 +58,7 @@ export function DigitalPassport({
                 Verified Stewardship Dossier
               </span>
               <h3 className="text-base font-bold tracking-tight">
-                Digital Health & Provenance Passport
+                Digital Health &amp; Provenance Passport
               </h3>
             </div>
           </div>
@@ -105,7 +113,7 @@ export function DigitalPassport({
 
           <div className="rounded-xl border border-border/50 bg-background/60 p-2.5">
             <p className="text-micro font-medium uppercase tracking-wider text-muted-foreground">
-              Anchor & Identifier
+              Anchor &amp; Identifier
             </p>
             <p className="mt-1 font-bold text-foreground font-mono truncate">
               {registrationNumber || (anchorType ? `${anchorType.toUpperCase()}` : "Universal ID")}
@@ -114,6 +122,54 @@ export function DigitalPassport({
               {anchorVerified ? "Tamper-Proof" : "Declared"}
             </p>
           </div>
+        </div>
+
+        {/* Health & Genetic Screening Strip */}
+        <div className="mt-3 rounded-xl border border-border/60 bg-muted/15 p-2.5 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 font-semibold text-foreground">
+              <Dna className="size-3.5 text-brand-link" />
+              <span>Genetic Health &amp; Diagnostic Clearances</span>
+            </div>
+            {tests.length > 0 ? (
+              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-micro font-semibold text-emerald-500">
+                {clearTestsCount} of {tests.length} Clear / Normal
+              </span>
+            ) : (
+              <span className="text-micro text-muted-foreground">
+                No laboratory certifications uploaded yet
+              </span>
+            )}
+          </div>
+
+          {tests.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {tests.map((test) => (
+                <div
+                  key={test.id}
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-micro font-medium",
+                    test.result === "clear" || test.result === "normal"
+                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                      : test.result === "carrier"
+                        ? "border-amber-500/40 bg-amber-500/10 text-amber-400"
+                        : "border-destructive/40 bg-destructive/10 text-destructive",
+                  )}
+                >
+                  <Activity className="size-3 shrink-0" />
+                  <span className="font-semibold uppercase tracking-wider">
+                    {test.testType}:
+                  </span>
+                  <span>{test.conditionName}</span>
+                  <span className="opacity-80">({test.result})</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-1 text-micro text-muted-foreground leading-relaxed">
+              OFA (hips, elbows, cardiac, eyes), PennHIP distraction index, and Embark / Wisdom Panel certified testing records appear directly on this official registry badge.
+            </p>
+          )}
         </div>
 
         {/* Stewardship Lineage & Handover Authority */}
@@ -126,7 +182,7 @@ export function DigitalPassport({
             </span>
           </div>
           <span className="text-micro text-muted-foreground">
-            Transferable to Buyer on Verified Escrow Handover
+            Transferable to Buyer on Verified Handover &amp; Protection Release
           </span>
         </div>
       </div>

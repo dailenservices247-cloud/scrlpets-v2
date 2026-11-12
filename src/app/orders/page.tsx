@@ -11,14 +11,14 @@ import { formatPrice } from "@/lib/shop/format";
 
 export const metadata = {
   title: "Orders & Deals",
-  description: "Your active purchases, contract sales, and escrow protection on Scrlpets.",
+  description: "Your active purchases, contract sales, and buyer protection on Scrlpets.",
 };
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   draft: { label: "Draft", cls: "bg-muted/40 text-muted-foreground border-border/60" },
   awaiting_payment: { label: "Awaiting Payment", cls: "bg-primary/15 text-brand-link border-primary/30" },
-  deposit_held: { label: "Deposit Held in Escrow", cls: "bg-primary/20 text-brand-link border-primary/40 font-semibold" },
-  funds_held: { label: "Funds Held in Escrow", cls: "bg-primary/20 text-brand-link border-primary/40 font-semibold" },
+  deposit_held: { label: "Deposit Held (Protected)", cls: "bg-primary/20 text-brand-link border-primary/40 font-semibold" },
+  funds_held: { label: "Funds Held (Protected)", cls: "bg-primary/20 text-brand-link border-primary/40 font-semibold" },
   dispatched: { label: "On the Way / Dispatched", cls: "bg-secondary/25 text-secondary-foreground border-secondary/40" },
   inspection: { label: "Inspection Window Open", cls: "bg-secondary/25 text-secondary-foreground border-secondary/40 font-semibold" },
   disputed: { label: "In Dispute Review", cls: "bg-destructive/15 text-destructive border-destructive/30" },

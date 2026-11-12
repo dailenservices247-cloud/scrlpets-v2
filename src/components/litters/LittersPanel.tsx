@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { AlertDialog } from "@base-ui/react/alert-dialog";
+import { Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteLitter } from "@/lib/litters/actions";
 import { LitterWizard } from "./LitterWizard";
@@ -111,10 +112,18 @@ export function LittersPanel({
                       </span>
                     )}
                   </p>
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Button variant="outline" size="sm" data-testid="litter-edit" onClick={() => openEdit(l)}>
                       {t("edit")}
                     </Button>
+                    <Link
+                      href={`/litters/${l.id}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-input px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/50 transition"
+                      data-testid="litter-view-growth"
+                    >
+                      <Scale className="size-3.5 text-brand-link" aria-hidden />
+                      <span>Growth & Whelping</span>
+                    </Link>
                     <Button
                       variant="ghost"
                       size="sm"

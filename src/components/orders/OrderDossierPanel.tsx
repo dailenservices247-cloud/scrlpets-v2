@@ -25,7 +25,7 @@ export function OrderDossierPanel({
           <span>Counterparty Protection Dossier</span>
         </div>
         <p className="mt-2 text-xs leading-5 text-muted-foreground">
-          Verified counterparty registration and audit dossier unlocks as soon as the first escrow stage is funded.
+          Verified counterparty registration and audit dossier unlocks as soon as the first reservation deposit is funded.
         </p>
       </section>
     );

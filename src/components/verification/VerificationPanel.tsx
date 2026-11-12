@@ -400,7 +400,7 @@ export function VerificationPanel({
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold">
                 {standingPolicy.depositRefundablePolicy === "escrow_until_handover"
-                  ? "Escrow Until Handover"
+                  ? "Held Until Handover (Protected)"
                   : "Non-Refundable on Buyer Default"}
               </span>
               <span className="font-mono">{Math.round(standingPolicy.defaultDepositBps / 100)}% Deposit</span>
@@ -459,7 +459,7 @@ export function VerificationPanel({
                 disabled={isPolicyLocked}
                 className="min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm disabled:opacity-60"
               >
-                <option value="escrow_until_handover">Escrow until animal handover (Standard)</option>
+                <option value="escrow_until_handover">Held until animal handover (Standard)</option>
                 <option value="non_refundable_on_default">Non-refundable if buyer defaults without cause</option>
               </select>
             </div>

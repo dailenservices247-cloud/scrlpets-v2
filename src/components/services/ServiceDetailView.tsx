@@ -240,7 +240,7 @@ export function ServiceDetailView({
             </div>
 
             <p className="text-center text-micro text-muted-foreground">
-              Direct Deal Room coordination & escrow protection. Zero off-platform wire risks.
+              Direct Deal Room coordination & buyer protection. Zero off-platform wire risks.
             </p>
           </div>
         </div>

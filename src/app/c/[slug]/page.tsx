@@ -280,6 +280,7 @@ export default async function CreaturePage({
         anchorVerified={assurance !== "declared"}
         ownerUsername={creature.owner.username}
         brandName={origin?.brandName}
+        tests={tests}
       />
 
       <UniversalCareHabitatCard

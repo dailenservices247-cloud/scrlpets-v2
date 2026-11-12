@@ -92,10 +92,10 @@ export async function signDealContract(
         headline: "Your buyer has signed the contract!",
         bodyLines: [
           `The deal contract has been signed by both parties for $${(contract.agreed_price_cents / 100).toFixed(2)}.`,
-          "The order has been created. The buyer has been prompted to fund their escrow deposit.",
+          "The order has been created. The buyer has been prompted to fund their reservation deposit.",
         ],
         ctaUrl: `https://scrlpets.com/orders/${data}`,
-        ctaText: "View Order & Escrow Status",
+        ctaText: "View Order & Protection Status",
       });
     }
   } catch {}

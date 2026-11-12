@@ -75,7 +75,7 @@ export function ProviderOnboardingBanner({
             Offer Your Services to the Scrlpets Community
           </h2>
           <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-            Whether you stand working stud dogs, coordinate licensed pet transit, or offer training, grooming, and boarding—manage availability, client inquiries, and protected escrow deposits in one hub.
+            Whether you stand working stud dogs, coordinate licensed pet transit, or offer training, grooming, and boarding—manage availability, client inquiries, and protected reservation deposits in one hub.
           </p>
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">

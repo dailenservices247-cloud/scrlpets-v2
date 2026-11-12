@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { useTranslations } from "next-intl";
+import {
+  Heart,
+  Scale,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { capture } from "@/lib/analytics";
 import { FUNNEL_EVENTS } from "@/lib/analytics/events";
@@ -19,6 +24,17 @@ import type { BreedingCreature, LinkableCreature, MyLitter } from "@/lib/litters
 const TOTAL_STEPS = 4;
 const field = "min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm";
 const KNOWN_ERRORS = new Set(["name", "not_found", "auth_required"]);
+
+const SPECIES_GESTATION_DAYS: Record<string, { days: number; label: string; term: string }> = {
+  dog: { days: 63, label: "63 days (Canine Whelping)", term: "puppies" },
+  cat: { days: 65, label: "65 days (Feline Queening)", term: "kittens" },
+  rabbit: { days: 31, label: "31 days (Kindling)", term: "kits" },
+  bird: { days: 21, label: "21 days (Incubation)", term: "chicks" },
+  reptile: { days: 60, label: "60 days (Clutch Incubation)", term: "hatchlings" },
+  fish: { days: 28, label: "28 days (Spawning)", term: "fry" },
+  insect: { days: 14, label: "14 days (Founding)", term: "nanitics" },
+  other: { days: 63, label: "63 days standard", term: "offspring" },
+};
 
 type Basics = {
   name: string;
@@ -91,6 +107,29 @@ export function LitterWizard({
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showGestationCalc, setShowGestationCalc] = useState(false);
+  const [matingDate, setMatingDate] = useState("");
+
+  const gestationInfo = SPECIES_GESTATION_DAYS[basics.species] ?? SPECIES_GESTATION_DAYS.dog;
+  const calculatedDue = useMemo(() => {
+    if (!matingDate) return null;
+    const m = new Date(matingDate);
+    if (isNaN(m.getTime())) return null;
+    const due = new Date(m);
+    due.setDate(due.getDate() + gestationInfo.days);
+    const ultrasound = new Date(m);
+    ultrasound.setDate(ultrasound.getDate() + 28);
+    const weaning = new Date(due);
+    weaning.setDate(weaning.getDate() + 56);
+    return {
+      dueStr: due.toISOString().split("T")[0],
+      ultrasoundStr: ultrasound.toISOString().split("T")[0],
+      weaningStr: weaning.toISOString().split("T")[0],
+    };
+  }, [matingDate, gestationInfo.days]);
+
+  const selectedDam = breedingCreatures.find((c) => c.id === damId);
+  const selectedSire = breedingCreatures.find((c) => c.id === sireId);
 
   function toggleChecked(id: string) {
     setCheckedIds((prev) => {
@@ -195,6 +234,34 @@ export function LitterWizard({
                     className={field}
                   />
                 </label>
+
+                {/* Species Selector Pills */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{t("wizard.species")}</span>
+                    <span className="text-micro text-muted-foreground">{gestationInfo.label}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {LITTER_SPECIES.map((s) => {
+                      const isSelected = basics.species === s;
+                      return (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setBasics((b) => ({ ...b, species: s }))}
+                          className={`rounded-full px-2.5 py-1 text-micro font-medium transition ${
+                            isSelected
+                              ? "border border-primary bg-primary/15 text-primary font-semibold"
+                              : "border border-border/70 bg-muted/20 text-muted-foreground hover:bg-muted/40"
+                          }`}
+                        >
+                          {t(`species.${s}`)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <label className="flex flex-col gap-1.5 text-sm font-medium">
                     {t("wizard.species")}
@@ -254,6 +321,64 @@ export function LitterWizard({
                     />
                   </label>
                 </div>
+
+                {/* Breeder OS Gestation & Whelping Calculator */}
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                      <Sparkles className="size-3.5" aria-hidden />
+                      <span>Breeder OS · Whelping Forecaster</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowGestationCalc((v) => !v)}
+                      className="text-micro font-medium text-brand-link hover:underline"
+                    >
+                      {showGestationCalc ? "Hide Forecaster" : "Calculate from Mating Date"}
+                    </button>
+                  </div>
+                  {showGestationCalc && (
+                    <div className="mt-2.5 space-y-2 border-t border-primary/10 pt-2 text-xs">
+                      <label className="flex flex-col gap-1 text-micro font-medium text-muted-foreground">
+                        Mating / Ovulation Date
+                        <input
+                          type="date"
+                          value={matingDate}
+                          onChange={(e) => setMatingDate(e.target.value)}
+                          className="min-h-9 w-full rounded-lg border border-input bg-background px-2.5 text-xs text-foreground"
+                        />
+                      </label>
+                      {calculatedDue && (
+                        <div className="mt-2 rounded-lg border border-primary/15 bg-background/80 p-2.5 text-micro space-y-1.5">
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Gestation Window:</span>
+                            <span className="font-semibold text-foreground">{gestationInfo.label}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Ultrasound Window (Day 28):</span>
+                            <span className="font-mono text-foreground">{calculatedDue.ultrasoundStr}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Projected Whelping / Due:</span>
+                            <span className="font-mono font-semibold text-primary">{calculatedDue.dueStr}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">8-Week Placement Window:</span>
+                            <span className="font-mono text-foreground">{calculatedDue.weaningStr}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setBasics((b) => ({ ...b, expectedDate: calculatedDue.dueStr }))}
+                            className="mt-2 w-full rounded-lg bg-primary py-1.5 text-center text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition"
+                          >
+                            Apply Expected Due Date ({calculatedDue.dueStr})
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <label className="flex flex-col gap-1.5 text-sm font-medium">
                   {t("wizard.status")}
                   <select
@@ -286,7 +411,7 @@ export function LitterWizard({
                     <option value="">{t("noneParent")}</option>
                     {breedingCreatures.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.name}
+                        {c.name} {c.breed ? `(${c.breed})` : ""}
                       </option>
                     ))}
                   </select>
@@ -302,13 +427,47 @@ export function LitterWizard({
                     <option value="">{t("noneParent")}</option>
                     {breedingCreatures.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.name}
+                        {c.name} {c.breed ? `(${c.breed})` : ""}
                       </option>
                     ))}
                   </select>
                 </label>
                 {breedingCreatures.length === 0 && (
                   <p className="text-xs text-muted-foreground">{t("wizard.noBreedingAnimals")}</p>
+                )}
+
+                {(selectedDam || selectedSire) && (
+                  <div className="mt-2 rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <Heart className="size-3.5 text-pink-500" aria-hidden />
+                        <span>Breeder OS · Pairing Dossier</span>
+                      </div>
+                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-micro font-medium text-primary">
+                        Pedigree Lineage Ready
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="rounded-lg border border-border/60 bg-background/60 p-2.5">
+                        <p className="text-micro font-semibold uppercase text-muted-foreground">{t("dam")}</p>
+                        <p className="mt-0.5 truncate font-semibold text-foreground">
+                          {selectedDam ? selectedDam.name : "None selected"}
+                        </p>
+                        {selectedDam?.breed && (
+                          <p className="truncate text-micro text-muted-foreground">{selectedDam.breed}</p>
+                        )}
+                      </div>
+                      <div className="rounded-lg border border-border/60 bg-background/60 p-2.5">
+                        <p className="text-micro font-semibold uppercase text-muted-foreground">{t("sire")}</p>
+                        <p className="mt-0.5 truncate font-semibold text-foreground">
+                          {selectedSire ? selectedSire.name : "None selected"}
+                        </p>
+                        {selectedSire?.breed && (
+                          <p className="truncate text-micro text-muted-foreground">{selectedSire.breed}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
@@ -434,6 +593,16 @@ export function LitterWizard({
                   <span className="font-semibold">{t("youngGrid")}:</span>{" "}
                   {t("youngCount", { count: checkedIds.size + pendingYoung.length })}
                 </p>
+
+                <div className="mt-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                    <Scale className="size-3.5" aria-hidden />
+                    <span>Breeder OS Growth Velocity Ready</span>
+                  </div>
+                  <p className="mt-1 text-micro text-muted-foreground">
+                    Upon creation, this litter connects directly to daily puppy weight logs, benchmark percentile curves, and buyer waitlists.
+                  </p>
+                </div>
               </div>
             )}
 

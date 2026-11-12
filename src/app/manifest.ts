@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Scrlpets — The Trusted Home for Animals",
     short_name: "Scrlpets",
-    description: "The trusted home for animals. Verified breeders, escrow protection, deal room contracts, and pet care.",
+    description: "The trusted home for animals. Verified breeders, buyer protection, deal room contracts, and pet care.",
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -35,7 +35,7 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         name: "Deal Room",
         url: "/messages",
-        description: "View negotiations, contracts, and escrow status",
+        description: "View negotiations, contracts, and payment protection status",
       },
       {
         name: "Brand OS",
