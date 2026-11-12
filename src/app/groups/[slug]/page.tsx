@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { Sparkles, Dna, ArrowRight } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
 import { FeedList } from "@/components/feed/FeedList";
 import { GroupPostForm } from "@/components/groups/GroupPostForm";
@@ -86,6 +87,67 @@ export default async function GroupPage({
             {t("signInToJoin")}
           </Link>
         )}
+
+        {/* Breed Hub Highlights: Stud Spotlight & Litter Registry */}
+        <div className="mt-6 grid gap-3 sm:grid-cols-2" data-testid="breed-hub-spotlight">
+          {/* Stud Spotlight */}
+          <div className="premium-panel rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/20 px-2 py-0.5 text-micro font-semibold text-brand-link">
+                <Dna className="size-3" />
+                Featured Stud Spotlight
+              </span>
+              <span className="text-micro font-medium text-emerald-400">Health Clearances Passed</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Big Meech — Presa Canario Stud</h3>
+              <p className="text-micro text-muted-foreground">
+                Standing in Columbus, OH · OFA Hips/Elbows Clear · PennHIP 0.28 · 100% Negative DNA
+              </p>
+            </div>
+            <div className="pt-1 flex items-center gap-2">
+              <Link
+                href="/c/big-meech"
+                className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-primary px-3 text-micro font-semibold text-primary-foreground hover:bg-primary/90"
+              >
+                <span>View Pedigree Tree</span>
+                <ArrowRight className="size-3" />
+              </Link>
+              <Link
+                href="/services"
+                className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-input bg-card px-2.5 text-micro font-medium text-foreground hover:bg-muted"
+              >
+                <span>Request Breeding</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Pinned Litter Announcements */}
+          <div className="premium-panel rounded-2xl border border-border/70 bg-card/60 p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-micro font-semibold text-amber-300">
+                <Sparkles className="size-3" />
+                Verified Whelping Roster
+              </span>
+              <span className="text-micro text-muted-foreground">Held Payment Protected</span>
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-foreground">Danu&apos;s Ark Litter &ldquo;C&rdquo; Reserve</h3>
+              <p className="text-micro text-muted-foreground">
+                Sired by Big Meech · Expected Fall 2026 · Microchipped &amp; 48-hr Vet Guarantee
+              </p>
+            </div>
+            <div className="pt-1">
+              <Link
+                href="/litters"
+                className="inline-flex min-h-8 items-center gap-1 text-micro font-semibold text-brand-link hover:underline"
+              >
+                <span>Explore Active Breed Litters &amp; Weight Ledgers</span>
+                <ArrowRight className="size-3" />
+              </Link>
+            </div>
+          </div>
+        </div>
       </section>
 
       <nav className="flex gap-2 px-4 pb-3" aria-label={t("sectionsLabel")}>

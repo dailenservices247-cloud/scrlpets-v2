@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Camera, Image as ImageIcon } from "lucide-react";
+import { Camera, Image as ImageIcon, Sparkles, Clapperboard, ExternalLink, Dna, PawPrint, Stethoscope } from "lucide-react";
 import { updateProfile } from "@/lib/profiles/actions";
 import { MediaInput } from "@/components/compose/MediaInput";
 import { Button } from "@/components/ui/button";
@@ -28,8 +29,20 @@ export function ProfileEditForm({
   const [bio, setBio] = useState(initial.bio ?? "");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [persona, setPersona] = useState<"creator" | "breeder" | "pet_parent" | "pro">("creator");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`scrlpets_user_persona_${userId}`);
+      if (stored && ["creator", "breeder", "pet_parent", "pro"].includes(stored)) {
+        setTimeout(() => setPersona(stored as "creator" | "breeder" | "pet_parent" | "pro"), 0);
+      }
+    } catch {
+      // Ignore
+    }
+  }, [userId]);
 
   const activeAvatar = avatarUrl || initial.avatarUrl;
   const activeCover = coverUrl || initial.coverUrl;
@@ -51,6 +64,11 @@ export function ProfileEditForm({
     if (!res.ok) {
       setErr(res.error ?? "error");
       return;
+    }
+    try {
+      localStorage.setItem(`scrlpets_user_persona_${userId}`, persona);
+    } catch {
+      // Ignore
     }
     router.push(`/u/${username}?tab=about`);
     router.refresh();
@@ -126,6 +144,139 @@ export function ProfileEditForm({
             <MediaInput userId={userId} onUploaded={setCoverUrl} imagesOnly />
           </fieldset>
         </div>
+      </div>
+
+      {/* Account Persona & Profile Mode */}
+      <div className="space-y-3 border-t border-border/60 pt-4" data-testid="account-persona-selector">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">Profile Persona &amp; Focus</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Choose how you use Scrlpets. Tailors your dashboard, reels composer, and monetization features.
+          </p>
+        </div>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          {/* Creator Persona */}
+          <button
+            type="button"
+            onClick={() => setPersona("creator")}
+            className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+              persona === "creator"
+                ? "border-amber-500/80 bg-amber-500/10 ring-1 ring-amber-500/30"
+                : "border-border/70 bg-card/40 hover:bg-muted/40"
+            }`}
+            data-testid="persona-creator"
+          >
+            <div className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg ${
+              persona === "creator" ? "bg-amber-500/20 text-amber-300" : "bg-muted text-muted-foreground"
+            }`}>
+              <Sparkles className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-foreground">Content Creator</span>
+                {persona === "creator" && (
+                  <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 text-micro font-semibold text-amber-300">
+                    Active
+                  </span>
+                )}
+              </div>
+              <p className="mt-0.5 text-micro text-muted-foreground">
+                Upload short-form video reels, build a fan following, and monetize via fan tips and ad revenue.
+              </p>
+            </div>
+          </button>
+
+          {/* Breeder Persona */}
+          <button
+            type="button"
+            onClick={() => setPersona("breeder")}
+            className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+              persona === "breeder"
+                ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                : "border-border/70 bg-card/40 hover:bg-muted/40"
+            }`}
+            data-testid="persona-breeder"
+          >
+            <div className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg ${
+              persona === "breeder" ? "bg-primary/20 text-brand-link" : "bg-muted text-muted-foreground"
+            }`}>
+              <Dna className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-bold text-foreground">Breeder &amp; Kennel</span>
+              <p className="mt-0.5 text-micro text-muted-foreground">
+                Manage registered stock, litters, 4-gen pedigree trees, health testing, and buyer protection sales.
+              </p>
+            </div>
+          </button>
+
+          {/* Pet Guardian Persona */}
+          <button
+            type="button"
+            onClick={() => setPersona("pet_parent")}
+            className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+              persona === "pet_parent"
+                ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                : "border-border/70 bg-card/40 hover:bg-muted/40"
+            }`}
+            data-testid="persona-pet-parent"
+          >
+            <div className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg ${
+              persona === "pet_parent" ? "bg-primary/20 text-brand-link" : "bg-muted text-muted-foreground"
+            }`}>
+              <PawPrint className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-bold text-foreground">Pet Parent &amp; Family</span>
+              <p className="mt-0.5 text-micro text-muted-foreground">
+                Share photos, track companion animal health, and discover adoptable animals in your region.
+              </p>
+            </div>
+          </button>
+
+          {/* Care Pro Persona */}
+          <button
+            type="button"
+            onClick={() => setPersona("pro")}
+            className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+              persona === "pro"
+                ? "border-primary bg-primary/10 ring-1 ring-primary/30"
+                : "border-border/70 bg-card/40 hover:bg-muted/40"
+            }`}
+            data-testid="persona-pro"
+          >
+            <div className={`mt-0.5 grid size-8 shrink-0 place-items-center rounded-lg ${
+              persona === "pro" ? "bg-primary/20 text-brand-link" : "bg-muted text-muted-foreground"
+            }`}>
+              <Stethoscope className="size-4" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-bold text-foreground">Care Provider / Vet / Trainer</span>
+              <p className="mt-0.5 text-micro text-muted-foreground">
+                Offer bookable services, stud management, transport, or mobile grooming appointments.
+              </p>
+            </div>
+          </button>
+        </div>
+
+        {persona === "creator" && (
+          <div className="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+            <div className="flex items-center gap-2 text-amber-300">
+              <Clapperboard className="size-4 shrink-0" />
+              <span>
+                Creator Mode Active: Fan tipping enabled. Payouts route to your Relay Financial account.
+              </span>
+            </div>
+            <Link
+              href="/settings/creator"
+              className="inline-flex shrink-0 items-center gap-1 font-semibold text-brand-link hover:underline ml-2"
+            >
+              <span>Creator Studio</span>
+              <ExternalLink className="size-3" />
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Public Profile Details */}

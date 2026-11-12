@@ -34,6 +34,8 @@ export function BookingRequestModal({
   const [breedingMethod, setBreedingMethod] = useState("Fresh Chilled Semen (Priority Overnight)");
   const [brucellosisTested, setBrucellosisTested] = useState(false);
   const [progesteroneTracking, setProgesteroneTracking] = useState(false);
+  const [progesteroneLevel, setProgesteroneLevel] = useState<string>("");
+  const [liveLitterGuarantee, setLiveLitterGuarantee] = useState(true);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -56,6 +58,8 @@ export function BookingRequestModal({
           `• Breeding Method: ${breedingMethod}`,
           `• Brucellosis Negative Test: ${brucellosisTested ? "Yes (Verified / Available)" : "Pending / Scheduling"}`,
           `• Progesterone / Cytology Tracking: ${progesteroneTracking ? "Active / In Progress" : "Not yet started"}`,
+          progesteroneLevel.trim() ? `• Current Progesterone Level: ${progesteroneLevel.trim()} ng/mL` : null,
+          `• Live Litter Guarantee: ${liveLitterGuarantee ? "Accepted (Min 2 live pups or repeat service)" : "Declined / Standard"}`,
           notes.trim() ? `• Handler Notes: "${notes.trim()}"` : null,
         ]
           .filter(Boolean)
@@ -259,6 +263,49 @@ export function BookingRequestModal({
                       className="size-4 rounded border-input text-primary focus:ring-primary"
                     />
                     <span>Progesterone Timing Tracked</span>
+                  </label>
+                </div>
+
+                {progesteroneTracking && (
+                  <div className="rounded-lg border border-primary/20 bg-background/60 p-2.5">
+                    <label className="mb-1 block text-micro font-semibold uppercase tracking-wider text-muted-foreground">
+                      Latest Progesterone Assay (ng/mL)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        step="0.1"
+                        placeholder="e.g. 5.8"
+                        value={progesteroneLevel}
+                        onChange={(e) => setProgesteroneLevel(e.target.value)}
+                        className="min-h-9 w-28 rounded-lg border border-input bg-card px-2.5 text-xs text-foreground"
+                      />
+                      <span className="text-micro font-medium text-brand-link">
+                        {(() => {
+                          const val = parseFloat(progesteroneLevel);
+                          if (isNaN(val)) return "Enter value for timing forecast";
+                          if (val < 1.0) return "Baseline / Anestrus (<1.0 ng/mL)";
+                          if (val < 2.5) return "Initial Rise (1.0-2.5 ng/mL)";
+                          if (val < 4.0) return "⚡️ LH Surge Detected (2.5-4.0 ng/mL)";
+                          if (val < 10.0) return "🌟 Ovulation Confirmed (4.0-10.0 ng/mL)";
+                          return "🎯 Peak Fertile Window (>10.0 ng/mL)";
+                        })()}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-lg border border-border/70 bg-background/50 p-2.5">
+                  <label className="flex cursor-pointer items-start gap-2 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={liveLitterGuarantee}
+                      onChange={(e) => setLiveLitterGuarantee(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-input text-primary focus:ring-primary"
+                    />
+                    <span className="text-foreground">
+                      <strong>Live Litter &amp; Repeat Service Guarantee:</strong> Stud provider guarantees minimum 2 live puppies surviving 48 hours or free return breeding on subsequent estrus cycle.
+                    </span>
                   </label>
                 </div>
               </div>

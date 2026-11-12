@@ -8,6 +8,7 @@ import { MessageButton } from "@/components/messaging/MessageButton";
 import { AddToPackButton } from "@/components/pack/AddToPackButton";
 import { FollowButton } from "@/components/social/FollowButton";
 import { ProfileSafetyActions } from "@/components/social/ProfileSafetyActions";
+import { CreatorBadge } from "@/components/creator/CreatorBadge";
 import { loginHrefFor } from "@/lib/auth/redirect";
 
 export async function ProfileHeader({
@@ -79,6 +80,12 @@ export async function ProfileHeader({
                 {t("followingCount")}
               </Link>
             </p>
+            <CreatorBadge
+              profileId={profile.id}
+              username={profile.username}
+              displayName={profile.displayName ?? profile.username}
+              isOwn={isOwn}
+            />
           </div>
           {isOwn ? (
             <Link

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Sparkles } from "lucide-react";
 import { createBrand } from "@/lib/brands/actions";
 import { capture } from "@/lib/analytics";
 import { FUNNEL_EVENTS } from "@/lib/analytics/events";
@@ -27,6 +28,17 @@ export function BreederBranch({ nextPath }: { nextPath: string }) {
   function skip() {
     capture(FUNNEL_EVENTS.breederBranchSkipped);
     router.push(nextPath);
+    router.refresh();
+  }
+
+  function chooseCreator() {
+    try {
+      localStorage.setItem("scrlpets_creator_mode_active", "true");
+    } catch {
+      // Ignore
+    }
+    capture(FUNNEL_EVENTS.breederBranchSkipped);
+    router.push("/settings/creator");
     router.refresh();
   }
 
@@ -57,6 +69,15 @@ export function BreederBranch({ nextPath }: { nextPath: string }) {
             }}
           >
             {t("breederYes")}
+          </Button>
+          <Button
+            className="mt-2 min-h-11 w-full border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
+            variant="outline"
+            data-testid="creator-persona-signup"
+            onClick={chooseCreator}
+          >
+            <Sparkles className="mr-2 size-4 text-amber-400" />
+            <span>I&apos;m a Content Creator / Media Publisher</span>
           </Button>
           <Button
             className="mt-2 min-h-11 w-full"

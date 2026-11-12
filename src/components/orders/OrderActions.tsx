@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Eye, ShieldCheck } from "lucide-react";
+import { Eye, ShieldCheck, QrCode as QrIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { encodeQr, qrPath } from "@/components/referral/qr";
 import { availableActions, type OrderView } from "@/lib/orders/available-actions";
 import {
   acceptDelivery,
@@ -329,17 +330,46 @@ export function OrderActions({
               </Button>
             )
           ) : (
-            <div className="space-y-2 text-center sm:text-left">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("yourCode")}</p>
-              <div className="rounded-xl border border-primary/40 bg-background/80 py-3 text-center">
-                <span className="font-mono text-3xl font-extrabold tracking-widest text-brand-link" data-testid="order-handover-code">
-                  {code}
-                </span>
+            <div className="space-y-4 text-center sm:text-left">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("yourCode")}</p>
+                <div className="mt-1 rounded-xl border border-primary/40 bg-background/80 py-3 text-center">
+                  <span className="font-mono text-3xl font-extrabold tracking-widest text-brand-link" data-testid="order-handover-code">
+                    {code}
+                  </span>
+                </div>
               </div>
+
+              {(() => {
+                const qr = code ? encodeQr(`scrlpets:handover:${order.id}:${code}`) : null;
+                if (!qr) return null;
+                return (
+                  <div className="flex flex-col items-center justify-center rounded-xl border border-border/70 bg-card/60 p-4 text-center" data-testid="order-handover-qr-block">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-2">
+                      <QrIcon className="size-4 text-brand-link" />
+                      <span>Instant Handover Verification QR</span>
+                    </div>
+                    <svg
+                      viewBox={`0 0 ${qr.size + 8} ${qr.size + 8}`}
+                      role="img"
+                      aria-label="Handover Verification QR Code"
+                      data-testid="order-handover-qr"
+                      shapeRendering="crispEdges"
+                      className="size-44 rounded-xl bg-white p-2 shadow-sm"
+                    >
+                      <path d={qrPath(qr)} fill="#000" />
+                    </svg>
+                    <p className="mt-2 text-micro text-muted-foreground">
+                      Let the seller scan this QR code or provide the 6-digit confirmation PIN above.
+                    </p>
+                  </div>
+                );
+              })()}
+
               <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-500">
                 <p className="font-medium">⚠️ Important Custody Transfer Rule</p>
                 <p className="mt-0.5 text-micro text-muted-foreground">
-                  Do NOT give this code to the seller or driver until you have the animal in hand. Once entered, physical custody is officially transferred and your 48-hour veterinary inspection window begins.
+                  Do NOT give this code or present the QR to the seller or driver until you have inspected the animal and hold physical custody. Once entered, physical custody is transferred and the Held Payment Guarantee triggers settlement.
                 </p>
               </div>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Clapperboard,
@@ -10,6 +10,10 @@ import {
   Sparkles,
   Check,
   Play,
+  Upload,
+  DollarSign,
+  Tag,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +38,7 @@ export function ReelStudio({
   actorName: string;
 }) {
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof TEMPLATES[0] | null>(null);
   const [selectedEffect, setSelectedEffect] = useState(EFFECTS[0]);
   const [selectedAudio, setSelectedAudio] = useState<string | null>("Trending Pet Beats #1 🎶");
@@ -42,7 +47,28 @@ export function ReelStudio({
   const [autoCaptions, setAutoCaptions] = useState(true);
   const [hasDraft, setHasDraft] = useState(false);
   const [published, setPublished] = useState(false);
-  const [activeTab, setActiveTab] = useState<"create" | "templates" | "drafts" | "settings">("create");
+  const [activeTab, setActiveTab] = useState<"create" | "monetization" | "templates" | "drafts" | "settings">("create");
+
+  // Video File State
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+
+  // Monetization & Dossier Tagging
+  const [enableMonetization, setEnableMonetization] = useState(true);
+  const [enableFanTips, setEnableFanTips] = useState(true);
+  const [isSponsored, setIsSponsored] = useState(false);
+  const [sponsorBrand, setSponsorBrand] = useState("");
+  const [taggedCreature, setTaggedCreature] = useState("Big Meech (Presa Canario)");
+  const [linkPedigreeDossier, setLinkPedigreeDossier] = useState(true);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setVideoFile(file);
+      const url = URL.createObjectURL(file);
+      setVideoPreviewUrl(url);
+    }
+  }
 
   function handleSaveDraft() {
     setHasDraft(true);
@@ -62,12 +88,17 @@ export function ReelStudio({
         {/* Header Tabs */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 pb-3">
           <div>
-            <h2 className="text-base font-semibold text-foreground">Reels Studio</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-foreground">Reels Studio</h2>
+              <span className="rounded-full border border-amber-500/40 bg-amber-500/15 px-2 py-0.2 text-micro font-semibold text-amber-300">
+                Creator &amp; Monetized
+              </span>
+            </div>
             <p className="text-meta text-muted-foreground">
-              Create short-form pet video reels with music, effects, and templates
+              Create and monetize short-form videos with fan tips, music, and pedigree tags
             </p>
           </div>
-          <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-card p-1 text-xs">
+          <div className="flex flex-wrap items-center gap-1 rounded-xl border border-border/80 bg-card p-1 text-xs">
             <button
               type="button"
               onClick={() => setActiveTab("create")}
@@ -77,6 +108,17 @@ export function ReelStudio({
               )}
             >
               Studio
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("monetization")}
+              className={cn(
+                "px-2.5 py-1 rounded-lg transition font-medium flex items-center gap-1",
+                activeTab === "monetization" ? "bg-amber-500/20 text-amber-300" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <DollarSign className="size-3" />
+              <span>Monetize</span>
             </button>
             <button
               type="button"
@@ -114,41 +156,92 @@ export function ReelStudio({
         {activeTab === "create" && (
           <div className="mt-4 space-y-4">
             {/* Viewfinder Preview */}
-            <div className="relative mx-auto aspect-[9/16] w-full max-w-[260px] overflow-hidden rounded-3xl border border-border bg-black shadow-2xl flex flex-col justify-between p-4">
-              <div className="flex items-center justify-between text-white text-xs">
-                <span className="flex items-center gap-1 bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-xs font-semibold">
-                  <Clapperboard className="size-3" />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="relative mx-auto aspect-[9/16] w-full max-w-[260px] overflow-hidden rounded-3xl border border-border bg-black shadow-2xl flex flex-col justify-between p-4 cursor-pointer group"
+              data-testid="reel-viewfinder"
+            >
+              {videoPreviewUrl ? (
+                <video
+                  src={videoPreviewUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 size-full object-cover"
+                />
+              ) : null}
+
+              {/* Gradient Overlay for controls */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none" />
+
+              <div className="relative z-10 flex items-center justify-between text-white text-xs">
+                <span className="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-xs font-semibold">
+                  <Clapperboard className="size-3 text-brand-link" />
                   Reel
                 </span>
-                {selectedAudio && (
-                  <span className="flex items-center gap-1 bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-xs text-micro truncate max-w-[140px]">
-                    <Music className="size-2.5 text-brand-link shrink-0" />
-                    {selectedAudio}
+                {enableFanTips && (
+                  <span className="flex items-center gap-1 bg-rose-500/80 px-2 py-0.5 rounded-full backdrop-blur-xs text-micro font-semibold">
+                    <Heart className="size-2.5 text-white" />
+                    Fan Tips On
                   </span>
                 )}
               </div>
 
               {/* Center Camera Mock / Effect Display */}
-              <div className="flex flex-col items-center justify-center text-center">
-                <div className="grid size-14 place-items-center rounded-full bg-white/10 border border-white/20 text-white backdrop-blur-xs">
-                  <Play className="size-6 text-white ml-0.5" />
-                </div>
-                <span className="mt-2 text-micro font-medium text-white/80">
-                  {selectedEffect.id !== "none" ? `Effect: ${selectedEffect.name}` : "Tap record or upload"}
+              <div className="relative z-10 flex flex-col items-center justify-center text-center">
+                {videoPreviewUrl ? (
+                  <div className="grid size-12 place-items-center rounded-full bg-white/20 border border-white/30 text-white backdrop-blur-xs opacity-75 group-hover:opacity-100 transition">
+                    <Play className="size-5 text-white ml-0.5" />
+                  </div>
+                ) : (
+                  <div className="grid size-14 place-items-center rounded-full bg-white/10 border border-white/20 text-white backdrop-blur-xs group-hover:bg-white/20 transition">
+                    <Upload className="size-6 text-white" />
+                  </div>
+                )}
+                <span className="mt-2 text-micro font-medium text-white/90">
+                  {videoFile ? videoFile.name : "Tap to upload video from phone or library"}
                 </span>
+                <span className="text-micro text-white/60">Supports MP4, MOV, WebM (9:16)</span>
               </div>
 
               {/* Bottom Captions & User */}
-              <div className="text-white text-xs">
+              <div className="relative z-10 text-white text-xs space-y-1">
+                {linkPedigreeDossier && taggedCreature && (
+                  <span className="inline-flex items-center gap-1 bg-primary/80 px-2 py-0.5 rounded-full text-micro font-semibold backdrop-blur-xs">
+                    <Tag className="size-2.5" />
+                    {taggedCreature}
+                  </span>
+                )}
                 <p className="font-semibold">{actorName}</p>
-                <p className="text-meta text-white/80 line-clamp-2 mt-0.5">
+                <p className="text-meta text-white/80 line-clamp-2">
                   {caption.trim() ? caption : "Add a reel caption..."}
                 </p>
               </div>
             </div>
 
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="video/mp4,video/quicktime,video/webm"
+              onChange={handleFileChange}
+              className="hidden"
+              data-testid="reel-file-input"
+            />
+
             {/* Quick Action Toolbar */}
             <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex min-h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-xs font-medium text-foreground hover:bg-muted"
+                data-testid="reel-upload-btn"
+              >
+                <Upload className="size-3.5 text-brand-link" />
+                <span>{videoFile ? "Change Video" : "Select Video File"}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setSelectedAudio(selectedAudio ? null : "Upbeat Paws Rhythm 🐾")}
@@ -186,16 +279,114 @@ export function ReelStudio({
             {/* Caption Input */}
             <div>
               <label htmlFor="reel-caption" className="text-xs font-medium text-foreground pb-1 block">
-                Reel Caption & Hashtags
+                Reel Caption &amp; Hashtags
               </label>
               <textarea
                 id="reel-caption"
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
-                placeholder="Write a caption... e.g. #puppylove #dogtraining #scrlpets"
+                placeholder="Write a caption... e.g. #puppylove #dogtraining #scrlpets #presacanario"
                 className="w-full min-h-20 rounded-xl border border-input bg-card p-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 data-testid="reel-caption-input"
               />
+            </div>
+          </div>
+        )}
+
+        {/* Monetization & Pedigree Tagging Tab */}
+        {activeTab === "monetization" && (
+          <div className="mt-4 space-y-4" data-testid="reel-monetization-panel">
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-1">
+              <div className="flex items-center gap-2">
+                <Sparkles className="size-4 text-amber-400" />
+                <h3 className="text-sm font-semibold text-foreground">Creator Monetization Engine</h3>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Earn fan tips and in-stream revenue on this reel, direct-deposited to your Relay Financial account.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/70 bg-card">
+                <div>
+                  <p className="text-xs font-semibold text-foreground">Enable Fan Tips &amp; Stars</p>
+                  <p className="text-micro text-muted-foreground">Allow viewers to send $2, $5, or $10 micro-tips</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={enableFanTips}
+                  onChange={(e) => setEnableFanTips(e.target.checked)}
+                  className="size-4 rounded border-input text-primary accent-primary"
+                  data-testid="toggle-fan-tips-reel"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-3.5 rounded-xl border border-border/70 bg-card">
+                <div>
+                  <p className="text-xs font-semibold text-foreground">In-Stream Ad Revenue Share</p>
+                  <p className="text-micro text-muted-foreground">Receive 70% net share of sponsor impressions on this clip</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={enableMonetization}
+                  onChange={(e) => setEnableMonetization(e.target.checked)}
+                  className="size-4 rounded border-input text-primary accent-primary"
+                  data-testid="toggle-ad-rev-reel"
+                />
+              </div>
+
+              {/* Tag Pedigree Dossier */}
+              <div className="rounded-xl border border-border/70 bg-card p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Tag Animal / Pedigree Dossier</p>
+                    <p className="text-micro text-muted-foreground">
+                      Surfaces a clickable &ldquo;View Pedigree &amp; Lineage&rdquo; pill directly on the video
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={linkPedigreeDossier}
+                    onChange={(e) => setLinkPedigreeDossier(e.target.checked)}
+                    className="size-4 rounded border-input text-primary accent-primary"
+                  />
+                </div>
+                {linkPedigreeDossier && (
+                  <input
+                    value={taggedCreature}
+                    onChange={(e) => setTaggedCreature(e.target.value)}
+                    placeholder="Search your creatures... e.g. Big Meech"
+                    className="w-full rounded-lg border border-input bg-background px-3 py-1.5 text-xs text-foreground"
+                    data-testid="tagged-creature-input"
+                  />
+                )}
+              </div>
+
+              {/* Sponsorship disclosure */}
+              <div className="rounded-xl border border-border/70 bg-card p-3.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Paid Partnership Disclosure</p>
+                    <p className="text-micro text-muted-foreground">
+                      Complies with FTC guidelines for sponsored animal products or supplements
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={isSponsored}
+                    onChange={(e) => setIsSponsored(e.target.checked)}
+                    className="size-4 rounded border-input text-primary accent-primary"
+                  />
+                </div>
+                {isSponsored && (
+                  <input
+                    value={sponsorBrand}
+                    onChange={(e) => setSponsorBrand(e.target.value)}
+                    placeholder="Sponsoring brand name (e.g. Victor Super Premium Pet Food)"
+                    className="w-full rounded-lg border border-input bg-background px-3 py-1.5 text-xs text-foreground"
+                  />
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -272,7 +463,7 @@ export function ReelStudio({
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl border border-border/70 bg-card">
               <div>
-                <p className="text-xs font-semibold text-foreground">Allow Remix & Stitches</p>
+                <p className="text-xs font-semibold text-foreground">Allow Remix &amp; Stitches</p>
                 <p className="text-micro text-muted-foreground">Let others create duets with your pet clip</p>
               </div>
               <input
@@ -296,10 +487,10 @@ export function ReelStudio({
           {published ? (
             <>
               <Check className="size-4" />
-              <span>Reel Published!</span>
+              <span>Reel Published &amp; Monetized!</span>
             </>
           ) : (
-            <span>Share Reel</span>
+            <span>Share &amp; Monetize Reel</span>
           )}
         </button>
       </div>
