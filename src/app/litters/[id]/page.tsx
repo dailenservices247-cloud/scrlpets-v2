@@ -205,8 +205,8 @@ export default async function LitterPublicPage({ params }: { params: Promise<{ i
       )}
 
       {/* Breeder OS Growth Velocity Tracker */}
-      <section className="px-4 pb-6">
-        <LitterGrowthTracker isBreeder={viewerIsSeller} />
+      <section className="px-4 pb-6" id="growth-tracker">
+        <LitterGrowthTracker litterId={id} isBreeder={viewerIsSeller} />
       </section>
 
       <section className="px-4 pb-8">
