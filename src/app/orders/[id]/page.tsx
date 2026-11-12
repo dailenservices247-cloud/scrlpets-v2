@@ -11,6 +11,7 @@ import { OrderThread } from "@/components/orders/OrderThread";
 import { OrderActions } from "@/components/orders/OrderActions";
 import { OrderDossierPanel } from "@/components/orders/OrderDossierPanel";
 import { OrderInspectionBanner } from "@/components/orders/OrderInspectionBanner";
+import { TransportDispatchTimeline } from "@/components/orders/TransportDispatchTimeline";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { getOrderCounterpartyDossier } from "@/lib/contracts/queries";
 import { getReviewableHandovers } from "@/lib/reviews/queries";
@@ -182,6 +183,21 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
               </div>
             </div>
           </section>
+        )}
+
+        {/* Live Transporter Dispatch & Milestone Welfare Tracking */}
+        {order.fulfilment === "transported" && (
+          <TransportDispatchTimeline
+            orderId={order.id}
+            status={order.status}
+            fulfilment={order.fulfilment}
+            transporterId={order.transporter_id}
+            isTransporter={isTransporter}
+            isBuyer={isBuyer}
+            isSeller={isSeller}
+            pickedUpAt={order.picked_up_at}
+            handoverAt={order.handover_at}
+          />
         )}
 
         <OrderDossierPanel

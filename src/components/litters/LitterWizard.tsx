@@ -20,6 +20,7 @@ import {
   updateLitter,
 } from "@/lib/litters/actions";
 import type { BreedingCreature, LinkableCreature, MyLitter } from "@/lib/litters/queries";
+import { ColorGeneticsForecaster } from "./ColorGeneticsForecaster";
 
 const TOTAL_STEPS = 4;
 const field = "min-h-11 w-full rounded-xl border border-input bg-transparent px-3 text-sm";
@@ -469,6 +470,11 @@ export function LitterWizard({
                     </div>
                   </div>
                 )}
+
+                <ColorGeneticsForecaster
+                  sireName={selectedSire?.name ?? "Sire"}
+                  damName={selectedDam?.name ?? "Dam"}
+                />
               </div>
             )}
 

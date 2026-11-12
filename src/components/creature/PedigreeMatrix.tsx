@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { PedigreeData, PedigreeNode } from "@/lib/creatures/pedigree";
-import { Dna, ShieldCheck, Info, ChevronDown, ChevronUp, Network } from "lucide-react";
+import { Dna, ShieldCheck, Info, ChevronDown, ChevronUp, Network, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PedigreeCertificateModal } from "./PedigreeCertificate";
 
 function PedigreeCell({
   node,
@@ -75,6 +76,7 @@ function PedigreeCell({
 export function PedigreeMatrix({ data }: { data: PedigreeData }) {
   const [generations, setGenerations] = useState<3 | 4>(3);
   const [showCoiExplainer, setShowCoiExplainer] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
 
   const { subject, coiPercentage, commonAncestors } = data;
   const sire = subject.sire;
@@ -137,6 +139,17 @@ export function PedigreeMatrix({ data }: { data: PedigreeData }) {
                 4-Gen Deep
               </button>
             </div>
+
+            {/* Official 5-Gen Certificate Button */}
+            <button
+              type="button"
+              onClick={() => setShowCertificate(true)}
+              className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-300 hover:bg-amber-500/25 transition cursor-pointer"
+              data-testid="pedigree-certificate-btn"
+            >
+              <Award className="size-3.5 text-amber-400" />
+              <span>5-Gen Certificate</span>
+            </button>
 
             {/* COI Badge */}
             <button
@@ -268,6 +281,13 @@ export function PedigreeMatrix({ data }: { data: PedigreeData }) {
           </div>
         </div>
       </div>
+
+      {showCertificate && (
+        <PedigreeCertificateModal
+          data={data}
+          onClose={() => setShowCertificate(false)}
+        />
+      )}
     </section>
   );
 }
