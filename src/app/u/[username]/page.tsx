@@ -183,11 +183,7 @@ export default async function ProfilePage({
   for (const alb of userAlbums) {
     for (const p of alb.photos) {
       if (!allProfilePhotos.some((x) => x.url === p.url)) {
-        allProfilePhotos.push({
-          ...p,
-          likeCount: 14 + (p.url.length % 35),
-          commentCount: 2 + (p.url.length % 9),
-        });
+        allProfilePhotos.push({ ...p });
       }
     }
   }
@@ -318,11 +314,11 @@ export default async function ProfilePage({
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-1.5">
                     {c.creature_role === "breeding" ? (
-                      <span className="shrink-0 rounded-md bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-micro font-medium text-amber-300">
+                      <span className="shrink-0 rounded-md bg-accent/15 border border-accent/40 px-1.5 py-0.5 text-micro font-medium text-accent">
                         🧬 Breeding Stock
                       </span>
                     ) : (
-                      <span className="shrink-0 rounded-md bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 text-micro font-medium text-emerald-400">
+                      <span className="shrink-0 rounded-md bg-secondary/15 border border-secondary/40 px-1.5 py-0.5 text-micro font-medium text-secondary-foreground">
                         🐾 Family Pet
                       </span>
                     )}

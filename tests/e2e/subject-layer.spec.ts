@@ -55,7 +55,6 @@ test("litter creation, subject-tagged post, and DB refusal of fake subjects", as
 
   // Compose a post ABOUT that litter through the subject picker.
   await page.goto("/compose");
-  await page.getByTestId("composer-more-options").click();
   await page.getByTestId("about-litter").click();
   await page.getByTestId("subject-select").selectOption(litter!.id);
   await page.getByTestId("post-body").fill(postBody);

@@ -3,26 +3,15 @@ import { useMemo, useState } from "react";
 import {
   BadgeDollarSign,
   Building2,
-  Handshake,
   Megaphone,
   PenSquare,
-  Scissors,
-  Sparkles,
   Store,
   UserRound,
-  PlusCircle,
-  Clapperboard,
-  Radio,
-  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PostForm } from "./PostForm";
 import { ListingForm } from "./ListingForm";
-import { StoryStudio } from "./StoryStudio";
-import { ReelStudio } from "./ReelStudio";
-import { LiveStudio } from "./LiveStudio";
-import { NoteStudio } from "./NoteStudio";
 import type { BrandAccess } from "@/lib/brands/queries";
 import type { MyGroup } from "@/lib/groups/queries";
 import { cn } from "@/lib/utils";
@@ -41,18 +30,7 @@ export type ComposerSubjects = {
   products: SubjectOption[];
 };
 
-type Mode =
-  | "post"
-  | "story"
-  | "reel"
-  | "live"
-  | "note"
-  | "listing"
-  | "product"
-  | "service"
-  | "promotion"
-  | "recommendation"
-  | "collaboration";
+type Mode = "post" | "listing";
 type PostingAs = "person" | "brand";
 type About = "none" | "product" | "brand" | "litter" | "service";
 
@@ -60,26 +38,14 @@ const modeOptions: {
   value: Mode;
   label: string;
   icon: typeof PenSquare;
-  live: boolean;
-  requiresBrand?: boolean;
 }[] = [
-  { value: "post", label: "Post", icon: PenSquare, live: true },
-  { value: "story", label: "Story", icon: PlusCircle, live: true },
-  { value: "reel", label: "Reel", icon: Clapperboard, live: true },
-  { value: "live", label: "Live", icon: Radio, live: true },
-  { value: "note", label: "Note", icon: MessageCircle, live: true },
-  { value: "listing", label: "Animal Listing", icon: BadgeDollarSign, live: true, requiresBrand: true },
-  { value: "product", label: "Product / Supply", icon: Store, live: false },
-  { value: "service", label: "Service", icon: Scissors, live: false },
-  { value: "recommendation", label: "Recommendation", icon: Sparkles, live: false },
-  { value: "promotion", label: "Promotion", icon: Megaphone, live: false },
-  { value: "collaboration", label: "Collaboration", icon: Handshake, live: false },
+  { value: "post", label: "Post", icon: PenSquare },
+  { value: "listing", label: "Animal Listing", icon: BadgeDollarSign },
 ];
 
-const modeLabels: Record<Mode, string> = Object.fromEntries(modeOptions.map((mode) => [mode.value, mode.label])) as Record<Mode, string>;
-
 function normalizeMode(raw: string | null): Mode {
-  return modeOptions.some((mode) => mode.value === raw) ? (raw as Mode) : "post";
+  if (raw === "listing") return "listing";
+  return "post";
 }
 
 // punch list A9: FB/IG-style quick post — type, photo, Post. The entity
@@ -109,12 +75,7 @@ export function ComposerTabs({
   // otherwise, inherits the user's active persona if they switched in the Menu.
   const requestedBrandId = searchParams.get("brand") ?? activeBrandId;
   const requestedBrand = brands.find((b) => b.id === requestedBrandId) ?? null;
-  const initialPostingAs: PostingAs = requestedBrand
-    ? "brand"
-    : (searchParams.get("mode") === "listing" || searchParams.get("type") === "listing") && brands.length > 0
-    ? "brand"
-    : "person";
-  const [postingAs, setPostingAs] = useState<PostingAs>(initialPostingAs);
+  const [postingAs, setPostingAs] = useState<PostingAs>(requestedBrand ? "brand" : "person");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(
     requestedBrand?.id ?? brands[0]?.id ?? null,
   );
@@ -157,25 +118,12 @@ export function ComposerTabs({
 
   function handleSetPostingAs(next: PostingAs) {
     setPostingAs(next);
-    if (next === "person" && tab === "listing") {
-      selectMode("post");
-    }
   }
 
-  // Animal listings require a verified brand/breeder identity.
-  // Personal posting is strictly limited to social content.
-  const liveModes = useMemo(() => {
-    if (postingAs === "brand") {
-      return modeOptions.filter((mode) => mode.live);
-    }
-    return modeOptions.filter((mode) => mode.live && !mode.requiresBrand);
-  }, [postingAs]);
+  const liveModes = modeOptions;
 
   return (
     <div className="space-y-4 px-3 pb-24" data-testid="composer-alignment">
-      {/* Hidden hook for backwards compatibility with legacy test runners */}
-      <button type="button" className="sr-only" data-testid="composer-more-options" aria-hidden="true" onClick={() => {}} />
-
       {/* Top Bar: Persona Switcher & Creation Modes */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {brands.length > 0 ? (
@@ -359,90 +307,14 @@ export function ComposerTabs({
             attribution={attribution}
             groups={groups}
             disabled={!brandReady}
-            onSwitchToListing={
-              postingAs === "brand"
-                ? () => selectMode("listing")
-                : brands.length > 0
-                ? () => {
-                    handleSetPostingAs("brand");
-                    selectMode("listing");
-                  }
-                : undefined
-            }
           />
         )}
-        {tab === "story" && (
-          <StoryStudio
-            userId={userId}
-            actorName={postingAs === "brand" && selectedBrand ? selectedBrand.name : actorName}
-          />
-        )}
-        {tab === "reel" && (
-          <ReelStudio
-            userId={userId}
-            actorName={postingAs === "brand" && selectedBrand ? selectedBrand.name : actorName}
-          />
-        )}
-        {tab === "live" && (
-          <LiveStudio
-            userId={userId}
-            actorName={postingAs === "brand" && selectedBrand ? selectedBrand.name : actorName}
-          />
-        )}
-        {tab === "note" && (
-          <NoteStudio
-            userId={userId}
-            actorName={postingAs === "brand" && selectedBrand ? selectedBrand.name : actorName}
-            avatarUrl={postingAs === "brand" ? selectedBrand?.avatarUrl : null}
-          />
-        )}
-        {tab === "listing" && postingAs === "brand" && (
+        {tab === "listing" && (
           <ListingForm
             userId={userId}
             creatures={creatures}
             attribution={attribution}
             disabled={!brandReady}
-          />
-        )}
-        {tab === "listing" && postingAs === "person" && (
-          <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-6 text-center space-y-3" data-testid="breeder-gate-notice">
-            <div className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/15 text-brand-link text-xl">
-              🏆
-            </div>
-            <h3 className="text-base font-semibold text-foreground">Breeder Account Required</h3>
-            <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-5">
-              Animal listings and reservations are strictly limited to verified breeder and kennel brand pages to guarantee health certifications and buyer protections.
-            </p>
-            <div className="pt-2">
-              {brands.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => handleSetPostingAs("brand")}
-                  className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition"
-                >
-                  Switch to Brand Mode →
-                </button>
-              ) : (
-                <Link
-                  href="/brands/new"
-                  className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 transition"
-                >
-                  Create a Breeder Brand →
-                </Link>
-              )}
-            </div>
-          </div>
-        )}
-        {(tab === "product" ||
-          tab === "service" ||
-          tab === "recommendation" ||
-          tab === "promotion" ||
-          tab === "collaboration") && (
-          <DeferralModePanel
-            mode={modeLabels[tab]}
-            tab={tab}
-            postingLabel={postingLabel}
-            subjectLabel={subjectLabel}
           />
         )}
       </section>
@@ -454,7 +326,7 @@ export function ComposerTabs({
             Selling pet supplies, offering a service, or launching sponsored promo?
           </p>
           <p className="text-micro text-muted-foreground">
-            Manage your commercial catalog, booking rates, and paid Facebook-style sponsored ads in Brand OS.
+            Manage your commercial catalog, booking rates, and sponsored campaigns in Brand OS.
           </p>
         </div>
         <div className="flex shrink-0 items-center justify-center gap-2 pt-2 sm:pt-0">
@@ -480,90 +352,6 @@ export function ComposerTabs({
             Marketplace
           </Link>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function DeferralModePanel({
-  mode,
-  tab,
-  postingLabel,
-  subjectLabel,
-}: {
-  mode: string;
-  tab: Mode;
-  postingLabel: string;
-  subjectLabel: string;
-}) {
-  const isService = tab === "service";
-  const isProduct = tab === "product";
-
-  return (
-    <div className="rounded-2xl border border-border/70 bg-muted/20 p-5" data-testid="planned-mode-panel">
-      <div className="flex items-center gap-3">
-        <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/15 text-brand-link">
-          {isProduct ? (
-            <Store className="size-5" />
-          ) : isService ? (
-            <Scissors className="size-5" />
-          ) : (
-            <Sparkles className="size-5" />
-          )}
-        </div>
-        <div>
-          <p className="eyebrow">Commerce &amp; Operations</p>
-          <h2 className="mt-0.5 text-lg font-semibold">{mode}</h2>
-        </div>
-      </div>
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">
-        {isProduct &&
-          "Physical supplies and shop products are cataloged in Brand OS and featured in Market (/market?tab=supplies)."}
-        {isService &&
-          "Professional pet services (grooming, boarding, training, stud) are managed with custom tier rates and deposit policies in Brand OS (/brand-os?tab=services)."}
-        {tab === "recommendation" &&
-          "Supply and care recommendations are deferred to animal dossiers and the go-home checkout experience where adopters purchase starter gear."}
-        {tab === "promotion" &&
-          "Sponsored ad campaigns and paid promotions are created in the Ad Studio (/brand-os?tab=promotions) and served directly into social feeds with Facebook-style action cards."}
-        {tab === "collaboration" &&
-          "Collaborative co-authorship and breeding partnerships are configured through your Pack and Brand relationships."}
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2.5">
-        <Link
-          href={tab === "promotion" ? "/brand-os?tab=promotions" : isService ? "/brand-os?tab=services" : "/brand-os"}
-          className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground shadow-sm transition hover:opacity-90"
-        >
-          {tab === "promotion" ? (
-            <>
-              <Megaphone className="size-3.5" />
-              Open Ad Studio
-            </>
-          ) : isService ? (
-            <>
-              <Building2 className="size-3.5" />
-              Manage Services in Brand OS
-            </>
-          ) : (
-            <>
-              <Building2 className="size-3.5" />
-              Open Brand OS
-            </>
-          )}
-        </Link>
-        <Link
-          href={tab === "promotion" ? "/brand-os?tab=promotions" : isService ? "/market?tab=services" : "/market?tab=supplies"}
-          className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-input px-4 text-xs font-medium text-foreground transition hover:bg-muted/60"
-        >
-          {tab === "promotion" ? "Configure Ads →" : "View in Market →"}
-        </Link>
-      </div>
-      <div className="mt-4 border-t border-border/60 pt-3 text-xs text-muted-foreground">
-        <span>Preview: </span>
-        <span className="font-semibold text-foreground">{postingLabel}</span>
-        <span> / </span>
-        <span className="font-semibold text-foreground">{subjectLabel}</span>
-        <span> / </span>
-        <span className="font-semibold text-foreground">{mode}</span>
       </div>
     </div>
   );

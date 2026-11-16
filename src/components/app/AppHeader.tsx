@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Bell, Search } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
-import { HeaderCreateButton } from "./HeaderCreateButton";
 
 export function AppHeader({
   signedIn,
@@ -25,7 +24,6 @@ export function AppHeader({
             composer prompt renders in it via `children`, and hiding the whole
             header would take that with it. */}
         <div className="flex items-center gap-2">
-          <HeaderCreateButton signedIn={signedIn} />
           {/* R11: this icon looked like search but linked to /shop — now that
               real search exists it goes where it says. */}
           <Link

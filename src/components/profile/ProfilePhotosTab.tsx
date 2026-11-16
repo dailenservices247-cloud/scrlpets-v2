@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Camera, Copy, Heart, MessageSquare, Play, Sparkles } from "lucide-react";
+import { Camera, Copy, Play, Sparkles } from "lucide-react";
 import { PhotoGalleryModal, type PhotoAlbum, type PhotoItem } from "./PhotoGalleryModal";
 
 export type InstagramStylePhotoItem = PhotoItem & {
   type?: "photo" | "video" | "reel";
   isCarousel?: boolean;
   carouselCount?: number;
-  likeCount?: number;
-  commentCount?: number;
 };
 
 export function ProfilePhotosTab({
@@ -61,7 +59,7 @@ export function ProfilePhotosTab({
               <div
                 className={`grid size-17 place-items-center rounded-full p-0.5 transition ${
                   activeAlbumId === "all"
-                    ? "bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 ring-2 ring-primary/70"
+                    ? "border-2 border-primary bg-primary/15 ring-2 ring-primary/35"
                     : "border-2 border-border/80 group-hover:border-foreground/40"
                 }`}
               >
@@ -104,7 +102,7 @@ export function ProfilePhotosTab({
                   <div
                     className={`grid size-17 place-items-center rounded-full p-0.5 transition ${
                       active
-                        ? "bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 ring-2 ring-primary/70"
+                        ? "border-2 border-primary bg-primary/15 ring-2 ring-primary/35"
                         : "border-2 border-border/80 group-hover:border-foreground/40"
                     }`}
                   >
@@ -180,17 +178,21 @@ export function ProfilePhotosTab({
                 </div>
               ) : null}
 
-              {/* Instagram Hover Scrim with Heart & Comment counters */}
-              <div className="absolute inset-0 flex items-center justify-center gap-4 bg-black/45 text-white opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover:opacity-100">
-                <span className="flex items-center gap-1.5 text-xs font-semibold">
-                  <Heart className="size-4 fill-white" />
-                  <span>{item.likeCount ?? 12}</span>
-                </span>
-                <span className="flex items-center gap-1.5 text-xs font-semibold">
-                  <MessageSquare className="size-4 fill-white" />
-                  <span>{item.commentCount ?? 3}</span>
-                </span>
-              </div>
+              {/* Hover Caption Overlay */}
+              {(item.title || item.albumTitle || item.subtitle) && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 p-2 text-center text-white opacity-0 backdrop-blur-[2px] transition-opacity duration-200 group-hover:opacity-100">
+                  {item.title && (
+                    <span className="line-clamp-2 text-xs font-semibold leading-snug">
+                      {item.title}
+                    </span>
+                  )}
+                  {(item.albumTitle || item.subtitle) && (
+                    <span className="mt-1 truncate text-micro text-white/80">
+                      {item.albumTitle || item.subtitle}
+                    </span>
+                  )}
+                </div>
+              )}
             </button>
           ))}
         </div>

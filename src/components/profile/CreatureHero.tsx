@@ -56,14 +56,14 @@ export async function CreatureHero({
             )}
             {creature.creatureRole === "breeding" ? (
               <span
-                className="inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/15 px-2 py-1 text-xs font-semibold text-amber-300"
+                className="inline-flex items-center gap-1 rounded-md border border-accent/40 bg-accent/15 px-2 py-1 text-xs font-semibold text-foreground"
                 data-testid="creature-role-badge"
               >
-                🧬 {origin?.brandName ? `Breeding Stock · ${origin.brandName}` : "Brand Breeding Stock"}
+                🧬 {origin?.brandName ? `Breeding Stock · ${origin.brandName}` : "Breeding Stock"}
               </span>
             ) : (
               <span
-                className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-xs font-semibold text-emerald-300"
+                className="inline-flex items-center gap-1 rounded-md border border-secondary/40 bg-secondary/15 px-2 py-1 text-xs font-semibold text-secondary-foreground"
                 data-testid="creature-role-badge"
               >
                 🐾 Family Pet
@@ -76,7 +76,7 @@ export async function CreatureHero({
               <Link
                 href={`/b/${origin.brandSlug}`}
                 data-testid="creature-establishment-link"
-                className="inline-flex items-center gap-1 rounded-md border border-accent/40 bg-accent/15 px-2 py-1 text-xs font-medium text-brand-link hover:underline"
+                className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/15 px-2 py-1 text-xs font-medium text-brand-link hover:underline"
               >
                 <Building2 className="size-3.5" aria-hidden />
                 {origin.brandName}
@@ -99,7 +99,7 @@ export async function CreatureHero({
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2.5">
             <ShareButton
-              url={`https://scrlpets.com/c/${creature.id}`}
+              url={`https://scrlpets.com/c/${creature.slug}`}
               title={`${creature.name} on Scrlpets`}
               mediaUrl={creature.avatarUrl}
               variant="outline"

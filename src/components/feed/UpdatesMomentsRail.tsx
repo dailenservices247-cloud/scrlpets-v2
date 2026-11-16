@@ -303,7 +303,7 @@ export function UpdatesMomentsRail({
       >
         {/* Card 1: Create story (User profile photo + center-bottom plus + Create story label) */}
         <Link
-          href={signedIn ? "/compose?mode=story" : "/login"}
+          href={signedIn ? "/compose" : "/login"}
           className="group relative flex h-56 w-32 sm:h-60 sm:w-36 shrink-0 flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm transition hover:border-primary/50"
           data-testid="create-moment"
           aria-label="Create story"
@@ -329,7 +329,7 @@ export function UpdatesMomentsRail({
           {/* Bottom 28% card background with centered wine plus button on the seam */}
           <div className="relative flex h-[28%] w-full flex-col items-center justify-end bg-card px-1.5 pb-2.5 pt-3 text-center">
             <span
-              className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card transition group-hover:bg-[#a0414e]"
+              className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-card transition group-hover:bg-primary/90"
               aria-hidden
             >
               <Plus className="size-5 stroke-[2.5]" />

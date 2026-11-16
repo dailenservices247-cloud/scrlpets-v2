@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { PedigreeData, PedigreeNode } from "@/lib/creatures/pedigree";
+import type { GeneticTest } from "@/lib/creatures/queries";
 import { Dna, ShieldCheck, Info, ChevronDown, ChevronUp, Network, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PedigreeCertificateModal } from "./PedigreeCertificate";
@@ -73,7 +74,25 @@ function PedigreeCell({
   );
 }
 
-export function PedigreeMatrix({ data }: { data: PedigreeData }) {
+export function PedigreeMatrix({
+  data,
+  isOwner = false,
+  ownerUsername,
+  brandName,
+  species,
+  registrationNumber,
+  anchorType,
+  tests = [],
+}: {
+  data: PedigreeData;
+  isOwner?: boolean;
+  ownerUsername?: string;
+  brandName?: string | null;
+  species?: string | null;
+  registrationNumber?: string | null;
+  anchorType?: string | null;
+  tests?: GeneticTest[];
+}) {
   const [generations, setGenerations] = useState<3 | 4>(3);
   const [showCoiExplainer, setShowCoiExplainer] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
@@ -140,26 +159,37 @@ export function PedigreeMatrix({ data }: { data: PedigreeData }) {
               </button>
             </div>
 
-            {/* Official 5-Gen Certificate Button */}
+            {/* Official Pedigree Certificate Button */}
             <button
               type="button"
               onClick={() => setShowCertificate(true)}
-              className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-2.5 py-1 text-xs font-semibold text-amber-300 hover:bg-amber-500/25 transition cursor-pointer"
+              className="inline-flex items-center gap-1 rounded-full border border-accent/40 bg-accent/15 px-2.5 py-1 text-xs font-semibold text-accent hover:bg-accent/25 transition cursor-pointer"
               data-testid="pedigree-certificate-btn"
             >
-              <Award className="size-3.5 text-amber-400" />
-              <span>5-Gen Certificate</span>
+              <Award className="size-3.5 text-accent" />
+              <span>Certificate</span>
             </button>
 
-            {/* Visual Tree Builder & Lineage Editor */}
-            <Link
-              href="/tree"
-              className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition cursor-pointer"
-              data-testid="pedigree-manage-tree-btn"
-            >
-              <Network className="size-3.5 text-brand-link" />
-              <span>Tree Builder</span>
-            </Link>
+            {/* Visual Tree Builder / Full Family Tree Link */}
+            {isOwner ? (
+              <Link
+                href="/tree"
+                className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition cursor-pointer"
+                data-testid="pedigree-manage-tree-btn"
+              >
+                <Network className="size-3.5 text-brand-link" />
+                <span>Tree Builder</span>
+              </Link>
+            ) : ownerUsername ? (
+              <Link
+                href={`/u/${ownerUsername}/tree`}
+                className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition cursor-pointer"
+                data-testid="pedigree-manage-tree-btn"
+              >
+                <Network className="size-3.5 text-brand-link" />
+                <span>Full Family Tree</span>
+              </Link>
+            ) : null}
 
             {/* COI Badge */}
             <button
@@ -168,10 +198,10 @@ export function PedigreeMatrix({ data }: { data: PedigreeData }) {
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition cursor-pointer hover:opacity-90",
                 coiPercentage < 5
-                  ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                  ? "bg-secondary/15 text-secondary-foreground border border-secondary/30"
                   : coiPercentage < 10
-                    ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                    : "bg-rose-500/15 text-rose-400 border border-rose-500/30",
+                    ? "bg-accent/15 text-accent border border-accent/30"
+                    : "bg-destructive/15 text-destructive border border-destructive/30",
               )}
               data-testid="pedigree-coi-badge"
               title="Click to learn about Wright's COI"
@@ -194,13 +224,13 @@ export function PedigreeMatrix({ data }: { data: PedigreeData }) {
               Wright&apos;s COI calculates the probability that an offspring inherits identical gene copies from both parents due to shared ancestry.
             </p>
             <div className="grid grid-cols-3 gap-2 pt-1 text-micro text-center font-medium">
-              <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-1.5 text-emerald-400">
+              <div className="rounded-lg bg-secondary/10 border border-secondary/30 p-1.5 text-secondary-foreground">
                 &lt; 5% Outcross
               </div>
-              <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-1.5 text-amber-400">
+              <div className="rounded-lg bg-accent/10 border border-accent/30 p-1.5 text-accent">
                 5%–10% Linebreeding
               </div>
-              <div className="rounded-lg bg-rose-500/10 border border-rose-500/30 p-1.5 text-rose-400">
+              <div className="rounded-lg bg-destructive/10 border border-destructive/30 p-1.5 text-destructive">
                 &gt; 10% Close Cross
               </div>
             </div>
@@ -295,6 +325,12 @@ export function PedigreeMatrix({ data }: { data: PedigreeData }) {
       {showCertificate && (
         <PedigreeCertificateModal
           data={data}
+          ownerUsername={ownerUsername}
+          brandName={brandName}
+          species={species}
+          registrationNumber={registrationNumber}
+          anchorType={anchorType}
+          tests={tests}
           onClose={() => setShowCertificate(false)}
         />
       )}

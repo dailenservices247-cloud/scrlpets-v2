@@ -58,7 +58,7 @@ export function ShareModal({
     {
       name: "Facebook",
       icon: "📘",
-      color: "hover:bg-[#1877F2]/10 hover:border-[#1877F2]/30 text-[#1877F2]",
+      color: "hover:bg-primary/10 hover:border-primary/30 text-brand-link",
       action: () => {
         const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(shareText)}`;
         window.open(fbUrl, "_blank", "width=600,height=500,noopener,noreferrer");
@@ -67,7 +67,7 @@ export function ShareModal({
     {
       name: "X (Twitter)",
       icon: "🐦",
-      color: "hover:bg-sky-500/10 hover:border-sky-500/30 text-sky-400",
+      color: "hover:bg-secondary/10 hover:border-secondary/30 text-secondary-foreground",
       action: () => {
         const xUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(shareText)}`;
         window.open(xUrl, "_blank", "width=600,height=500,noopener,noreferrer");
@@ -76,7 +76,7 @@ export function ShareModal({
     {
       name: "WhatsApp",
       icon: "💬",
-      color: "hover:bg-emerald-500/10 hover:border-emerald-500/30 text-emerald-400",
+      color: "hover:bg-secondary/10 hover:border-secondary/30 text-secondary-foreground",
       action: () => {
         const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(`${shareText} ${url}`)}`;
         window.open(waUrl, "_blank", "noopener,noreferrer");
@@ -85,7 +85,7 @@ export function ShareModal({
     {
       name: "Instagram",
       icon: "📸",
-      color: "hover:bg-pink-500/10 hover:border-pink-500/30 text-pink-400",
+      color: "hover:bg-accent/10 hover:border-accent/30 text-accent",
       action: async () => {
         await handleCopy();
         window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
@@ -171,9 +171,9 @@ export function ShareModal({
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-foreground truncate">{opt.name}</p>
                       {opt.note ? (
-                        <p className="text-[10px] text-muted-foreground truncate">{opt.note}</p>
+                        <p className="text-micro text-muted-foreground truncate">{opt.note}</p>
                       ) : (
-                        <p className="text-[10px] text-muted-foreground">Post directly</p>
+                        <p className="text-micro text-muted-foreground">Post directly</p>
                       )}
                     </div>
                   </div>

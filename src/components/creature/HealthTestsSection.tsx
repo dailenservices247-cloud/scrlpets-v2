@@ -8,13 +8,14 @@ import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { addGeneticTest, updateGeneticTest, deleteGeneticTest } from "@/lib/creatures/actions";
 import { GENETIC_TEST_TYPES, GENETIC_TEST_RESULTS, resultTone } from "@/lib/creatures/types";
 import type { GeneticTest } from "@/lib/creatures/queries";
+import { HealthTierBadge } from "@/components/verification/HealthTierBadge";
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
 const TONE_CLASS: Record<"good" | "warn" | "bad", string> = {
-  good: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
-  warn: "border-amber-500/40 bg-amber-500/10 text-amber-300",
-  bad: "border-red-500/40 bg-red-500/10 text-red-300",
+  good: "border-secondary/40 bg-secondary/15 text-secondary-foreground",
+  warn: "border-accent/40 bg-accent/15 text-accent",
+  bad: "border-destructive/40 bg-destructive/15 text-destructive",
 };
 
 function TestForm({
@@ -190,12 +191,16 @@ export function HealthTestsSection({
   tests,
   isOwner,
   isDeceased,
+  anchorVerified = false,
+  registrationNumber,
 }: {
   creatureId: string;
   slug: string;
   tests: GeneticTest[];
   isOwner: boolean;
   isDeceased: boolean;
+  anchorVerified?: boolean;
+  registrationNumber?: string | null;
 }) {
   const t = useTranslations("creature");
   const router = useRouter();
@@ -219,8 +224,17 @@ export function HealthTestsSection({
   return (
     <section className="mx-auto max-w-2xl px-4 pt-4" data-testid="health-tests">
       <div className={`rounded-2xl border p-4 ${isDeceased ? "border-border/50 bg-muted/10" : "premium-panel"}`}>
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="eyebrow">{t("healthTests.title")}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="eyebrow">{t("healthTests.title")}</h2>
+            {(tests.length > 0 || anchorVerified || Boolean(registrationNumber)) && (
+              <HealthTierBadge
+                tests={tests}
+                anchorVerified={anchorVerified}
+                registrationNumber={registrationNumber}
+              />
+            )}
+          </div>
           {isOwner && (
             <button
               type="button"

@@ -35,7 +35,6 @@ import { BRAND_TYPE_OPTIONS, canManageBrandContent } from "@/lib/brands/types";
 import { getBrandCapabilities } from "@/lib/hub/queries";
 import { hasCapability } from "@/lib/hub/capabilities";
 import { CapabilityEditor } from "@/components/hub/CapabilityEditor";
-import { JevComingSoonCard } from "@/components/jev/JevComingSoonCard";
 
 const quickActions = [
   { label: "Post update", icon: PenSquare, href: "/compose" },
@@ -267,10 +266,6 @@ export default async function BrandOSPage({
 
           <section className="px-3 py-3">
             <BreederStatsPanel stats={stats} />
-          </section>
-
-          <section className="px-3 py-3" data-testid="brand-os-jev-preview">
-            <JevComingSoonCard source="brand-os" />
           </section>
         </>
       )}

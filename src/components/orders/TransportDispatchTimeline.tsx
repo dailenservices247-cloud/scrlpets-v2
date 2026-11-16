@@ -5,12 +5,10 @@ import {
   Truck,
   Thermometer,
   Droplets,
-  Clock,
   CheckCircle2,
   MapPin,
   ShieldCheck,
   Plus,
-  Compass,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,33 +29,6 @@ export type WelfareLogEntry = {
   hydrated: boolean;
   loggedBy: string;
 };
-
-const DEFAULT_LOGS: WelfareLogEntry[] = [
-  {
-    id: "log-1",
-    timestamp: "Today at 08:30 AM",
-    tempFahrenheit: 68,
-    activity: "Pre-departure vehicle sanitation & crate padding inspection verified.",
-    hydrated: true,
-    loggedBy: "US Pet Transport Dispatch",
-  },
-  {
-    id: "log-2",
-    timestamp: "Today at 10:45 AM",
-    tempFahrenheit: 69,
-    activity: "Rest stop welfare break: 15-min leash walk, fresh electrolyte hydration offered.",
-    hydrated: true,
-    loggedBy: "Certified Handler (USDA Class T)",
-  },
-  {
-    id: "log-3",
-    timestamp: "Today at 01:15 PM",
-    tempFahrenheit: 68,
-    activity: "Mid-transit cabin climate check. Animal calm and resting comfortably in secure crate.",
-    hydrated: true,
-    loggedBy: "Certified Handler (USDA Class T)",
-  },
-];
 
 export function TransportDispatchTimeline({
   orderId,
@@ -80,7 +51,7 @@ export function TransportDispatchTimeline({
   pickedUpAt?: string | null;
   handoverAt?: string | null;
 }) {
-  const [logs, setLogs] = useState<WelfareLogEntry[]>(DEFAULT_LOGS);
+  const [logs, setLogs] = useState<WelfareLogEntry[]>([]);
   const [showAddLog, setShowAddLog] = useState(false);
   const [newActivity, setNewActivity] = useState("");
   const [newTemp, setNewTemp] = useState(69);
@@ -175,89 +146,30 @@ export function TransportDispatchTimeline({
 
   return (
     <section className="premium-panel rounded-2xl p-4 sm:p-5" data-testid="transport-dispatch-timeline">
-      {/* Header with Carrier License Badges */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-xl bg-blue-500/15 text-blue-500">
+          <span className="grid size-10 place-items-center rounded-xl bg-primary/15 text-brand-link">
             <Truck className="size-5" />
           </span>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold text-foreground">Live Transporter Dispatch & Welfare Tracking</h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-micro font-semibold text-emerald-400">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-sm font-bold text-foreground">Transporter Custody &amp; Welfare Timeline</h2>
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary/15 px-2 py-0.5 text-micro font-semibold text-secondary-foreground">
                 <ShieldCheck className="size-3" />
-                <span>USDA Certified</span>
+                <span>Tracked Handover</span>
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Climate-Controlled Cabin Telemetry &middot; USDA Class T Handler &middot; 24/7 Welfare Audit
+              Recorded pickup timestamps, rest stop check-ins &amp; destination release verification
             </p>
           </div>
         </div>
 
-        {/* Carrier Credentials Pill */}
         <div className="flex flex-wrap items-center gap-2 text-micro">
           <span className="rounded-md border border-border/70 bg-muted/40 px-2 py-1 font-mono text-muted-foreground uppercase">
             Mode: <strong className="text-foreground">{fulfilment.replace("_", " ")}</strong>
           </span>
-          <span className="rounded-md border border-border/70 bg-muted/40 px-2 py-1 font-mono text-muted-foreground">
-            USDA License: <strong className="text-foreground">74-T-0419</strong>
-          </span>
-          <span className="rounded-md border border-border/70 bg-muted/40 px-2 py-1 font-mono text-muted-foreground">
-            USDOT: <strong className="text-foreground">#3918204</strong>
-          </span>
-        </div>
-      </div>
-
-      {/* Real-time Environmental Telemetry Ticker */}
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 text-xs">
-        <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-3 flex items-center gap-2.5">
-          <Thermometer className="size-4 text-blue-400 shrink-0" />
-          <div>
-            <span className="text-micro text-muted-foreground block">Cabin Temperature</span>
-            <span className="font-bold text-foreground">68.4°F (Optimal)</span>
-          </div>
-        </div>
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 flex items-center gap-2.5">
-          <Droplets className="size-4 text-emerald-400 shrink-0" />
-          <div>
-            <span className="text-micro text-muted-foreground block">Hydration Station</span>
-            <span className="font-bold text-foreground">Active &middot; Electrolytes</span>
-          </div>
-        </div>
-        <div className="rounded-xl border border-purple-500/30 bg-purple-500/5 p-3 flex items-center gap-2.5">
-          <Clock className="size-4 text-purple-400 shrink-0" />
-          <div>
-            <span className="text-micro text-muted-foreground block">Next Welfare Break</span>
-            <span className="font-bold text-foreground">In ~45 minutes</span>
-          </div>
-        </div>
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3 flex items-center gap-2.5">
-          <Compass className="size-4 text-amber-400 shrink-0" />
-          <div>
-            <span className="text-micro text-muted-foreground block">Transit Status</span>
-            <span className="font-bold text-foreground">On Schedule</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Interstate Corridor Route Progress */}
-      <div className="mt-4 rounded-xl border border-border/80 bg-muted/20 p-3.5 space-y-2" data-testid="route-progress-card">
-        <div className="flex flex-wrap items-center justify-between text-xs gap-1">
-          <span className="font-semibold text-foreground flex items-center gap-1.5">
-            <Truck className="size-3.5 text-primary" />
-            <span>Corridor Transit: I-75 Southbound Route</span>
-          </span>
-          <span className="font-mono text-micro text-emerald-400 font-medium">
-            440 / 680 mi completed (65%)
-          </span>
-        </div>
-        <div className="h-2 w-full rounded-full bg-border/60 overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full" style={{ width: "65%" }} />
-        </div>
-        <div className="flex items-center justify-between text-micro text-muted-foreground pt-0.5">
-          <span>Origin: Danu's Ark (Ohio)</span>
-          <span>Destination Corridor Arrival</span>
         </div>
       </div>
 
@@ -277,16 +189,16 @@ export function TransportDispatchTimeline({
                   className={cn(
                     "absolute -left-3.5 flex size-7 items-center justify-center rounded-full border-2 transition",
                     isDone
-                      ? "border-emerald-500 bg-emerald-500/20 text-emerald-400"
+                      ? "border-secondary bg-secondary/20 text-secondary-foreground"
                       : isCurr
-                        ? "border-blue-500 bg-blue-500/20 text-blue-400 ring-2 ring-blue-500/30"
+                        ? "border-primary bg-primary/20 text-brand-link ring-2 ring-primary/30"
                         : "border-border bg-card text-muted-foreground",
                   )}
                 >
                   {isDone ? (
                     <CheckCircle2 className="size-4" />
                   ) : isCurr ? (
-                    <div className="size-2 rounded-full bg-blue-400" />
+                    <div className="size-2 rounded-full bg-brand-link" />
                   ) : (
                     <div className="size-1.5 rounded-full bg-muted-foreground" />
                   )}
@@ -296,13 +208,13 @@ export function TransportDispatchTimeline({
                     <h4
                       className={cn(
                         "text-xs font-bold",
-                        isDone ? "text-foreground" : isCurr ? "text-blue-400" : "text-muted-foreground",
+                        isDone ? "text-foreground" : isCurr ? "text-brand-link" : "text-muted-foreground",
                       )}
                     >
                       {step.title}
                     </h4>
                     {isCurr && (
-                      <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-micro font-medium text-blue-300">
+                      <span className="rounded-full bg-primary/20 px-2 py-0.5 text-micro font-medium text-brand-link">
                         Active Step
                       </span>
                     )}
@@ -329,10 +241,10 @@ export function TransportDispatchTimeline({
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Driver Welfare & Hydration Log
+              Driver Welfare &amp; Hydration Log
             </h3>
             <p className="text-micro text-muted-foreground">
-              Mandatory animal welfare observations recorded during each transit checkpoint.
+              Welfare observations recorded by the handler on this device during transit.
             </p>
           </div>
           {(isTransporter || isBuyer || isSeller || !transporterId) && (
@@ -367,7 +279,7 @@ export function TransportDispatchTimeline({
                     setNewActivity("Fresh electrolyte water provided. Animal drank well and rested comfortably.");
                     setNewTemp(68);
                   }}
-                  className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-micro font-medium text-emerald-400 hover:bg-emerald-500/20"
+                  className="rounded-lg border border-secondary/30 bg-secondary/10 px-2.5 py-1 text-micro font-medium text-secondary-foreground hover:bg-secondary/20"
                 >
                   💧 Water &amp; Electrolytes
                 </button>
@@ -377,7 +289,7 @@ export function TransportDispatchTimeline({
                     setNewActivity("15-minute leash walk and potty break. Alert, active, and calm demeanor.");
                     setNewTemp(69);
                   }}
-                  className="rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-micro font-medium text-blue-400 hover:bg-blue-500/20"
+                  className="rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-micro font-medium text-brand-link hover:bg-primary/20"
                 >
                   🐾 15-Min Leash Exercise
                 </button>
@@ -387,7 +299,7 @@ export function TransportDispatchTimeline({
                     setNewActivity("Pre-dropoff welfare check: vital signs normal, coat dry, clean crate bedding.");
                     setNewTemp(68);
                   }}
-                  className="rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-micro font-medium text-purple-400 hover:bg-purple-500/20"
+                  className="rounded-lg border border-accent/30 bg-accent/10 px-2.5 py-1 text-micro font-medium text-accent hover:bg-accent/20"
                 >
                   🩺 Destination Welfare Check
                 </button>
@@ -412,14 +324,14 @@ export function TransportDispatchTimeline({
                 <label className="block text-micro font-medium text-muted-foreground uppercase mb-1">
                   Hydration Status
                 </label>
-                <div className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-emerald-400 font-medium">
+                <div className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-secondary-foreground font-medium">
                   Hydrated &middot; Clean Water Provided
                 </div>
               </div>
             </div>
             <div>
               <label className="block text-micro font-medium text-muted-foreground uppercase mb-1">
-                Welfare Observation & Activity
+                Welfare Observation &amp; Activity
               </label>
               <input
                 type="text"
@@ -450,33 +362,39 @@ export function TransportDispatchTimeline({
 
         {/* Log Entries */}
         <div className="space-y-2" data-testid="welfare-logs-list">
-          {logs.map((entry) => (
-            <div
-              key={entry.id}
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border border-border/60 bg-muted/15 p-2.5 text-xs"
-            >
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">{entry.activity}</span>
+          {logs.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-border/70 p-3 text-xs text-muted-foreground">
+              No carrier welfare check-ins recorded yet.
+            </p>
+          ) : (
+            logs.map((entry) => (
+              <div
+                key={entry.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border border-border/60 bg-muted/15 p-2.5 text-xs"
+              >
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-foreground">{entry.activity}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-micro text-muted-foreground">
+                    <span>{entry.timestamp}</span>
+                    <span>&middot;</span>
+                    <span>Logged by: <strong className="text-foreground">{entry.loggedBy}</strong></span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 text-micro text-muted-foreground">
-                  <span>{entry.timestamp}</span>
-                  <span>&middot;</span>
-                  <span>Logged by: <strong className="text-foreground">{entry.loggedBy}</strong></span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-micro font-medium text-brand-link">
+                    <Thermometer className="size-3" />
+                    <span>{entry.tempFahrenheit}°F</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-md bg-secondary/10 px-2 py-0.5 text-micro font-medium text-secondary-foreground">
+                    <Droplets className="size-3" />
+                    <span>Hydrated</span>
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2 py-0.5 text-micro font-medium text-blue-400">
-                  <Thermometer className="size-3" />
-                  <span>{entry.tempFahrenheit}°F</span>
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-micro font-medium text-emerald-400">
-                  <Droplets className="size-3" />
-                  <span>Hydrated</span>
-                </span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </section>

@@ -24,9 +24,6 @@ import {
   HeartHandshake,
   Music,
   Calendar,
-  Globe,
-  Users,
-  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -86,7 +83,6 @@ export function PostForm(props: PostFormProps) {
   const [musicTrack, setMusicTrack] = useState<string | null>(null);
   const [fundraiser, setFundraiser] = useState<string | null>(null);
   const [eventTag, setEventTag] = useState<string | null>(null);
-  const [audience, setAudience] = useState<"public" | "friends" | "only_me">("public");
   const [activeDrawer, setActiveDrawer] = useState<"feeling" | "location" | "lifeUpdate" | "music" | "fundraiser" | "event" | null>(null);
   const [drawerInput, setDrawerInput] = useState("");
 
@@ -204,48 +200,7 @@ export function PostForm(props: PostFormProps) {
       className="flex flex-col gap-4 pt-4"
       data-testid={isEditing ? "edit-post-form" : "post-form"}
     >
-      {/* Audience selector */}
-      {!isEditing && (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 rounded-xl border border-border/70 bg-card p-1 text-xs">
-            <button
-              type="button"
-              onClick={() => setAudience("public")}
-              className={cn(
-                "flex items-center gap-1 px-2.5 py-1 rounded-lg transition font-medium",
-                audience === "public" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Globe className="size-3" />
-              Public
-            </button>
-            <button
-              type="button"
-              onClick={() => setAudience("friends")}
-              className={cn(
-                "flex items-center gap-1 px-2.5 py-1 rounded-lg transition font-medium",
-                audience === "friends" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Users className="size-3" />
-              Friends
-            </button>
-            <button
-              type="button"
-              onClick={() => setAudience("only_me")}
-              className={cn(
-                "flex items-center gap-1 px-2.5 py-1 rounded-lg transition font-medium",
-                audience === "only_me" ? "bg-primary/20 text-brand-link" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Lock className="size-3" />
-              Only Me
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Facebook-style status badges pill — styled strictly in Brand House palette */}
+      {/* Status badges pill — styled strictly in Brand House palette */}
       {(feeling || location || lifeUpdate || musicTrack || fundraiser || eventTag) && (
         <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-border/80 bg-muted/30 p-2.5 text-xs">
           {feeling && (
@@ -255,7 +210,7 @@ export function PostForm(props: PostFormProps) {
             </span>
           )}
           {location && (
-            <span className="flex items-center gap-1 rounded-md bg-secondary/15 border border-secondary/30 px-2 py-0.5 text-[#347466] dark:text-[#64bca9]">
+            <span className="flex items-center gap-1 rounded-md bg-secondary/15 border border-secondary/30 px-2 py-0.5 text-secondary-foreground">
               <MapPin className="size-3" />
               <span>{location}</span>
               <button type="button" onClick={() => setLocation(null)} className="ml-1 text-muted-foreground hover:text-foreground">×</button>
@@ -283,7 +238,7 @@ export function PostForm(props: PostFormProps) {
             </span>
           )}
           {eventTag && (
-            <span className="flex items-center gap-1 rounded-md bg-secondary/15 border border-secondary/30 px-2 py-0.5 text-[#347466] dark:text-[#64bca9]">
+            <span className="flex items-center gap-1 rounded-md bg-secondary/15 border border-secondary/30 px-2 py-0.5 text-secondary-foreground">
               <Calendar className="size-3" />
               <span>{eventTag}</span>
               <button type="button" onClick={() => setEventTag(null)} className="ml-1 text-muted-foreground hover:text-foreground">×</button>

@@ -1,9 +1,5 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { ImagePlus, PawPrint, Plus, Radio, Sparkles } from "lucide-react";
-import { CreationMenuModal } from "@/components/compose/CreationMenuModal";
+import { ImagePlus, PawPrint } from "lucide-react";
 
 export function FeedComposerPrompt({
   signedIn,
@@ -14,7 +10,6 @@ export function FeedComposerPrompt({
   avatarUrl?: string | null;
   fallbackLabel?: string | null;
 }) {
-  const [showMenu, setShowMenu] = useState(false);
   const fallback = (fallbackLabel?.trim() || "Guest").slice(0, 1).toUpperCase();
 
   return (
@@ -35,14 +30,13 @@ export function FeedComposerPrompt({
           </span>
         )}
         {signedIn ? (
-          <button
-            type="button"
-            onClick={() => setShowMenu(true)}
+          <Link
+            href="/compose"
             className="flex min-h-11 flex-1 items-center rounded-full border border-border/80 bg-muted/45 px-4 text-left text-sm font-semibold text-foreground transition hover:border-primary/45"
             data-testid="compose-cta"
           >
-            What&apos;s on your mind? Share an animal update...
-          </button>
+            Share an animal update...
+          </Link>
         ) : (
           <Link
             href="/login"
@@ -52,41 +46,13 @@ export function FeedComposerPrompt({
             Sign in to share an update
           </Link>
         )}
-        {signedIn ? (
-          <div className="flex items-center gap-1.5">
-            <Link
-              href="/compose?mode=live"
-              title="Live stream"
-              className="hidden sm:grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-destructive transition hover:bg-muted"
-            >
-              <Radio className="size-4.5" />
-            </Link>
-            <Link
-              href="/compose?mode=post"
-              title="Photo / video"
-              className="hidden sm:grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-brand-link transition hover:bg-muted"
-            >
-              <ImagePlus className="size-4.5" />
-            </Link>
-            <button
-              type="button"
-              onClick={() => setShowMenu(true)}
-              className="grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground hover:bg-muted"
-              aria-label="Create post, story, reel, live or note"
-              data-testid="feed-create-plus"
-            >
-              <Plus className="size-5" aria-hidden />
-            </button>
-          </div>
-        ) : (
-          <Link
-            href="/login"
-            className="grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground"
-            aria-label="Add photo or video"
-          >
-            <ImagePlus className="size-5" aria-hidden />
-          </Link>
-        )}
+        <Link
+          href={signedIn ? "/compose" : "/login"}
+          className="grid size-10 place-items-center rounded-full border border-border/80 bg-muted/45 text-muted-foreground transition hover:text-foreground hover:bg-muted"
+          aria-label="Add photo or video"
+        >
+          <ImagePlus className="size-5" aria-hidden />
+        </Link>
       </div>
 
       {signedIn && (
@@ -95,30 +61,19 @@ export function FeedComposerPrompt({
             href="/compose?mode=post"
             className="flex flex-1 items-center justify-center gap-2 rounded-xl py-1 text-xs font-semibold text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
           >
-            <ImagePlus className="size-4 text-emerald-500" />
+            <ImagePlus className="size-4 text-secondary-foreground" />
             <span>Photo / Video</span>
           </Link>
           <div className="h-4 w-px bg-border/60" />
-          <button
-            type="button"
-            onClick={() => setShowMenu(true)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-1 text-xs font-semibold text-muted-foreground transition hover:bg-muted/60 hover:text-foreground cursor-pointer"
+          <Link
+            href="/compose"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-1 text-xs font-semibold text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
           >
             <PawPrint className="size-4 text-brand-link" />
             <span>Tag Animal</span>
-          </button>
-          <div className="h-4 w-px bg-border/60" />
-          <Link
-            href="/compose?mode=story"
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl py-1 text-xs font-semibold text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
-          >
-            <Sparkles className="size-4 text-amber-500" />
-            <span>Story / Milestone</span>
           </Link>
         </div>
       )}
-
-      <CreationMenuModal isOpen={showMenu} onClose={() => setShowMenu(false)} />
     </div>
   );
 }

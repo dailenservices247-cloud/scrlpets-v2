@@ -9,8 +9,6 @@ import { AnimalRecordsPanel } from "@/components/profile/AnimalRecordsPanel";
 import { MemorialSection } from "@/components/creature/MemorialSection";
 import { AboutInfoCard } from "@/components/creature/AboutInfoCard";
 import { HealthTestsSection } from "@/components/creature/HealthTestsSection";
-import { DigitalPassport } from "@/components/creature/DigitalPassport";
-import { UniversalCareHabitatCard } from "@/components/care/UniversalCareHabitatCard";
 import { HighlightsSection } from "@/components/highlights/HighlightsSection";
 import { LineageSection } from "@/components/creature/LineageSection";
 import { PedigreeMatrix } from "@/components/creature/PedigreeMatrix";
@@ -166,7 +164,7 @@ export default async function CreaturePage({
         />
       )}
 
-      {goHome && goHome.minAgeWeeks > 0 && (
+      {goHome && goHome.minAgeWeeks > 0 && (!goHome.isReadyToGoHome || Boolean(listing)) && (
         <section
           className="mx-auto max-w-2xl px-4 pt-3"
           data-testid="creature-go-home-timeline"
@@ -269,37 +267,34 @@ export default async function CreaturePage({
         viewerId={user?.id ?? null}
       />
 
-      <DigitalPassport
-        creatureName={creature.name}
-        species={creature.species}
-        subtype={detail?.breed}
-        gender={detail?.gender}
-        birthOrHatchDate={detail?.birthDate}
-        registrationNumber={detail?.registrationNumber}
-        anchorType={detail?.anchorType}
-        anchorVerified={assurance !== "declared"}
-        ownerUsername={creature.owner.username}
-        brandName={origin?.brandName}
-        tests={tests}
-      />
-
-      <UniversalCareHabitatCard
-        creatureId={creature.id}
-        species={creature.species}
-        creatureName={creature.name}
-      />
-
       <HealthTestsSection
         creatureId={creature.id}
         slug={creature.slug}
         tests={tests}
         isOwner={isOwner}
         isDeceased={isDeceased}
+        anchorVerified={assurance !== "declared"}
+        registrationNumber={detail?.registrationNumber}
       />
 
-      {pedigree && <PedigreeMatrix data={pedigree} />}
+      {pedigree && (
+        <PedigreeMatrix
+          data={pedigree}
+          isOwner={isOwner}
+          ownerUsername={creature.owner.username}
+          brandName={origin?.brandName}
+          species={creature.species}
+          registrationNumber={detail?.registrationNumber}
+          anchorType={detail?.anchorType}
+          tests={tests}
+        />
+      )}
 
-      <LineageSection parents={parents} offspring={offspring} isDeceased={isDeceased} />
+      <LineageSection
+        parents={pedigree && (pedigree.subject.sire || pedigree.subject.dam) ? [] : parents}
+        offspring={offspring}
+        isDeceased={isDeceased}
+      />
 
       <AnimalRecordsPanel
         creatureId={creature.id}

@@ -14,7 +14,6 @@ import {
   Lock,
   Scale,
   ShieldCheck,
-  Sparkles,
   UserPlus,
 } from "lucide-react";
 import { AppPage } from "@/components/app/AppPage";
@@ -89,14 +88,6 @@ export default async function SettingsIndexPage() {
     {
       title: t("groups.commerce"),
       rows: [
-        {
-          href: "/settings/creator",
-          testid: "settings-row-creator",
-          icon: Sparkles,
-          title: "Creator Studio & Monetization",
-          subtitle: "Video reels, fan tipping, ad-revenue share, and Relay Financial direct deposits",
-          color: "text-amber-400 bg-amber-500/15",
-        },
         {
           href: "/settings/payouts",
           testid: "settings-row-payouts",

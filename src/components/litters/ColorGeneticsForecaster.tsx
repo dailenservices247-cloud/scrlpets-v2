@@ -276,7 +276,7 @@ export function ColorGeneticsForecaster({
                   </div>
                 </div>
                 {/* Punnett distribution readouts */}
-                <div className="flex flex-wrap gap-1 text-[10px] font-mono text-muted-foreground pt-1 border-t border-border/40">
+                <div className="flex flex-wrap gap-1 text-micro font-mono text-muted-foreground pt-1 border-t border-border/40">
                   {Object.entries(punnettE).map(([genotype, pct]) => (
                     <span key={genotype} className="rounded bg-muted/50 px-1 py-0.5">
                       {genotype}: {pct}%
@@ -322,7 +322,7 @@ export function ColorGeneticsForecaster({
                   </div>
                 </div>
                 {/* Punnett distribution readouts */}
-                <div className="flex flex-wrap gap-1 text-[10px] font-mono text-muted-foreground pt-1 border-t border-border/40">
+                <div className="flex flex-wrap gap-1 text-micro font-mono text-muted-foreground pt-1 border-t border-border/40">
                   {Object.entries(punnettK).map(([genotype, pct]) => (
                     <span key={genotype} className="rounded bg-muted/50 px-1 py-0.5">
                       {genotype}: {pct}%
@@ -366,7 +366,7 @@ export function ColorGeneticsForecaster({
                   </div>
                 </div>
                 {/* Punnett distribution readouts */}
-                <div className="flex flex-wrap gap-1 text-[10px] font-mono text-muted-foreground pt-1 border-t border-border/40">
+                <div className="flex flex-wrap gap-1 text-micro font-mono text-muted-foreground pt-1 border-t border-border/40">
                   {Object.entries(punnettD).map(([genotype, pct]) => (
                     <span key={genotype} className="rounded bg-muted/50 px-1 py-0.5">
                       {genotype}: {pct}%
@@ -408,7 +408,7 @@ export function ColorGeneticsForecaster({
                   </div>
                 </div>
                 {/* Punnett distribution readouts */}
-                <div className="flex flex-wrap gap-1 text-[10px] font-mono text-muted-foreground pt-1 border-t border-border/40">
+                <div className="flex flex-wrap gap-1 text-micro font-mono text-muted-foreground pt-1 border-t border-border/40">
                   {Object.entries(punnettM).map(([genotype, pct]) => (
                     <span key={genotype} className="rounded bg-muted/50 px-1 py-0.5">
                       {genotype}: {pct}%

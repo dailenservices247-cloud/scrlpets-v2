@@ -32,57 +32,9 @@ const PRESET_COLLAR_COLORS = [
   { name: "Silver", hex: "#94a3b8" },
 ];
 
-const DEFAULT_SAMPLE_PUPPIES: PuppyGrowthProfile[] = [
-  {
-    id: "pup-1",
-    name: "Titan",
-    collarColor: "#3b82f6", // Blue
-    birthWeightGrams: 480,
-    gender: "male",
-    records: [
-      { day: 0, weightGrams: 480 },
-      { day: 2, weightGrams: 540 },
-      { day: 4, weightGrams: 620 },
-      { day: 7, weightGrams: 760 },
-      { day: 10, weightGrams: 980 },
-      { day: 14, weightGrams: 1280 },
-    ],
-  },
-  {
-    id: "pup-2",
-    name: "Athena",
-    collarColor: "#ec4899", // Pink
-    birthWeightGrams: 450,
-    gender: "female",
-    records: [
-      { day: 0, weightGrams: 450 },
-      { day: 2, weightGrams: 510 },
-      { day: 4, weightGrams: 590 },
-      { day: 7, weightGrams: 720 },
-      { day: 10, weightGrams: 910 },
-      { day: 14, weightGrams: 1210 },
-    ],
-  },
-  {
-    id: "pup-3",
-    name: "Onyx",
-    collarColor: "#10b981", // Emerald
-    birthWeightGrams: 460,
-    gender: "male",
-    records: [
-      { day: 0, weightGrams: 460 },
-      { day: 2, weightGrams: 490 },
-      { day: 4, weightGrams: 530 },
-      { day: 7, weightGrams: 640 },
-      { day: 10, weightGrams: 810 },
-      { day: 14, weightGrams: 1050 },
-    ],
-  },
-];
-
 export function LitterGrowthTracker({
   litterId,
-  initialPuppies = DEFAULT_SAMPLE_PUPPIES,
+  initialPuppies = [],
   isBreeder = false,
 }: {
   litterId?: string;
@@ -142,7 +94,125 @@ export function LitterGrowthTracker({
 
   const selectedPuppy =
     puppies.find((p) => p.id === selectedPuppyId) || puppies[0];
-  if (!selectedPuppy) return null;
+  if (!selectedPuppy) {
+    if (!isBreeder) return null;
+    return (
+      <div
+        className="premium-panel rounded-2xl p-4 sm:p-5"
+        data-testid="litter-growth-tracker"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Litter Weight &amp; Growth Log</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Add offspring profiles to track weigh-ins on this device.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAddPupModal(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90"
+            data-testid="growth-add-offspring-empty"
+          >
+            <Plus className="size-3.5" />
+            <span>Add Offspring</span>
+          </button>
+        </div>
+
+        {showAddPupModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+            onClick={() => setShowAddPupModal(false)}
+          >
+            <div
+              className="w-full max-w-sm rounded-2xl border border-border bg-card p-4 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h4 className="text-base font-semibold">Add Offspring</h4>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Add a young animal to log weigh-ins
+              </p>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!newPupName.trim()) return;
+                  const newId = `pup-${Date.now()}`;
+                  const created: PuppyGrowthProfile = {
+                    id: newId,
+                    name: newPupName.trim(),
+                    collarColor: newPupColor,
+                    birthWeightGrams: newPupBirthWeight,
+                    gender: newPupGender,
+                    records: [{ day: 0, weightGrams: newPupBirthWeight, recordedAt: new Date().toISOString() }],
+                  };
+                  setPuppies([created]);
+                  setSelectedPuppyId(newId);
+                  setNewPupName("");
+                  setShowAddPupModal(false);
+                }}
+                className="mt-4 flex flex-col gap-3"
+              >
+                <div>
+                  <label className="text-xs font-medium text-foreground">Name / Collar Label</label>
+                  <input
+                    type="text"
+                    maxLength={50}
+                    placeholder="e.g. Collar Green"
+                    value={newPupName}
+                    onChange={(e) => setNewPupName(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-input bg-background p-2 text-sm"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Gender</label>
+                    <select
+                      value={newPupGender}
+                      onChange={(e) => setNewPupGender(e.target.value as "male" | "female")}
+                      className="mt-1 w-full rounded-xl border border-input bg-background p-2 text-sm"
+                    >
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-foreground">Birth Weight (g)</label>
+                    <input
+                      type="number"
+                      min={50}
+                      max={5000}
+                      value={newPupBirthWeight}
+                      onChange={(e) => setNewPupBirthWeight(Number(e.target.value))}
+                      className="mt-1 w-full rounded-xl border border-input bg-background p-2 text-sm"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="mt-2 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddPupModal(false)}
+                    className="rounded-xl border border-input px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!newPupName.trim()}
+                    className="rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                  >
+                    Add to Litter
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const summary = calculateGrowthSummary(
     selectedPuppy.birthWeightGrams,

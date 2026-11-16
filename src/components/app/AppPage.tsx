@@ -49,10 +49,10 @@ export async function AppPage({
           landmark, and `app-shell` stays scoped to the page's own content. */}
       <div
         className={cn(
-          "app-surface flex min-h-dvh w-full min-w-0 flex-col lg:border-x lg:border-border/60",
+          "app-surface flex min-h-dvh w-full min-w-0 flex-col",
           wide
             ? "lg:max-w-[calc(100%-15rem)]"
-            : "lg:w-[720px] lg:max-w-[720px] lg:shrink-0",
+            : "lg:flex-1 lg:max-w-[720px]",
         )}
       >
         {showBottomNav && (

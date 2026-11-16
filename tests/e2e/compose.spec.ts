@@ -26,18 +26,14 @@ test.describe("signed in", () => {
     await expect(page.getByText(marker)).toBeVisible();
   });
 
-  test("composer alignment exposes identity, mode, subject, and preview", async ({ page }) => {
+  test("composer alignment exposes identity, mode, listing form, and commerce links", async ({ page }) => {
     await page.goto("/compose?mode=listing");
     await expect(page.getByTestId("composer-alignment")).toBeVisible();
-    // Options are collapsed by default (A9 quick-post); expand them first.
-    await page.getByTestId("composer-more-options").click();
     await expect(page.getByTestId("posting-as-selector")).toBeVisible();
     await expect(page.getByTestId("mode-selector")).toBeVisible();
-    await expect(page.getByTestId("about-selector")).toBeVisible();
-    await expect(page.getByTestId("attribution-preview")).toBeVisible();
     await expect(page.getByTestId("listing-form")).toBeVisible();
-    await page.getByTestId("mode-selector").getByRole("button", { name: /Product/ }).click();
-    await expect(page.getByTestId("planned-mode-panel")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Brand OS/i })).toHaveAttribute("href", "/brand-os");
+    await expect(page.getByRole("link", { name: /Marketplace/i })).toHaveAttribute("href", "/market/offer");
   });
 
   // Deliberately does NOT assert feed placement: applyDensityCaps suppresses
