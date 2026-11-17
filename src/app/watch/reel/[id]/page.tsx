@@ -19,10 +19,11 @@ export default async function ReelDetailPage({ params }: { params: Promise<{ id:
   // The tapped reel leads even if it aged out of the queue window.
   if (!queue.some((reel) => reel.id === id)) queue = [item, ...queue];
   const ids = queue.map((reel) => reel.id);
+  const authorIds = [...new Set(queue.map((reel) => reel.author.id))];
   const [social, savedSet, followingIds] = await Promise.all([
     getFeedSocialContext(ids, user?.id),
     user ? getSavedSet(user.id, ids) : Promise.resolve(new Set<string>()),
-    user ? getFollowingIds(user.id) : Promise.resolve([]),
+    user ? getFollowingIds(user.id, authorIds) : Promise.resolve([]),
   ]);
 
   return (

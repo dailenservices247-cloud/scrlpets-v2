@@ -31,13 +31,29 @@ export async function isFollowing(
   return !!data;
 }
 
-/** Profile ids the viewer follows — the Following feed filter set. */
-export async function getFollowingIds(viewerId: string): Promise<string[]> {
+const MAX_FOLLOWING_IDS = 500;
+
+/**
+ * Profile ids the viewer follows. When `targetIds` is provided (e.g. the
+ * authors in a reel queue), scopes the query to those ids so a viewer with
+ * thousands of follows only queries the authors on screen.
+ */
+export async function getFollowingIds(
+  viewerId: string,
+  targetIds?: string[],
+): Promise<string[]> {
+  if (targetIds && targetIds.length === 0) return [];
   const supabase = await createClient();
-  const { data } = await supabase
+  let query = supabase
     .from("follows")
     .select("following_id")
     .eq("follower_id", viewerId);
+  if (targetIds) {
+    query = query.in("following_id", [...new Set(targetIds)]);
+  } else {
+    query = query.limit(MAX_FOLLOWING_IDS);
+  }
+  const { data } = await query;
   return (data ?? []).map((row) => row.following_id as string);
 }
 

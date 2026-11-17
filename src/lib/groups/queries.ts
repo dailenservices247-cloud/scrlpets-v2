@@ -147,14 +147,21 @@ export async function listGroupPosts(
 
   // Blocking is a promise the rest of the app already keeps; a group timeline
   // is not a loophole back into someone you blocked.
+  let blockedSet: Set<string> | null = null;
   if (viewerId) {
     const { getBlockedFeedIds } = await import("@/lib/social/follows");
     const blocked = await getBlockedFeedIds(viewerId);
-    if (blocked.length > 0) query = query.not("author_id", "in", `(${blocked.join(",")})`);
+    if (blocked.length > 0 && blocked.length <= 100) {
+      query = query.not("author_id", "in", `(${blocked.join(",")})`);
+    } else if (blocked.length > 100) {
+      blockedSet = new Set(blocked);
+    }
   }
 
   const { data } = await query;
-  return ((data ?? []) as unknown as PostRow[]).map((r) => ({
+  return ((data ?? []) as unknown as PostRow[])
+    .filter((r) => !blockedSet?.has(r.author_id))
+    .map((r) => ({
     id: r.id,
     type: (r.content_type === "reel" || r.content_type === "long_video"
       ? r.content_type
