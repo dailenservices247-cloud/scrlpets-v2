@@ -93,7 +93,7 @@ export function ProviderOnboardingBanner({
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <ShieldCheck className="size-4 shrink-0 text-brand-link" aria-hidden />
-              <span>Escrow Deposits</span>
+              <span>Protected Deposits</span>
             </div>
           </div>
         </div>

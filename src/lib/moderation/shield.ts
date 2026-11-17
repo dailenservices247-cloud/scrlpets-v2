@@ -45,7 +45,7 @@ const WELFARE_PATTERNS: { regex: RegExp; label: string }[] = [
 ];
 
 const WARNING_PAYMENT =
-  "⚠️ Escrow Shield Protection: For your security and to keep your 72-hour veterinary health guarantee and refund protection intact, all deposits and payments must remain within Scrlpets. Off-platform payments (CashApp, Venmo, Zelle, Wire) are prohibited and forfeit buyer protection.";
+  "⚠️ Buyer Protection Shield: For your security and to keep your 72-hour veterinary health guarantee and refund protection intact, all deposits and payments must remain within Scrlpets. Off-platform payments (CashApp, Venmo, Zelle, Wire) are prohibited and forfeit buyer protection.";
 
 const WARNING_WELFARE =
   "⚠️ Animal Welfare Shield: Listings and communications must comply with animal welfare standards. Puppies and kittens must remain with their mother until at least 8 weeks of age.";

@@ -36,6 +36,9 @@ function typeLabel(value: string): string {
   return BRAND_TYPE_OPTIONS.find((o) => o.value === value)?.label ?? "Brand";
 }
 
+type BrandTab = "posts" | "animals" | "catalog" | "about";
+const VALID_TABS: readonly BrandTab[] = ["posts", "animals", "catalog", "about"];
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const brand = await getBrandBySlug(slug);
@@ -48,10 +51,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BrandPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ tab?: string }>;
 }) {
-  const { slug } = await params;
+  const [{ slug }, sp] = await Promise.all([
+    params,
+    searchParams ?? Promise.resolve({} as { tab?: string }),
+  ]);
+  const activeTab: BrandTab = VALID_TABS.includes(sp.tab as BrandTab)
+    ? (sp.tab as BrandTab)
+    : "posts";
   const brand = await getBrandBySlug(slug);
   if (!brand) notFound();
 
@@ -222,66 +233,96 @@ export default async function BrandPage({
       )}
 
       {/* People running this establishment — clickable cards to each person's /u/[username] */}
-      <section className="px-3 pt-3" data-testid="brand-team-section">
-        <div className="premium-panel rounded-2xl p-4">
-          <p className="eyebrow">{t("peopleEyebrow")}</p>
-          <h2 className="mt-1 font-serif text-title">{t("peopleTitle")}</h2>
-          <p className="mt-1 text-meta text-muted-foreground">{t("peopleSubtitle")}</p>
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2" data-testid="brand-team-list">
-            {peopleRunning.map((person) => (
-              <li key={person.profileId}>
-                <Link
-                  href={`/u/${person.username}`}
-                  data-testid={`brand-team-member-${person.username}`}
-                  className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-primary/40 hover:bg-muted/45"
-                >
-                  {person.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={person.avatarUrl}
-                      alt=""
-                      width={44}
-                      height={44}
-                      className="size-11 shrink-0 rounded-full object-cover"
-                    />
-                  ) : (
-                    <span
-                      className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary/20 text-ui font-semibold text-secondary-foreground"
-                      aria-hidden
-                    >
-                      {(person.displayName ?? person.username).slice(0, 1).toUpperCase()}
-                    </span>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="truncate text-ui font-semibold">
-                        {person.displayName ?? person.username}
-                      </span>
-                      {person.isVerified && (
-                        <ShieldCheck
-                          className="size-4 shrink-0 text-secondary-foreground"
-                          aria-label={t("verifiedMember")}
-                        />
-                      )}
-                    </div>
-                    <span className="block truncate text-meta text-brand-link">
-                      @{person.username}
-                    </span>
-                  </div>
-                  <span className="shrink-0 rounded-full border border-border/70 bg-muted/45 px-2.5 py-0.5 text-micro capitalize text-muted-foreground">
-                    {t(`role.${person.role}`)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      <nav className="flex flex-wrap gap-2 px-3 pt-3" aria-label="Brand sections" data-testid="brand-tabs">
+        {([
+          ["posts", "Posts"],
+          ["animals", `Animals & Litters (${creatures.length + litters.length})`],
+          ["catalog", `Services & Shop (${services.length + products.length})`],
+          ["about", "Team & Overview"],
+        ] as const).map(([key, label]) => (
+          <Link
+            key={key}
+            href={key === "posts" ? `/b/${slug}` : `/b/${slug}?tab=${key}`}
+            aria-current={activeTab === key ? "page" : undefined}
+            data-testid={`btab-${key}`}
+            className={
+              activeTab === key
+                ? "inline-flex min-h-10 items-center rounded-xl bg-primary/15 px-3.5 py-1.5 text-meta font-semibold text-brand-link"
+                : "inline-flex min-h-10 items-center rounded-xl border border-input px-3.5 py-1.5 text-meta font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+            }
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
 
-      <BrandGalleryStrip photos={gallery} />
+      {activeTab === "about" && (
+        <section className="px-3 pt-3" data-testid="brand-team-section">
+          <div className="premium-panel rounded-2xl p-4">
+            <p className="eyebrow">{t("peopleEyebrow")}</p>
+            <h2 className="mt-1 font-serif text-title">{t("peopleTitle")}</h2>
+            <p className="mt-1 text-meta text-muted-foreground">{t("peopleSubtitle")}</p>
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2" data-testid="brand-team-list">
+              {peopleRunning.map((person) => (
+                <li key={person.profileId}>
+                  <Link
+                    href={`/u/${person.username}`}
+                    data-testid={`brand-team-member-${person.username}`}
+                    className="flex items-center gap-3 rounded-xl border border-border/70 bg-muted/30 p-3 transition hover:border-primary/40 hover:bg-muted/45"
+                  >
+                    {person.avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={person.avatarUrl}
+                        alt=""
+                        width={44}
+                        height={44}
+                        className="size-11 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span
+                        className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary/20 text-ui font-semibold text-secondary-foreground"
+                        aria-hidden
+                      >
+                        {(person.displayName ?? person.username).slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="truncate text-ui font-semibold">
+                          {person.displayName ?? person.username}
+                        </span>
+                        {person.isVerified && (
+                          <ShieldCheck
+                            className="size-4 shrink-0 text-secondary-foreground"
+                            aria-label={t("verifiedMember")}
+                          />
+                        )}
+                      </div>
+                      <span className="block truncate text-meta text-brand-link">
+                        @{person.username}
+                      </span>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-border/70 bg-muted/45 px-2.5 py-0.5 text-micro capitalize text-muted-foreground">
+                      {t(`role.${person.role}`)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {activeTab === "posts" && (
+        <>
+          <BrandGalleryStrip photos={gallery} />
+          <FeedList items={feed} showTabs={false} viewerId={user?.id} />
+        </>
+      )}
 
       {/* Establishment Animals & Litters + Family Tree link */}
-      {(creatures.length > 0 || litters.length > 0) && (
+      {activeTab === "animals" && (creatures.length > 0 || litters.length > 0) && (
         <section className="px-3 pt-3" data-testid="brand-animals-section">
           <div className="premium-panel rounded-2xl p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -329,11 +370,11 @@ export default async function BrandPage({
                     </span>
                     <div className="mt-1 flex flex-wrap items-center gap-1">
                       {c.creatureRole === "breeding" ? (
-                        <span className="inline-block rounded-md border border-amber-500/40 bg-amber-500/15 px-1.5 py-0.5 text-micro font-medium text-amber-300">
+                        <span className="inline-block rounded-md border border-accent/40 bg-accent/15 px-1.5 py-0.5 text-micro font-medium text-foreground">
                           🧬 Breeding Stock
                         </span>
                       ) : (
-                        <span className="inline-block rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 py-0.5 text-micro font-medium text-emerald-400">
+                        <span className="inline-block rounded-md border border-secondary/40 bg-secondary/15 px-1.5 py-0.5 text-micro font-medium text-secondary-foreground">
                           🐾 Kennel Companion
                         </span>
                       )}
@@ -381,7 +422,7 @@ export default async function BrandPage({
       )}
 
       {/* Verified Alumni Gallery — Dogs & Animals Produced by this Establishment */}
-      {alumni.length > 0 && (
+      {activeTab === "animals" && alumni.length > 0 && (
         <section className="px-3 pt-3" data-testid="brand-alumni-section">
           <div className="premium-panel rounded-2xl p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -389,7 +430,7 @@ export default async function BrandPage({
                 <p className="eyebrow">Proven Genetics & Offspring</p>
                 <h2 className="mt-1 font-serif text-title">Produced by {brand.name}</h2>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-brand-link">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-meta font-semibold text-brand-link">
                 <ShieldCheck className="size-3.5" />
                 Verified Alumni
               </span>
@@ -439,8 +480,14 @@ export default async function BrandPage({
         </section>
       )}
 
+      {activeTab === "animals" && creatures.length === 0 && litters.length === 0 && alumni.length === 0 && (
+        <p className="px-3 py-8 text-center text-meta text-muted-foreground">
+          No animals or litters listed yet.
+        </p>
+      )}
+
       {/* Establishment Services */}
-      {services.length > 0 && (
+      {activeTab === "catalog" && services.length > 0 && (
         <section className="px-3 pt-3" data-testid="brand-services-section">
           <div className="premium-panel rounded-2xl p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
@@ -500,7 +547,7 @@ export default async function BrandPage({
         </section>
       )}
 
-      {products.length > 0 && (
+      {activeTab === "catalog" && products.length > 0 && (
         <section className="px-4 py-5" data-testid="brand-shop">
           <h2 className="pb-3 font-serif text-display">Shop</h2>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -510,7 +557,12 @@ export default async function BrandPage({
           </div>
         </section>
       )}
-      <FeedList items={feed} showTabs={false} viewerId={user?.id} />
+
+      {activeTab === "catalog" && services.length === 0 && products.length === 0 && (
+        <p className="px-3 py-8 text-center text-meta text-muted-foreground">
+          No services or products listed yet.
+        </p>
+      )}
     </AppPage>
   );
 }

@@ -171,7 +171,7 @@ export function DealRoomPanel({
             className="rounded-xl bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:opacity-90"
             data-testid="view-deal-order"
           >
-            View Order & Escrow →
+            View Order &amp; Protection →
           </Link>
         ) : latestContract?.status === "sent" ? (
           isBuyer ? (

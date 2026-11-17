@@ -47,7 +47,7 @@ export function OverviewPanel({ stats }: { stats: AdminOverviewStats }) {
         <div className="flex items-center gap-2.5 rounded-xl border border-border/70 bg-card/40 p-3">
           <HeartPulse className="size-4 text-emerald-500" aria-hidden />
           <div>
-            <p className="text-micro font-semibold uppercase tracking-wider text-muted-foreground">ESCROW RAILS</p>
+            <p className="text-micro font-semibold uppercase tracking-wider text-muted-foreground">PAYMENT RAILS</p>
             <p className="font-mono text-xs font-semibold text-foreground">2-STAGE_SECURE</p>
           </div>
         </div>
@@ -74,7 +74,7 @@ export function OverviewPanel({ stats }: { stats: AdminOverviewStats }) {
         {/* Escrow in Vault */}
         <div className="premium-panel flex flex-col justify-between rounded-2xl p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Escrow in Custody</span>
+            <span className="text-xs font-medium text-muted-foreground">Held Funds in Custody</span>
             <span className="grid size-7 place-items-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
               <Lock className="size-4" aria-hidden />
             </span>

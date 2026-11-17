@@ -31,6 +31,7 @@ export function BrandProfileHeader({
             isOwner={canOperate}
             editHref={`/brand-os?brand=${brand.id}`}
             albums={albums}
+            imgTestId="brand-banner"
           />
         )}
         <div className="p-4">

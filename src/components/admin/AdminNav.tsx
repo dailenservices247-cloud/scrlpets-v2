@@ -102,7 +102,7 @@ export function AdminNav({
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Enterprise administration, commerce escrow governance, and platform telemetry
+              Enterprise administration, held payment governance, and platform telemetry
             </p>
           </div>
         </div>

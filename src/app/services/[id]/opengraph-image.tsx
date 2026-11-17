@@ -126,7 +126,7 @@ export default async function ServiceOgImage({
                   border: "1px solid rgba(16, 185, 129, 0.3)",
                 }}
               >
-                ✓ Escrow Protected
+                ✓ Held Payment Protected
               </div>
             </div>
 

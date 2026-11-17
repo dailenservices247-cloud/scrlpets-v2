@@ -84,14 +84,14 @@ export function AdminRevenuePanel({ stats }: { stats: AdminFinancialStats }) {
         {/* Escrow Custody */}
         <div className="premium-panel flex flex-col justify-between rounded-2xl p-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Escrow in Custody</span>
+            <span className="text-xs font-medium text-muted-foreground">Held Funds in Custody</span>
             <Lock className="size-4 text-amber-500" aria-hidden />
           </div>
           <div className="mt-3">
             <p className="text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
               {formatPrice(stats.heldEscrowCents, "USD")}
             </p>
-            <p className="mt-0.5 text-micro text-muted-foreground">Locked in 2-stage escrow</p>
+            <p className="mt-0.5 text-micro text-muted-foreground">Locked in 2-stage holding</p>
           </div>
         </div>
 

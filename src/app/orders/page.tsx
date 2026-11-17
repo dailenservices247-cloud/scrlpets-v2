@@ -39,7 +39,7 @@ export default async function OrdersHubPage() {
   return (
     <AppPage>
       <header className="px-4 pb-4 pt-6">
-        <p className="eyebrow">Commerce & Escrow</p>
+        <p className="eyebrow">Commerce &amp; Buyer Protection</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight">Orders & Deals</h1>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           Track signed agreements, held deposits, live transit anchors, and verified releases.
@@ -146,7 +146,7 @@ export default async function OrdersHubPage() {
                           {formatPrice(o.amountCents, o.currency)}
                         </p>
                         <p className="text-micro text-muted-foreground">
-                          {o.status === "released" ? "Funds released" : "Escrow protected"}
+                          {o.status === "released" ? "Funds released" : "Held payment protected"}
                         </p>
                       </div>
                       <span className="grid size-8 shrink-0 place-items-center rounded-full bg-muted/30 text-muted-foreground transition group-hover:bg-primary/20 group-hover:text-brand-link">

@@ -121,7 +121,7 @@ export function AdminSystemHealthPanel({ stats }: { stats: SystemHealthStats }) 
         </div>
         <ul className="mt-2 list-inside list-disc space-y-1 text-micro leading-5">
           <li>Row-Level Security (RLS) enabled across 100% of public database tables.</li>
-          <li>Two-stage escrow architecture: Stage 1 Deposit locked; Stage 2 Balance released on buyer acceptance.</li>
+          <li>Two-stage held payment architecture: Stage 1 Deposit locked; Stage 2 Balance released on buyer acceptance.</li>
           <li>Transporter payout policies snapshot at contract creation to prevent retroactive dispute alterations.</li>
           <li>Append-only audit trail logging for all administrative account suspensions and content actions.</li>
         </ul>

@@ -37,7 +37,9 @@ test.describe("signed in", () => {
     await expect(page.getByTestId("brand-os-header").getByRole("heading", { level: 1 })).toHaveText(/E2E Brand/);
     await expect(page.getByTestId("brand-os-overview")).toBeVisible();
     await expect(page.getByTestId("brand-os-quick-actions")).toBeVisible();
-    await expect(page.getByRole("link", { name: "Applications" })).toHaveAttribute("href", "/applications");
+    await expect(
+      page.getByTestId("brand-os-quick-actions").getByRole("link", { name: "Applications" }),
+    ).toHaveAttribute("href", "/applications");
 
     // /breeder-os routes to /brand-os
     await page.goto("/breeder-os");

@@ -18,6 +18,7 @@ export function CoverPhoto({
   editHref = "/settings/profile",
   albums = [],
   otherPhotos = [],
+  imgTestId = "profile-cover",
 }: {
   url: string | null | undefined;
   name?: string;
@@ -25,6 +26,7 @@ export function CoverPhoto({
   editHref?: string;
   albums?: PhotoAlbum[];
   otherPhotos?: PhotoItem[];
+  imgTestId?: string;
 }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -63,7 +65,7 @@ export function CoverPhoto({
           src={url}
           alt=""
           className="h-32 w-full object-cover transition duration-200 group-hover:brightness-95"
-          data-testid="profile-cover"
+          data-testid={imgTestId}
         />
         <span
           className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"

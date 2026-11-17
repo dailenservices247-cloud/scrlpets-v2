@@ -28,7 +28,11 @@ export function stripeKey(): StripeKeyResult {
    * rejects the test-mode webhook that comes back — so the order sits stuck
    * rather than failing. Refusing to transact is the only outcome that is loud.
    */
-  if (process.env.VERCEL_ENV === "production" && !key.startsWith("sk_live_")) {
+  if (
+    process.env.VERCEL_ENV === "production" &&
+    !key.startsWith("sk_live_") &&
+    !key.startsWith("rk_live_")
+  ) {
     return { ok: false, reason: "test_key_in_production" };
   }
 

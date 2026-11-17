@@ -160,4 +160,29 @@ describe("stripe key mode — outbound guard", () => {
 
     expect(isIdentityConfigured()).toBe(false);
   });
+
+  it("accepts live restricted keys (rk_live_) in production and refuses rk_test_ keys", async () => {
+    process.env.VERCEL_ENV = "production";
+    process.env.STRIPE_SECRET_KEY = "rk_live_pretend";
+    const fetchSpy = stripeOk();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const { createPaymentIntent, isStripeConfigured } = await import("@/lib/payments/stripe");
+    expect(isStripeConfigured()).toBe(true);
+    const okResult = await createPaymentIntent(INTENT);
+    expect(okResult.ok).toBe(true);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+    vi.resetModules();
+    process.env.VERCEL_ENV = "production";
+    process.env.STRIPE_SECRET_KEY = "rk_test_pretend";
+    const fetchSpy2 = stripeOk();
+    vi.stubGlobal("fetch", fetchSpy2);
+
+    const mod2 = await import("@/lib/payments/stripe");
+    expect(mod2.isStripeConfigured()).toBe(false);
+    const denied = await mod2.createPaymentIntent(INTENT);
+    expect(denied).toEqual({ ok: false, reason: "test_key_in_production" });
+    expect(fetchSpy2).not.toHaveBeenCalled();
+  });
 });

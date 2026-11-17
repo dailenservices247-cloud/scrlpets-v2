@@ -60,7 +60,7 @@ export function OrderDossierPanel({
       {/* Contract & Carrier Payout Policy Summary (always visible) */}
       <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
         <div className="rounded-xl border border-border/70 bg-muted/20 p-2.5">
-          <p className="font-semibold text-foreground">Escrow & Legal Terms</p>
+          <p className="font-semibold text-foreground">Held Payment &amp; Legal Terms</p>
           <p className="mt-1 text-muted-foreground">
             Price: <strong className="text-foreground">{formatPrice(dossier.amount_cents, dossier.currency)}</strong>
             {dossier.deposit_cents > 0 && ` · Deposit: ${formatPrice(dossier.deposit_cents, dossier.currency)}`}
@@ -181,7 +181,7 @@ export function OrderDossierPanel({
 
           {/* Ledger & Audit Trail */}
           <div className="rounded-xl border border-border/60 bg-muted/15 p-3">
-            <p className="font-semibold text-foreground">Immutable Ledger & Escrow Audit</p>
+            <p className="font-semibold text-foreground">Immutable Ledger &amp; Payment Audit</p>
             <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
               <span>Total Captured: <strong className="text-foreground">{formatPrice(ledger.captured_cents, dossier.currency)}</strong></span>
               <span>Buyer Fee: {formatPrice(ledger.buyer_fee_cents, dossier.currency)}</span>

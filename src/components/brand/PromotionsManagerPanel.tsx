@@ -20,12 +20,12 @@ type BrandOption = { id: string; name: string };
 const OBJECTIVE_PRESETS = [
   {
     id: "app",
-    label: "App / Game Launch",
-    category: "APP STORE",
-    cta: "Sign up",
-    actionLink: "Sign up",
-    sampleHeadline: "📱 Play MHO on Mobile 🎮",
-    sampleCaption: "🎉 MHO Is Officially Live! ⚔️ Hunt & explore. A new adventure awaits on your phone.",
+    label: "Featured Kennel & Pack Spotlight",
+    category: "FEATURED",
+    cta: "Learn more",
+    actionLink: "View profile",
+    sampleHeadline: "🐾 Health-Tested Litters & Verified Care",
+    sampleCaption: "Connect with verified breeders, health-cleared companions, and trusted pet professionals.",
   },
   {
     id: "supplies",
@@ -48,7 +48,7 @@ const OBJECTIVE_PRESETS = [
   {
     id: "announcement",
     label: "Breeder & Kennel Announcement",
-    category: "DANU'S ARK",
+    category: "KENNEL ANNOUNCEMENT",
     cta: "Learn more",
     actionLink: "View litter",
     sampleHeadline: "🏆 AKC Champion Line Puppies Reserved Now",
@@ -73,14 +73,14 @@ export function PromotionsManagerPanel({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedBrandId, setSelectedBrandId] = useState<string>(brands[0]?.id || "");
-  const [category, setCategory] = useState("APP STORE");
-  const [headline, setHeadline] = useState("📱 Play MHO on Mobile 🎮");
+  const [category, setCategory] = useState("FEATURED");
+  const [headline, setHeadline] = useState("🐾 Health-Tested Litters & Verified Care");
   const [caption, setCaption] = useState(
-    "🎉 MHO Is Officially Live! ⚔️ Hunt & explore. A new adventure awaits on your phone."
+    "Connect with verified breeders, health-cleared companions, and trusted pet professionals."
   );
-  const [actionLinkText, setActionLinkText] = useState("Sign up");
-  const [ctaText, setCtaText] = useState("Sign up");
-  const [destinationUrl, setDestinationUrl] = useState("https://apps.apple.com");
+  const [actionLinkText, setActionLinkText] = useState("View profile");
+  const [ctaText, setCtaText] = useState("Learn more");
+  const [destinationUrl, setDestinationUrl] = useState("https://scrlpets.com/discover");
   const [mediaUrl, setMediaUrl] = useState(
     "https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&w=1200&q=80"
   );

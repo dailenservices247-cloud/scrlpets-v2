@@ -29,7 +29,7 @@ describe("Deal Room & Escrow Shield", () => {
       const res = await screenMessage(msg);
       expect(res.allowed).toBe(false);
       expect(res.reason).toBe("off_platform_payment");
-      expect(res.warningMessage).toContain("Escrow Shield Protection");
+      expect(res.warningMessage).toContain("Buyer Protection Shield");
     }
   });
 

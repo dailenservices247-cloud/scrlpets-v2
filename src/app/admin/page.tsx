@@ -38,7 +38,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Admin Command Center — Scrlpets",
-  description: "Platform administration, commerce escrow governance, user accounts, and system telemetry.",
+  description: "Platform administration, held payment governance, user accounts, and system telemetry.",
 };
 
 const VALID_TABS: AdminTabId[] = [
