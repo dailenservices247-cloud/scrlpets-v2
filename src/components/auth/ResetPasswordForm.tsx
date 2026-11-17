@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { authErrorKey, type AuthErrorKey } from "@/lib/auth/errors";
@@ -13,6 +14,7 @@ export function ResetPasswordForm() {
   const supabase = createClient();
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<AuthErrorKey | "mismatch" | null>(null);
 
@@ -35,23 +37,38 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <main className="p-6">
+    <main id="main-content" tabIndex={-1} className="p-6 outline-none">
       <h1 className="text-3xl font-semibold">{t("reset.title")}</h1>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("reset.body")}</p>
       <form className="mt-6 flex flex-col gap-4" onSubmit={submit}>
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
-          {t("reset.newPassword")}
-          <input
-            className="min-h-11 rounded border border-input bg-transparent p-2"
-            type="password"
-            name="password"
-            autoComplete="new-password"
-            minLength={8}
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </label>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="reset-password-input" className="text-sm font-medium">
+            {t("reset.newPassword")}
+          </label>
+          <div className="relative flex items-center">
+            <input
+              id="reset-password-input"
+              className="min-h-11 w-full rounded border border-input bg-transparent p-2 pr-12"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              autoComplete="new-password"
+              minLength={8}
+              required
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            <button
+              type="button"
+              data-testid="toggle-password-visibility"
+              aria-label={showPassword ? "Hide characters" : "Reveal characters"}
+              aria-pressed={showPassword}
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-0 grid size-11 place-items-center rounded text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+            >
+              {showPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+            </button>
+          </div>
+        </div>
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           {t("reset.confirmPassword")}
           <input

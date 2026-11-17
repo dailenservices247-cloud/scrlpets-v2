@@ -152,6 +152,7 @@ const SIGNED_IN_ROUTES = [
   "/saved",
   "/settings/account",
   "/settings/payouts",
+  "/settings/preferences",
   "/settings/profile",
   "/settings/referrals",
   "/settings/subscription",

@@ -12,13 +12,36 @@ export async function savePreferences(formData: FormData): Promise<{ ok: boolean
     data: { user },
   } = await supabase.auth.getUser();
 
+  const store = await cookies();
+  let existing: Record<string, unknown> = {};
+  const existingRaw = store.get(PREFERENCES_COOKIE)?.value;
+  if (existingRaw) {
+    try {
+      existing = JSON.parse(existingRaw) as Record<string, unknown>;
+    } catch {
+      existing = {};
+    }
+  }
+
   const units = formData.get("units") === "metric" ? "metric" : "imperial";
   const timeFormat = formData.get("timeFormat") === "24h" ? "24h" : "12h";
   const autoplayMedia = String(formData.get("autoplayMedia") ?? "always");
 
-  const prefs = { units, timeFormat, autoplayMedia };
+  const readBoolField = (key: string): boolean => {
+    const raw = formData.get(key);
+    if (raw === null) return Boolean(existing[key]);
+    return raw === "true" || raw === "on" || raw === "1";
+  };
 
-  const store = await cookies();
+  const prefs = {
+    units,
+    timeFormat,
+    autoplayMedia,
+    reduceMotion: readBoolField("reduceMotion"),
+    highContrast: readBoolField("highContrast"),
+    largeText: readBoolField("largeText"),
+  };
+
   store.set(PREFERENCES_COOKIE, JSON.stringify(prefs), {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,

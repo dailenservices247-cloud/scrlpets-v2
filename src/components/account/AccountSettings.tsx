@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LogOut } from "lucide-react";
+import { Eye, EyeOff, LogOut, ShieldOff } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   changeEmail,
@@ -19,6 +19,7 @@ export function AccountSettings({ currentEmail }: { currentEmail: string }) {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function run(key: string, fn: () => Promise<{ ok: boolean; message?: string; error?: string }>) {
     setBusy(key);
@@ -102,17 +103,29 @@ export function AccountSettings({ currentEmail }: { currentEmail: string }) {
           className="mt-3 flex gap-2"
           action={(fd) => run("password", () => changePassword(fd))}
         >
-          <input
-            type="password"
-            name="password"
-            required
-            minLength={8}
-            autoComplete="new-password"
-            placeholder={t("passwordPlaceholder")}
-            aria-label={t("passwordTitle")}
-            data-testid="account-password-input"
-            className="min-h-11 flex-1 rounded-xl border border-input bg-transparent px-3 text-sm"
-          />
+          <div className="relative flex flex-1 items-center">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              placeholder={t("passwordPlaceholder")}
+              aria-label={t("passwordTitle")}
+              data-testid="account-password-input"
+              className="min-h-11 w-full rounded-xl border border-input bg-transparent px-3 pr-12 text-sm"
+            />
+            <button
+              type="button"
+              data-testid="toggle-password-visibility"
+              aria-label={showPassword ? "Hide characters" : "Reveal characters"}
+              aria-pressed={showPassword}
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-0 grid size-11 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+            >
+              {showPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+            </button>
+          </div>
           <button
             type="submit"
             disabled={busy === "password"}
@@ -139,20 +152,32 @@ export function AccountSettings({ currentEmail }: { currentEmail: string }) {
       </section>
 
       <section className="premium-panel rounded-2xl p-4">
-        <h2 className="text-sm font-semibold">Account Session</h2>
+        <h2 className="text-sm font-semibold">Account Session &amp; Active Devices</h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Sign out of Scrlpets on this browser or switch accounts.
+          Sign out of Scrlpets on this browser, or revoke active sessions across all phones and computers.
         </p>
-        <form action="/auth/signout" method="post" className="mt-3">
-          <button
-            type="submit"
-            className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border/70 bg-card/60 px-4 text-sm font-semibold text-muted-foreground transition hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-            data-testid="account-signout"
-          >
-            <LogOut className="size-4" aria-hidden />
-            <span>Sign out</span>
-          </button>
-        </form>
+        <div className="mt-3 flex flex-wrap gap-2.5">
+          <form action="/auth/signout" method="post">
+            <button
+              type="submit"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border/70 bg-card/60 px-4 text-sm font-semibold text-muted-foreground transition hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+              data-testid="account-signout"
+            >
+              <LogOut className="size-4" aria-hidden />
+              <span>Sign out</span>
+            </button>
+          </form>
+          <form action="/auth/signout?scope=global" method="post">
+            <button
+              type="submit"
+              className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-destructive/50 bg-destructive/15 px-4 text-sm font-semibold text-foreground transition hover:bg-destructive/25"
+              data-testid="account-signout-global"
+            >
+              <ShieldOff className="size-4" aria-hidden />
+              <span>Sign out everywhere (all devices)</span>
+            </button>
+          </form>
+        </div>
       </section>
 
       <section className="premium-panel rounded-2xl border-destructive/40 p-4">

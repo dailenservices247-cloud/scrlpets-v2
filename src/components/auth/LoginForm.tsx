@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,31 @@ import { TurnstileWidget } from "@/components/auth/TurnstileWidget";
 import { authSubmitBlocked, captchaEnabled } from "@/lib/auth/captcha";
 
 type Mode = "signin" | "signup";
+
+const SAVED_LOGIN_EMAIL_KEY = "scrlpets_saved_login_email";
+const SAVED_LOGIN_EVENT = "scrlpets:saved-login";
+
+function subscribeSavedEmail(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(SAVED_LOGIN_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(SAVED_LOGIN_EVENT, callback);
+  };
+}
+
+function getSavedEmailSnapshot(): string | null {
+  try {
+    const stored = localStorage.getItem(SAVED_LOGIN_EMAIL_KEY);
+    return stored && stored.trim() ? stored.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+function getSavedEmailServerSnapshot(): string | null {
+  return null;
+}
 
 export function LoginForm({
   currentUserEmail = null,
@@ -48,6 +74,14 @@ export function LoginForm({
   const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const savedEmail = useSyncExternalStore(
+    subscribeSavedEmail,
+    getSavedEmailSnapshot,
+    getSavedEmailServerSnapshot,
+  );
+  const [rememberEmail, setRememberEmail] = useState(true);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<AuthErrorKey | null>(initialError ?? null);
   const [busy, setBusy] = useState(false);
   const [awaitingVerification, setAwaitingVerification] = useState(false);
@@ -55,6 +89,29 @@ export function LoginForm({
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
   const [code, setCode] = useState("");
+
+  function persistRememberedEmail(targetEmail: string) {
+    try {
+      const trimmed = targetEmail.trim();
+      if (rememberEmail && trimmed) {
+        localStorage.setItem(SAVED_LOGIN_EMAIL_KEY, trimmed);
+      } else if (!rememberEmail) {
+        localStorage.removeItem(SAVED_LOGIN_EMAIL_KEY);
+      }
+      window.dispatchEvent(new Event(SAVED_LOGIN_EVENT));
+    } catch {
+      // Ignore storage restrictions.
+    }
+  }
+
+  function forgetSavedEmail() {
+    try {
+      localStorage.removeItem(SAVED_LOGIN_EMAIL_KEY);
+      window.dispatchEvent(new Event(SAVED_LOGIN_EVENT));
+    } catch {
+      // Ignore storage restrictions.
+    }
+  }
 
   /**
    * Supabase redeems the Turnstile token while verifying the request — before
@@ -115,6 +172,7 @@ export function LoginForm({
       capture(FUNNEL_EVENTS.signupCompleted, {
         needsVerification: result.status === "verify",
       });
+      persistRememberedEmail(email);
       if (result.status === "verify") {
         setAwaitingVerification(true);
         return;
@@ -174,6 +232,7 @@ export function LoginForm({
     }
     // A good login un-sticks the counter.
     await supabase.rpc("clear_login_failures", { target_email: email });
+    persistRememberedEmail(email);
     capture(FUNNEL_EVENTS.signedIn, { method: "password" });
 
     router.push(nextPath);
@@ -266,16 +325,17 @@ export function LoginForm({
       return;
     }
     await supabase.rpc("clear_login_failures", { target_email: email });
+    persistRememberedEmail(email);
     capture(FUNNEL_EVENTS.signedIn, { method: "email_code" });
     router.push(nextPath);
     router.refresh();
   }
 
-  async function signInGoogle() {
+  async function signInOAuth(provider: "google" | "apple") {
     setError(null);
     setBusy(true);
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider,
       options: { redirectTo: callbackUrl() },
     });
     if (oauthError) {
@@ -457,6 +517,38 @@ export function LoginForm({
         </p>
       )}
 
+      {mode === "signin" && savedEmail && email !== savedEmail && (
+        <div
+          className="flex items-center justify-between gap-2 rounded-xl border border-border/70 bg-card/60 p-3"
+          data-testid="saved-login-card"
+        >
+          <button
+            type="button"
+            data-testid="saved-login-use"
+            onClick={() => {
+              setEmail(savedEmail);
+              setError(null);
+              requestAnimationFrame(() => passwordInputRef.current?.focus());
+            }}
+            className="flex min-h-11 flex-1 flex-col justify-center rounded-lg px-2 text-left transition hover:bg-muted/50"
+          >
+            <span className="text-micro font-semibold uppercase tracking-wide text-brand-link">
+              Saved on this device
+            </span>
+            <span className="truncate text-sm font-medium text-foreground">{savedEmail}</span>
+          </button>
+          <button
+            type="button"
+            data-testid="saved-login-forget"
+            aria-label="Forget saved account"
+            onClick={forgetSavedEmail}
+            className="grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+          >
+            <X className="size-4" aria-hidden />
+          </button>
+        </div>
+      )}
+
       <form onSubmit={submitEmail} className="flex flex-col gap-3">
         <label className="flex flex-col gap-1.5 text-sm font-medium">
           {t("email")}
@@ -471,20 +563,36 @@ export function LoginForm({
             onChange={(event) => setEmail(event.target.value)}
           />
         </label>
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
-          {t("password")}
-          <input
-            className="min-h-11 rounded border border-input bg-transparent p-2"
-            type="password"
-            name="password"
-            autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            required
-            minLength={mode === "signup" ? PASSWORD_MIN_LENGTH : undefined}
-            aria-describedby={mode === "signup" ? "password-rule" : undefined}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </label>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="auth-password-input" className="text-sm font-medium">
+            {t("password")}
+          </label>
+          <div className="relative flex items-center">
+            <input
+              id="auth-password-input"
+              ref={passwordInputRef}
+              className="min-h-11 w-full rounded border border-input bg-transparent p-2 pr-12"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              required
+              minLength={mode === "signup" ? PASSWORD_MIN_LENGTH : undefined}
+              aria-describedby={mode === "signup" ? "password-rule" : undefined}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            <button
+              type="button"
+              data-testid="toggle-password-visibility"
+              aria-label={showPassword ? "Hide characters" : "Reveal characters"}
+              aria-pressed={showPassword}
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-0 grid size-11 place-items-center rounded text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+            >
+              {showPassword ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+            </button>
+          </div>
+        </div>
         {/* Stated before submitting, not discovered afterwards. The server
             action enforces exactly this sentence. */}
         {mode === "signup" && (
@@ -539,6 +647,19 @@ export function LoginForm({
             {t("ageConfirmation")}
           </label>
         )}
+        {mode === "signin" && (
+          <label className="flex min-h-11 items-center gap-3 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              name="remember-email"
+              data-testid="auth-remember-email"
+              className="size-5 shrink-0 accent-primary"
+              checked={rememberEmail}
+              onChange={(event) => setRememberEmail(event.target.checked)}
+            />
+            <span>Remember email on this device</span>
+          </label>
+        )}
         {error && <AuthError error={error} />}
         <TurnstileWidget onToken={setCaptchaToken} resetKey={captchaNonce} />
         <Button
@@ -579,9 +700,28 @@ export function LoginForm({
         </>
       )}
 
-      <Button className="min-h-11" variant="secondary" disabled={busy} onClick={signInGoogle}>
-        {t("google")}
-      </Button>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <Button
+          className="min-h-11"
+          variant="secondary"
+          type="button"
+          disabled={busy}
+          onClick={() => signInOAuth("google")}
+          data-testid="auth-google"
+        >
+          {t("google")}
+        </Button>
+        <Button
+          className="min-h-11"
+          variant="secondary"
+          type="button"
+          disabled={busy}
+          onClick={() => signInOAuth("apple")}
+          data-testid="auth-apple"
+        >
+          {t("apple")}
+        </Button>
+      </div>
 
       <p className="text-center text-xs leading-5 text-muted-foreground">
         {t.rich("legal", {
@@ -603,7 +743,7 @@ export function LoginForm({
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 p-6">
+    <main id="main-content" tabIndex={-1} className="mx-auto flex max-w-md flex-col gap-4 p-6 outline-none">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/brand/scrlpets-mark-full.png"

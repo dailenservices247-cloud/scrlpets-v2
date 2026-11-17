@@ -450,10 +450,14 @@ export function VerificationPanel({
             }}
           >
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label
+                htmlFor="standing-deposit-policy"
+                className="mb-1 block text-xs font-medium text-muted-foreground"
+              >
                 Deposit Policy
               </label>
               <select
+                id="standing-deposit-policy"
                 value={depositPolicy}
                 onChange={(e) => setDepositPolicy(e.target.value)}
                 disabled={isPolicyLocked}
@@ -464,10 +468,14 @@ export function VerificationPanel({
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label
+                htmlFor="standing-deposit-percent"
+                className="mb-1 block text-xs font-medium text-muted-foreground"
+              >
                 Standard Deposit Percentage (%)
               </label>
               <input
+                id="standing-deposit-percent"
                 type="number"
                 min={5}
                 max={50}
@@ -478,10 +486,14 @@ export function VerificationPanel({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label
+                htmlFor="standing-policy-terms"
+                className="mb-1 block text-xs font-medium text-muted-foreground"
+              >
                 Standard Contract Terms & Disclosure
               </label>
               <textarea
+                id="standing-policy-terms"
                 rows={3}
                 value={policyTerms}
                 onChange={(e) => setPolicyTerms(e.target.value)}

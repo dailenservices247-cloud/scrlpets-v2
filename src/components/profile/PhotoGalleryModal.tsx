@@ -171,11 +171,12 @@ export function PhotoGalleryModal({
           </div>
         </div>
 
-        {/* Album Selector Tabs (when multiple albums exist) */}
+        {/* Album Selector Filters (when multiple albums exist) */}
         {albums.length > 1 && (
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Photo Albums">
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Photo Albums">
             <button
               type="button"
+              aria-pressed={selectedAlbumId === "all"}
               onClick={() => {
                 setSelectedAlbumId("all");
                 setCurrentIndex(0);
@@ -194,6 +195,7 @@ export function PhotoGalleryModal({
                 <button
                   key={album.id}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => {
                     setSelectedAlbumId(album.id);
                     setCurrentIndex(0);

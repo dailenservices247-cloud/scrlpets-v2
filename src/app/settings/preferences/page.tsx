@@ -21,6 +21,9 @@ export default async function PreferencesSettingsPage() {
   let initialUnits: "imperial" | "metric" = "imperial";
   let initialTimeFormat: "12h" | "24h" = "12h";
   let initialAutoplay: "always" | "wifi" | "never" = "always";
+  let initialReduceMotion = false;
+  let initialHighContrast = false;
+  let initialLargeText = false;
 
   const rawPrefs = store.get(PREFERENCES_COOKIE)?.value;
   if (rawPrefs) {
@@ -29,6 +32,9 @@ export default async function PreferencesSettingsPage() {
       if (parsed.units) initialUnits = parsed.units;
       if (parsed.timeFormat) initialTimeFormat = parsed.timeFormat;
       if (parsed.autoplayMedia) initialAutoplay = parsed.autoplayMedia;
+      initialReduceMotion = Boolean(parsed.reduceMotion);
+      initialHighContrast = Boolean(parsed.highContrast);
+      initialLargeText = Boolean(parsed.largeText);
     } catch {
       // Keep defaults
     }
@@ -69,6 +75,9 @@ export default async function PreferencesSettingsPage() {
           initialUnits={initialUnits}
           initialTimeFormat={initialTimeFormat}
           initialAutoplay={initialAutoplay}
+          initialReduceMotion={initialReduceMotion}
+          initialHighContrast={initialHighContrast}
+          initialLargeText={initialLargeText}
           initialSpecies={userSpecies}
         />
       </div>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Globe, Ruler, Clock, Video, Heart, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Globe, Ruler, Clock, Video, Heart, Check, Accessibility } from "lucide-react";
 import { setLocale } from "@/lib/i18n/actions";
 import { LOCALES, type Locale } from "@/lib/i18n/locale";
 import { savePreferences } from "@/lib/settings/actions";
@@ -25,21 +26,42 @@ export function PreferencesForm({
   initialUnits = "imperial",
   initialTimeFormat = "12h",
   initialAutoplay = "always",
+  initialReduceMotion = false,
+  initialHighContrast = false,
+  initialLargeText = false,
   initialSpecies = [],
 }: {
   currentLocale: Locale;
   initialUnits?: "imperial" | "metric";
   initialTimeFormat?: "12h" | "24h";
   initialAutoplay?: "always" | "wifi" | "never";
+  initialReduceMotion?: boolean;
+  initialHighContrast?: boolean;
+  initialLargeText?: boolean;
   initialSpecies?: string[];
 }) {
+  const router = useRouter();
   const [locale, setChosenLocale] = useState<Locale>(currentLocale);
   const [units, setUnits] = useState<"imperial" | "metric">(initialUnits);
   const [timeFormat, setTimeFormat] = useState<"12h" | "24h">(initialTimeFormat);
   const [autoplay, setAutoplay] = useState<"always" | "wifi" | "never">(initialAutoplay);
+  const [reduceMotion, setReduceMotion] = useState(initialReduceMotion);
+  const [highContrast, setHighContrast] = useState(initialHighContrast);
+  const [largeText, setLargeText] = useState(initialLargeText);
   const [species, setSpecies] = useState<string[]>(initialSpecies);
   const [savedNotice, setSavedNotice] = useState(false);
   const [pending, startTransition] = useTransition();
+
+  function syncA11yDataset(next: { reduceMotion: boolean; highContrast: boolean; largeText: boolean }) {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    if (next.reduceMotion) root.dataset.reduceMotion = "true";
+    else delete root.dataset.reduceMotion;
+    if (next.highContrast) root.dataset.highContrast = "true";
+    else delete root.dataset.highContrast;
+    if (next.largeText) root.dataset.largeText = "true";
+    else delete root.dataset.largeText;
+  }
 
   async function handleLocaleChange(newLocale: Locale) {
     setChosenLocale(newLocale);
@@ -63,12 +85,17 @@ export function PreferencesForm({
     fd.set("units", units);
     fd.set("timeFormat", timeFormat);
     fd.set("autoplayMedia", autoplay);
+    fd.set("reduceMotion", String(reduceMotion));
+    fd.set("highContrast", String(highContrast));
+    fd.set("largeText", String(largeText));
     for (const s of species) {
       fd.append("speciesInterests", s);
     }
     startTransition(async () => {
       await savePreferences(fd);
+      syncA11yDataset({ reduceMotion, highContrast, largeText });
       setSavedNotice(true);
+      router.refresh();
       setTimeout(() => setSavedNotice(false), 3000);
     });
   }
@@ -241,7 +268,95 @@ export function PreferencesForm({
         </div>
       </section>
 
-      {/* 5. Species Interests & Program Focus */}
+      {/* 5. Accessibility & Visual Comfort */}
+      <section
+        className="premium-panel rounded-2xl p-4 sm:p-5"
+        data-testid="preferences-accessibility-section"
+      >
+        <div className="flex items-center gap-2">
+          <Accessibility className="size-4.5 text-brand-link" aria-hidden />
+          <h2 className="text-sm font-bold text-foreground">Accessibility & Visual Comfort</h2>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Adjust motion, text scale, and contrast levels across every feed, modal, and record screen.
+        </p>
+
+        <div className="mt-3.5 flex flex-col gap-2.5">
+          {(
+            [
+              {
+                testId: "pref-reduce-motion",
+                label: "Reduce Motion & Animations",
+                description:
+                  "Minimizes page transitions, feed motion effects, and smooth-scroll animations.",
+                checked: reduceMotion,
+                onToggle: () => {
+                  const next = !reduceMotion;
+                  setReduceMotion(next);
+                  syncA11yDataset({ reduceMotion: next, highContrast, largeText });
+                },
+              },
+              {
+                testId: "pref-high-contrast",
+                label: "High Contrast Text & Borders",
+                description:
+                  "Boosts muted captions and card dividers for stronger legibility across dark surfaces.",
+                checked: highContrast,
+                onToggle: () => {
+                  const next = !highContrast;
+                  setHighContrast(next);
+                  syncA11yDataset({ reduceMotion, highContrast: next, largeText });
+                },
+              },
+              {
+                testId: "pref-large-text",
+                label: "Larger Reading Text",
+                description:
+                  "Scales post body copy, controls, metadata, and micro labels up across the app.",
+                checked: largeText,
+                onToggle: () => {
+                  const next = !largeText;
+                  setLargeText(next);
+                  syncA11yDataset({ reduceMotion, highContrast, largeText: next });
+                },
+              },
+            ] as const
+          ).map((item) => (
+            <button
+              key={item.testId}
+              type="button"
+              role="switch"
+              aria-checked={item.checked}
+              onClick={item.onToggle}
+              data-testid={item.testId}
+              className={cn(
+                "flex min-h-14 items-center justify-between gap-3 rounded-xl border p-3.5 text-left transition",
+                item.checked
+                  ? "border-primary/70 bg-primary/15 text-foreground"
+                  : "border-border/70 bg-card/60 text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+              )}
+            >
+              <div>
+                <div className="text-xs font-bold text-foreground">{item.label}</div>
+                <div className="mt-0.5 text-micro text-muted-foreground">{item.description}</div>
+              </div>
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "shrink-0 rounded-full px-2.5 py-1 text-micro font-semibold",
+                  item.checked
+                    ? "bg-primary text-primary-foreground"
+                    : "border border-border/70 bg-background/70 text-muted-foreground",
+                )}
+              >
+                {item.checked ? "On" : "Off"}
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* 6. Species Interests & Program Focus */}
       <section className="premium-panel rounded-2xl p-4 sm:p-5">
         <div className="flex items-center gap-2">
           <Heart className="size-4.5 text-primary" />

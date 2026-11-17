@@ -244,8 +244,8 @@ async function SuppliesTab({
         </p>
       )}
 
-      {/* Source filter tabs */}
-      <div className="flex gap-2 overflow-x-auto px-4 pt-2" role="tablist" aria-label="Supply Source">
+      {/* Source filter links */}
+      <nav className="flex gap-2 overflow-x-auto px-4 pt-2" aria-label="Supply Source">
         {sourceTabs.map((s) => {
           const active = (source || "all") === s.key;
           const href = `/market?tab=supplies${category ? `&category=${encodeURIComponent(category)}` : ""}${s.key !== "all" ? `&source=${s.key}` : ""}`;
@@ -262,7 +262,7 @@ async function SuppliesTab({
             </Link>
           );
         })}
-      </div>
+      </nav>
 
       {categories.length > 0 && (
         <nav className="flex gap-2 overflow-x-auto px-4 pb-2 pt-3" aria-label={t("categories")}>

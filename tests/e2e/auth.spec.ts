@@ -201,3 +201,87 @@ test("a code request never reveals whether the account exists", async ({ page })
     "code_invalid",
   );
 });
+
+test("login offers password visibility toggle, remember email, saved quick-fill, and Apple OAuth", async ({
+  page,
+}) => {
+  await page.goto("/login");
+
+  const passwordInput = page.getByLabel("Password");
+  const toggleBtn = page.getByTestId("toggle-password-visibility");
+  await expect(passwordInput).toHaveAttribute("type", "password");
+  await expect(toggleBtn).toHaveAttribute("aria-pressed", "false");
+  await toggleBtn.click();
+  await expect(passwordInput).toHaveAttribute("type", "text");
+  await expect(toggleBtn).toHaveAttribute("aria-pressed", "true");
+  await toggleBtn.click();
+  await expect(passwordInput).toHaveAttribute("type", "password");
+
+  await expect(page.getByTestId("auth-remember-email")).toBeChecked();
+  await expect(page.getByTestId("auth-google")).toBeVisible();
+  await expect(page.getByTestId("auth-apple")).toBeVisible();
+
+  await page.evaluate(() => localStorage.setItem("scrlpets_saved_login_email", "saved@scrlpets.test"));
+  await page.reload();
+  await expect(page.getByTestId("saved-login-card")).toBeVisible();
+  await page.getByTestId("saved-login-use").click();
+  await expect(page.getByLabel("Email address")).toHaveValue("saved@scrlpets.test");
+  await expect(page.getByLabel("Password")).toBeFocused();
+
+  await page.getByLabel("Email address").fill("");
+  await expect(page.getByTestId("saved-login-card")).toBeVisible();
+  await page.getByTestId("saved-login-forget").click();
+  await expect(page.getByTestId("saved-login-card")).toHaveCount(0);
+});
+
+test("skip-to-main link works and accessibility toggles persist across reloads", async ({ page }) => {
+  await page.goto("/login");
+  const skipLink = page.getByTestId("skip-to-main");
+  await expect(skipLink).toHaveAttribute("href", "#main-content");
+  await expect(page.locator("#main-content")).toBeVisible();
+
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
+  await page.waitForURL("http://localhost:3000/");
+
+  await page.goto("/settings/preferences");
+  await expect(page.getByTestId("preferences-accessibility-section")).toBeVisible();
+
+  await page.getByTestId("pref-reduce-motion").click();
+  await page.getByTestId("pref-high-contrast").click();
+  await page.getByTestId("pref-large-text").click();
+  await page.getByTestId("save-preferences-btn").click();
+  await expect(page.getByText(/Preferences updated and saved/i)).toBeVisible();
+
+  await page.reload();
+  const html = page.locator("html");
+  await expect(html).toHaveAttribute("data-reduce-motion", "true");
+  await expect(html).toHaveAttribute("data-high-contrast", "true");
+  await expect(html).toHaveAttribute("data-large-text", "true");
+
+  // Clean up accessibility toggles so shared browser state stays default
+  await page.getByTestId("pref-reduce-motion").click();
+  await page.getByTestId("pref-high-contrast").click();
+  await page.getByTestId("pref-large-text").click();
+  await page.getByTestId("save-preferences-btn").click();
+  await expect(page.getByText(/Preferences updated and saved/i)).toBeVisible();
+});
+
+test("account settings offers password visibility toggle and sign out everywhere", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill(SELLER_EMAIL);
+  await page.getByLabel("Password").fill(process.env.E2E_PASSWORD!);
+  await page.getByTestId("auth-submit").click();
+  await page.waitForURL("http://localhost:3000/");
+
+  await page.goto("/settings/account");
+  const accountPw = page.getByTestId("account-password-input");
+  const toggleBtn = page.getByTestId("toggle-password-visibility");
+  await expect(accountPw).toHaveAttribute("type", "password");
+  await toggleBtn.click();
+  await expect(accountPw).toHaveAttribute("type", "text");
+
+  await expect(page.getByTestId("account-signout")).toBeVisible();
+  await expect(page.getByTestId("account-signout-global")).toBeVisible();
+});

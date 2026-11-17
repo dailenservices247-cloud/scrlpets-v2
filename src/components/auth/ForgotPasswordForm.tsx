@@ -41,7 +41,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <main className="p-6">
+    <main id="main-content" tabIndex={-1} className="p-6 outline-none">
       <Link href="/login" className="text-sm text-brand-link underline">
         {t("backToSignIn")}
       </Link>

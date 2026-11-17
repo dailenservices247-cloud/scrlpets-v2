@@ -72,8 +72,8 @@ export function ApplicationList({
 
   return (
     <div className="space-y-3">
-      {/* Inbox filter tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Application Status">
+      {/* Inbox filter pills */}
+      <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Application Status">
         {(["all", "pending", "accepted", "closed"] as const).map((tab) => {
           const active = activeTab === tab;
           const labels: Record<FilterTab, string> = {
@@ -86,6 +86,7 @@ export function ApplicationList({
             <button
               key={tab}
               type="button"
+              aria-pressed={active}
               onClick={() => setActiveTab(tab)}
               className={`min-h-9 shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${
                 active

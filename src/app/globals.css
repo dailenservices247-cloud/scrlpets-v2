@@ -233,3 +233,32 @@
     animation-delay: 0s !important;
   }
 }
+
+/* Persisted user accessibility overrides from PREFERENCES_COOKIE (v0.4.8) */
+html[data-reduce-motion="true"],
+html[data-reduce-motion="true"] * {
+  scroll-behavior: auto !important;
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+}
+
+html[data-reduce-motion="true"] ::view-transition-group(*),
+html[data-reduce-motion="true"] ::view-transition-old(*),
+html[data-reduce-motion="true"] ::view-transition-new(*) {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+html[data-high-contrast="true"] {
+  --muted-foreground: #d8d8d2;
+  --border: #76777a;
+}
+
+html[data-large-text="true"] {
+  --text-display: 30px;
+  --text-title: 22px;
+  --text-body: 18px;
+  --text-ui: 16px;
+  --text-meta: 15px;
+  --text-micro: 14px;
+}

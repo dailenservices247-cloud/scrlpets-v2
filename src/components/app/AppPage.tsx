@@ -60,7 +60,12 @@ export async function AppPage({
             {header}
           </AppHeader>
         )}
-        <main className={"w-full flex-1 " + (showBottomNav ? "" : "pb-6")} data-testid="app-shell">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className={"w-full flex-1 outline-none " + (showBottomNav ? "" : "pb-6")}
+          data-testid="app-shell"
+        >
           {children}
         </main>
         {/* Clears the fixed BottomNav itself, which is why main no longer carries pb-24. */}

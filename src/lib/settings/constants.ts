@@ -5,6 +5,9 @@ export type UserPreferences = {
   units: "imperial" | "metric";
   timeFormat: "12h" | "24h";
   autoplayMedia: "always" | "wifi" | "never";
+  reduceMotion?: boolean;
+  highContrast?: boolean;
+  largeText?: boolean;
 };
 
 export type NotificationPreferences = {
